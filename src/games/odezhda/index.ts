@@ -3,6 +3,7 @@ import { centre, showDrag } from "../../shared/guide";
 import { character } from "../../shared/assets";
 import { el, replayClass } from "../../shared/dom";
 import { draggable } from "../../shared/drag";
+import { createScope } from "../../shared/lifecycle";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
 import { shuffle } from "../../shared/rng";
 import { useStyles } from "../../shared/style";
@@ -69,7 +70,7 @@ function play(stage: HTMLElement, level: OdezhdaLevel, _index: number, api: Play
   scene.style.background = WEATHER_BG[level.weather];
 
   const tray = el("div", { class: "od-tray" });
-  const stops: Array<() => void> = [];
+  const scope = createScope();
   for (const id of shuffle([...level.wear, ...level.extra])) {
     const item = ITEMS[id]!;
     const good = level.wear.includes(id);
@@ -82,7 +83,7 @@ function play(stage: HTMLElement, level: OdezhdaLevel, _index: number, api: Play
       [svgNode(iconSvg(item), "od-item__art"), el("span", { class: "od-item__name", text: item.name })],
     );
     tray.append(node);
-    stops.push(
+    scope.add(
       draggable(node, {
         onStart: () => {
           audio.unlock();
@@ -138,7 +139,5 @@ function play(stage: HTMLElement, level: OdezhdaLevel, _index: number, api: Play
     misses++;
     replayClass(node, "is-hinted");
   });
-  return () => {
-    for (const stop of stops) stop();
-  };
+  return scope.dispose;
 }

@@ -2,6 +2,7 @@ import { audio } from "../../shared/audio";
 import { centre, showDrag } from "../../shared/guide";
 import { el, replayClass } from "../../shared/dom";
 import { centerOf, draggable, nearestWithin } from "../../shared/drag";
+import { createScope } from "../../shared/lifecycle";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
 import { OBJECTS, type ObjectId } from "../../shared/objects";
 import { shuffle } from "../../shared/rng";
@@ -62,14 +63,14 @@ function play(stage: HTMLElement, level: SortLevel, _index: number, api: PlayApi
 
   const order = shuffle(level.baskets.flatMap((b) => b.items));
   const table = el("div", { class: "so-table" });
-  const stops: Array<() => void> = [];
+  const scope = createScope();
   const items = new Map<ObjectId, HTMLElement>();
   for (const id of order) {
     const obj = OBJECTS[id];
     const node = el("div", { class: "so-item", attrs: { "data-id": id, role: "img", "aria-label": obj.name } }, [svgNode(obj.svg, "so-item__art")]);
     items.set(id, node);
     table.append(node);
-    stops.push(
+    scope.add(
       draggable(node, {
         onStart: () => {
           audio.unlock();
@@ -85,9 +86,9 @@ function play(stage: HTMLElement, level: SortLevel, _index: number, api: PlayApi
           const result = judge(level, id, target);
           if (result === "placed") {
             sorted.add(id);
-            const basket = baskets.get(target!)!;
-            basket.querySelector(".so-basket__in")!.append(svgNode(obj.svg, "so-basket__thing"));
-            replayClass(basket, "is-got");
+            const basket = target ? baskets.get(target) : undefined;
+            basket?.querySelector(".so-basket__in")?.append(svgNode(obj.svg, "so-basket__thing"));
+            if (basket) replayClass(basket, "is-got");
             node.classList.add("is-placed");
             audio.play("snap");
             if (sorted.size === count) {
@@ -99,10 +100,10 @@ function play(stage: HTMLElement, level: SortLevel, _index: number, api: PlayApi
           if (result === "wrong") {
             misses++;
             audio.play("miss");
-            const basket = baskets.get(target!)!;
-            replayClass(basket, "is-wrong");
-            const own = level.baskets.find((b) => b.id === basketOf(level, id))!;
-            hint(stage, `${obj.name} — не сюда. Ищи корзинку «${own.name}»!`, 2200);
+            const basket = target ? baskets.get(target) : undefined;
+            if (basket) replayClass(basket, "is-wrong");
+            const own = level.baskets.find((b) => b.id === basketOf(level, id));
+            hint(stage, own ? `${obj.name} — не сюда. Ищи корзинку «${own.name}»!` : `${obj.name} — не сюда.`, 2200);
           }
           return false;
         },
@@ -137,7 +138,5 @@ function play(stage: HTMLElement, level: SortLevel, _index: number, api: PlayApi
     }
   });
 
-  return () => {
-    for (const stop of stops) stop();
-  };
+  return scope.dispose;
 }

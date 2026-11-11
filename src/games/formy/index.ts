@@ -6,6 +6,7 @@ import { draggable, type Point } from "../../shared/drag";
 import { createScope } from "../../shared/lifecycle";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
 import { OBJECTS } from "../../shared/objects";
+import { shuffle } from "../../shared/rng";
 import { reducedMotion, useStyles } from "../../shared/style";
 import { svgNode } from "../../shared/ui";
 import baseCss from "../../shared/base.css?inline";
@@ -49,15 +50,6 @@ function pyramidThumb(n: number): string {
     rings += `<rect x="${50 - w / 2}" y="${y - 70 / n}" width="${w}" height="${70 / n - 1}" rx="${35 / n}" fill="${RING_COLORS[(r - 1) % RING_COLORS.length]}" stroke="#3b2e25" stroke-width="2.5"/>`;
   }
   return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect x="47" y="8" width="6" height="80" rx="3" fill="#c48a4a"/>${rings}</svg>`;
-}
-
-function shuffle<T>(list: T[]): T[] {
-  const a = list.slice();
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j]!, a[i]!];
-  }
-  return a;
 }
 
 

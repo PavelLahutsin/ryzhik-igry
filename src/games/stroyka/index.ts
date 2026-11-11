@@ -4,6 +4,7 @@ import { el, replayClass } from "../../shared/dom";
 import { draggable, type Point } from "../../shared/drag";
 import { createScope } from "../../shared/lifecycle";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
+import { shuffle } from "../../shared/rng";
 import { reducedMotion, useStyles } from "../../shared/style";
 import { svgNode } from "../../shared/ui";
 import { centre, showDrag } from "../../shared/guide";
@@ -50,15 +51,6 @@ function thumb(plan: Plan): HTMLElement {
 }
 
 const keyOf = (p: Pick<Piece, "kind" | "color" | "w" | "h" | "n">): string => `${p.kind}-${p.color}-${p.w}x${p.h}-${p.n ?? 0}`;
-
-function shuffle<T>(list: T[]): T[] {
-  const a = list.slice();
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j]!, a[i]!];
-  }
-  return a;
-}
 
 
 function play(stage: HTMLElement, plan: Plan, _index: number, api: PlayApi): () => void {

@@ -2,6 +2,7 @@ import { audio } from "../../shared/audio";
 import { centre, showDrag } from "../../shared/guide";
 import { el } from "../../shared/dom";
 import { draggable } from "../../shared/drag";
+import { createScope } from "../../shared/lifecycle";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
 import { useStyles } from "../../shared/style";
 import { hint } from "../../shared/ui";
@@ -51,7 +52,7 @@ function play(stage: HTMLElement, level: MozaikaLevel, _index: number, api: Play
     return slot;
   });
 
-  const stops: Array<() => void> = [];
+  const scope = createScope();
   const nodes = pieces.map((piece) => {
     const node = el("div", {
       class: "mz-piece",
@@ -59,7 +60,7 @@ function play(stage: HTMLElement, level: MozaikaLevel, _index: number, api: Play
     });
     node.style.backgroundImage = `url("${url}")`;
     area.append(node);
-    stops.push(
+    scope.add(
       draggable(node, {
         onStart: () => {
           audio.unlock();
@@ -164,10 +165,8 @@ function play(stage: HTMLElement, level: MozaikaLevel, _index: number, api: Play
 
   const observer = new ResizeObserver(() => relayout());
   observer.observe(area);
+  scope.add(() => observer.disconnect());
   requestAnimationFrame(relayout);
 
-  return () => {
-    observer.disconnect();
-    for (const stop of stops) stop();
-  };
+  return scope.dispose;
 }

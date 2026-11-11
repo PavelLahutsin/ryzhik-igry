@@ -2,6 +2,7 @@ import { audio } from "../../shared/audio";
 import { centre, showDrag } from "../../shared/guide";
 import { el, replayClass } from "../../shared/dom";
 import { centerOf, draggable, nearestWithin } from "../../shared/drag";
+import { createScope } from "../../shared/lifecycle";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
 import { shuffle } from "../../shared/rng";
 import { useStyles } from "../../shared/style";
@@ -63,13 +64,13 @@ function play(stage: HTMLElement, level: TeniLevel, _index: number, api: PlayApi
   }
 
   const tray = el("div", { class: "tn-tray" });
-  const stops: Array<() => void> = [];
+  const scope = createScope();
   for (const t of shuffle(things)) {
     const item = el("div", { class: "tn-item", attrs: { "data-id": t.id, role: "img", "aria-label": t.name } }, [
       art(t, "tn-item__art"),
     ]);
     tray.append(item);
-    stops.push(
+    scope.add(
       draggable(item, {
         onStart: () => {
           audio.unlock();
@@ -97,8 +98,8 @@ function play(stage: HTMLElement, level: TeniLevel, _index: number, api: PlayApi
           if (result === "wrong") {
             misses++;
             audio.play("miss");
-            const shadow = shadows.get(target!)!;
-            replayClass(shadow, "is-wrong");
+            const shadow = target ? shadows.get(target) : undefined;
+            if (shadow) replayClass(shadow, "is-wrong");
             hint(stage, `Это не тень: ${t.name.toLowerCase()}. Попробуй другую!`);
           }
           return false;
@@ -135,7 +136,5 @@ function play(stage: HTMLElement, level: TeniLevel, _index: number, api: PlayApi
       replayClass(node, "is-hinted");
     }
   });
-  return () => {
-    for (const stop of stops) stop();
-  };
+  return scope.dispose;
 }
