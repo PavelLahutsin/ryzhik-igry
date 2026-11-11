@@ -8,6 +8,7 @@ import { whenIdle } from "./guide";
 import { afterHowTo } from "./howto";
 import { LEVEL_TIPS } from "./tips-data";
 import { clearTips, tipOnce } from "./tips";
+import { loadSeen, markSeen } from "./seen";
 import { newStickers, stickerArt, type Sticker } from "./stickers";
 
 export type LevelInfo = {
@@ -94,13 +95,15 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
         navigateGame(def.id, "/", { replace: true });
         return;
       }
-      void store.load().then((progress) => {
+      void Promise.all([store.load(), loadSeen()]).then(([progress, seen]) => {
         if (mine !== token) return;
         if (!isUnlocked(ids, level.id, progress.completed)) {
           navigateGame(def.id, "/", { replace: true });
           return;
         }
-        cleanup = renderPlay(level, index, index === 0 && !progress.completed.includes(level.id));
+        // The guided start runs once per game (again after «Показать подсказки снова»).
+        const tutorial = index === 0 && !progress.completed.includes(level.id) && !seen.tips.includes(`tutorial:${def.id}`);
+        cleanup = renderPlay(level, index, tutorial);
       });
       document.body.dataset.route = "play";
       return;
@@ -316,6 +319,7 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
         if (++moves < 2) return;
         stage.removeEventListener("pointerup", onUp);
         document.body.classList.remove("is-tutorial");
+        void markSeen("tips", `tutorial:${def.id}`);
         timers.push(window.setTimeout(() => !won && !hintBtn.hidden && tipOnce("hint-lamp", hintBtn, "Лампочка подскажет, если трудно"), 600));
       };
       stage.addEventListener("pointerup", onUp);
