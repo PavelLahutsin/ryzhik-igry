@@ -120,6 +120,27 @@ function play(stage: HTMLElement, plan: Plan, _index: number, api: PlayApi): () 
 
   stage.append(el("div", { class: "sk-layout" }, [guide, site, tray]));
 
+  // A big model on a small phone: shrink the blocks a little until the whole
+  // tray is on screen (the CSS size stays when everything fits).
+  const fitTray = (): void => {
+    tray.style.removeProperty("--cell");
+    // Measure a block still in the tray (placed ones live on the board).
+    const first = blockNodes.find((b) => b.node.parentElement === tray);
+    if (!first || first.node.offsetHeight === 0) return;
+    let cell = first.node.offsetHeight / first.block.h;
+    // The tray's own box may grow past the screen, so check both.
+    const spills = (): boolean => tray.scrollHeight > tray.clientHeight + 1 || tray.getBoundingClientRect().bottom > window.innerHeight + 1;
+    // Not below 32px (with the 6px touch margin still a 44px target).
+    while (spills() && cell > 32) {
+      cell = Math.max(32, cell - 2);
+      tray.style.setProperty("--cell", `${cell}px`);
+    }
+  };
+  // Watch the stage (the screen), not the tray, whose size this changes.
+  const trayObserver = new ResizeObserver(() => fitTray());
+  trayObserver.observe(stage);
+  scope.add(() => trayObserver.disconnect());
+
   function drop(node: HTMLElement, block: Piece, c: Point): boolean {
     if (finished) return false;
     const r = board.getBoundingClientRect();
