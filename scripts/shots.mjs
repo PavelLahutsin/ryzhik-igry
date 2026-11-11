@@ -446,6 +446,20 @@ await page("62-formy-family", "#/formy/play/2", (p) => sortAll(p, 3), ["formy", 
 await page("63-formy-pyramid", "#/formy/play/5", (p) => sortAll(p, 4), ["formy", FORMY]);
 await page("64-formy-sorter", "#/formy/play/11", (p) => sortAll(p, 2), ["formy", FORMY]);
 await page("65-formy-things", "#/formy/play/8", (p) => sortAll(p, 3), ["formy", FORMY]);
+await page("66-stroyka-rocket", "#/stroyka/play/6", async (p) => {
+  await buildAll(p);
+  await p.waitForTimeout(900);
+}, ["stroyka", STROYKA]);
+
+// v3.1: after a pause a hand shows the next move (caught mid-way).
+const waitHand = (p) => p.waitForSelector(".guide-hand", { timeout: 9000 }).then(() => p.waitForTimeout(900));
+await page("67-idle-professii", "#/professii/play/1", waitHand);
+await page("68-idle-stroyka", "#/stroyka/play/1", waitHand);
+await page("69-idle-tochki", "#/tochki/play/1", async (p) => {
+  await joinDots(p, 2);
+  await waitHand(p);
+});
+await page("70-idle-kuhnya", "#/kuhnya", waitHand);
 
 await browser.close();
 if (errors.length) {

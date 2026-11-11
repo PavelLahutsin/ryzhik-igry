@@ -17,6 +17,7 @@ import {
   starsFor,
   tapThing,
   type Step,
+  sceneFit,
 } from "./logic";
 
 const steps: Step[] = [
@@ -144,5 +145,16 @@ describe("professii levels", () => {
       expect(l.things.filter((t) => t.danger)).toHaveLength(5);
       for (const t of l.things) expect(scene, t.id).toContain(`data-thing="${t.id}"`);
     }
+  });
+});
+
+describe("sceneFit", () => {
+  it("keeps the 5:4 shape on a wide screen", () => {
+    expect(sceneFit(1000, 500)).toEqual({ width: 625, height: 500, viewBox: "0 0 1000 800" });
+  });
+  it("fills a tall phone, showing more wall above than floor below", () => {
+    const f = sceneFit(360, 576); // 1000 × 1600 in scene units
+    expect(f).toMatchObject({ width: 360, height: 576 });
+    expect(f.viewBox).toBe("0 -480.0 1000 1600.0");
   });
 });

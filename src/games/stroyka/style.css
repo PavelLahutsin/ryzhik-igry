@@ -335,3 +335,33 @@
     animation: none !important;
   }
 }
+
+/* Phone held upright: the building site is as tall as the model needs,
+   and the blocks get the rest of the screen (bigger blocks). */
+@media (max-aspect-ratio: 5/4) {
+  .sk-layout {
+    grid-template-rows: auto minmax(0, auto) minmax(0, 1fr);
+  }
+  .sk-site {
+    height: clamp(42vh, calc((100vw - 32px) / (var(--ratio) * 0.82)), 60vh);
+    width: 100%;
+    justify-self: center;
+  }
+  .sk-site__in {
+    padding: 5% 4% 22px;
+  }
+  .sk-board {
+    width: min(92cqw, calc((100cqh - 22px - 7cqh) * var(--ratio)));
+  }
+  .sk-tray {
+    --cell: clamp(36px, 11vw, 52px);
+    align-content: center;
+    align-self: stretch;
+  }
+}
+
+/* A tall, narrow model (rocket): the guest stands small at the side. */
+.sk-site--rocket .sk-guest {
+  height: min(30%, 26cqw);
+  right: 0;
+}
