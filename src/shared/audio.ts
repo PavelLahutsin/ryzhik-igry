@@ -13,6 +13,7 @@ import { platform } from "./platform";
 import { recipe, type SoundKind, SOUND_KINDS } from "./sounds";
 import { melodyFor, musicFor } from "./music";
 import { MUSIC_FILES, WIN_JINGLE } from "./voice-lines";
+import audioFiles from "virtual:audio-files";
 
 export type { SoundKind };
 export { SOUND_KINDS };
@@ -66,29 +67,18 @@ function ready(): AudioContext | null {
 }
 
 // ---------------------------------------------------------------- files
+// Optional recordings (public/audio); the list comes from vite.config.ts.
 const BASE = (import.meta.env?.BASE_URL as string | undefined) ?? "/";
 export const fileUrl = (kind: "voice" | "music", id: string): string => `${BASE}audio/${kind}/${id}.mp3`;
-const probes = new Map<string, Promise<boolean>>();
-const known = new Map<string, boolean>();
+const present = new Set([...audioFiles.voice, ...audioFiles.music]);
 
-/** Is the optional file there? Asked once per file (same-origin, offline-safe). */
+/** Is the optional recording there? (Known at build time, no network.) */
 export function hasFile(url: string): Promise<boolean> {
-  let p = probes.get(url);
-  if (!p) {
-    p = fetch(url, { method: "HEAD" })
-      .then((r) => {
-        const type = r.headers.get("content-type") ?? "";
-        // A dev server answers unknown paths with index.html — not a sound.
-        return r.ok && !type.includes("text/html");
-      })
-      .catch(() => false)
-      .then((ok) => {
-        known.set(url, ok);
-        return ok;
-      });
-    probes.set(url, p);
-  }
-  return p;
+  return Promise.resolve(fileKnown(url));
+}
+function fileKnown(url: string): boolean {
+  const id = url.split("/").pop()!.replace(/\.mp3$/, "");
+  return present.has(id);
 }
 
 let voicePlaying: HTMLAudioElement | null = null;
@@ -217,7 +207,6 @@ export const audio = {
   unlock(): void {
     const c = context();
     if (c && c.state === "suspended") void c.resume();
-    void hasFile(fileUrl("music", WIN_JINGLE));
     syncMusic();
   },
   play(kind: SoundKind): void {
@@ -233,7 +222,7 @@ export const audio = {
     }
     if (kind === "win") {
       const jingle = fileUrl("music", WIN_JINGLE);
-      if (known.get(jingle)) {
+      if (fileKnown(jingle)) {
         const a = new Audio(jingle);
         a.volume = 0.6;
         void a.play().catch(() => {});
