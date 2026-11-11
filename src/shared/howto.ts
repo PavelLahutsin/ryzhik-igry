@@ -60,6 +60,8 @@ function stepNode(step: Step, i: number): HTMLElement {
 
 let open: HTMLElement | null = null;
 let waiting: Array<() => void> = [];
+/** Stops the Escape key listener of the open card. */
+let detachKeys: (() => void) | null = null;
 
 /** Run `fn` once no «Как играть» card is on screen. */
 export function afterHowTo(fn: () => void): void {
@@ -91,6 +93,7 @@ export function showHowTo(gameId: string): Promise<void> {
       overlay.classList.remove("is-open");
       setTimeout(() => overlay.remove(), 200);
       if (open === overlay) open = null;
+      detachKeys?.();
       void markSeen("howto", gameId);
       const list = waiting;
       waiting = [];
@@ -101,6 +104,15 @@ export function showHowTo(gameId: string): Promise<void> {
     overlay.addEventListener("click", (e) => {
       if (e.target === overlay) close();
     });
+    // Keyboard: Escape closes like «Понятно!» (Enter works on the focused button).
+    const onKey = (e: KeyboardEvent): void => {
+      if (e.key === "Escape") close();
+    };
+    document.addEventListener("keydown", onKey);
+    detachKeys = () => {
+      document.removeEventListener("keydown", onKey);
+      detachKeys = null;
+    };
     document.body.append(overlay);
     const line = HOWTO_VOICE[gameId];
     if (line) audio.say(line);
@@ -114,6 +126,7 @@ export async function howToSeen(gameId: string): Promise<boolean> {
 }
 
 export function closeHowTo(): void {
+  detachKeys?.();
   open?.remove();
   open = null;
   waiting = [];
