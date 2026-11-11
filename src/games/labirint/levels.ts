@@ -15,6 +15,7 @@ export const worlds = [
   { id: "home", title: "Домой", color: "#7cc46a" },
   { id: "guests", title: "В гости", color: "#ffb23f" },
   { id: "big", title: "Большие лабиринты", color: "#9b8cf0" },
+  { id: "forest", title: "Лесные тропинки", color: "#6fbf4a" },
 ];
 
 /** 3×3 → 8×9. Apples come in from the middle world. */
@@ -31,4 +32,7 @@ export const levels: LabLevel[] = [
   { id: "l10", world: "big", title: "Яблоки для мамы", cols: 7, rows: 8, goal: "mama", apples: 3, done: "Мама испечёт пирог!" },
   { id: "l11", world: "big", title: "Яблоки для папы", cols: 7, rows: 8, goal: "papa", apples: 4, done: "Папа гордится Рыжиком!" },
   { id: "l12", world: "big", title: "Большой лабиринт", cols: 8, rows: 9, goal: "mama", apples: 5, done: "Рыжик прошёл самый большой лабиринт!" },
+  { id: "l13", world: "forest", title: "К белочке в дупло", cols: 5, rows: 5, goal: "belka", apples: 2, done: "Белочка угостит Рыжика орешками!" },
+  { id: "l14", world: "forest", title: "Мишкина поляна", cols: 6, rows: 6, goal: "mishka", apples: 2, done: "Мишка рад яблокам!" },
+  { id: "l15", world: "forest", title: "Ёжикина тропинка", cols: 6, rows: 7, goal: "ezhik", apples: 3, done: "Ёжик собрал яблоки на иголки!" },
 ];

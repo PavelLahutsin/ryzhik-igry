@@ -47,8 +47,8 @@ describe("labirint", () => {
       expect(a.c === 6 && a.r === 7).toBe(false);
     }
   });
-  it("has 12 growing levels with known characters", () => {
-    expect(levels).toHaveLength(12);
+  it("has 15 growing levels with known characters", () => {
+    expect(levels).toHaveLength(15);
     for (const level of levels) expect(characters[level.goal], level.goal).toBeDefined();
     const sizes = levels.map((l) => l.cols * l.rows);
     expect(sizes[0]).toBe(9);

@@ -14,6 +14,7 @@ export type FormLevel = FamilyLevel | PyramidLevel | SorterLevel | ThingsLevel;
 export const worlds = [
   { id: "size", title: "Большой и маленький", color: "#ff8a3d" },
   { id: "shape", title: "Формы", color: "#9b6cd8" },
+  { id: "mix", title: "Всё вместе", color: "#6db3d4" },
 ];
 
 export const levels: FormLevel[] = [
@@ -88,4 +89,33 @@ export const levels: FormLevel[] = [
     done: "Всё по полочкам!",
   },
   { id: "f6", world: "shape", mode: "sorter", title: "Шесть фигур", shapes: ["circle", "square", "triangle", "star", "heart", "rhombus"], perShape: 1, ask: "Шесть окошек — шесть фигур. Ромб похож на воздушного змея!", done: "Ты мастер фигур!" },
+  {
+    id: "r6",
+    world: "mix",
+    mode: "family",
+    title: "Угощение",
+    sizes: ["big", "mid", "small"],
+    objects: ["pear", "cherry", "banana"],
+    ask: "Угости всех: большое — папе, среднее — маме, маленькое — Рыжику.",
+    done: "Всем вкусно!",
+  },
+  { id: "f7", world: "mix", mode: "sorter", title: "Звёзды и сердечки", shapes: ["star", "heart", "circle"], perShape: 2, ask: "Звёздочки, сердечки и кружочки — по окошкам!", done: "Красивая коробка!" },
+  { id: "r7", world: "mix", mode: "pyramid", title: "Пирамидка из пяти", rings: 5, ask: "Пять колечек: сначала самое большое.", done: "Ровная пирамидка!" },
+  {
+    id: "f8",
+    world: "mix",
+    mode: "things",
+    title: "Вещи в доме",
+    baskets: ["circle", "square", "triangle"],
+    things: [
+      { id: "clock", shape: "circle" },
+      { id: "window", shape: "square" },
+      { id: "flag", shape: "triangle" },
+      { id: "ball", shape: "circle" },
+      { id: "present", shape: "square" },
+      { id: "sign", shape: "triangle" },
+    ],
+    ask: "Что круглое, что квадратное, а что — треугольник?",
+    done: "Всё нашло своё место!",
+  },
 ];

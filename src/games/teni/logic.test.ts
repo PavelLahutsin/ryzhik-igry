@@ -3,8 +3,8 @@ import { levels, shadowCount, thing } from "./levels";
 import { hintTarget, judge, rowsOf, starsFor } from "./logic";
 
 describe("teni", () => {
-  it("has 12 levels of 3 to 6 known shadows", () => {
-    expect(levels).toHaveLength(12);
+  it("has 15 levels of 3 to 6 known shadows", () => {
+    expect(levels).toHaveLength(15);
     for (const level of levels) {
       const all = [...level.items, ...(level.decoys ?? [])];
       expect(shadowCount(level)).toBeGreaterThanOrEqual(3);

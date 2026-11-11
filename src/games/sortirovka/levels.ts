@@ -44,6 +44,7 @@ const byKind = (id: string, name: string, color: string, label: ObjectId, items:
 export const worlds = [
   { id: "colors", title: "По цвету", color: "#e8463a" },
   { id: "kinds", title: "Что куда?", color: "#3a8fd4" },
+  { id: "more", title: "Ещё порядок", color: "#7cc46a" },
 ];
 
 const COLOR_ASK = "Разложи по цвету: каждую картинку в корзинку своего цвета";
@@ -140,6 +141,37 @@ export const levels: SortLevel[] = [
       byKind("toys", "Игрушки", "#9b8cf0", "ball", ["ball", "kite", "cube"]),
       byKind("forest", "В лесу", "#6fbf4a", "leaf", ["leaf", "flower"]),
       byKind("home", "Дома", "#ffb23f", "house", ["cup", "umbrella"]),
+    ],
+  },
+  {
+    id: "k7",
+    world: "more",
+    title: "Солнышко и дождик",
+    ask: "Что нужно в солнечный день, а что — в дождик?",
+    baskets: [
+      byKind("sunny", "Солнышко", "#ffc94a", "sun", ["kite", "balloon", "flower"]),
+      byKind("rainy", "Дождик", "#3a8fd4", "drop", ["umbrella", "boat"]),
+    ],
+  },
+  {
+    id: "k8",
+    world: "more",
+    title: "Фрукты и игрушки",
+    ask: "Фрукты — в одну корзинку, игрушки — в другую",
+    baskets: [
+      byKind("fruit", "Фрукты", "#ff9f6b", "pear", ["apple", "pear", "banana", "cherry"]),
+      byKind("toys", "Игрушки", "#9b8cf0", "ball", ["ball", "cube", "car"]),
+    ],
+  },
+  {
+    id: "k9",
+    world: "more",
+    title: "Собираемся в гости",
+    ask: "Разложи: еда, игрушки и то, что в небе",
+    baskets: [
+      byKind("food", "Еда", "#ff9f6b", "apple", ["apple", "carrot", "banana"]),
+      byKind("toys", "Игрушки", "#9b8cf0", "ball", ["ball", "car", "cube"]),
+      byKind("sky", "В небе", "#7cc0e8", "sun", ["sun", "star", "balloon"]),
     ],
   },
 ];

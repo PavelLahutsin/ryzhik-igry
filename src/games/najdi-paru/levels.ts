@@ -16,6 +16,7 @@ export const worlds = [
   { id: "family", title: "Семья и друзья", color: "#f27aa0" },
   { id: "things", title: "Предметы", color: "#ffb23f" },
   { id: "big", title: "Большие игры", color: "#9b8cf0" },
+  { id: "fun", title: "Весёлые пары", color: "#7cc46a" },
 ];
 
 const FRUIT = ["obj:apple", "obj:pear", "obj:cherry", "obj:banana"];
@@ -40,6 +41,9 @@ export const levels: ParaLevel[] = [
   { id: "p10", world: "big", title: "Разноцветная", cols: 4, rows: 4, faces: [...FRUIT, ...TOYS, ...NATURE] },
   { id: "p11", world: "big", title: "Друзья и игрушки", cols: 4, rows: 5, faces: [...FAMILY, ...FRIENDS, ...TOYS.slice(0, 4)] },
   { id: "p12", world: "big", title: "Самая большая", cols: 4, rows: 5, faces: [...FAMILY, ...FRIENDS, ...FRUIT, ...TOYS, ...NATURE, ...HOME] },
+  { id: "p13", world: "fun", title: "Чаепитие", cols: 2, rows: 4, faces: ["obj:cup", "obj:cherry", "obj:pear", "obj:banana"] },
+  { id: "p14", world: "fun", title: "Что в небе?", cols: 3, rows: 4, faces: ["obj:sun", "obj:star", "obj:balloon", "obj:kite", "obj:drop", "obj:leaf"] },
+  { id: "p15", world: "fun", title: "Лесные друзья", cols: 3, rows: 4, faces: [...FRIENDS, "obj:mushroom", "obj:leaf", "obj:flower"] },
 ];
 
 export function pairsOf(level: ParaLevel): number {

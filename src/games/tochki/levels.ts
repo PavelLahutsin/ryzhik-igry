@@ -28,6 +28,7 @@ const heart = P(100, 62, 118, 40, 144, 34, 166, 48, 174, 74, 166, 102, 146, 128,
 export const worlds = [
   { id: "ten", title: "Считаем до 10", color: "#ffb23f" },
   { id: "more", title: "Дальше 10", color: "#7cc46a" },
+  { id: "fun", title: "Весёлые картинки", color: "#6db3d4" },
 ];
 
 export const levels: DotPicture[] = [
@@ -150,5 +151,25 @@ export const levels: DotPicture[] = [
     details: `<ellipse cx="100" cy="100" rx="8" ry="42" fill="${INK}"/><path d="M96 60 q-10 -20 -18 -22 M104 60 q10 -20 18 -22" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round"/><circle cx="62" cy="62" r="12" fill="#ffd54a"/><circle cx="138" cy="62" r="12" fill="#ffd54a"/><circle cx="68" cy="136" r="9" fill="#6fd0e8"/><circle cx="132" cy="136" r="9" fill="#6fd0e8"/>`,
     alive: "flutter",
     done: "Полетела!",
+  },
+  {
+    id: "t13",
+    title: "Грибок",
+    world: "fun",
+    dots: P(30, 104, 44, 66, 70, 44, 100, 36, 130, 44, 156, 66, 170, 104, 126, 104, 130, 170, 70, 170, 74, 104),
+    color: "#e8463a",
+    details: `<path d="M74 104 H126 L130 170 H70 Z" fill="#f6e7cf" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><circle cx="70" cy="74" r="9" fill="#fff"/><circle cx="104" cy="58" r="8" fill="#fff"/><circle cx="138" cy="80" r="10" fill="#fff"/>${eye(88, 134)}${eye(112, 134)}`,
+    alive: "bounce",
+    done: "Вырос грибок!",
+  },
+  {
+    id: "t14",
+    title: "Зонтик",
+    world: "fun",
+    dots: P(24, 100, 40, 60, 70, 36, 100, 28, 130, 36, 160, 60, 176, 100, 150, 92, 126, 100, 100, 92, 74, 100, 50, 92),
+    color: "#6db3d4",
+    details: `<path d="M100 30 L74 98 M100 30 L126 98 M100 30 V92" stroke="#fff" stroke-width="3" opacity=".7" fill="none"/><path d="M100 94 V164 q0 16 -16 16 q-12 0 -14 -12" fill="none" stroke="${INK}" stroke-width="6" stroke-linecap="round"/><circle cx="100" cy="26" r="5" fill="${INK}"/>`,
+    alive: "sway",
+    done: "Теперь дождик не страшен!",
   },
 ];
