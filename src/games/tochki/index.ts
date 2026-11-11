@@ -1,5 +1,7 @@
 import { audio, NOTES } from "../../shared/audio";
-import { el } from "../../shared/dom";
+import { el, svgEl, svgLocal, replayClass } from "../../shared/dom";
+import { coalesced, pointerTrack } from "../../shared/drag";
+import { createScope } from "../../shared/lifecycle";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
 import { reducedMotion, useStyles } from "../../shared/style";
 import { svgNode } from "../../shared/ui";
@@ -8,8 +10,6 @@ import baseCss from "../../shared/base.css?inline";
 import css from "./style.css?inline";
 import { allJoined, centroid, labelAt, startDots, starsFor, touch, type Pt } from "./logic";
 import { levels, worlds, type DotPicture } from "./levels";
-
-const NS = "http://www.w3.org/2000/svg";
 
 /** «По точкам»: join the numbered dots in order, and the picture appears. */
 export function mount(root: HTMLElement): () => void {
@@ -42,44 +42,32 @@ function thumbArt(l: DotPicture): string {
   return `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><polygon points="${pts(l.dots)}" fill="${l.color}" opacity=".18"/>${nums}</svg>`;
 }
 
-function node<K extends keyof SVGElementTagNameMap>(tag: K, attrs: Record<string, string | number>): SVGElementTagNameMap[K] {
-  const n = document.createElementNS(NS, tag);
-  for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, String(v));
-  return n;
-}
-
 function play(stage: HTMLElement, level: DotPicture, _index: number, api: PlayApi): () => void {
-  const timers = new Set<number>();
-  const later = (fn: () => void, ms: number): void => {
-    const t = window.setTimeout(() => {
-      timers.delete(t);
-      fn();
-    }, ms);
-    timers.add(t);
-  };
+  const scope = createScope();
+  const { later } = scope;
   const dots = level.dots;
   const state = startDots();
   let hints = 0;
   let pressed = false;
 
-  const svg = node("svg", { viewBox: "0 0 200 200", class: "td-svg", role: "img", "aria-label": `Соедини точки: ${level.title}` });
-  const pic = node("g", { class: `td-pic td-alive--${level.alive}` });
-  const shape = node("polygon", { points: pts(dots), fill: level.color, stroke: "#3b2e25", "stroke-width": 4, "stroke-linejoin": "round", class: "td-shape" });
-  const details = node("g", { class: "td-details" });
+  const svg = svgEl("svg", { viewBox: "0 0 200 200", class: "td-svg", role: "img", "aria-label": `Соедини точки: ${level.title}` });
+  const pic = svgEl("g", { class: `td-pic td-alive--${level.alive}` });
+  const shape = svgEl("polygon", { points: pts(dots), fill: level.color, stroke: "#3b2e25", "stroke-width": 4, "stroke-linejoin": "round", class: "td-shape" });
+  const details = svgEl("g", { class: "td-details" });
   details.innerHTML = level.details;
-  const lines = node("polyline", { points: "", class: "td-lines" });
-  const rubber = node("line", { class: "td-rubber", x1: 0, y1: 0, x2: 0, y2: 0 });
-  const dotLayer = node("g", { class: "td-dots" });
-  const extras = node("g", { class: "td-extras" });
+  const lines = svgEl("polyline", { points: "", class: "td-lines" });
+  const rubber = svgEl("line", { class: "td-rubber", x1: 0, y1: 0, x2: 0, y2: 0 });
+  const dotLayer = svgEl("g", { class: "td-dots" });
+  const extras = svgEl("g", { class: "td-extras" });
   pic.append(shape, details);
   svg.append(pic, lines, rubber, dotLayer, extras);
 
   const middle = centroid(dots);
   const dotNodes = dots.map((d, i) => {
-    const g = node("g", { class: "td-dot", transform: `translate(${d.x} ${d.y})` });
+    const g = svgEl("g", { class: "td-dot", transform: `translate(${d.x} ${d.y})` });
     const t = labelAt(d, middle, 14);
-    g.append(node("circle", { r: 13, class: "td-dot__halo" }), node("circle", { r: 6.5, class: "td-dot__core" }));
-    const label = node("text", { x: t.x - d.x, y: t.y - d.y, class: "td-dot__num" });
+    g.append(svgEl("circle", { r: 13, class: "td-dot__halo" }), svgEl("circle", { r: 6.5, class: "td-dot__core" }));
+    const label = svgEl("text", { x: t.x - d.x, y: t.y - d.y, class: "td-dot__num" });
     label.textContent = String(i + 1);
     g.append(label);
     dotLayer.append(g);
@@ -100,15 +88,7 @@ function play(stage: HTMLElement, level: DotPicture, _index: number, api: PlayAp
     if (!allJoined(dots, state)) say.innerHTML = state.next === 0 ? `Начни с цифры <b>1</b>` : `Теперь <b>${state.next + 1}</b>`;
   }
 
-  function toLocal(e: PointerEvent): Pt {
-    const m = svg.getScreenCTM();
-    if (!m) return { x: 0, y: 0 };
-    const pt = svg.createSVGPoint();
-    pt.x = e.clientX;
-    pt.y = e.clientY;
-    const p = pt.matrixTransform(m.inverse());
-    return { x: p.x, y: p.y };
-  }
+  const toLocal = (e: PointerEvent): Pt => svgLocal(svg, e);
 
   function at(p: Pt, tapped: boolean): void {
     const before = state.misses;
@@ -116,33 +96,27 @@ function play(stage: HTMLElement, level: DotPicture, _index: number, api: PlayAp
     if (joined !== null) {
       audio.tone(NOTES[joined % NOTES.length]! * (joined >= NOTES.length ? 2 : 1), 0.18);
       const g = dotNodes[joined]!;
-      g.classList.remove("is-pop");
-      void g.getBoundingClientRect();
-      g.classList.add("is-pop");
+      replayClass(g, "is-pop");
       paint();
       if (allJoined(dots, state)) finish();
     } else if (state.misses > before) {
       audio.play("miss");
       const next = dotNodes[state.next]!;
-      next.classList.remove("is-call");
-      void next.getBoundingClientRect();
-      next.classList.add("is-call");
+      replayClass(next, "is-call");
       say.innerHTML = `Ищи цифру <b>${state.next + 1}</b>`;
     }
   }
 
-  const down = (e: PointerEvent): void => {
-    if (allJoined(dots, state)) return;
+  const down = (e: PointerEvent): boolean | void => {
+    if (allJoined(dots, state)) return false;
     audio.unlock();
     pressed = true;
-    svg.setPointerCapture?.(e.pointerId);
-    e.preventDefault();
     at(toLocal(e), true);
     stretch(toLocal(e));
   };
   const move = (e: PointerEvent): void => {
     if (!pressed) return;
-    for (const ev of e.getCoalescedEvents?.() ?? [e]) at(toLocal(ev), false);
+    for (const ev of coalesced(e)) at(toLocal(ev), false);
     stretch(toLocal(e));
   };
   const up = (): void => {
@@ -163,27 +137,18 @@ function play(stage: HTMLElement, level: DotPicture, _index: number, api: PlayAp
     rubber.style.opacity = "1";
   }
 
-  svg.addEventListener("pointerdown", down);
-  svg.addEventListener("pointermove", move);
-  svg.addEventListener("pointerup", up);
-  svg.addEventListener("pointercancel", up);
-  svg.style.touchAction = "none";
+  scope.add(pointerTrack(svg, { down, move, up }));
 
   // When the child waits: the next dot wiggles and the hand draws the next line.
   api.setDemo(() => {
     if (allJoined(dots, state)) return;
     const next = dotNodes[state.next]!;
-    restart(next, "is-call");
+    replayClass(next, "is-call");
     const prev = dotNodes[state.next - 1];
     const core = (g: SVGGElement): Element => g.querySelector(".td-dot__core")!;
     if (prev) showDrag(centre(core(prev)), centre(core(next)));
     else showTap(centre(core(next)));
   });
-  const restart = (n: Element, cls: string): void => {
-    n.classList.remove(cls);
-    void (n as HTMLElement).getBoundingClientRect();
-    n.classList.add(cls);
-  };
 
   api.setHint(() => {
     if (allJoined(dots, state)) return;
@@ -211,20 +176,14 @@ function play(stage: HTMLElement, level: DotPicture, _index: number, api: PlayAp
 
   function addExtras(): void {
     if (level.alive === "smoke")
-      for (let i = 0; i < 3; i++) extras.append(node("circle", { cx: 133, cy: 36, r: 8, class: "td-smoke", style: `animation-delay:${i * 0.5}s` }));
+      for (let i = 0; i < 3; i++) extras.append(svgEl("circle", { cx: 133, cy: 36, r: 8, class: "td-smoke", style: `animation-delay:${i * 0.5}s` }));
     if (level.alive === "swim")
-      for (let i = 0; i < 3; i++) extras.append(node("circle", { cx: 26, cy: 90, r: 5, class: "td-bubble", style: `animation-delay:${i * 0.4}s` }));
+      for (let i = 0; i < 3; i++) extras.append(svgEl("circle", { cx: 26, cy: 90, r: 5, class: "td-bubble", style: `animation-delay:${i * 0.4}s` }));
     if (level.alive === "spin" || level.alive === "flutter" || level.alive === "beat" || level.alive === "sway")
       for (let i = 0; i < 7; i++)
-        extras.append(node("path", { d: "M0 -7 L2 -2 L7 0 L2 2 L0 7 L-2 2 L-7 0 L-2 -2 Z", transform: `translate(${20 + ((i * 53) % 160)} ${20 + ((i * 89) % 160)})`, class: "td-spark", style: `animation-delay:${i * 0.18}s` }));
+        extras.append(svgEl("path", { d: "M0 -7 L2 -2 L7 0 L2 2 L0 7 L-2 2 L-7 0 L-2 -2 Z", transform: `translate(${20 + ((i * 53) % 160)} ${20 + ((i * 89) % 160)})`, class: "td-spark", style: `animation-delay:${i * 0.18}s` }));
   }
 
   paint();
-  return () => {
-    for (const t of timers) clearTimeout(t);
-    svg.removeEventListener("pointerdown", down);
-    svg.removeEventListener("pointermove", move);
-    svg.removeEventListener("pointerup", up);
-    svg.removeEventListener("pointercancel", up);
-  };
+  return scope.dispose;
 }

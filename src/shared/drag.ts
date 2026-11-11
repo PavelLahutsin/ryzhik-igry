@@ -171,3 +171,53 @@ export function freeDrag(node: HTMLElement, options: FreeDragOptions): () => voi
     node.removeEventListener("pointercancel", up);
   };
 }
+
+export type TrackHandlers = {
+  /** A finger touched the node. Return false to ignore this touch. */
+  down: (event: PointerEvent) => boolean | void;
+  /** The same finger moved (once per event; see `coalesced`). */
+  move: (event: PointerEvent) => void;
+  /** The finger lifted or the browser took the touch away. */
+  up?: (event: PointerEvent) => void;
+};
+
+/**
+ * One-finger tracking for drawing and tracing (dots, lines, the maze): the
+ * last finger that went down leads, other fingers are ignored, and the node
+ * keeps getting moves outside its box (pointer capture). Returns a stop
+ * function that removes the listeners.
+ */
+export function pointerTrack(node: HTMLElement | SVGSVGElement, handlers: TrackHandlers): () => void {
+  let pointer: number | null = null;
+  const down = (event: PointerEvent): void => {
+    if (handlers.down(event) === false) return;
+    pointer = event.pointerId;
+    node.setPointerCapture?.(event.pointerId);
+    event.preventDefault();
+  };
+  const move = (event: PointerEvent): void => {
+    if (event.pointerId === pointer) handlers.move(event);
+  };
+  const up = (event: PointerEvent): void => {
+    if (event.pointerId !== pointer) return;
+    pointer = null;
+    handlers.up?.(event);
+  };
+  const on = [
+    ["pointerdown", down],
+    ["pointermove", move],
+    ["pointerup", up],
+    ["pointercancel", up],
+  ] as const;
+  node.style.touchAction = "none";
+  for (const [type, fn] of on) node.addEventListener(type, fn as EventListener);
+  return () => {
+    for (const [type, fn] of on) node.removeEventListener(type, fn as EventListener);
+  };
+}
+
+/** All positions of a fast move (the browser may batch them). */
+export function coalesced(event: PointerEvent): PointerEvent[] {
+  const list = event.getCoalescedEvents?.();
+  return list && list.length > 0 ? list : [event];
+}

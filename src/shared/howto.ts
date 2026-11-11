@@ -60,6 +60,8 @@ function stepNode(step: Step, i: number): HTMLElement {
 
 let open: HTMLElement | null = null;
 let waiting: Array<() => void> = [];
+/** Stops the Escape key listener of the open card. */
+let detachKeys: (() => void) | null = null;
 
 /** Run `fn` once no «Как играть» card is on screen. */
 export function afterHowTo(fn: () => void): void {
@@ -81,12 +83,17 @@ export function showHowTo(gameId: string): Promise<void> {
     ]);
     const overlay = el("div", { class: `ht${reducedMotion() ? " is-still" : ""}` }, [card]);
     open = overlay;
+    let closed = false;
     const close = (): void => {
+      // A quick double tap must not close twice (and drop another card).
+      if (closed) return;
+      closed = true;
       audio.unlock();
       audio.play("click");
       overlay.classList.remove("is-open");
       setTimeout(() => overlay.remove(), 200);
-      open = null;
+      if (open === overlay) open = null;
+      detachKeys?.();
       void markSeen("howto", gameId);
       const list = waiting;
       waiting = [];
@@ -97,6 +104,15 @@ export function showHowTo(gameId: string): Promise<void> {
     overlay.addEventListener("click", (e) => {
       if (e.target === overlay) close();
     });
+    // Keyboard: Escape closes like «Понятно!» (Enter works on the focused button).
+    const onKey = (e: KeyboardEvent): void => {
+      if (e.key === "Escape") close();
+    };
+    document.addEventListener("keydown", onKey);
+    detachKeys = () => {
+      document.removeEventListener("keydown", onKey);
+      detachKeys = null;
+    };
     document.body.append(overlay);
     const line = HOWTO_VOICE[gameId];
     if (line) audio.say(line);
@@ -110,9 +126,22 @@ export async function howToSeen(gameId: string): Promise<boolean> {
 }
 
 export function closeHowTo(): void {
+  detachKeys?.();
   open?.remove();
   open = null;
   waiting = [];
+}
+
+/**
+ * A start screen with no top bar, only a corner «back» (Тайная картинка):
+ * the «?» goes to the other corner. Returns false when there is no such back.
+ */
+export function putInCorner(root: ParentNode, btn: Element): boolean {
+  const back = root.querySelector(".home-back");
+  if (!back) return false;
+  btn.classList.add("howto-corner");
+  back.after(btn);
+  return true;
 }
 
 /**
@@ -122,13 +151,17 @@ export function closeHowTo(): void {
 export function attachHowToButton(gameId: string, root: HTMLElement): () => void {
   if (!HOWTO[gameId]) return () => {};
   const add = (): void => {
+    if (root.querySelector(".btn--howto")) return;
     const bar = root.querySelector<HTMLElement>(".toolbar, .menu__head");
-    if (!bar || bar.querySelector(".btn--howto")) return;
     const btn = el(
       "button",
       { class: "btn btn--back btn--howto", attrs: { type: "button", "aria-label": "Как играть" }, on: { click: () => void showHowTo(gameId) } },
       [el("span", { attrs: { "aria-hidden": "true" }, text: "?" })],
     );
+    if (!bar) {
+      putInCorner(root, btn);
+      return;
+    }
     if (bar.classList.contains("menu__head")) {
       bar.append(btn);
       return;

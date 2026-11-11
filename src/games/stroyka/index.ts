@@ -1,8 +1,10 @@
 import { audio } from "../../shared/audio";
 import { character } from "../../shared/assets";
-import { el } from "../../shared/dom";
+import { el, replayClass } from "../../shared/dom";
 import { draggable, type Point } from "../../shared/drag";
+import { createScope } from "../../shared/lifecycle";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
+import { shuffle } from "../../shared/rng";
 import { reducedMotion, useStyles } from "../../shared/style";
 import { svgNode } from "../../shared/ui";
 import { centre, showDrag } from "../../shared/guide";
@@ -50,31 +52,10 @@ function thumb(plan: Plan): HTMLElement {
 
 const keyOf = (p: Pick<Piece, "kind" | "color" | "w" | "h" | "n">): string => `${p.kind}-${p.color}-${p.w}x${p.h}-${p.n ?? 0}`;
 
-function shuffle<T>(list: T[]): T[] {
-  const a = list.slice();
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j]!, a[i]!];
-  }
-  return a;
-}
-
-function restart(node: Element, cls: string): void {
-  node.classList.remove(cls);
-  void (node as HTMLElement).getBoundingClientRect();
-  node.classList.add(cls);
-}
 
 function play(stage: HTMLElement, plan: Plan, _index: number, api: PlayApi): () => void {
-  const timers = new Set<number>();
-  const cleanups: (() => void)[] = [];
-  const later = (fn: () => void, ms: number): void => {
-    const t = window.setTimeout(() => {
-      timers.delete(t);
-      fn();
-    }, ms);
-    timers.add(t);
-  };
+  const scope = createScope();
+  const { later } = scope;
   const slots = plan.pieces;
   const filled = slots.map(() => false);
   let placed = 0;
@@ -92,7 +73,7 @@ function play(stage: HTMLElement, plan: Plan, _index: number, api: PlayApi): () 
   ]);
   const say = (t: string): void => {
     sayText.textContent = t;
-    restart(sayText, "is-new");
+    replayClass(sayText, "is-new");
   };
 
   // Plan board.
@@ -126,7 +107,7 @@ function play(stage: HTMLElement, plan: Plan, _index: number, api: PlayApi): () 
     node.setAttribute("aria-label", `${COLOR_NAME[block.color]} ${block.kind === "wheel" ? "колесо" : "кубик"}`);
     tray.append(node);
     blockNodes.push({ node, block });
-    cleanups.push(
+    scope.add(
       draggable(node, {
         onStart: () => {
           audio.unlock();
@@ -138,6 +119,27 @@ function play(stage: HTMLElement, plan: Plan, _index: number, api: PlayApi): () 
   }
 
   stage.append(el("div", { class: "sk-layout" }, [guide, site, tray]));
+
+  // A big model on a small phone: shrink the blocks a little until the whole
+  // tray is on screen (the CSS size stays when everything fits).
+  const fitTray = (): void => {
+    tray.style.removeProperty("--cell");
+    // Measure a block still in the tray (placed ones live on the board).
+    const first = blockNodes.find((b) => b.node.parentElement === tray);
+    if (!first || first.node.offsetHeight === 0) return;
+    let cell = first.node.offsetHeight / first.block.h;
+    // The tray's own box may grow past the screen, so check both.
+    const spills = (): boolean => tray.scrollHeight > tray.clientHeight + 1 || tray.getBoundingClientRect().bottom > window.innerHeight + 1;
+    // Not below 32px (with the 6px touch margin still a 44px target).
+    while (spills() && cell > 32) {
+      cell = Math.max(32, cell - 2);
+      tray.style.setProperty("--cell", `${cell}px`);
+    }
+  };
+  // Watch the stage (the screen), not the tray, whose size this changes.
+  const trayObserver = new ResizeObserver(() => fitTray());
+  trayObserver.observe(stage);
+  scope.add(() => trayObserver.disconnect());
 
   function drop(node: HTMLElement, block: Piece, c: Point): boolean {
     if (finished) return false;
@@ -155,7 +157,7 @@ function play(stage: HTMLElement, plan: Plan, _index: number, api: PlayApi): () 
       audio.play("boing");
       if (s.color === "blue") audio.say("v35");
       say(`Сюда нужен ${COLOR_NAME[s.color]}! А этот — ${COLOR_NAME[block.color]}.`);
-      restart(slotNodes[found.index]!, "is-call");
+      replayClass(slotNodes[found.index]!, "is-call");
       return false;
     }
     filled[found.index] = true;
@@ -183,7 +185,7 @@ function play(stage: HTMLElement, plan: Plan, _index: number, api: PlayApi): () 
       site.classList.add("is-alive");
       if (plan.alive === "train") {
         audio.play("toot");
-        setTimeout(() => audio.play("chug"), 500);
+        later(() => audio.play("chug"), 500);
       }
       if (plan.alive === "boat") audio.play("honk");
       if (plan.alive === "rocket") audio.play("rocket");
@@ -229,13 +231,10 @@ function play(stage: HTMLElement, plan: Plan, _index: number, api: PlayApi): () 
     if (!s) return;
     const b = blockNodes.find(({ node, block }) => !node.classList.contains("is-placed") && block.kind === s.kind && block.color === s.color && block.w === s.w && block.h === s.h && (block.n ?? 0) === (s.n ?? 0));
     hints++;
-    restart(slotNodes[i]!, "is-call");
-    if (b) restart(b.node, "is-call");
+    replayClass(slotNodes[i]!, "is-call");
+    if (b) replayClass(b.node, "is-call");
     say(`Найди ${COLOR_NAME[s.color]} ${s.kind === "wheel" ? "колесо" : s.kind === "window" ? "окошко" : "блок"} — вот для этого места.`);
   });
 
-  return () => {
-    for (const t of timers) clearTimeout(t);
-    for (const c of cleanups) c();
-  };
+  return scope.dispose;
 }

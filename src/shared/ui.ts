@@ -1,6 +1,6 @@
 import { audio } from "./audio";
 import { praiseLine } from "./voice-lines";
-import { el } from "./dom";
+import { el, svgEl } from "./dom";
 import { reducedMotion } from "./style";
 
 export function toolbar(title: string, onBack: () => void, extra?: HTMLElement | null): HTMLElement {
@@ -29,13 +29,8 @@ export function starRow(filled: number, className = "stars"): HTMLElement {
     attrs: { role: "img", "aria-label": `Звёзд: ${filled} из 3` },
   });
   for (let i = 0; i < 3; i++) {
-    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    svg.setAttribute("viewBox", "0 0 32 32");
-    svg.setAttribute("class", i < filled ? "star is-on" : "star");
-    svg.setAttribute("aria-hidden", "true");
-    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    path.setAttribute("d", STAR_PATH);
-    svg.append(path);
+    const svg = svgEl("svg", { viewBox: "0 0 32 32", class: i < filled ? "star is-on" : "star", "aria-hidden": "true" });
+    svg.append(svgEl("path", { d: STAR_PATH }));
     row.append(svg);
   }
   return row;

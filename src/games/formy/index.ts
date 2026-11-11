@@ -1,17 +1,19 @@
 import { audio, NOTES } from "../../shared/audio";
 import { centre, showDrag } from "../../shared/guide";
 import { character } from "../../shared/assets";
-import { el } from "../../shared/dom";
+import { el, replayClass } from "../../shared/dom";
 import { draggable, type Point } from "../../shared/drag";
+import { createScope } from "../../shared/lifecycle";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
-import { OBJECTS } from "../../shared/objects";
+import { OBJECT_GENDER, OBJECTS, type Gender } from "../../shared/objects";
+import { shuffle } from "../../shared/rng";
 import { reducedMotion, useStyles } from "../../shared/style";
 import { svgNode } from "../../shared/ui";
 import baseCss from "../../shared/base.css?inline";
 import css from "./style.css?inline";
 import { blockSvg, holeSvg, PLATE, POLE, RING_COLORS, shapeIcon, THINGS } from "./art";
 import { levels, worlds, type FamilyLevel, type FormLevel, type PyramidLevel, type SorterLevel, type ThingId, type ThingsLevel } from "./levels";
-import { canStack, matches, nextRing, pickTarget, SHAPE_NAME, SIZE_NAME, starsFor, type Shape, type Size } from "./logic";
+import { canStack, matches, nextRing, pickTarget, SHAPE_NAME, sizedName, starsFor, whoFits, type Shape, type Size } from "./logic";
 
 /** «Размер и форма»: big and small for the family, a ring pyramid, a shape sorter. */
 export function mount(root: HTMLElement): () => void {
@@ -50,20 +52,6 @@ function pyramidThumb(n: number): string {
   return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect x="47" y="8" width="6" height="80" rx="3" fill="#c48a4a"/>${rings}</svg>`;
 }
 
-function shuffle<T>(list: T[]): T[] {
-  const a = list.slice();
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j]!, a[i]!];
-  }
-  return a;
-}
-
-function restart(node: Element, cls: string): void {
-  node.classList.remove(cls);
-  void (node as HTMLElement).getBoundingClientRect();
-  node.classList.add(cls);
-}
 
 
 type Target = { node: HTMLElement; key: string };
@@ -73,7 +61,7 @@ function targetAt<T extends { node: Element }>(p: Point, targets: readonly T[]):
   const i = pickTarget(p, targets.map((t) => t.node.getBoundingClientRect()), 10);
   return i < 0 ? null : targets[i]!;
 }
-type Item = { node: HTMLElement; key: string; name: string };
+type Item = { node: HTMLElement; key: string; name: string; gender?: Gender };
 
 type Setup = {
   area: HTMLElement;
@@ -97,15 +85,8 @@ const SIZE_OWNER: Record<Size, { who: string; char: string; name: string }> = {
 
 function play(stage: HTMLElement, level: FormLevel, _index: number, api: PlayApi): () => void {
   if (level.mode === "sorter" || level.mode === "things") audio.say("v37");
-  const timers = new Set<number>();
-  const cleanups: (() => void)[] = [];
-  const later = (fn: () => void, ms: number): void => {
-    const t = window.setTimeout(() => {
-      timers.delete(t);
-      fn();
-    }, ms);
-    timers.add(t);
-  };
+  const scope = createScope();
+  const { later } = scope;
   let misses = 0;
   let hints = 0;
   let placed = 0;
@@ -117,7 +98,7 @@ function play(stage: HTMLElement, level: FormLevel, _index: number, api: PlayApi
   ]);
   const say = (t: string): void => {
     sayText.textContent = t;
-    restart(sayText, "is-new");
+    replayClass(sayText, "is-new");
   };
 
   const setup =
@@ -130,7 +111,7 @@ function play(stage: HTMLElement, level: FormLevel, _index: number, api: PlayApi
   for (const t of setup.targets) t.node.dataset.key = t.key;
 
   for (const item of setup.items) {
-    cleanups.push(
+    scope.add(
       draggable(item.node, {
         onStart: () => {
           audio.unlock();
@@ -148,7 +129,7 @@ function play(stage: HTMLElement, level: FormLevel, _index: number, api: PlayApi
           if (!ok) {
             misses++;
             audio.play("boing");
-            restart(target.node, "is-wrong");
+            replayClass(target.node, "is-wrong");
             say(setup.wrongText(item, target));
             return false;
           }
@@ -177,14 +158,11 @@ function play(stage: HTMLElement, level: FormLevel, _index: number, api: PlayApi
     const pair = setup.hintPair();
     if (!pair) return;
     hints++;
-    restart(pair[0].node, "is-hint");
-    restart(pair[1].node, "is-hint");
+    replayClass(pair[0].node, "is-hint");
+    replayClass(pair[1].node, "is-hint");
   });
 
-  return () => {
-    for (const t of timers) clearTimeout(t);
-    for (const c of cleanups) c();
-  };
+  return scope.dispose;
 
   // ------------------------------------------------------------ modes
 
@@ -205,7 +183,7 @@ function play(stage: HTMLElement, level: FormLevel, _index: number, api: PlayApi
     for (const obj of l.objects)
       for (const size of l.sizes) {
         const node = el("div", { class: `fm-item fm-size--${size}` }, [svgNode(OBJECTS[obj].svg, "fm-item__art")]);
-        items.push({ node, key: size, name: `${SIZE_NAME[size]} ${OBJECTS[obj].name.toLowerCase()}` });
+        items.push({ node, key: size, name: sizedName(size, OBJECTS[obj].name, OBJECT_GENDER[obj]), gender: OBJECT_GENDER[obj] });
       }
     return {
       area,
@@ -215,11 +193,11 @@ function play(stage: HTMLElement, level: FormLevel, _index: number, api: PlayApi
         const art = item.node.querySelector(".fm-item__art")!.cloneNode(true) as HTMLElement;
         art.className = `fm-plate__thing fm-size--${item.key}`;
         target.node.querySelector(".fm-plate__in")!.append(art);
-        restart(target.node, "is-happy");
+        replayClass(target.node, "is-happy");
         audio.play("yum");
         say(`${item.name} — ${SIZE_OWNER[item.key as Size].who}! Спасибо!`);
       },
-      wrongText: (item) => `${item.name}… Кому оно подойдёт?`,
+      wrongText: (item) => `${item.name}… ${whoFits(item.gender ?? "n")}`,
       hintPair: () => {
         const item = items.find((i) => !i.node.classList.contains("is-placed"));
         const target = item && targets.find((t) => t.key === item.key);
@@ -289,7 +267,7 @@ function play(stage: HTMLElement, level: FormLevel, _index: number, api: PlayApi
           target.node.append(fall);
           later(() => fall.remove(), 700);
         }
-        restart(target.node, "is-got");
+        replayClass(target.node, "is-got");
         audio.play("pop");
         say(`${item.name}!`);
       },
@@ -327,7 +305,7 @@ function play(stage: HTMLElement, level: FormLevel, _index: number, api: PlayApi
         const copy = item.node.querySelector(".fm-item__art")!.cloneNode(true) as HTMLElement;
         copy.className = "fm-bin__thing";
         target.node.querySelector(".fm-bin__in")!.append(copy);
-        restart(target.node, "is-got");
+        replayClass(target.node, "is-got");
         audio.play("snap");
         say(`${item.name} — похоже на ${SHAPE_NAME[item.key as Shape].toLowerCase()}!`);
       },

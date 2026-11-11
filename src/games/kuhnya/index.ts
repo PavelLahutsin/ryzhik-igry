@@ -1,6 +1,6 @@
 import { audio } from "../../shared/audio";
 import { character } from "../../shared/assets";
-import { el } from "../../shared/dom";
+import { el, replayClass } from "../../shared/dom";
 import { draggable, type Point } from "../../shared/drag";
 import { gameFinds } from "../../shared/finds";
 import { goHome } from "../../shared/router";
@@ -8,6 +8,7 @@ import { reducedMotion, useStyles } from "../../shared/style";
 import { hint, svgNode, toolbar } from "../../shared/ui";
 import { centre, showDrag, showTap, whenIdle } from "../../shared/guide";
 import baseCss from "../../shared/base.css?inline";
+import { createScope } from "../../shared/lifecycle";
 import css from "./style.css?inline";
 import { BIN, BOWL, faceArt, GLASS, INGREDIENT_ART, KITCHEN, PLATE, TABLE, TOOL_ART } from "./art";
 import {
@@ -56,15 +57,8 @@ export function mount(root: HTMLElement): () => void {
   let guest: GuestId = "ryzhik";
   let bites = 0;
   let busyEating = false;
-  const timers = new Set<number>();
-  const later = (fn: () => void, ms: number): void => {
-    const t = window.setTimeout(() => {
-      timers.delete(t);
-      fn();
-    }, ms);
-    timers.add(t);
-  };
-  const stops: Array<() => void> = [];
+  const scope = createScope();
+  const { later } = scope;
 
   const score = el("span", { class: "list__score" });
   const paintScore = (): void => {
@@ -119,21 +113,16 @@ export function mount(root: HTMLElement): () => void {
     fig.alt = GUESTS[id].name;
     for (const b of picker.querySelectorAll<HTMLElement>(".kt-picker__btn")) b.classList.toggle("is-on", b.dataset.id === id);
     face.classList.remove("is-on");
-    restart(fig, "is-hop");
+    replayClass(fig, "is-hop");
     say(id === "ryzhik" ? "Я голодный!" : id === "mama" ? "Что у нас на обед?" : id === "mishka" ? "Р-р-р, хочу кушать!" : "Фыр! Угостишь?");
   }
 
   function say(text: string, ms = 1800): void {
     bubble.textContent = text;
-    restart(bubble, "is-open");
+    replayClass(bubble, "is-open");
     later(() => bubble.classList.remove("is-open"), ms);
   }
 
-  function restart(node: Element, cls: string): void {
-    node.classList.remove(cls);
-    void (node as HTMLElement).offsetWidth;
-    node.classList.add(cls);
-  }
 
   function puff(kind: "heart" | "steam" | "smoke" | "drop" | "star", count = 5): void {
     if (reducedMotion()) return;
@@ -155,12 +144,12 @@ export function mount(root: HTMLElement): () => void {
     const r = taste(guest, dish);
     audio.play("munch");
     later(() => audio.play("yum"), 380);
-    restart(fig, "is-chew");
+    replayClass(fig, "is-chew");
     later(() => {
       face.replaceChildren(svgNode(faceArt(r)));
-      restart(face, "is-on");
+      replayClass(face, "is-on");
       fig.className = "kt-guest__fig";
-      restart(fig, `is-${r}`);
+      replayClass(fig, `is-${r}`);
       audio.play(SOUND[r]);
       if (r === "yum" || r === "love") audio.say("v26");
       if (r === "yuck") audio.say("v27");
@@ -175,7 +164,7 @@ export function mount(root: HTMLElement): () => void {
         if (!isNew) return;
         found++;
         paintScore();
-        restart(score, "is-bump");
+        replayClass(score, "is-bump");
       });
       bites++;
       paintMeter();
@@ -183,7 +172,7 @@ export function mount(root: HTMLElement): () => void {
         busyEating = false;
         if (bites >= BITES_TO_FULL) {
           say("Я наелся! Спасибо!", 2200);
-          restart(fig, "is-full");
+          replayClass(fig, "is-full");
           audio.play("magic");
           later(() => {
             bites = 0;
@@ -214,7 +203,7 @@ export function mount(root: HTMLElement): () => void {
       const node = dishNode(dish);
       node.style.setProperty("--i", String(i));
       t.slot.append(node);
-      stops.push(
+      scope.add(
         draggable(node, {
           onStart: () => audio.play("pick"),
           onDrop: (at) => {
@@ -258,7 +247,7 @@ export function mount(root: HTMLElement): () => void {
     }
     const next = addToTool(t.contents, dish, t.op);
     if (!next) {
-      restart(t.node, "is-nope");
+      replayClass(t.node, "is-nope");
       audio.play("miss");
       return false;
     }
@@ -287,20 +276,20 @@ export function mount(root: HTMLElement): () => void {
     t.contents = [dish];
     t.done = true;
     paintTool(t);
-    restart(t.node, "is-ready");
+    replayClass(t.node, "is-ready");
     audio.play("ding");
   }
 
   function useTool(t: ToolRun): void {
     audio.unlock();
     if (t.contents.length === 0) {
-      restart(t.node, "is-nope");
+      replayClass(t.node, "is-nope");
       say("Положи сюда что-нибудь!", 1300);
       return;
     }
     if (t.op === "cut" && !t.done) {
       t.chops++;
-      restart(t.node, "is-chop");
+      replayClass(t.node, "is-chop");
       audio.play("chop");
       if (t.chops >= 3) finish(t);
       return;
@@ -312,7 +301,7 @@ export function mount(root: HTMLElement): () => void {
       t.timer = window.setTimeout(() => finish(t), 1500);
       return;
     }
-    restart(t.node, "is-wiggle");
+    replayClass(t.node, "is-wiggle");
   }
 
   for (const t of tools) {
@@ -345,7 +334,7 @@ export function mount(root: HTMLElement): () => void {
       svgNode(INGREDIENT_ART[id], "kt-food__art"),
     ]);
     pantry.append(node);
-    stops.push(
+    scope.add(
       draggable(node, {
         onStart: () => {
           audio.unlock();
@@ -386,7 +375,7 @@ export function mount(root: HTMLElement): () => void {
 
   // Nobody here reads yet: after a pause a hand shows the next thing to try.
   let demo = 0;
-  stops.push(
+  scope.add(
     whenIdle(() => {
       const ready = tools.find((t) => t.done && t.contents.length > 0);
       const readyDish = ready?.slot.querySelector(".kt-dish");
@@ -403,9 +392,8 @@ export function mount(root: HTMLElement): () => void {
   );
 
   return () => {
-    for (const t of timers) clearTimeout(t);
+    scope.dispose();
     for (const t of tools) window.clearTimeout(t.timer);
-    for (const s of stops) s();
     view.remove();
   };
 }

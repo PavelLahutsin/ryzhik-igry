@@ -264,4 +264,28 @@ export const OBJECTS: Record<ObjectId, { name: string; svg: string; color: Objec
   },
 };
 
-export const OBJECT_IDS = Object.keys(OBJECTS) as ObjectId[];
+/** Grammatical gender of each name, for agreeing words («большая груша», «большое яблоко»). */
+export type Gender = "m" | "f" | "n" | "pl";
+export const OBJECT_GENDER: Record<ObjectId, Gender> = {
+  apple: "n",
+  ball: "m",
+  balloon: "m",
+  mushroom: "m",
+  star: "f",
+  kite: "m",
+  umbrella: "m",
+  sun: "n",
+  fish: "f",
+  car: "f",
+  house: "m",
+  carrot: "f",
+  pear: "f",
+  cherry: "pl",
+  banana: "m",
+  leaf: "m",
+  flower: "m",
+  boat: "m",
+  drop: "f",
+  cube: "m",
+  cup: "f",
+};

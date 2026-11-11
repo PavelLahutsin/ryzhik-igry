@@ -1,7 +1,8 @@
 import { audio } from "../../shared/audio";
 import { character } from "../../shared/assets";
-import { el } from "../../shared/dom";
+import { el, svgEl, replayClass } from "../../shared/dom";
 import { draggable, type Point } from "../../shared/drag";
+import { createScope, type Scope } from "../../shared/lifecycle";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
 import { OBJECTS, type ObjectId } from "../../shared/objects";
 import { reducedMotion, useStyles } from "../../shared/style";
@@ -81,27 +82,19 @@ type Ctx = {
   stage: HTMLElement;
   api: PlayApi;
   later: (fn: () => void, ms: number) => void;
-  cleanups: (() => void)[];
+  scope: Scope;
 };
 
 function play(stage: HTMLElement, level: Scenario, _index: number, api: PlayApi): () => void {
-  const timers = new Set<number>();
-  const cleanups: (() => void)[] = [];
-  const later = (fn: () => void, ms: number): void => {
-    const t = window.setTimeout(() => {
-      timers.delete(t);
-      fn();
-    }, ms);
-    timers.add(t);
-  };
-  const ctx: Ctx = { stage, api, later, cleanups };
+  const scope = createScope();
+  const { later } = scope;
+  const ctx: Ctx = { stage, api, later, scope };
   stage.classList.add("pr-stage");
   if (level.kind === "steps") playSteps(ctx, level);
   else if (level.kind === "shop") playShop(ctx, level);
   else playSafety(ctx, level);
   return () => {
-    for (const t of timers) clearTimeout(t);
-    for (const c of cleanups) c();
+    scope.dispose();
     stage.classList.remove("pr-stage");
   };
 }
@@ -120,9 +113,7 @@ function guideBar(text: string): { node: HTMLElement; say: (t: string) => void; 
     say: (t) => {
       if (bubble.textContent === t) return;
       bubble.textContent = t;
-      bubble.classList.remove("is-new");
-      void bubble.offsetWidth;
-      bubble.classList.add("is-new");
+      replayClass(bubble, "is-new");
     },
     dots: (done, total) => {
       dotRow.replaceChildren(...Array.from({ length: total }, (_, i) => el("i", { class: i < done ? "is-done" : i === done ? "is-now" : "" })));
@@ -171,23 +162,16 @@ const TOOL_SOUND: Partial<Record<string, Parameters<typeof audio.play>[0]>> = {
   shovel: "rustle",
 };
 
-function sceneBox(markup: string, id: string, cleanups: (() => void)[]): { box: HTMLElement; svg: SVGSVGElement } {
+function sceneBox(markup: string, id: string, scope: Scope): { box: HTMLElement; svg: SVGSVGElement } {
   const holder = svgNode(markup, `pr-scene pr-scene--${id}`);
   const svg = holder.querySelector("svg")!;
   svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
   const [top, bottom] = BLEED[id] ?? ["#fff", "#fff"];
-  const ns = "http://www.w3.org/2000/svg";
   for (const [y, fill] of [
     [-3000, top],
     [800, bottom],
   ] as const) {
-    const r = document.createElementNS(ns, "rect");
-    r.setAttribute("x", "-500");
-    r.setAttribute("y", String(y));
-    r.setAttribute("width", "2000");
-    r.setAttribute("height", "3000");
-    r.setAttribute("fill", fill);
-    svg.prepend(r);
+    svg.prepend(svgEl("rect", { x: -500, y, width: 2000, height: 3000, fill }));
   }
   const box = el("div", { class: "pr-scene-wrap" }, [holder]);
   const fit = (): void => {
@@ -201,15 +185,10 @@ function sceneBox(markup: string, id: string, cleanups: (() => void)[]): { box: 
   };
   const ro = new ResizeObserver(fit);
   ro.observe(box);
-  cleanups.push(() => ro.disconnect());
+  scope.add(() => ro.disconnect());
   return { box, svg };
 }
 
-function restart(node: Element, cls: string): void {
-  node.classList.remove(cls);
-  void (node as HTMLElement).getBoundingClientRect();
-  node.classList.add(cls);
-}
 
 const mid = (n: Element): Point => {
   const r = n.getBoundingClientRect();
@@ -226,10 +205,10 @@ function playSteps(ctx: Ctx, level: GuidedLevel): void {
 
   const guide = guideBar(level.intro);
   if (level.id === "vrach-zayka") audio.say("v31");
-  if (level.scene === "house-fire" || level.scene === "forest-fire") setTimeout(() => audio.say("v32"), 1400);
+  if (level.scene === "house-fire" || level.scene === "forest-fire") later(() => audio.say("v32"), 1400);
   // The fire engine arrives with its siren.
-  if (level.scene === "house-fire" || level.scene === "forest-fire") setTimeout(() => audio.play("siren"), 400);
-  const { box, svg } = sceneBox(SCENES[level.scene](), level.scene, ctx.cleanups);
+  if (level.scene === "house-fire" || level.scene === "forest-fire") later(() => audio.play("siren"), 400);
+  const { box, svg } = sceneBox(SCENES[level.scene](), level.scene, ctx.scope);
   const patient = svg.querySelector<SVGGElement>(".pr-patient");
   if (patient && level.mood !== undefined) patient.setAttribute("class", `pr-patient ${level.mood}`);
   for (const id of level.start ?? []) svg.querySelector(`[data-fx="${id}"]`)?.classList.add("is-on");
@@ -257,7 +236,7 @@ function playSteps(ctx: Ctx, level: GuidedLevel): void {
     for (const id of step.show ?? []) {
       svg.classList.add(`fx-${id}`);
       svg.querySelectorAll(`[data-fx="${id}"]`).forEach((n) => {
-        restart(n, "is-on");
+        replayClass(n, "is-on");
         if (n.classList.contains("pr-fx--flash")) later(() => n.classList.remove("is-on"), 1800);
       });
     }
@@ -267,7 +246,7 @@ function playSteps(ctx: Ctx, level: GuidedLevel): void {
     }
     if (patient && step.mood !== undefined) {
       patient.setAttribute("class", `pr-patient ${step.mood}`);
-      restart(patient, "is-react");
+      replayClass(patient, "is-react");
     }
   }
 
@@ -302,7 +281,7 @@ function playSteps(ctx: Ctx, level: GuidedLevel): void {
     tray.append(node);
     let last: Point | null = null;
     let soundAt = 0;
-    ctx.cleanups.push(
+    ctx.scope.add(
       draggable(node, {
         onStart: () => {
           audio.unlock();
@@ -339,13 +318,13 @@ function playSteps(ctx: Ctx, level: GuidedLevel): void {
           } else if (res === "wrong-tool" && cur) {
             audio.play("boing");
             guide.say(`Это ${tool.name.toLowerCase()}. А сейчас нужен другой предмет: ${TOOLS[cur.tool]!.name.toLowerCase()}.`);
-            restart(node, "is-wrong");
+            replayClass(node, "is-wrong");
             later(() => !finished && sayStep(), 2600);
           } else if (res === "wrong-place" && cur) {
             audio.play("miss");
             guide.say("Почти! Попробуй вот сюда.");
             const z = svg.querySelector(`[data-zone="${cur.zone}"]`);
-            if (z) restart(z, "is-show");
+            if (z) replayClass(z, "is-show");
             later(() => !finished && sayStep(), 2200);
           } else if (res === "rubbing") {
             guide.say("Води туда-сюда, не отпуская!");
@@ -362,7 +341,7 @@ function playSteps(ctx: Ctx, level: GuidedLevel): void {
     const tool = tray.querySelector(`[data-tool="${cur.tool}"]`);
     const z = svg.querySelector(`[data-zone="${cur.zone}"]`);
     if (!tool || !z) return;
-    restart(tool, "is-needed");
+    replayClass(tool, "is-needed");
     showDrag(mid(tool), mid(z));
   }
 
@@ -418,7 +397,7 @@ function playShop(ctx: Ctx, level: ShopLevel): void {
     if (res === "not-on-list" || res === "enough") {
       misses++;
       audio.play("boing");
-      restart(from, "is-wrong");
+      replayClass(from, "is-wrong");
       guide.say(res === "enough" ? `${OBJECTS[id as ObjectId].name}: уже хватит!` : `${OBJECTS[id as ObjectId].name}? Этого нет в списке.`);
       return false;
     }
@@ -440,7 +419,7 @@ function playShop(ctx: Ctx, level: ShopLevel): void {
       row.classList.add("is-done");
       audio.play("ding");
     }
-    restart(row, "is-bump");
+    replayClass(row, "is-bump");
     guide.dots(bought(), need);
     guide.say(left > 0 ? `Ещё ${left}!` : "Отлично! Что дальше по списку?");
     if (cartComplete(level.list, cart)) later(pay, 900);
@@ -454,7 +433,7 @@ function playShop(ctx: Ctx, level: ShopLevel): void {
     shelf.append(item);
     let moved = false;
     let start: Point = { x: 0, y: 0 };
-    ctx.cleanups.push(
+    ctx.scope.add(
       draggable(item, {
         onStart: () => {
           audio.unlock();
@@ -486,7 +465,7 @@ function playShop(ctx: Ctx, level: ShopLevel): void {
     for (let i = 0; i < need + 2; i++) {
       const coin = el("div", { class: "pr-coin", attrs: { "aria-label": "Монетка" } }, [svgNode(coinArt(), "pr-coin__art")]);
       coins.append(coin);
-      ctx.cleanups.push(
+      ctx.scope.add(
         draggable(coin, {
           onStart: () => audio.play("pick"),
           onDrop: (p) => {
@@ -495,7 +474,7 @@ function playShop(ctx: Ctx, level: ShopLevel): void {
             coin.classList.add("is-placed");
             coin.style.visibility = "hidden";
             counter.textContent = String(paid);
-            restart(till, "is-bump");
+            replayClass(till, "is-bump");
             audio.play("coin");
             guide.dots(paid, need);
             guide.say(`${countWord(paid)}!`);
@@ -530,7 +509,7 @@ function playShop(ctx: Ctx, level: ShopLevel): void {
     const line = level.list.find((l) => remaining(level.list, cart, l.id) > 0);
     const item = line && shelf.querySelector(`[data-id="${line.id}"]`);
     if (item) {
-      restart(item, "is-needed");
+      replayClass(item, "is-needed");
       showDrag(mid(item), mid(basket));
     }
   }
@@ -552,7 +531,7 @@ function playSafety(ctx: Ctx, level: SafetyLevel): void {
   const total = level.things.filter((t) => t.danger).length;
   const guide = guideBar(level.intro);
   guide.dots(0, total);
-  const { box, svg } = sceneBox(level.room === "kitchen" ? kitchenScene() : roomScene(), level.room, ctx.cleanups);
+  const { box, svg } = sceneBox(level.room === "kitchen" ? kitchenScene() : roomScene(), level.room, ctx.scope);
   if (!reducedMotion()) svg.classList.add("is-live");
   const layout = el("div", { class: "pr-layout pr-layout--safety" }, [guide.node, box]);
   stage.append(layout);
@@ -569,7 +548,7 @@ function playSafety(ctx: Ctx, level: SafetyLevel): void {
       node.classList.add("is-found");
       const hit = node.querySelector<SVGGraphicsElement>(".pr-thing__hit")!;
       const b = hit.getBBox();
-      const badge = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      const badge = svgEl("g");
       badge.setAttribute("transform", `translate(${b.x + b.width - 10} ${b.y + 14})`);
       badge.innerHTML = badgeOk;
       svg.append(badge);
@@ -587,12 +566,12 @@ function playSafety(ctx: Ctx, level: SafetyLevel): void {
       guide.say(thing.say);
     } else {
       audio.play("boing");
-      restart(node, "is-wiggle");
+      replayClass(node, "is-wiggle");
       guide.say(thing.say);
     }
   };
   svg.addEventListener("click", onTap);
-  ctx.cleanups.push(() => svg.removeEventListener("click", onTap));
+  ctx.scope.add(() => svg.removeEventListener("click", onTap));
 
   api.setDemo(() => {
     const left = dangersLeft(level.things, s)[0];
@@ -605,6 +584,6 @@ function playSafety(ctx: Ctx, level: SafetyLevel): void {
     if (!left) return;
     hints++;
     const node = svg.querySelector(`[data-thing="${left.id}"]`);
-    if (node) restart(node, "is-hint");
+    if (node) replayClass(node, "is-hint");
   });
 }

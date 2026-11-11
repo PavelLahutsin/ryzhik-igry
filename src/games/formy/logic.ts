@@ -1,4 +1,5 @@
 /** Rules for «Размер и форма». Pure functions. */
+import type { Gender } from "../../shared/objects";
 
 export type Shape = "circle" | "square" | "triangle" | "star" | "heart" | "rhombus";
 export type Size = "big" | "mid" | "small";
@@ -12,7 +13,22 @@ export const SHAPE_NAME: Record<Shape, string> = {
   rhombus: "Ромб",
 };
 
-export const SIZE_NAME: Record<Size, string> = { big: "Большое", mid: "Среднее", small: "Маленькое" };
+const SIZE_FORMS: Record<Size, Record<Gender, string>> = {
+  big: { m: "Большой", f: "Большая", n: "Большое", pl: "Большие" },
+  mid: { m: "Средний", f: "Средняя", n: "Среднее", pl: "Средние" },
+  small: { m: "Маленький", f: "Маленькая", n: "Маленькое", pl: "Маленькие" },
+};
+
+/** «Кому оно подойдёт?» agreeing with the thing: он / она / оно / они. */
+export function whoFits(gender: Gender): string {
+  const who = { m: "он", f: "она", n: "оно", pl: "они" }[gender];
+  return `Кому ${who} ${gender === "pl" ? "подойдут" : "подойдёт"}?`;
+}
+
+/** «Маленькая чашка», «Большое яблоко», «Средние вишенки». */
+export function sizedName(size: Size, name: string, gender: Gender): string {
+  return `${SIZE_FORMS[size][gender]} ${name.toLowerCase()}`;
+}
 
 /** Matching games: does the thing's key fit the target's key? */
 export function matches(itemKey: string, targetKey: string | null): "ok" | "wrong" | "none" {

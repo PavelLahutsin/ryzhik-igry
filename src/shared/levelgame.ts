@@ -1,10 +1,11 @@
 import { audio } from "./audio";
 import { character } from "./assets";
-import { el } from "./dom";
+import { el, svgEl, replayClass } from "./dom";
 import { gameProgress, isUnlocked, totalStars, type Progress } from "./progress";
 import { goHome, listenGame, navigateGame } from "./router";
 import { praiseOverlay, starRow, toolbar } from "./ui";
 import { whenIdle } from "./guide";
+import { createScope } from "./lifecycle";
 import { afterHowTo } from "./howto";
 import { LEVEL_TIPS } from "./tips-data";
 import { clearTips, tipOnce } from "./tips";
@@ -63,9 +64,7 @@ export async function starSummary(gameId: string, ids: readonly string[]): Promi
 
 /** Lamp icon for the hint button. */
 function lampIcon(): SVGSVGElement {
-  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  svg.setAttribute("viewBox", "0 0 32 32");
-  svg.setAttribute("aria-hidden", "true");
+  const svg = svgEl("svg", { viewBox: "0 0 32 32", "aria-hidden": "true" });
   svg.innerHTML =
     '<path d="M16 3a9 9 0 0 0-5 16.5V23h10v-3.5A9 9 0 0 0 16 3z" fill="#ffc94a" stroke="#3b2e25" stroke-width="2" stroke-linejoin="round"/>' +
     '<path d="M12 26h8M13 29h6" stroke="#3b2e25" stroke-width="2.4" stroke-linecap="round"/>' +
@@ -86,6 +85,8 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
   function show(sub: string[]): void {
     cleanup?.();
     cleanup = null;
+    // A «Новое!» bubble belongs to the screen that showed it.
+    clearTips();
     root.replaceChildren();
     const mine = ++token;
     if (sub[0] === "play") {
@@ -220,7 +221,7 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
     let won = false;
     let onHint: (() => void) | null = null;
     let demo: (() => void) | null = null;
-    const timers: number[] = [];
+    const scope = createScope();
     const runDemo = (): void => {
       if (!won && view.isConnected && !document.querySelector(".ht")) demo?.();
     };
@@ -228,9 +229,7 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
       if (!onHint || won) return;
       audio.unlock();
       audio.play("tap");
-      hintBtn.classList.remove("is-used");
-      void hintBtn.offsetWidth;
-      hintBtn.classList.add("is-used");
+      replayClass(hintBtn, "is-used");
       audio.say("v06");
       onHint();
     });
@@ -266,7 +265,7 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
           attrs: { src: character("ryzhik"), alt: "", draggable: "false" },
         });
         // Let the finishing animation be seen before the card.
-        setTimeout(() => {
+        scope.later(() => {
           if (!view.isConnected) return;
           const card = praiseOverlay({
             stars,
@@ -287,7 +286,7 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
                 el("span", { class: "praise__sticker-text", text: list.length > 1 ? `Новые наклейки: ${list.length}!` : "Новая наклейка!" }),
               ]),
             );
-            setTimeout(() => card.isConnected && audio.play("sparkle"), 1200);
+            scope.later(() => card.isConnected && audio.play("sparkle"), 1200);
           });
         }, 700);
       },
@@ -320,24 +319,26 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
         stage.removeEventListener("pointerup", onUp);
         document.body.classList.remove("is-tutorial");
         void markSeen("tips", `tutorial:${def.id}`);
-        timers.push(window.setTimeout(() => !won && !hintBtn.hidden && tipOnce("hint-lamp", hintBtn, "Лампочка подскажет, если трудно"), 600));
+        scope.later(() => !won && !hintBtn.hidden && tipOnce("hint-lamp", hintBtn, "Лампочка подскажет, если трудно"), 600);
       };
       stage.addEventListener("pointerup", onUp);
-      timers.push(window.setTimeout(() => afterHowTo(() => {
+      scope.later(() => afterHowTo(() => {
+        // The «Как играть» card may close after the child already left.
+        if (scope.disposed) return;
         audio.say("v07");
         runDemo();
-      }), 900));
+      }), 900);
       stopIdle = whenIdle(runDemo, 3500);
     } else {
       stopIdle = whenIdle(runDemo, 7000);
-      timers.push(window.setTimeout(() => !hintBtn.hidden && tipOnce("hint-lamp", hintBtn, "Лампочка подскажет, если трудно"), 1500));
+      scope.later(() => !hintBtn.hidden && tipOnce("hint-lamp", hintBtn, "Лампочка подскажет, если трудно"), 1500);
     }
     const tip = LEVEL_TIPS[def.id]?.[level.id];
-    if (tip) timers.push(window.setTimeout(() => afterHowTo(() => tipOnce(`${def.id}:${level.id}`, stage.querySelector(tip.at) ?? stage, tip.text)), 1300));
+    if (tip) scope.later(() => afterHowTo(() => tipOnce(`${def.id}:${level.id}`, stage.querySelector(tip.at) ?? stage, tip.text)), 1300);
 
     return () => {
       stopIdle();
-      for (const t of timers) clearTimeout(t);
+      scope.dispose();
       document.body.classList.remove("is-tutorial");
       stop();
       view.remove();
@@ -354,10 +355,7 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
 }
 
 function lockIcon(): SVGSVGElement {
-  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  svg.setAttribute("viewBox", "0 0 32 32");
-  svg.setAttribute("class", "lock-icon");
-  svg.setAttribute("aria-hidden", "true");
+  const svg = svgEl("svg", { viewBox: "0 0 32 32", class: "lock-icon", "aria-hidden": "true" });
   svg.innerHTML =
     '<rect x="7" y="14" width="18" height="14" rx="4" fill="#fffcf7" stroke="#a3490d" stroke-width="2.4"/>' +
     '<path d="M11 14v-3a5 5 0 0 1 10 0v3" fill="none" stroke="#a3490d" stroke-width="2.4"/>' +

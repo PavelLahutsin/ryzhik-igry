@@ -1,7 +1,8 @@
 import { audio } from "../../shared/audio";
 import { showDrag } from "../../shared/guide";
 import { character } from "../../shared/assets";
-import { el } from "../../shared/dom";
+import { el, replayClass } from "../../shared/dom";
+import { createScope } from "../../shared/lifecycle";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
 import { reducedMotion, useStyles } from "../../shared/style";
 import { hint, svgNode } from "../../shared/ui";
@@ -51,6 +52,7 @@ export function stepArt(chain: ChainId, tier: number, className = ""): HTMLEleme
 }
 
 function play(stage: HTMLElement, level: SliyanieLevel, _index: number, api: PlayApi): () => void {
+  const scope = createScope();
   let board: Board = spawn(spawn(emptyBoard(level.size), Math.random, 0), Math.random, 0);
   let helps = 0;
   let busy = false;
@@ -173,9 +175,7 @@ function play(stage: HTMLElement, level: SliyanieLevel, _index: number, api: Pla
     audio.unlock();
     const res = move(board, dir, MAX);
     if (!res.moved) {
-      grid.classList.remove("is-bump");
-      void grid.offsetWidth;
-      grid.classList.add("is-bump");
+      replayClass(grid, "is-bump");
       return;
     }
     busy = true;
@@ -196,7 +196,7 @@ function play(stage: HTMLElement, level: SliyanieLevel, _index: number, api: Pla
       api.win(starsFor(helps), level.done);
       return;
     }
-    setTimeout(
+    scope.later(
       () => {
         board = spawn(board, Math.random);
         render();
@@ -238,12 +238,9 @@ function play(stage: HTMLElement, level: SliyanieLevel, _index: number, api: Pla
   };
   grid.style.touchAction = "none";
   grid.addEventListener("pointerdown", down);
-  window.addEventListener("pointerup", up);
-  window.addEventListener("keydown", key);
+  scope.listen(window, "pointerup", up);
+  scope.listen(window, "keydown", key);
 
   render();
-  return () => {
-    window.removeEventListener("pointerup", up);
-    window.removeEventListener("keydown", key);
-  };
+  return scope.dispose;
 }
