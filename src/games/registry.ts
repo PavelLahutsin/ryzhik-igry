@@ -114,6 +114,16 @@ export const games: GameEntry[] = [
     resetKeys: ["ryzhik-igry:sortirovka:progress"],
   },
   {
+    id: "labirint",
+    title: "Лабиринт",
+    note: "Проведи Рыжика к друзьям",
+    color: "#5bb381",
+    art: { src: character("ezhik"), figure: true },
+    load: () => import("./labirint"),
+    summary: () => levelStars("labirint", () => import("./labirint/levels")),
+    resetKeys: ["ryzhik-igry:labirint:progress"],
+  },
+  {
     id: "raskraska",
     title: "Раскраска",
     note: "Раскрашивай Рыжика и друзей",
