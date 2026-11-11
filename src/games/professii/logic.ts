@@ -151,3 +151,14 @@ const WORDS = ["", "Один", "Два", "Три", "Четыре", "Пять", "
 export function countWord(n: number): string {
   return WORDS[n] ?? String(n);
 }
+
+/**
+ * How a 1000 × 800 scene fits a w × h box. Wide box: keep the shape
+ * (letterbox at the sides). Tall box: fill it and show more of the scene
+ * above (60%) and below (40%) — the wall/sky and floor continue there.
+ */
+export function sceneFit(w: number, h: number): { width: number; height: number; viewBox: string } {
+  if (w / h >= 1.25) return { width: Math.floor(h * 1.25), height: h, viewBox: "0 0 1000 800" };
+  const H = Math.min(2000, (1000 * h) / w);
+  return { width: w, height: h, viewBox: `0 ${(-(H - 800) * 0.6).toFixed(1)} 1000 ${H.toFixed(1)}` };
+}

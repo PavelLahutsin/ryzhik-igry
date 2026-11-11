@@ -6,6 +6,7 @@ import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
 import { OBJECTS, type ObjectId } from "../../shared/objects";
 import { reducedMotion, useStyles } from "../../shared/style";
 import { svgNode } from "../../shared/ui";
+import { showDrag, showTap, whenIdle } from "../../shared/guide";
 import baseCss from "../../shared/base.css?inline";
 import css from "./style.css?inline";
 import {
@@ -38,6 +39,7 @@ import {
   starsFor,
   tapThing,
   type Cart,
+  sceneFit,
 } from "./logic";
 
 /** «Профессии»: doctor, firefighter, shop and a safe home — step by step, with Ryzhik's help. */
@@ -128,11 +130,54 @@ function guideBar(text: string): { node: HTMLElement; say: (t: string) => void; 
   };
 }
 
-function sceneBox(markup: string, cls = ""): { box: HTMLElement; svg: SVGSVGElement } {
-  const holder = svgNode(markup, `pr-scene ${cls}`);
+/** Wall/sky above and floor/grass below each scene, so a tall phone screen is filled. */
+const BLEED: Record<string, [string, string]> = {
+  zayka: ["#e6f3f6", "#e2cfb2"],
+  kotik: ["#e6f3f6", "#e2cfb2"],
+  mishka: ["#e6f3f6", "#e2cfb2"],
+  "house-fire": ["#9fd8f2", "#8fd06f"],
+  "cat-tree": ["#9fd8f2", "#8fd06f"],
+  "forest-fire": ["#9fd8f2", "#7cc46a"],
+  kitchen: ["#fff4e0", "#d9c3a5"],
+  room: ["#eef0fa", "#d9c3a5"],
+};
+
+/**
+ * The scene is drawn in a 1000 × 800 box. On a wide screen it keeps that
+ * shape; on a tall one the picture grows taller (more wall/sky above, more
+ * floor below) instead of leaving empty space.
+ */
+function sceneBox(markup: string, id: string, cleanups: (() => void)[]): { box: HTMLElement; svg: SVGSVGElement } {
+  const holder = svgNode(markup, `pr-scene pr-scene--${id}`);
   const svg = holder.querySelector("svg")!;
   svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+  const [top, bottom] = BLEED[id] ?? ["#fff", "#fff"];
+  const ns = "http://www.w3.org/2000/svg";
+  for (const [y, fill] of [
+    [-3000, top],
+    [800, bottom],
+  ] as const) {
+    const r = document.createElementNS(ns, "rect");
+    r.setAttribute("x", "-500");
+    r.setAttribute("y", String(y));
+    r.setAttribute("width", "2000");
+    r.setAttribute("height", "3000");
+    r.setAttribute("fill", fill);
+    svg.prepend(r);
+  }
   const box = el("div", { class: "pr-scene-wrap" }, [holder]);
+  const fit = (): void => {
+    const w = box.clientWidth;
+    const h = box.clientHeight;
+    if (!w || !h) return;
+    const f = sceneFit(w, h);
+    holder.style.width = `${f.width}px`;
+    holder.style.height = `${f.height}px`;
+    svg.setAttribute("viewBox", f.viewBox);
+  };
+  const ro = new ResizeObserver(fit);
+  ro.observe(box);
+  cleanups.push(() => ro.disconnect());
   return { box, svg };
 }
 
@@ -140,29 +185,6 @@ function restart(node: Element, cls: string): void {
   node.classList.remove(cls);
   void (node as HTMLElement).getBoundingClientRect();
   node.classList.add(cls);
-}
-
-/** A little hand that travels from one place to another (guidance). */
-function showHand(layer: HTMLElement, from: Point, to: Point): void {
-  if (reducedMotion()) return;
-  const base = layer.getBoundingClientRect();
-  const hand = svgNode(
-    `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><circle cx="30" cy="30" r="22" fill="rgba(255,138,61,.35)"/><circle cx="30" cy="30" r="12" fill="#ff8a3d" stroke="#fff" stroke-width="4"/></svg>`,
-    "pr-hand",
-  );
-  layer.append(hand);
-  const a = { x: from.x - base.left - 30, y: from.y - base.top - 30 };
-  const b = { x: to.x - base.left - 30, y: to.y - base.top - 30 };
-  const anim = hand.animate(
-    [
-      { transform: `translate(${a.x}px, ${a.y}px) scale(.6)`, opacity: 0 },
-      { transform: `translate(${a.x}px, ${a.y}px) scale(1)`, opacity: 1, offset: 0.15 },
-      { transform: `translate(${b.x}px, ${b.y}px) scale(1)`, opacity: 1, offset: 0.8 },
-      { transform: `translate(${b.x}px, ${b.y}px) scale(.6)`, opacity: 0 },
-    ],
-    { duration: 1600, easing: "ease-in-out" },
-  );
-  anim.onfinish = () => hand.remove();
 }
 
 const mid = (n: Element): Point => {
@@ -176,11 +198,10 @@ function playSteps(ctx: Ctx, level: GuidedLevel): void {
   const { stage, api, later } = ctx;
   const g = startGuided();
   let hints = 0;
-  let idle = 0;
   let finished = false;
 
   const guide = guideBar(level.intro);
-  const { box, svg } = sceneBox(SCENES[level.scene](), `pr-scene--${level.scene}`);
+  const { box, svg } = sceneBox(SCENES[level.scene](), level.scene, ctx.cleanups);
   const patient = svg.querySelector<SVGGElement>(".pr-patient");
   if (patient && level.mood !== undefined) patient.setAttribute("class", `pr-patient ${level.mood}`);
   for (const id of level.start ?? []) svg.querySelector(`[data-fx="${id}"]`)?.classList.add("is-on");
@@ -225,7 +246,6 @@ function playSteps(ctx: Ctx, level: GuidedLevel): void {
   function stepDone(): void {
     const step = level.steps[g.step - 1]!;
     applyStep(step);
-    idle = 0;
     tray.querySelectorAll(".pr-tool").forEach((t) => t.classList.remove("is-needed", "is-busy"));
     if (g.step >= level.steps.length) {
       finished = true;
@@ -260,7 +280,6 @@ function playSteps(ctx: Ctx, level: GuidedLevel): void {
           audio.unlock();
           audio.play("pick");
           last = null;
-          idle = 0;
         },
         onMove: (p) => {
           if (finished) return;
@@ -316,7 +335,7 @@ function playSteps(ctx: Ctx, level: GuidedLevel): void {
     const z = svg.querySelector(`[data-zone="${cur.zone}"]`);
     if (!tool || !z) return;
     restart(tool, "is-needed");
-    showHand(layout, mid(tool), mid(z));
+    showDrag(mid(tool), mid(z));
   }
 
   api.setHint(() => {
@@ -325,18 +344,8 @@ function playSteps(ctx: Ctx, level: GuidedLevel): void {
     guideHand();
   });
 
-  // Gentle guidance when the child waits: the needed tool glows.
-  const tick = window.setInterval(() => {
-    if (finished) return;
-    idle++;
-    if (idle === 8) {
-      const cur = currentStep(level.steps, g);
-      const tool = cur && tray.querySelector(`[data-tool="${cur.tool}"]`);
-      if (tool) restart(tool, "is-needed");
-      idle = 0;
-    }
-  }, 1000);
-  ctx.cleanups.push(() => clearInterval(tick));
+  // A child who cannot read yet: after a pause the hand shows the next move (no penalty).
+  ctx.cleanups.push(whenIdle(() => !finished && guideHand(), 6000));
 
   guide.dots(0, level.steps.length);
   later(() => !finished && sayStep(), 2200);
@@ -478,19 +487,30 @@ function playShop(ctx: Ctx, level: ShopLevel): void {
     api.setHint(() => {
       hints++;
       const coin = coins.querySelector(".pr-coin:not(.is-placed)");
-      if (coin) showHand(layout, mid(coin), mid(till));
+      if (coin) showDrag(mid(coin), mid(till));
     });
   }
 
-  api.setHint(() => {
-    if (cartComplete(level.list, cart)) return;
-    hints++;
+  function shopHand(): void {
+    if (cartComplete(level.list, cart)) {
+      const coin = layout.querySelector(".pr-coin:not(.is-placed)");
+      const till = layout.querySelector(".pr-till");
+      if (coin && till && paid < need) showDrag(mid(coin), mid(till));
+      return;
+    }
     const line = level.list.find((l) => remaining(level.list, cart, l.id) > 0);
     const item = line && shelf.querySelector(`[data-id="${line.id}"]`);
     if (item) {
       restart(item, "is-needed");
-      showHand(layout, mid(item), mid(basket));
+      showDrag(mid(item), mid(basket));
     }
+  }
+  ctx.cleanups.push(whenIdle(shopHand, 6000));
+
+  api.setHint(() => {
+    if (cartComplete(level.list, cart)) return;
+    hints++;
+    shopHand();
   });
 }
 
@@ -503,7 +523,7 @@ function playSafety(ctx: Ctx, level: SafetyLevel): void {
   const total = level.things.filter((t) => t.danger).length;
   const guide = guideBar(level.intro);
   guide.dots(0, total);
-  const { box, svg } = sceneBox(level.room === "kitchen" ? kitchenScene() : roomScene(), `pr-scene--${level.room}`);
+  const { box, svg } = sceneBox(level.room === "kitchen" ? kitchenScene() : roomScene(), level.room, ctx.cleanups);
   if (!reducedMotion()) svg.classList.add("is-live");
   const layout = el("div", { class: "pr-layout pr-layout--safety" }, [guide.node, box]);
   stage.append(layout);
@@ -544,6 +564,14 @@ function playSafety(ctx: Ctx, level: SafetyLevel): void {
   };
   svg.addEventListener("click", onTap);
   ctx.cleanups.push(() => svg.removeEventListener("click", onTap));
+
+  ctx.cleanups.push(
+    whenIdle(() => {
+      const left = dangersLeft(level.things, s)[0];
+      const hit = left && svg.querySelector(`[data-thing="${left.id}"] .pr-thing__hit`);
+      if (hit) showTap(mid(hit));
+    }, 9000),
+  );
 
   api.setHint(() => {
     const left = dangersLeft(level.things, s)[0];

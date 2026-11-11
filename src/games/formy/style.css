@@ -180,9 +180,27 @@
   max-width: none;
 }
 
-.fm-member.fm-size--big .fm-member__fig { height: min(70cqh, 50cqw); }
-.fm-member.fm-size--mid .fm-member__fig { height: min(56cqh, 40cqw); }
-.fm-member.fm-size--small .fm-member__fig { height: min(39cqh, 28cqw); }
+.fm-member.fm-size--big .fm-member__fig { height: min(74cqh, 70cqw); }
+.fm-member.fm-size--mid .fm-member__fig { height: min(59cqh, 56cqw); }
+.fm-member.fm-size--small .fm-member__fig { height: min(41cqh, 39cqw); }
+
+/* Narrow screen: the family stands close together (tails may overlap) so
+   everyone can be big. */
+@media (max-aspect-ratio: 5/4) {
+  .fm-family {
+    gap: 0;
+    padding-inline: 2px;
+  }
+  .fm-member {
+    margin-inline: -5cqw;
+  }
+  .fm-member.fm-size--big .fm-member__fig { height: min(76cqh, 84cqw); }
+  .fm-member.fm-size--mid .fm-member__fig { height: min(61cqh, 67cqw); }
+  .fm-member.fm-size--small .fm-member__fig { height: min(42cqh, 47cqw); }
+  .fm-plate {
+    width: clamp(70px, 26cqw, 150px);
+  }
+}
 
 .fm-member.is-happy .fm-member__fig {
   animation: fm-hop 520ms cubic-bezier(0.3, 1.4, 0.5, 1);
@@ -394,7 +412,7 @@
 .fm-shelves {
   min-height: 0;
   display: flex;
-  align-items: stretch;
+  align-items: center;
   justify-content: center;
   gap: 3%;
   padding: 12px;
@@ -405,6 +423,7 @@
 
 .fm-bin {
   flex: 1;
+  max-height: 100%;
   min-width: 0;
   display: flex;
   flex-direction: column;
@@ -436,7 +455,7 @@
 }
 
 .fm-bin__in {
-  flex: 1;
+  min-height: 104px;
   display: flex;
   flex-wrap: wrap;
   align-content: flex-end;
@@ -491,3 +510,8 @@
 @keyframes fm-ring { from { transform: translate(-50%, -120%); opacity: 0.4; } }
 @keyframes fm-wiggle { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-3deg); } 75% { transform: rotate(3deg); } }
 @keyframes fm-fall { to { transform: translateY(40%) scale(0.2); opacity: 0; } }
+
+/* The shape bins are only as tall as they need to be. */
+.fm-layout--things .fm-shelves {
+  align-self: center;
+}

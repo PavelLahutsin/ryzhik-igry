@@ -5,6 +5,7 @@ import { draggable, type Point } from "../../shared/drag";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
 import { reducedMotion, useStyles } from "../../shared/style";
 import { svgNode } from "../../shared/ui";
+import { centre, showDrag, whenIdle } from "../../shared/guide";
 import baseCss from "../../shared/base.css?inline";
 import css from "./style.css?inline";
 import { pieceSvg } from "./art";
@@ -99,7 +100,7 @@ function play(stage: HTMLElement, plan: Plan, _index: number, api: PlayApi): () 
   const ghosts = el("div", { class: "sk-ghosts" });
   const board = el("div", { class: `sk-board sk-board--${plan.alive}`, style: { aspectRatio: `${plan.cols} / ${plan.rows}`, "--ratio": String(plan.cols / plan.rows), "--cols": String(plan.cols), "--rows": String(plan.rows) } }, [ghosts, model]);
   const guest = el("img", { class: "sk-guest", attrs: { src: character(plan.guest), alt: "", draggable: "false" } });
-  const site = el("div", { class: "sk-site" }, [el("div", { class: "sk-site__in" }, [board, guest])]);
+  const site = el("div", { class: `sk-site sk-site--${plan.alive}`, style: { "--ratio": String(plan.cols / plan.rows) } as Record<string, string> }, [el("div", { class: "sk-site__in" }, [board, guest])]);
   const slotNodes = slots.map((s) => {
     const g = svgNode(pieceSvg(s, true), `sk-ghost sk-piece--${s.kind}`);
     place(g, plan, s);
@@ -197,6 +198,25 @@ function play(stage: HTMLElement, plan: Plan, _index: number, api: PlayApi): () 
       }
     });
     if (plan.alive === "rocket") model.append(el("i", { class: "sk-flame" }));
+  }
+
+  // After a pause the hand shows which block goes where (no penalty).
+  cleanups.push(
+    whenIdle(() => {
+      if (finished) return;
+      const pair = nextPair();
+      if (pair) showDrag(centre(pair[0]), centre(pair[1]));
+    }, 6000),
+  );
+
+  function nextPair(): [HTMLElement, HTMLElement] | null {
+    for (let i = 0; i < slots.length; i++) {
+      const s = slots[i]!;
+      if (filled[i] || s.fixed) continue;
+      const b = blockNodes.find(({ node, block }) => !node.classList.contains("is-placed") && keyOf(block) === keyOf(s));
+      if (b) return [b.node, slotNodes[i]!];
+    }
+    return null;
   }
 
   api.setHint(() => {

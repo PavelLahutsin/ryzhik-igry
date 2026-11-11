@@ -3,6 +3,7 @@ import { el } from "../../shared/dom";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
 import { reducedMotion, useStyles } from "../../shared/style";
 import { svgNode } from "../../shared/ui";
+import { centre, showDrag, showTap, whenIdle } from "../../shared/guide";
 import baseCss from "../../shared/base.css?inline";
 import css from "./style.css?inline";
 import { allJoined, centroid, labelAt, startDots, starsFor, touch, type Pt } from "./logic";
@@ -60,7 +61,6 @@ function play(stage: HTMLElement, level: DotPicture, _index: number, api: PlayAp
   const state = startDots();
   let hints = 0;
   let pressed = false;
-  let idle = 0;
 
   const svg = node("svg", { viewBox: "0 0 200 200", class: "td-svg", role: "img", "aria-label": `Соедини точки: ${level.title}` });
   const pic = node("g", { class: `td-pic td-alive--${level.alive}` });
@@ -113,7 +113,6 @@ function play(stage: HTMLElement, level: DotPicture, _index: number, api: PlayAp
   function at(p: Pt, tapped: boolean): void {
     const before = state.misses;
     const joined = touch(dots, state, p, tapped);
-    idle = 0;
     if (joined !== null) {
       audio.tone(NOTES[joined % NOTES.length]! * (joined >= NOTES.length ? 2 : 1), 0.18);
       const g = dotNodes[joined]!;
@@ -170,18 +169,21 @@ function play(stage: HTMLElement, level: DotPicture, _index: number, api: PlayAp
   svg.addEventListener("pointercancel", up);
   svg.style.touchAction = "none";
 
-  // A gentle nudge when the child waits: the next dot wiggles.
-  const nudge = window.setInterval(() => {
+  // When the child waits: the next dot wiggles and the hand draws the next line.
+  const stopIdle = whenIdle(() => {
     if (allJoined(dots, state)) return;
-    idle++;
-    if (idle >= 4) {
-      idle = 0;
-      const next = dotNodes[state.next]!;
-      next.classList.remove("is-call");
-      void next.getBoundingClientRect();
-      next.classList.add("is-call");
-    }
-  }, 1000);
+    const next = dotNodes[state.next]!;
+    restart(next, "is-call");
+    const prev = dotNodes[state.next - 1];
+    const core = (g: SVGGElement): Element => g.querySelector(".td-dot__core")!;
+    if (prev) showDrag(centre(core(prev)), centre(core(next)));
+    else showTap(centre(core(next)));
+  }, 5000);
+  const restart = (n: Element, cls: string): void => {
+    n.classList.remove(cls);
+    void (n as HTMLElement).getBoundingClientRect();
+    n.classList.add(cls);
+  };
 
   api.setHint(() => {
     if (allJoined(dots, state)) return;
@@ -220,7 +222,7 @@ function play(stage: HTMLElement, level: DotPicture, _index: number, api: PlayAp
   paint();
   return () => {
     for (const t of timers) clearTimeout(t);
-    clearInterval(nudge);
+    stopIdle();
     svg.removeEventListener("pointerdown", down);
     svg.removeEventListener("pointermove", move);
     svg.removeEventListener("pointerup", up);
