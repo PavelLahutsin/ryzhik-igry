@@ -104,6 +104,16 @@ export const games: GameEntry[] = [
     resetKeys: ["ryzhik-igry:odezhda:progress"],
   },
   {
+    id: "sortirovka",
+    title: "По корзинкам",
+    note: "Разложи по цвету и по смыслу",
+    color: "#ff9f6b",
+    art: { src: character("belka"), figure: true },
+    load: () => import("./sortirovka"),
+    summary: () => levelStars("sortirovka", () => import("./sortirovka/levels")),
+    resetKeys: ["ryzhik-igry:sortirovka:progress"],
+  },
+  {
     id: "raskraska",
     title: "Раскраска",
     note: "Раскрашивай Рыжика и друзей",
