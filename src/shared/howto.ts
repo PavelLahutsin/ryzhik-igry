@@ -133,19 +133,35 @@ export function closeHowTo(): void {
 }
 
 /**
+ * A start screen with no top bar, only a corner «back» (Тайная картинка):
+ * the «?» goes to the other corner. Returns false when there is no such back.
+ */
+export function putInCorner(root: ParentNode, btn: Element): boolean {
+  const back = root.querySelector(".home-back");
+  if (!back) return false;
+  btn.classList.add("howto-corner");
+  back.after(btn);
+  return true;
+}
+
+/**
  * Put a «?» button in the game's top bar (and keep it there as the game
  * changes screens). Returns a stop function.
  */
 export function attachHowToButton(gameId: string, root: HTMLElement): () => void {
   if (!HOWTO[gameId]) return () => {};
   const add = (): void => {
+    if (root.querySelector(".btn--howto")) return;
     const bar = root.querySelector<HTMLElement>(".toolbar, .menu__head");
-    if (!bar || bar.querySelector(".btn--howto")) return;
     const btn = el(
       "button",
       { class: "btn btn--back btn--howto", attrs: { type: "button", "aria-label": "Как играть" }, on: { click: () => void showHowTo(gameId) } },
       [el("span", { attrs: { "aria-hidden": "true" }, text: "?" })],
     );
+    if (!bar) {
+      putInCorner(root, btn);
+      return;
+    }
     if (bar.classList.contains("menu__head")) {
       bar.append(btn);
       return;

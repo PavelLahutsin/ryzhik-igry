@@ -268,3 +268,11 @@
   .tip-ring { animation: none; }
 }
 
+
+/* «?» on a start screen without a top bar, opposite the corner «back». */
+.howto-corner {
+  position: fixed;
+  top: calc(12px + env(safe-area-inset-top));
+  right: calc(12px + env(safe-area-inset-right));
+  z-index: 5;
+}
