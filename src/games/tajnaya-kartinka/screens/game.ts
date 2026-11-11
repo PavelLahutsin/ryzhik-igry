@@ -44,7 +44,9 @@ export function renderGame(root: HTMLElement, levelId: string): () => void {
     return () => undefined;
   }
 
-  const game = new Game(gameConfig(level));
+  // Upright phone: a nearly square field with bigger cells (picture is centre-cropped).
+  const portrait = window.innerHeight > window.innerWidth * 1.15;
+  const game = new Game(gameConfig(level, portrait));
   const world = getWorld(level.worldId);
   const percent = el("div", {
     class: "hud-percent",

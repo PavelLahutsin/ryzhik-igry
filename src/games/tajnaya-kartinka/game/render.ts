@@ -23,6 +23,17 @@ export function loadMarker(): Promise<HTMLImageElement> {
 }
 
 /** Extra canvas margin so the marker can hang over a border cell. */
+/** Centre part of the picture with the field's aspect ratio (cover fit). */
+export function pictureCrop(picW: number, picH: number, cols: number, rows: number): { x: number; y: number; w: number; h: number } {
+  const field = cols / rows;
+  if (field < picW / picH) {
+    const w = picH * field;
+    return { x: (picW - w) / 2, y: 0, w, h: picH };
+  }
+  const h = picW / field;
+  return { x: 0, y: (picH - h) / 2, w: picW, h };
+}
+
 export function fieldPad(cell: number): number {
   return Math.round(cell * 0.7);
 }
@@ -67,6 +78,9 @@ export function drawGame(
 
   const picW = picture?.naturalWidth || 1;
   const picH = picture?.naturalHeight || 1;
+  // The field can be taller than the picture (phone held upright): show the
+  // middle of the picture instead of stretching it.
+  const crop = pictureCrop(picW, picH, cols, rows);
 
   for (let y = 0; y < rows; y++) {
     const row = grid[y]!;
@@ -77,10 +91,10 @@ export function drawGame(
       if (state === CAPTURED && picture) {
         ctx.drawImage(
           picture,
-          (x * picW) / cols,
-          (y * picH) / rows,
-          picW / cols,
-          picH / rows,
+          crop.x + (x * crop.w) / cols,
+          crop.y + (y * crop.h) / rows,
+          crop.w / cols,
+          crop.h / rows,
           dx,
           dy,
           cell,
