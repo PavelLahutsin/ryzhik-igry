@@ -86,6 +86,16 @@ export const games: GameEntry[] = [
     resetKeys: ["ryzhik-igry:tochki:progress"],
   },
   {
+    id: "professii",
+    title: "Профессии",
+    note: "Доктор, пожарный, магазин и безопасный дом",
+    color: "#6db3d4",
+    art: { src: character("papa"), figure: true },
+    load: () => import("./professii"),
+    summary: () => levelStars("professii", () => import("./professii/data")),
+    resetKeys: ["ryzhik-igry:professii:progress"],
+  },
+  {
     id: "tajnaya-kartinka",
     title: "Тайная картинка",
     note: "Веди Рыжика и открывай картинку",
