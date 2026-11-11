@@ -1,12 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { createRng } from "../../shared/rng";
 import { levels } from "./levels";
-import { layout, makePieces, scatter, slotOf, snaps, starsFor } from "./logic";
+import { hintPiece, layout, makePieces, scatter, slotOf, snaps, starsFor } from "./logic";
 
 describe("mozaika", () => {
-  it("has 4, 6, 9 and 12 piece levels in growing order", () => {
+  it("has 15 levels of 4, 6, 9, 12 and 16 pieces in growing order", () => {
+    expect(levels).toHaveLength(15);
+    expect(new Set(levels.map((l) => l.picture)).size).toBe(15);
     const counts = levels.map((l) => l.cols * l.rows);
-    expect(new Set(counts)).toEqual(new Set([4, 6, 9, 12]));
+    expect(new Set(counts)).toEqual(new Set([4, 6, 9, 12, 16]));
     expect([...counts].sort((a, b) => a - b)).toEqual(counts);
   });
   it("cuts the picture into a full grid", () => {
@@ -38,6 +40,10 @@ describe("mozaika", () => {
     const c = { x: home.x + l.piece.w / 2, y: home.y + l.piece.h / 2 };
     expect(snaps({ x: c.x + 20, y: c.y - 10 }, home, l.piece)).toBe(true);
     expect(snaps({ x: c.x - l.piece.w, y: c.y }, home, l.piece)).toBe(false);
+  });
+  it("places a hinted piece among the loose ones only", () => {
+    expect(hintPiece([0, 1, 2, 3], new Set([0, 2]), () => 0)).toBe(1);
+    expect(hintPiece([0, 1], new Set([0, 1]), () => 0)).toBe(-1);
   });
   it("gives stars kindly", () => {
     expect(starsFor(0, 4)).toBe(3);
