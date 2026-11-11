@@ -2,6 +2,7 @@ import { character, picture } from "../shared/assets";
 import coloringArt from "./raskraska/assets/pictures/ryzhik_sharik.png";
 
 import { starSummary } from "../shared/levelgame";
+import { SHELL_PREFIX } from "../shared/platform/web";
 
 export type GameModule = { mount: (root: HTMLElement) => () => void };
 
@@ -23,10 +24,32 @@ export type GameEntry = {
   resetKeys?: string[];
 };
 
-async function levelStars(gameId: string, load: () => Promise<{ levels: ReadonlyArray<{ id: string }> }>): Promise<Summary> {
-  const { levels } = await load();
-  const s = await starSummary(gameId, levels.map((l) => l.id));
-  return { got: s.got, max: s.max, unit: "stars" };
+/** A level game: stars on the tile, «Сбросить» clears "ryzhik-igry:<id>:progress". */
+function levelStars(
+  gameId: string,
+  load: () => Promise<{ levels: ReadonlyArray<{ id: string }> }>,
+): Pick<GameEntry, "summary" | "resetKeys"> {
+  return {
+    summary: async () => {
+      const { levels } = await load();
+      const s = await starSummary(gameId, levels.map((l) => l.id));
+      return { got: s.got, max: s.max, unit: "stars" };
+    },
+    resetKeys: [`${SHELL_PREFIX}${gameId}:progress`],
+  };
+}
+
+/** A free-play game: found things on the tile, «Сбросить» clears "ryzhik-igry:<id>:found". */
+function foundThings(gameId: string, load: () => Promise<{ allFinds: () => string[] }>): Pick<GameEntry, "summary" | "resetKeys"> {
+  return {
+    summary: async () => {
+      const [{ allFinds }, { gameFinds }] = await Promise.all([load(), import("../shared/finds")]);
+      const all = allFinds();
+      const list = await gameFinds(gameId).load();
+      return { got: list.filter((id) => all.includes(id)).length, max: all.length, unit: "finds" };
+    },
+    resetKeys: [`${SHELL_PREFIX}${gameId}:found`],
+  };
 }
 
 /**
@@ -42,13 +65,7 @@ export const games: GameEntry[] = [
     art: { src: picture("ryzhik-mashet") },
     wide: true,
     load: () => import("./domik"),
-    summary: async () => {
-      const [{ allFinds }, { gameFinds }] = await Promise.all([import("./domik/scenes"), import("../shared/finds")]);
-      const all = allFinds();
-      const list = await gameFinds("domik").load();
-      return { got: list.filter((id) => all.includes(id)).length, max: all.length, unit: "finds" };
-    },
-    resetKeys: ["ryzhik-igry:domik:found"],
+    ...foundThings("domik", () => import("./domik/scenes")),
   },
   {
     id: "kuhnya",
@@ -57,13 +74,7 @@ export const games: GameEntry[] = [
     color: "#e8463a",
     art: { src: character("mama"), figure: true },
     load: () => import("./kuhnya"),
-    summary: async () => {
-      const [{ allFinds }, { gameFinds }] = await Promise.all([import("./kuhnya/logic"), import("../shared/finds")]);
-      const all = allFinds();
-      const list = await gameFinds("kuhnya").load();
-      return { got: list.filter((id) => all.includes(id)).length, max: all.length, unit: "finds" };
-    },
-    resetKeys: ["ryzhik-igry:kuhnya:found"],
+    ...foundThings("kuhnya", () => import("./kuhnya/logic")),
   },
   {
     id: "risovalka",
@@ -72,8 +83,7 @@ export const games: GameEntry[] = [
     color: "#9b6cd8",
     art: { src: character("belka"), figure: true },
     load: () => import("./risovalka"),
-    summary: () => levelStars("risovalka", () => import("./risovalka/pictures")),
-    resetKeys: ["ryzhik-igry:risovalka:progress"],
+    ...levelStars("risovalka", () => import("./risovalka/pictures")),
   },
   {
     id: "tochki",
@@ -82,8 +92,7 @@ export const games: GameEntry[] = [
     color: "#3fae6a",
     art: { src: character("ezhik"), figure: true },
     load: () => import("./tochki"),
-    summary: () => levelStars("tochki", () => import("./tochki/levels")),
-    resetKeys: ["ryzhik-igry:tochki:progress"],
+    ...levelStars("tochki", () => import("./tochki/levels")),
   },
   {
     id: "professii",
@@ -92,8 +101,7 @@ export const games: GameEntry[] = [
     color: "#6db3d4",
     art: { src: character("papa"), figure: true },
     load: () => import("./professii"),
-    summary: () => levelStars("professii", () => import("./professii/data")),
-    resetKeys: ["ryzhik-igry:professii:progress"],
+    ...levelStars("professii", () => import("./professii/data")),
   },
   {
     id: "stroyka",
@@ -102,8 +110,7 @@ export const games: GameEntry[] = [
     color: "#ffb23f",
     art: { src: character("mishka"), figure: true },
     load: () => import("./stroyka"),
-    summary: () => levelStars("stroyka", () => import("./stroyka/levels")),
-    resetKeys: ["ryzhik-igry:stroyka:progress"],
+    ...levelStars("stroyka", () => import("./stroyka/levels")),
   },
   {
     id: "formy",
@@ -112,8 +119,7 @@ export const games: GameEntry[] = [
     color: "#9b6cd8",
     art: { src: character("mama"), figure: true },
     load: () => import("./formy"),
-    summary: () => levelStars("formy", () => import("./formy/levels")),
-    resetKeys: ["ryzhik-igry:formy:progress"],
+    ...levelStars("formy", () => import("./formy/levels")),
   },
   {
     id: "tajnaya-kartinka",
@@ -141,8 +147,7 @@ export const games: GameEntry[] = [
     color: "#6db3d4",
     art: { src: picture("piknik") },
     load: () => import("./mozaika"),
-    summary: () => levelStars("mozaika", () => import("./mozaika/levels")),
-    resetKeys: ["ryzhik-igry:mozaika:progress"],
+    ...levelStars("mozaika", () => import("./mozaika/levels")),
   },
   {
     id: "sliyanie",
@@ -151,8 +156,7 @@ export const games: GameEntry[] = [
     color: "#7cc46a",
     art: { src: picture("sad") },
     load: () => import("./sliyanie"),
-    summary: () => levelStars("sliyanie", () => import("./sliyanie/levels")),
-    resetKeys: ["ryzhik-igry:sliyanie:progress"],
+    ...levelStars("sliyanie", () => import("./sliyanie/levels")),
   },
   {
     id: "najdi-paru",
@@ -161,8 +165,7 @@ export const games: GameEntry[] = [
     color: "#f27aa0",
     art: { src: picture("vse-vmeste") },
     load: () => import("./najdi-paru"),
-    summary: () => levelStars("najdi-paru", () => import("./najdi-paru/levels")),
-    resetKeys: ["ryzhik-igry:najdi-paru:progress"],
+    ...levelStars("najdi-paru", () => import("./najdi-paru/levels")),
   },
   {
     id: "teni",
@@ -171,8 +174,7 @@ export const games: GameEntry[] = [
     color: "#9b8cf0",
     art: { src: character("mishka"), figure: true },
     load: () => import("./teni"),
-    summary: () => levelStars("teni", () => import("./teni/levels")),
-    resetKeys: ["ryzhik-igry:teni:progress"],
+    ...levelStars("teni", () => import("./teni/levels")),
   },
   {
     id: "odezhda",
@@ -181,8 +183,7 @@ export const games: GameEntry[] = [
     color: "#ffc94a",
     art: { src: character("ryzhik"), figure: true },
     load: () => import("./odezhda"),
-    summary: () => levelStars("odezhda", () => import("./odezhda/levels")),
-    resetKeys: ["ryzhik-igry:odezhda:progress"],
+    ...levelStars("odezhda", () => import("./odezhda/levels")),
   },
   {
     id: "sortirovka",
@@ -191,8 +192,7 @@ export const games: GameEntry[] = [
     color: "#ff9f6b",
     art: { src: character("belka"), figure: true },
     load: () => import("./sortirovka"),
-    summary: () => levelStars("sortirovka", () => import("./sortirovka/levels")),
-    resetKeys: ["ryzhik-igry:sortirovka:progress"],
+    ...levelStars("sortirovka", () => import("./sortirovka/levels")),
   },
   {
     id: "labirint",
@@ -201,8 +201,7 @@ export const games: GameEntry[] = [
     color: "#5bb381",
     art: { src: character("ezhik"), figure: true },
     load: () => import("./labirint"),
-    summary: () => levelStars("labirint", () => import("./labirint/levels")),
-    resetKeys: ["ryzhik-igry:labirint:progress"],
+    ...levelStars("labirint", () => import("./labirint/levels")),
   },
   {
     id: "raskraska",
