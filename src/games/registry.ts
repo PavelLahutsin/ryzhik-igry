@@ -76,6 +76,16 @@ export const games: GameEntry[] = [
     resetKeys: ["ryzhik-igry:risovalka:progress"],
   },
   {
+    id: "tochki",
+    title: "По точкам",
+    note: "Соедини 1, 2, 3… — что получится?",
+    color: "#3fae6a",
+    art: { src: character("ezhik"), figure: true },
+    load: () => import("./tochki"),
+    summary: () => levelStars("tochki", () => import("./tochki/levels")),
+    resetKeys: ["ryzhik-igry:tochki:progress"],
+  },
+  {
     id: "tajnaya-kartinka",
     title: "Тайная картинка",
     note: "Веди Рыжика и открывай картинку",

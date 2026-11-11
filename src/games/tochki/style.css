@@ -1,0 +1,217 @@
+.td-wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  container-type: size;
+}
+
+.td-board {
+  position: relative;
+  width: min(100cqw, calc(100cqh - 40px), 640px);
+  aspect-ratio: 1;
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 1px 1px, rgba(59, 46, 37, 0.07) 1.5px, transparent 2px) 0 0 / 22px 22px,
+    #fffdf8;
+  box-shadow: 0 0 0 4px var(--surface), 0 0 0 7px var(--line), var(--shadow-card);
+}
+
+.td-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  cursor: pointer;
+}
+
+.td-say {
+  min-height: 28px;
+  margin: 0;
+  font: 800 20px/1.3 var(--font-ui);
+  color: var(--ink);
+}
+
+.td-say b {
+  display: inline-block;
+  min-width: 1.6em;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: #3fae6a;
+  color: #fff;
+  text-align: center;
+}
+
+.td-shape,
+.td-details {
+  opacity: 0;
+  transition: opacity 700ms ease;
+}
+
+.is-finished .td-shape,
+.is-finished .td-details {
+  opacity: 1;
+}
+
+.td-lines,
+.td-rubber {
+  fill: none;
+  stroke: #3b2e25;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.td-rubber {
+  stroke: #3fae6a;
+  stroke-dasharray: 2 7;
+  opacity: 0;
+}
+
+.is-finished .td-lines {
+  opacity: 0;
+  transition: opacity 700ms ease;
+}
+
+.td-dot__halo {
+  fill: transparent;
+}
+
+.td-dot__core {
+  fill: #3b2e25;
+  stroke: #fff;
+  stroke-width: 2.5;
+  transition: fill 200ms ease;
+}
+
+.td-dot__num {
+  font: 800 15px var(--font-ui);
+  fill: #8f7a63;
+  text-anchor: middle;
+  dominant-baseline: central;
+  paint-order: stroke;
+  stroke: #fffdf8;
+  stroke-width: 4px;
+  pointer-events: none;
+}
+
+.td-dot.is-next .td-dot__core {
+  fill: #3fae6a;
+}
+
+.td-dot.is-next .td-dot__halo {
+  fill: rgba(63, 174, 106, 0.22);
+  animation: td-pulse 1.3s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.td-dot.is-next .td-dot__num {
+  fill: #2c8a52;
+  font-size: 18px;
+}
+
+.td-dot.is-done .td-dot__core {
+  fill: #ff8a3d;
+}
+
+.td-dot.is-done .td-dot__num {
+  fill: #c9b8a3;
+}
+
+.td-dot.is-pop .td-dot__core {
+  animation: td-pop 360ms cubic-bezier(0.3, 1.6, 0.5, 1);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.td-dot.is-call .td-dot__halo {
+  animation: td-call 500ms ease 3;
+}
+
+.td-dot.is-hint .td-dot__halo {
+  fill: rgba(255, 178, 63, 0.5);
+  animation: td-call 600ms ease 4;
+}
+
+.is-finished .td-dots {
+  opacity: 0;
+  transition: opacity 500ms ease;
+}
+
+.td-dot__halo,
+.td-dot.is-call .td-dot__halo,
+.td-dot.is-hint .td-dot__halo {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* ---------------- coming alive */
+.td-pic {
+  transform-box: view-box;
+  transform-origin: 100px 100px;
+}
+
+.is-alive .td-alive--spin { animation: td-spin 2.2s ease-in-out infinite; }
+.is-alive .td-alive--bounce { animation: td-bounce 0.9s cubic-bezier(0.3, 0, 0.7, 1) infinite; transform-origin: 100px 175px; }
+.is-alive .td-alive--swim { animation: td-swim 2.6s ease-in-out infinite; }
+.is-alive .td-alive--flutter { animation: td-flutter 0.32s ease-in-out infinite alternate; }
+.is-alive .td-alive--drive { animation: td-drive 2.4s ease-in-out infinite; }
+.is-alive .td-alive--smoke { animation: td-glow 2s ease-in-out infinite; transform-origin: 100px 180px; }
+.is-alive .td-alive--sway { animation: td-sway 2s ease-in-out infinite; transform-origin: 100px 185px; }
+.is-alive .td-alive--rock { animation: td-rock 2s ease-in-out infinite; transform-origin: 100px 165px; }
+.is-alive .td-alive--launch { animation: td-launch 2.6s ease-in-out infinite; }
+.is-alive .td-alive--beat { animation: td-beat 0.9s ease-in-out infinite; }
+.is-alive .td-flame { animation: td-flame 0.2s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: top; }
+
+.td-smoke {
+  fill: rgba(200, 200, 210, 0.85);
+  animation: td-smoke 1.5s ease-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.td-bubble {
+  fill: none;
+  stroke: #6db3d4;
+  stroke-width: 2.5;
+  animation: td-bubble 1.2s ease-out infinite;
+}
+
+.td-spark {
+  fill: #ffc94a;
+  animation: td-spark 1.2s ease-in-out infinite;
+}
+
+.td-thumb svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+@keyframes td-pulse { 50% { transform: scale(1.45); } }
+@keyframes td-call { 50% { transform: scale(2.1); } }
+@keyframes td-pop { 50% { transform: scale(1.8); } }
+@keyframes td-glow { 50% { transform: scale(1.05); } }
+@keyframes td-spin { 50% { transform: scale(1.08) rotate(14deg); } }
+@keyframes td-bounce { 0%, 100% { transform: translateY(0) scale(1.06, 0.92); } 50% { transform: translateY(-30px) scale(0.96, 1.04); } }
+@keyframes td-swim { 0%, 100% { transform: translateX(-16px) rotate(-4deg); } 50% { transform: translateX(16px) rotate(4deg); } }
+@keyframes td-flutter { to { transform: scaleX(0.8) translateY(-6px); } }
+@keyframes td-drive { 0%, 100% { transform: translateX(0); } 40% { transform: translateX(34px) rotate(-1deg); } 70% { transform: translateX(-26px); } }
+@keyframes td-sway { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(6deg); } }
+@keyframes td-rock { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg) translateY(-4px); } }
+@keyframes td-launch { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-26px); } }
+@keyframes td-beat { 0%, 100% { transform: scale(1); } 15% { transform: scale(1.12); } 30% { transform: scale(1); } 45% { transform: scale(1.08); } }
+@keyframes td-flame { to { transform: scaleY(1.35); } }
+@keyframes td-smoke { from { transform: translate(0, 0) scale(0.6); opacity: 0.9; } to { transform: translate(10px, -34px) scale(1.6); opacity: 0; } }
+@keyframes td-bubble { from { transform: translate(0, 0); opacity: 1; } to { transform: translate(-8px, -50px); opacity: 0; } }
+@keyframes td-spark { 50% { opacity: 0.15; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .td-dot.is-next .td-dot__halo {
+    animation: none;
+  }
+}
