@@ -106,6 +106,16 @@ export const games: GameEntry[] = [
     resetKeys: ["ryzhik-igry:stroyka:progress"],
   },
   {
+    id: "formy",
+    title: "Размер и форма",
+    note: "Большое и маленькое, круг и квадрат",
+    color: "#9b6cd8",
+    art: { src: character("mama"), figure: true },
+    load: () => import("./formy"),
+    summary: () => levelStars("formy", () => import("./formy/levels")),
+    resetKeys: ["ryzhik-igry:formy:progress"],
+  },
+  {
     id: "tajnaya-kartinka",
     title: "Тайная картинка",
     note: "Веди Рыжика и открывай картинку",
