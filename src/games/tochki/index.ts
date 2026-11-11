@@ -1,5 +1,5 @@
 import { audio, NOTES } from "../../shared/audio";
-import { el, svgEl, svgLocal } from "../../shared/dom";
+import { el, svgEl, svgLocal, replayClass } from "../../shared/dom";
 import { coalesced, pointerTrack } from "../../shared/drag";
 import { createScope } from "../../shared/lifecycle";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
@@ -96,17 +96,13 @@ function play(stage: HTMLElement, level: DotPicture, _index: number, api: PlayAp
     if (joined !== null) {
       audio.tone(NOTES[joined % NOTES.length]! * (joined >= NOTES.length ? 2 : 1), 0.18);
       const g = dotNodes[joined]!;
-      g.classList.remove("is-pop");
-      void g.getBoundingClientRect();
-      g.classList.add("is-pop");
+      replayClass(g, "is-pop");
       paint();
       if (allJoined(dots, state)) finish();
     } else if (state.misses > before) {
       audio.play("miss");
       const next = dotNodes[state.next]!;
-      next.classList.remove("is-call");
-      void next.getBoundingClientRect();
-      next.classList.add("is-call");
+      replayClass(next, "is-call");
       say.innerHTML = `Ищи цифру <b>${state.next + 1}</b>`;
     }
   }
@@ -147,17 +143,12 @@ function play(stage: HTMLElement, level: DotPicture, _index: number, api: PlayAp
   api.setDemo(() => {
     if (allJoined(dots, state)) return;
     const next = dotNodes[state.next]!;
-    restart(next, "is-call");
+    replayClass(next, "is-call");
     const prev = dotNodes[state.next - 1];
     const core = (g: SVGGElement): Element => g.querySelector(".td-dot__core")!;
     if (prev) showDrag(centre(core(prev)), centre(core(next)));
     else showTap(centre(core(next)));
   });
-  const restart = (n: Element, cls: string): void => {
-    n.classList.remove(cls);
-    void (n as HTMLElement).getBoundingClientRect();
-    n.classList.add(cls);
-  };
 
   api.setHint(() => {
     if (allJoined(dots, state)) return;

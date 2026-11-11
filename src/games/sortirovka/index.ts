@@ -1,6 +1,6 @@
 import { audio } from "../../shared/audio";
 import { centre, showDrag } from "../../shared/guide";
-import { el } from "../../shared/dom";
+import { el, replayClass } from "../../shared/dom";
 import { centerOf, draggable, nearestWithin } from "../../shared/drag";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
 import { OBJECTS, type ObjectId } from "../../shared/objects";
@@ -87,9 +87,7 @@ function play(stage: HTMLElement, level: SortLevel, _index: number, api: PlayApi
             sorted.add(id);
             const basket = baskets.get(target!)!;
             basket.querySelector(".so-basket__in")!.append(svgNode(obj.svg, "so-basket__thing"));
-            basket.classList.remove("is-got");
-            void basket.offsetWidth;
-            basket.classList.add("is-got");
+            replayClass(basket, "is-got");
             node.classList.add("is-placed");
             audio.play("snap");
             if (sorted.size === count) {
@@ -102,9 +100,7 @@ function play(stage: HTMLElement, level: SortLevel, _index: number, api: PlayApi
             misses++;
             audio.play("miss");
             const basket = baskets.get(target!)!;
-            basket.classList.remove("is-wrong");
-            void basket.offsetWidth;
-            basket.classList.add("is-wrong");
+            replayClass(basket, "is-wrong");
             const own = level.baskets.find((b) => b.id === basketOf(level, id))!;
             hint(stage, `${obj.name} — не сюда. Ищи корзинку «${own.name}»!`, 2200);
           }
@@ -137,9 +133,7 @@ function play(stage: HTMLElement, level: SortLevel, _index: number, api: PlayApi
     misses++;
     for (const node of [items.get(id), baskets.get(basketOf(level, id)!)]) {
       if (!node) continue;
-      node.classList.remove("is-hinted");
-      void node.offsetWidth;
-      node.classList.add("is-hinted");
+      replayClass(node, "is-hinted");
     }
   });
 

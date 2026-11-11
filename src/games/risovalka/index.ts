@@ -1,6 +1,6 @@
 import { audio } from "../../shared/audio";
 import { showDrag } from "../../shared/guide";
-import { el, svgEl, svgLocal } from "../../shared/dom";
+import { el, svgEl, svgLocal, replayClass } from "../../shared/dom";
 import { coalesced, pointerTrack } from "../../shared/drag";
 import { createScope } from "../../shared/lifecycle";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
@@ -113,9 +113,7 @@ function play(stage: HTMLElement, level: Picture, _index: number, api: PlayApi):
     if (!slipped && offTrack(s.samples, index, p)) {
       slipped = true;
       slips++;
-      marker.classList.remove("is-wobble");
-      void marker.getBoundingClientRect();
-      marker.classList.add("is-wobble");
+      replayClass(marker, "is-wobble");
       audio.play("miss");
     }
     if (strokeDone(s.samples, index)) {
@@ -141,9 +139,7 @@ function play(stage: HTMLElement, level: Picture, _index: number, api: PlayApi):
     const at = s.samples[index]!;
     if (Math.hypot(at.x - p.x, at.y - p.y) > TOLERANCE * 1.8) {
       say.textContent = "Начни с зелёной точки!";
-      marker.classList.remove("is-call");
-      void marker.getBoundingClientRect();
-      marker.classList.add("is-call");
+      replayClass(marker, "is-call");
       return false;
     }
     say.textContent = "";

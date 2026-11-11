@@ -1,6 +1,6 @@
 import { audio } from "../../shared/audio";
 import { character } from "../../shared/assets";
-import { el } from "../../shared/dom";
+import { el, replayClass } from "../../shared/dom";
 import { draggable, type Point } from "../../shared/drag";
 import { createScope } from "../../shared/lifecycle";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
@@ -60,11 +60,6 @@ function shuffle<T>(list: T[]): T[] {
   return a;
 }
 
-function restart(node: Element, cls: string): void {
-  node.classList.remove(cls);
-  void (node as HTMLElement).getBoundingClientRect();
-  node.classList.add(cls);
-}
 
 function play(stage: HTMLElement, plan: Plan, _index: number, api: PlayApi): () => void {
   const scope = createScope();
@@ -86,7 +81,7 @@ function play(stage: HTMLElement, plan: Plan, _index: number, api: PlayApi): () 
   ]);
   const say = (t: string): void => {
     sayText.textContent = t;
-    restart(sayText, "is-new");
+    replayClass(sayText, "is-new");
   };
 
   // Plan board.
@@ -149,7 +144,7 @@ function play(stage: HTMLElement, plan: Plan, _index: number, api: PlayApi): () 
       audio.play("boing");
       if (s.color === "blue") audio.say("v35");
       say(`Сюда нужен ${COLOR_NAME[s.color]}! А этот — ${COLOR_NAME[block.color]}.`);
-      restart(slotNodes[found.index]!, "is-call");
+      replayClass(slotNodes[found.index]!, "is-call");
       return false;
     }
     filled[found.index] = true;
@@ -223,8 +218,8 @@ function play(stage: HTMLElement, plan: Plan, _index: number, api: PlayApi): () 
     if (!s) return;
     const b = blockNodes.find(({ node, block }) => !node.classList.contains("is-placed") && block.kind === s.kind && block.color === s.color && block.w === s.w && block.h === s.h && (block.n ?? 0) === (s.n ?? 0));
     hints++;
-    restart(slotNodes[i]!, "is-call");
-    if (b) restart(b.node, "is-call");
+    replayClass(slotNodes[i]!, "is-call");
+    if (b) replayClass(b.node, "is-call");
     say(`Найди ${COLOR_NAME[s.color]} ${s.kind === "wheel" ? "колесо" : s.kind === "window" ? "окошко" : "блок"} — вот для этого места.`);
   });
 

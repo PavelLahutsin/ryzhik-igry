@@ -1,7 +1,7 @@
 import { audio } from "../../shared/audio";
 import { showDrag } from "../../shared/guide";
 import { character } from "../../shared/assets";
-import { el, svgEl } from "../../shared/dom";
+import { el, svgEl, replayClass } from "../../shared/dom";
 import { pointerTrack } from "../../shared/drag";
 import { createScope } from "../../shared/lifecycle";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
@@ -155,9 +155,7 @@ function play(stage: HTMLElement, level: LabLevel, _index: number, api: PlayApi)
   }
 
   function bump(): void {
-    board.classList.remove("is-bump");
-    void board.offsetWidth;
-    board.classList.add("is-bump");
+    replayClass(board, "is-bump");
   }
 
   function cellAt(event: PointerEvent): Cell | null {
@@ -228,9 +226,7 @@ function play(stage: HTMLElement, level: LabLevel, _index: number, api: PlayApi)
       : goal;
     hints++;
     hintLine.setAttribute("points", pts(solve(maze, at, target)));
-    hintLine.classList.remove("is-on");
-    void hintLine.getBoundingClientRect();
-    hintLine.classList.add("is-on");
+    replayClass(hintLine, "is-on");
     clearTimeout(hintTimer);
     hintTimer = window.setTimeout(() => hintLine.classList.remove("is-on"), 2200);
   });

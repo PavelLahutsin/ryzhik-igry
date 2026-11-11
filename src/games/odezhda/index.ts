@@ -1,7 +1,7 @@
 import { audio } from "../../shared/audio";
 import { centre, showDrag } from "../../shared/guide";
 import { character } from "../../shared/assets";
-import { el } from "../../shared/dom";
+import { el, replayClass } from "../../shared/dom";
 import { draggable } from "../../shared/drag";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
 import { shuffle } from "../../shared/rng";
@@ -112,9 +112,7 @@ function play(stage: HTMLElement, level: OdezhdaLevel, _index: number, api: Play
           if (result === "wrong") {
             misses++;
             audio.play("miss");
-            node.classList.remove("is-wrong");
-            void node.offsetWidth;
-            node.classList.add("is-wrong");
+            replayClass(node, "is-wrong");
             hint(stage, `${item.why} Сегодня ${WEATHER[level.weather].name.toLowerCase()}!`, 2400);
           }
           return false;
@@ -138,9 +136,7 @@ function play(stage: HTMLElement, level: OdezhdaLevel, _index: number, api: Play
     const node = id ? tray.querySelector<HTMLElement>(`.od-item[data-id="${id}"]`) : null;
     if (!node) return;
     misses++;
-    node.classList.remove("is-hinted");
-    void node.offsetWidth;
-    node.classList.add("is-hinted");
+    replayClass(node, "is-hinted");
   });
   return () => {
     for (const stop of stops) stop();

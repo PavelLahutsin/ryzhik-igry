@@ -1,6 +1,6 @@
 import { audio } from "../../shared/audio";
 import { character } from "../../shared/assets";
-import { el } from "../../shared/dom";
+import { el, replayClass } from "../../shared/dom";
 import { draggable, type Point } from "../../shared/drag";
 import { gameFinds } from "../../shared/finds";
 import { goHome } from "../../shared/router";
@@ -113,21 +113,16 @@ export function mount(root: HTMLElement): () => void {
     fig.alt = GUESTS[id].name;
     for (const b of picker.querySelectorAll<HTMLElement>(".kt-picker__btn")) b.classList.toggle("is-on", b.dataset.id === id);
     face.classList.remove("is-on");
-    restart(fig, "is-hop");
+    replayClass(fig, "is-hop");
     say(id === "ryzhik" ? "Я голодный!" : id === "mama" ? "Что у нас на обед?" : id === "mishka" ? "Р-р-р, хочу кушать!" : "Фыр! Угостишь?");
   }
 
   function say(text: string, ms = 1800): void {
     bubble.textContent = text;
-    restart(bubble, "is-open");
+    replayClass(bubble, "is-open");
     later(() => bubble.classList.remove("is-open"), ms);
   }
 
-  function restart(node: Element, cls: string): void {
-    node.classList.remove(cls);
-    void (node as HTMLElement).offsetWidth;
-    node.classList.add(cls);
-  }
 
   function puff(kind: "heart" | "steam" | "smoke" | "drop" | "star", count = 5): void {
     if (reducedMotion()) return;
@@ -149,12 +144,12 @@ export function mount(root: HTMLElement): () => void {
     const r = taste(guest, dish);
     audio.play("munch");
     later(() => audio.play("yum"), 380);
-    restart(fig, "is-chew");
+    replayClass(fig, "is-chew");
     later(() => {
       face.replaceChildren(svgNode(faceArt(r)));
-      restart(face, "is-on");
+      replayClass(face, "is-on");
       fig.className = "kt-guest__fig";
-      restart(fig, `is-${r}`);
+      replayClass(fig, `is-${r}`);
       audio.play(SOUND[r]);
       if (r === "yum" || r === "love") audio.say("v26");
       if (r === "yuck") audio.say("v27");
@@ -169,7 +164,7 @@ export function mount(root: HTMLElement): () => void {
         if (!isNew) return;
         found++;
         paintScore();
-        restart(score, "is-bump");
+        replayClass(score, "is-bump");
       });
       bites++;
       paintMeter();
@@ -177,7 +172,7 @@ export function mount(root: HTMLElement): () => void {
         busyEating = false;
         if (bites >= BITES_TO_FULL) {
           say("Я наелся! Спасибо!", 2200);
-          restart(fig, "is-full");
+          replayClass(fig, "is-full");
           audio.play("magic");
           later(() => {
             bites = 0;
@@ -252,7 +247,7 @@ export function mount(root: HTMLElement): () => void {
     }
     const next = addToTool(t.contents, dish, t.op);
     if (!next) {
-      restart(t.node, "is-nope");
+      replayClass(t.node, "is-nope");
       audio.play("miss");
       return false;
     }
@@ -281,20 +276,20 @@ export function mount(root: HTMLElement): () => void {
     t.contents = [dish];
     t.done = true;
     paintTool(t);
-    restart(t.node, "is-ready");
+    replayClass(t.node, "is-ready");
     audio.play("ding");
   }
 
   function useTool(t: ToolRun): void {
     audio.unlock();
     if (t.contents.length === 0) {
-      restart(t.node, "is-nope");
+      replayClass(t.node, "is-nope");
       say("Положи сюда что-нибудь!", 1300);
       return;
     }
     if (t.op === "cut" && !t.done) {
       t.chops++;
-      restart(t.node, "is-chop");
+      replayClass(t.node, "is-chop");
       audio.play("chop");
       if (t.chops >= 3) finish(t);
       return;
@@ -306,7 +301,7 @@ export function mount(root: HTMLElement): () => void {
       t.timer = window.setTimeout(() => finish(t), 1500);
       return;
     }
-    restart(t.node, "is-wiggle");
+    replayClass(t.node, "is-wiggle");
   }
 
   for (const t of tools) {

@@ -63,3 +63,10 @@ export function svgLocal(svg: SVGSVGElement, client: { clientX: number; clientY:
   const p = pt.matrixTransform(m.inverse());
   return { x: p.x, y: p.y };
 }
+
+/** Remove and add a class with a reflow between, so its CSS animation plays again. */
+export function replayClass(node: Element, cls: string): void {
+  node.classList.remove(cls);
+  void node.getBoundingClientRect();
+  node.classList.add(cls);
+}

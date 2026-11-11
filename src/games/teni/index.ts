@@ -1,6 +1,6 @@
 import { audio } from "../../shared/audio";
 import { centre, showDrag } from "../../shared/guide";
-import { el } from "../../shared/dom";
+import { el, replayClass } from "../../shared/dom";
 import { centerOf, draggable, nearestWithin } from "../../shared/drag";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
 import { shuffle } from "../../shared/rng";
@@ -98,9 +98,7 @@ function play(stage: HTMLElement, level: TeniLevel, _index: number, api: PlayApi
             misses++;
             audio.play("miss");
             const shadow = shadows.get(target!)!;
-            shadow.classList.remove("is-wrong");
-            void shadow.offsetWidth;
-            shadow.classList.add("is-wrong");
+            replayClass(shadow, "is-wrong");
             hint(stage, `Это не тень: ${t.name.toLowerCase()}. Попробуй другую!`);
           }
           return false;
@@ -134,9 +132,7 @@ function play(stage: HTMLElement, level: TeniLevel, _index: number, api: PlayApi
     const pair = [shadows.get(id)!, tray.querySelector<HTMLElement>(`.tn-item[data-id="${id}"]`)];
     for (const node of pair) {
       if (!node) continue;
-      node.classList.remove("is-hinted");
-      void node.offsetWidth;
-      node.classList.add("is-hinted");
+      replayClass(node, "is-hinted");
     }
   });
   return () => {

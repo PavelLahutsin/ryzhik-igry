@@ -1,6 +1,6 @@
 import { audio } from "./audio";
 import { character } from "./assets";
-import { el, svgEl } from "./dom";
+import { el, svgEl, replayClass } from "./dom";
 import { gameProgress, isUnlocked, totalStars, type Progress } from "./progress";
 import { goHome, listenGame, navigateGame } from "./router";
 import { praiseOverlay, starRow, toolbar } from "./ui";
@@ -229,9 +229,7 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
       if (!onHint || won) return;
       audio.unlock();
       audio.play("tap");
-      hintBtn.classList.remove("is-used");
-      void hintBtn.offsetWidth;
-      hintBtn.classList.add("is-used");
+      replayClass(hintBtn, "is-used");
       audio.say("v06");
       onHint();
     });

@@ -1,7 +1,7 @@
 import { audio, NOTES } from "../../shared/audio";
 import { centre, showDrag } from "../../shared/guide";
 import { character } from "../../shared/assets";
-import { el } from "../../shared/dom";
+import { el, replayClass } from "../../shared/dom";
 import { draggable, type Point } from "../../shared/drag";
 import { createScope } from "../../shared/lifecycle";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
@@ -60,11 +60,6 @@ function shuffle<T>(list: T[]): T[] {
   return a;
 }
 
-function restart(node: Element, cls: string): void {
-  node.classList.remove(cls);
-  void (node as HTMLElement).getBoundingClientRect();
-  node.classList.add(cls);
-}
 
 
 type Target = { node: HTMLElement; key: string };
@@ -111,7 +106,7 @@ function play(stage: HTMLElement, level: FormLevel, _index: number, api: PlayApi
   ]);
   const say = (t: string): void => {
     sayText.textContent = t;
-    restart(sayText, "is-new");
+    replayClass(sayText, "is-new");
   };
 
   const setup =
@@ -142,7 +137,7 @@ function play(stage: HTMLElement, level: FormLevel, _index: number, api: PlayApi
           if (!ok) {
             misses++;
             audio.play("boing");
-            restart(target.node, "is-wrong");
+            replayClass(target.node, "is-wrong");
             say(setup.wrongText(item, target));
             return false;
           }
@@ -171,8 +166,8 @@ function play(stage: HTMLElement, level: FormLevel, _index: number, api: PlayApi
     const pair = setup.hintPair();
     if (!pair) return;
     hints++;
-    restart(pair[0].node, "is-hint");
-    restart(pair[1].node, "is-hint");
+    replayClass(pair[0].node, "is-hint");
+    replayClass(pair[1].node, "is-hint");
   });
 
   return scope.dispose;
@@ -206,7 +201,7 @@ function play(stage: HTMLElement, level: FormLevel, _index: number, api: PlayApi
         const art = item.node.querySelector(".fm-item__art")!.cloneNode(true) as HTMLElement;
         art.className = `fm-plate__thing fm-size--${item.key}`;
         target.node.querySelector(".fm-plate__in")!.append(art);
-        restart(target.node, "is-happy");
+        replayClass(target.node, "is-happy");
         audio.play("yum");
         say(`${item.name} — ${SIZE_OWNER[item.key as Size].who}! Спасибо!`);
       },
@@ -280,7 +275,7 @@ function play(stage: HTMLElement, level: FormLevel, _index: number, api: PlayApi
           target.node.append(fall);
           later(() => fall.remove(), 700);
         }
-        restart(target.node, "is-got");
+        replayClass(target.node, "is-got");
         audio.play("pop");
         say(`${item.name}!`);
       },
@@ -318,7 +313,7 @@ function play(stage: HTMLElement, level: FormLevel, _index: number, api: PlayApi
         const copy = item.node.querySelector(".fm-item__art")!.cloneNode(true) as HTMLElement;
         copy.className = "fm-bin__thing";
         target.node.querySelector(".fm-bin__in")!.append(copy);
-        restart(target.node, "is-got");
+        replayClass(target.node, "is-got");
         audio.play("snap");
         say(`${item.name} — похоже на ${SHAPE_NAME[item.key as Shape].toLowerCase()}!`);
       },

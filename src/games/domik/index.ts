@@ -1,6 +1,6 @@
 import { audio, NOTES } from "../../shared/audio";
 import { character } from "../../shared/assets";
-import { el } from "../../shared/dom";
+import { el, replayClass } from "../../shared/dom";
 import { freeDrag } from "../../shared/drag";
 import { gameFinds } from "../../shared/finds";
 import { OBJECTS } from "../../shared/objects";
@@ -107,9 +107,7 @@ export function mount(root: HTMLElement): () => void {
       if (!isNew) return;
       found++;
       paintScore();
-      score.classList.remove("is-bump");
-      void score.offsetWidth;
-      score.classList.add("is-bump");
+      replayClass(score, "is-bump");
     });
   };
 
@@ -200,9 +198,7 @@ export function mount(root: HTMLElement): () => void {
       for (let i = 0; i < count; i++) fx(kind, x + (Math.random() - 0.5) * spread * 0.5, y, { dx: (Math.random() - 0.5) * spread, dy: -80 - Math.random() * 120, delay: i * 70 });
     };
     const anim = (node: HTMLElement, cls: string, ms: number): void => {
-      node.classList.remove(cls);
-      void node.offsetWidth;
-      node.classList.add(cls);
+      replayClass(node, cls);
       later(() => node.classList.remove(cls), ms);
     };
 

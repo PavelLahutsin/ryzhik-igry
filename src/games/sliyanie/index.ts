@@ -1,7 +1,7 @@
 import { audio } from "../../shared/audio";
 import { showDrag } from "../../shared/guide";
 import { character } from "../../shared/assets";
-import { el } from "../../shared/dom";
+import { el, replayClass } from "../../shared/dom";
 import { createScope } from "../../shared/lifecycle";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
 import { reducedMotion, useStyles } from "../../shared/style";
@@ -175,9 +175,7 @@ function play(stage: HTMLElement, level: SliyanieLevel, _index: number, api: Pla
     audio.unlock();
     const res = move(board, dir, MAX);
     if (!res.moved) {
-      grid.classList.remove("is-bump");
-      void grid.offsetWidth;
-      grid.classList.add("is-bump");
+      replayClass(grid, "is-bump");
       return;
     }
     busy = true;

@@ -1,6 +1,6 @@
 import { audio } from "../../shared/audio";
 import { character } from "../../shared/assets";
-import { el, svgEl } from "../../shared/dom";
+import { el, svgEl, replayClass } from "../../shared/dom";
 import { draggable, type Point } from "../../shared/drag";
 import { createScope, type Scope } from "../../shared/lifecycle";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
@@ -113,9 +113,7 @@ function guideBar(text: string): { node: HTMLElement; say: (t: string) => void; 
     say: (t) => {
       if (bubble.textContent === t) return;
       bubble.textContent = t;
-      bubble.classList.remove("is-new");
-      void bubble.offsetWidth;
-      bubble.classList.add("is-new");
+      replayClass(bubble, "is-new");
     },
     dots: (done, total) => {
       dotRow.replaceChildren(...Array.from({ length: total }, (_, i) => el("i", { class: i < done ? "is-done" : i === done ? "is-now" : "" })));
@@ -191,11 +189,6 @@ function sceneBox(markup: string, id: string, scope: Scope): { box: HTMLElement;
   return { box, svg };
 }
 
-function restart(node: Element, cls: string): void {
-  node.classList.remove(cls);
-  void (node as HTMLElement).getBoundingClientRect();
-  node.classList.add(cls);
-}
 
 const mid = (n: Element): Point => {
   const r = n.getBoundingClientRect();
@@ -243,7 +236,7 @@ function playSteps(ctx: Ctx, level: GuidedLevel): void {
     for (const id of step.show ?? []) {
       svg.classList.add(`fx-${id}`);
       svg.querySelectorAll(`[data-fx="${id}"]`).forEach((n) => {
-        restart(n, "is-on");
+        replayClass(n, "is-on");
         if (n.classList.contains("pr-fx--flash")) later(() => n.classList.remove("is-on"), 1800);
       });
     }
@@ -253,7 +246,7 @@ function playSteps(ctx: Ctx, level: GuidedLevel): void {
     }
     if (patient && step.mood !== undefined) {
       patient.setAttribute("class", `pr-patient ${step.mood}`);
-      restart(patient, "is-react");
+      replayClass(patient, "is-react");
     }
   }
 
@@ -325,13 +318,13 @@ function playSteps(ctx: Ctx, level: GuidedLevel): void {
           } else if (res === "wrong-tool" && cur) {
             audio.play("boing");
             guide.say(`Это ${tool.name.toLowerCase()}. А сейчас нужен другой предмет: ${TOOLS[cur.tool]!.name.toLowerCase()}.`);
-            restart(node, "is-wrong");
+            replayClass(node, "is-wrong");
             later(() => !finished && sayStep(), 2600);
           } else if (res === "wrong-place" && cur) {
             audio.play("miss");
             guide.say("Почти! Попробуй вот сюда.");
             const z = svg.querySelector(`[data-zone="${cur.zone}"]`);
-            if (z) restart(z, "is-show");
+            if (z) replayClass(z, "is-show");
             later(() => !finished && sayStep(), 2200);
           } else if (res === "rubbing") {
             guide.say("Води туда-сюда, не отпуская!");
@@ -348,7 +341,7 @@ function playSteps(ctx: Ctx, level: GuidedLevel): void {
     const tool = tray.querySelector(`[data-tool="${cur.tool}"]`);
     const z = svg.querySelector(`[data-zone="${cur.zone}"]`);
     if (!tool || !z) return;
-    restart(tool, "is-needed");
+    replayClass(tool, "is-needed");
     showDrag(mid(tool), mid(z));
   }
 
@@ -404,7 +397,7 @@ function playShop(ctx: Ctx, level: ShopLevel): void {
     if (res === "not-on-list" || res === "enough") {
       misses++;
       audio.play("boing");
-      restart(from, "is-wrong");
+      replayClass(from, "is-wrong");
       guide.say(res === "enough" ? `${OBJECTS[id as ObjectId].name}: уже хватит!` : `${OBJECTS[id as ObjectId].name}? Этого нет в списке.`);
       return false;
     }
@@ -426,7 +419,7 @@ function playShop(ctx: Ctx, level: ShopLevel): void {
       row.classList.add("is-done");
       audio.play("ding");
     }
-    restart(row, "is-bump");
+    replayClass(row, "is-bump");
     guide.dots(bought(), need);
     guide.say(left > 0 ? `Ещё ${left}!` : "Отлично! Что дальше по списку?");
     if (cartComplete(level.list, cart)) later(pay, 900);
@@ -481,7 +474,7 @@ function playShop(ctx: Ctx, level: ShopLevel): void {
             coin.classList.add("is-placed");
             coin.style.visibility = "hidden";
             counter.textContent = String(paid);
-            restart(till, "is-bump");
+            replayClass(till, "is-bump");
             audio.play("coin");
             guide.dots(paid, need);
             guide.say(`${countWord(paid)}!`);
@@ -516,7 +509,7 @@ function playShop(ctx: Ctx, level: ShopLevel): void {
     const line = level.list.find((l) => remaining(level.list, cart, l.id) > 0);
     const item = line && shelf.querySelector(`[data-id="${line.id}"]`);
     if (item) {
-      restart(item, "is-needed");
+      replayClass(item, "is-needed");
       showDrag(mid(item), mid(basket));
     }
   }
@@ -573,7 +566,7 @@ function playSafety(ctx: Ctx, level: SafetyLevel): void {
       guide.say(thing.say);
     } else {
       audio.play("boing");
-      restart(node, "is-wiggle");
+      replayClass(node, "is-wiggle");
       guide.say(thing.say);
     }
   };
@@ -591,6 +584,6 @@ function playSafety(ctx: Ctx, level: SafetyLevel): void {
     if (!left) return;
     hints++;
     const node = svg.querySelector(`[data-thing="${left.id}"]`);
-    if (node) restart(node, "is-hint");
+    if (node) replayClass(node, "is-hint");
   });
 }
