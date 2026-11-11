@@ -23,15 +23,34 @@ export type Layout = {
  * the tray under the board, landscape puts it on the right.
  */
 export function layout(width: number, height: number, cols: number, rows: number, aspect = 16 / 9): Layout {
+  // The biggest board whose loose pieces still lie side by side in the tray
+  // (a landscape phone has little room next to the board).
+  let first: Layout | null = null; // nothing fits: keep the full-size board
+  for (let scale = 1; scale >= 0.5; scale -= 0.05) {
+    const l = layoutAt(width, height, cols, rows, aspect, scale);
+    first ??= l;
+    if (trayFits(cols * rows, l.tray, l.piece)) return l;
+  }
+  return first!;
+}
+
+/** Do `count` pieces fit in the tray without lying on top of each other? */
+export function trayFits(count: number, tray: Rect, piece: { w: number; h: number }): boolean {
+  const across = Math.floor(tray.w / (piece.w * 1.08));
+  const down = Math.floor(tray.h / (piece.h * 1.08));
+  return across * down >= count;
+}
+
+function layoutAt(width: number, height: number, cols: number, rows: number, aspect: number, scale: number): Layout {
   const gap = 14;
   const portrait = height >= width * 0.9;
   let bw: number;
   if (portrait) {
-    bw = Math.min(width, (height * 0.48) * aspect);
+    bw = Math.min(width, height * 0.48 * aspect);
   } else {
     bw = Math.min(width * 0.6, height * aspect);
   }
-  bw = Math.floor(bw);
+  bw = Math.floor(bw * scale);
   const bh = Math.floor(bw / aspect);
   const board: Rect = portrait
     ? { x: Math.floor((width - bw) / 2), y: 0, w: bw, h: bh }

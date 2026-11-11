@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { OBJECTS } from "../../shared/objects";
 import { THINGS } from "./art";
 import { levels, worlds } from "./levels";
-import { canStack, matches, nextRing, shapePath, starsFor, type Shape } from "./logic";
+import { canStack, matches, nextRing, pickTarget, shapePath, starsFor, type Shape } from "./logic";
 
 describe("formy rules", () => {
   it("matches keys", () => {
@@ -56,5 +56,15 @@ describe("formy levels", () => {
           expect(t.id === "ball" || t.id === "cube" || t.id in THINGS).toBe(true);
         }
     }
+  });
+});
+
+describe("pickTarget", () => {
+  it("picks the nearest of overlapping family members", () => {
+    const papa = { left: 0, top: 0, width: 160, height: 400 };
+    const mama = { left: 130, top: 100, width: 130, height: 300 };
+    expect(pickTarget({ x: 150, y: 380 }, [papa, mama])).toBe(1);
+    expect(pickTarget({ x: 60, y: 380 }, [papa, mama])).toBe(0);
+    expect(pickTarget({ x: 500, y: 380 }, [papa, mama])).toBe(-1);
   });
 });

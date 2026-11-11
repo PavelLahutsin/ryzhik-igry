@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createRng } from "../../shared/rng";
 import { levels } from "./levels";
-import { hintPiece, layout, makePieces, scatter, slotOf, snaps, starsFor } from "./logic";
+import { hintPiece, layout, makePieces, scatter, slotOf, snaps, starsFor, trayFits } from "./logic";
 
 describe("mozaika", () => {
   it("has 15 levels of 4, 6, 9, 12 and 16 pieces in growing order", () => {
@@ -23,6 +23,15 @@ describe("mozaika", () => {
     expect(l.tray.y + l.tray.h).toBeLessThanOrEqual(740);
     const wide = layout(1000, 500, 3, 3);
     expect(wide.tray.x).toBeGreaterThan(wide.board.w);
+  });
+  it("keeps loose pieces apart on a landscape phone (QA: they piled up)", () => {
+    for (const [c, r] of [[2, 2], [3, 2], [3, 3], [4, 3], [4, 4]]) {
+      const l = layout(816, 300, c, r);
+      expect(trayFits(c * r, l.tray, l.piece)).toBe(true);
+      expect(l.board.w).toBeGreaterThan(250);
+    }
+    // Plenty of room: the board keeps its full size.
+    expect(layout(358, 740, 4, 3).board.w).toBe(358);
   });
   it("scatters pieces inside the tray", () => {
     const l = layout(358, 740, 4, 3);

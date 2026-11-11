@@ -365,3 +365,32 @@
   height: min(30%, 26cqw);
   right: 0;
 }
+
+/* QA v4: landscape phone — the tray is wider and tighter so a big model's
+   blocks all fit without scrolling. */
+@media (min-aspect-ratio: 5/4) and (max-height: 500px) {
+  .sk-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(200px, 42%);
+    gap: 8px;
+  }
+  .sk-say__fig {
+    height: 52px;
+  }
+  .sk-say__text {
+    font-size: 15px;
+  }
+  .sk-tray {
+    gap: 8px 8px;
+    padding: 8px 6px 4px;
+  }
+}
+
+/* A little more room around small blocks for small fingers. */
+.sk-block {
+  position: relative;
+}
+.sk-block::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+}

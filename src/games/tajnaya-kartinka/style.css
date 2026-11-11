@@ -889,3 +889,24 @@ button {
   left: calc(12px + env(safe-area-inset-left));
   z-index: 5;
 }
+
+/* QA v4: landscape phone — the field was only ~190px tall. The text note
+   goes (the picture in the corner already says it), the bars get slimmer. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .screen--game .game__note {
+    display: none;
+  }
+  .screen--game .hud {
+    min-height: 34px;
+  }
+  .screen--game .hud .hud-lives {
+    min-height: 32px;
+  }
+  .screen--game .game__body {
+    gap: 6px;
+  }
+  .screen--game {
+    padding-block: 8px;
+    gap: 8px;
+  }
+}
