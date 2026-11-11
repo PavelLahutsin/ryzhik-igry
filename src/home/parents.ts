@@ -4,6 +4,9 @@ import { goHome } from "../shared/router";
 import { toolbar } from "../shared/ui";
 import { games } from "../games/registry";
 import { gateTask, gateWords } from "./gate";
+import { HOWTO } from "../shared/howto-data";
+import { removeSaved } from "../shared/reset";
+import { resetSeen } from "../shared/seen";
 
 let unlocked = false;
 
@@ -80,6 +83,35 @@ function settings(view: HTMLElement): void {
   });
   paintSound();
 
+  const musicBtn = el("button", { class: "btn", attrs: { type: "button" } });
+  const paintMusic = (): void => {
+    musicBtn.textContent = audio.music ? "Включена" : "Выключена";
+    musicBtn.classList.toggle("is-on", audio.music);
+  };
+  musicBtn.addEventListener("click", () => {
+    audio.setMusic(!audio.music);
+    paintMusic();
+  });
+  paintMusic();
+
+  const tipsBtn = el("button", { class: "btn", attrs: { type: "button" }, text: "Показать снова" });
+  tipsBtn.addEventListener("click", () => {
+    void resetSeen();
+    tipsBtn.textContent = "Готово";
+    tipsBtn.disabled = true;
+  });
+
+  const rules = games
+    .filter((game) => HOWTO[game.id])
+    .map((game) => {
+      const h = HOWTO[game.id]!;
+      return el("details", { class: "rules" }, [
+        el("summary", { text: game.title }),
+        el("p", { text: h.rules }),
+        el("p", { class: "rules__dev" }, [el("b", { text: "Развивает: " }), h.develops]),
+      ]);
+    });
+
   const resets = games
     .filter((game) => game.resetKeys?.length)
     .map((game) => {
@@ -92,13 +124,7 @@ function settings(view: HTMLElement): void {
           btn.classList.add("is-armed");
           return;
         }
-        for (const key of game.resetKeys ?? []) {
-          try {
-            localStorage.removeItem(key);
-          } catch {
-            /* ignore */
-          }
-        }
+        for (const key of game.resetKeys ?? []) void removeSaved(key);
         btn.textContent = "Сброшено";
         btn.classList.remove("is-armed");
         btn.disabled = true;
@@ -111,7 +137,17 @@ function settings(view: HTMLElement): void {
     el("section", { class: "panel" }, [
       el("h2", { text: "Звук" }),
       el("div", { class: "setting" }, [el("span", { text: "Звуки в играх" }), soundBtn]),
+      el("div", { class: "setting" }, [el("span", { text: "Тихая музыка в играх" }), musicBtn]),
       el("p", { text: "Звук, голос и музыка раскраски настраиваются в самой раскраске." }),
+    ]),
+    el("section", { class: "panel" }, [
+      el("h2", { text: "Подсказки" }),
+      el("p", { text: "Карточки «Как играть» и пузырьки «Новое!» показываются один раз. Можно показать их снова." }),
+      el("div", { class: "setting" }, [el("span", { text: "Показать подсказки снова" }), tipsBtn]),
+    ]),
+    el("section", { class: "panel" }, [
+      el("h2", { text: "Как играть и что развивает" }),
+      ...rules,
     ]),
     el("section", { class: "panel" }, [
       el("h2", { text: "Прогресс" }),

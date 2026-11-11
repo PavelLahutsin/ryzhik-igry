@@ -1,0 +1,270 @@
+/* «Как играть» cards and «Новое!» tips. Loaded once for every screen
+   (the coloring book and the secret-picture game swap base.css out), so
+   everything here has its own fallbacks. */
+.ht, .ht * {
+  box-sizing: border-box;
+}
+/* ---------------- «Как играть» */
+.ht {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(59, 46, 37, 0.45);
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+.ht.is-open {
+  opacity: 1;
+}
+.ht-card {
+  width: min(560px, 100%);
+  max-height: 100%;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 16px 20px;
+  border-radius: 28px;
+  background: var(--surface, #fffaf2);
+  box-shadow: 0 0 0 4px var(--line, #eadbc8), 0 20px 40px -20px rgba(59, 46, 37, 0.6);
+  text-align: center;
+}
+.ht-eyebrow {
+  margin: 0;
+  font: 800 14px var(--font-ui, "Nunito", sans-serif);
+  color: var(--orange-deep, #a3490d);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.ht-title {
+  margin: 0;
+  font: 700 24px/1.2 var(--font-display, "Comfortaa", sans-serif);
+}
+.ht-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+  width: 100%;
+}
+.ht-step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 8px;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 0 0 3px var(--line, #eadbc8);
+}
+.ht-num {
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #3fae6a;
+  color: #fff;
+  font: 800 15px var(--font-ui, "Nunito", sans-serif);
+}
+.ht-text {
+  margin: 0;
+  font: 800 16px/1.25 var(--font-ui, "Nunito", sans-serif);
+  color: var(--ink, #3b2e25);
+}
+.ht-pic {
+  position: relative;
+  width: 100%;
+  height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.ht-art {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+}
+.ht-art svg,
+.ht-art img {
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+}
+.ht-pic--tap .ht-art,
+.ht-pic--trace .ht-art,
+.ht-pic--swipe .ht-art {
+  width: 96px;
+  height: 80px;
+}
+.ht-art.is-shadow svg {
+  filter: brightness(0);
+  opacity: 0.3;
+}
+.ht-arrow {
+  width: 22px;
+  height: 4px;
+  border-radius: 2px;
+  background: repeating-linear-gradient(90deg, #c9b8a8 0 5px, transparent 5px 9px);
+}
+.ht-hand {
+  position: absolute;
+  width: 40px;
+  height: 45px;
+  pointer-events: none;
+  filter: drop-shadow(0 3px 4px rgba(59, 46, 37, 0.3));
+  left: 50%;
+  top: 50%;
+}
+.ht-hand svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.ht-pic--drag .ht-hand {
+  animation: ht-drag 2.4s ease-in-out var(--delay, 0s) infinite;
+}
+.ht-pic--drag .ht-from {
+  animation: ht-carry 2.4s ease-in-out var(--delay, 0s) infinite;
+}
+.ht-pic--tap .ht-hand {
+  left: 52%;
+  top: 46%;
+  animation: ht-tap 1.6s ease-in-out var(--delay, 0s) infinite;
+}
+.ht-pic--trace .ht-hand,
+.ht-pic--swipe .ht-hand {
+  animation: ht-swipe 2.4s ease-in-out var(--delay, 0s) infinite;
+}
+.ht-ink {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: ht-ink 2.4s ease-in-out var(--delay, 0s) infinite;
+}
+@keyframes ht-drag {
+  0%, 10% { transform: translate(-62px, -4px) scale(1.1); opacity: 0; }
+  20% { transform: translate(-62px, -4px) scale(0.9); opacity: 1; }
+  70% { transform: translate(34px, -4px) scale(0.9); opacity: 1; }
+  85%, 100% { transform: translate(34px, -4px) scale(1.1); opacity: 0; }
+}
+@keyframes ht-carry {
+  0%, 20% { transform: none; }
+  70% { transform: translateX(96px) scale(0.9); opacity: 1; }
+  80% { transform: translateX(96px) scale(0.9); opacity: 0; }
+  90%, 100% { transform: none; opacity: 1; }
+}
+@keyframes ht-tap {
+  0%, 100% { transform: scale(1.1); }
+  30% { transform: scale(0.85); }
+  45% { transform: scale(1.05); }
+  60% { transform: scale(0.85); }
+}
+@keyframes ht-swipe {
+  0%, 10% { transform: translate(-44px, 6px); opacity: 0; }
+  20% { opacity: 1; }
+  70% { transform: translate(28px, 6px); opacity: 1; }
+  85%, 100% { transform: translate(28px, 6px); opacity: 0; }
+}
+@keyframes ht-ink {
+  0%, 20% { stroke-dashoffset: 100; }
+  70%, 100% { stroke-dashoffset: 0; }
+}
+.ht.is-still .ht-hand,
+.ht.is-still .ht-from,
+.ht.is-still .ht-ink {
+  animation: none;
+}
+.ht.is-still .ht-ink {
+  stroke-dashoffset: 0;
+}
+.ht .ht-card .ht-ok {
+  min-width: 200px;
+  min-height: 60px;
+  padding: 0 28px;
+  border: 0;
+  border-radius: 999px;
+  background: #ff8a3d;
+  color: #fff;
+  font: 800 22px var(--font-ui, "Nunito", sans-serif);
+  box-shadow: 0 14px 26px -14px rgba(233, 103, 26, 0.6);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.ht .ht-card .ht-ok:active {
+  transform: scale(0.97);
+}
+.btn--howto span {
+  font: 800 26px/1 var(--font-display, "Comfortaa", sans-serif);
+  color: var(--orange-deep, #a3490d);
+}
+
+/* ---------------- «Новое!» tips */
+.tip-ring {
+  position: fixed;
+  z-index: 2001;
+  border-radius: 18px;
+  box-shadow: 0 0 0 4px #ffc94a, 0 0 0 9px rgba(255, 201, 74, 0.35);
+  pointer-events: none;
+  animation: tip-ring 1s ease-in-out infinite;
+}
+.tip {
+  position: fixed;
+  z-index: 2002;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 18px;
+  background: #3b2e25;
+  color: #fff;
+  font: 800 16px/1.25 var(--font-ui, "Nunito", sans-serif);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(6px) scale(0.96);
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+.tip.is-open {
+  opacity: 1;
+  transform: none;
+}
+.tip::after {
+  content: "";
+  position: absolute;
+  left: calc(var(--arrow, 50%) - 9px);
+  border: 9px solid transparent;
+}
+.tip--below::after {
+  bottom: 100%;
+  border-bottom-color: #3b2e25;
+}
+.tip--above::after {
+  top: 100%;
+  border-top-color: #3b2e25;
+}
+.tip__new {
+  flex: none;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #ffc94a;
+  color: #3b2e25;
+  font-size: 13px;
+}
+@keyframes tip-ring {
+  50% { box-shadow: 0 0 0 6px #ffc94a, 0 0 0 14px rgba(255, 201, 74, 0.2); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tip-ring { animation: none; }
+}
+
