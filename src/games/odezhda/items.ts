@@ -141,7 +141,7 @@ export const ITEMS: Record<string, Item> = {
     slot: "feet",
     weathers: ["rain"],
     why: "Резиновые сапоги — чтобы бегать по лужам.",
-    body: boot(32, 116, "#e8463a") + boot(54, 114, "#e8463a"),
+    body: boot(32, 115, "#e8463a") + boot(54, 115, "#e8463a"),
     box: [28, 110, 52, 30],
   },
   winterboots: {
@@ -151,8 +151,8 @@ export const ITEMS: Record<string, Item> = {
     weathers: ["snow"],
     why: "Зимние сапожки — для снега.",
     body:
-      boot(32, 116, "#9b6a3c", `<rect x="31" y="113" width="17" height="6" rx="3" fill="#fff4e0" ${O}/>`) +
-      boot(54, 114, "#9b6a3c", `<rect x="53" y="111" width="17" height="6" rx="3" fill="#fff4e0" ${O}/>`),
+      boot(32, 115, "#9b6a3c", `<rect x="31" y="112" width="17" height="6" rx="3" fill="#fff4e0" ${O}/>`) +
+      boot(54, 115, "#9b6a3c", `<rect x="53" y="112" width="17" height="6" rx="3" fill="#fff4e0" ${O}/>`),
     box: [28, 108, 52, 32],
   },
   sandals: {
@@ -162,8 +162,8 @@ export const ITEMS: Record<string, Item> = {
     weathers: ["sun"],
     why: "Сандалики — для жаркого дня.",
     body:
-      `<path d="M31 136 L 52 136 L 52 139 L 31 139 Z M 53 134 L 74 134 L 74 137 L 53 137 Z" fill="#9b6a3c" ${O}/>` +
-      `<path d="M34 136 C 36 126 46 126 48 136 M 56 134 C 58 124 68 124 70 134" fill="none" stroke="#3fae6a" stroke-width="3.2" stroke-linecap="round"/>`,
+      `<path d="M31 135 L 52 135 L 52 138 L 31 138 Z M 53 135 L 74 135 L 74 138 L 53 138 Z" fill="#9b6a3c" ${O}/>` +
+      `<path d="M34 135 C 36 125 46 125 48 135 M 56 135 C 58 125 68 125 70 135" fill="none" stroke="#3fae6a" stroke-width="3.2" stroke-linecap="round"/>`,
     box: [28, 120, 50, 20],
   },
   umbrella: {
@@ -191,6 +191,61 @@ export const ITEMS: Record<string, Item> = {
       `<path d="M104 -6 L 118 10 L 104 28 L 90 10 Z M 104 -6 L 104 28 M 90 10 L 118 10" fill="none" ${O}/>` +
       `<path d="M104 28 C 100 34 108 36 104 42" fill="none" stroke="#3b2e25" stroke-width="1"/>`,
     box: [84, -8, 36, 66],
+  },
+  cap: {
+    id: "cap",
+    name: "Кепка",
+    slot: "head",
+    weathers: ["sun"],
+    why: "Кепка — от солнышка.",
+    body:
+      `<path d="M66 25 C 78 22 92 24 94 29 C 86 32 74 31 66 30 Z" fill="#c5302a" ${O}/>` +
+      `<path d="M28 28 C 27 8 71 6 72 28 Z" fill="#e8463a" ${O}/>` +
+      `<path d="M50 9 L 50 27 M 38 12 C 36 18 35 23 35 28" fill="none" stroke="#c5302a" stroke-width="1.6"/>` +
+      `<circle cx="50" cy="9" r="3" fill="#c5302a" ${O}/>`,
+    box: [22, 2, 76, 32],
+  },
+  tshirt: {
+    id: "tshirt",
+    name: "Футболка",
+    slot: "body",
+    weathers: ["sun"],
+    why: "Футболка — когда тепло.",
+    body:
+      `<path d="M71 70 L 79 63 L 84 69 L 76 77 Z" fill="#5ab4ec" ${O}/>` +
+      `<path d="M30 71 L 25 84 L 32 87 L 35 79 Z" fill="#5ab4ec" ${O}/>` +
+      `<path d="M32 68 C 42 74 60 74 72 68 L 74 104 C 62 107 42 107 30 104 Z" fill="#5ab4ec" ${O}/>` +
+      `<path d="M52 80 L 54.6 85.4 L 60.5 86 L 56 90 L 57.3 95.8 L 52 92.8 L 46.7 95.8 L 48 90 L 43.5 86 L 49.4 85.4 Z" fill="#ffd54a" ${O}/>`,
+    box: [20, 58, 68, 52],
+  },
+  bucket: {
+    id: "bucket",
+    name: "Ведёрко",
+    slot: "holds",
+    weathers: ["sun"],
+    why: "Ведёрко — играть в песочнице в тёплый день.",
+    body:
+      `<path d="M82 66 C 82 54 100 54 100 66" fill="none" stroke="#3b2e25" stroke-width="1.8"/>` +
+      `<path d="M80 66 L 102 66 L 99 88 L 83 88 Z" fill="#3a8fd4" ${O}/>` +
+      `<rect x="79" y="63" width="24" height="5" rx="2.5" fill="#7cc0e8" ${O}/>` +
+      `<path d="M86 76 L 89 72 L 92 76 L 95 72" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>` +
+      `<path d="M104 70 L 112 92" stroke="#3b2e25" stroke-width="2.6" stroke-linecap="round"/>` +
+      `<path d="M108 88 C 104 92 108 100 114 99 C 118 96 117 89 112 88 Z" fill="#ffc94a" ${O}/>`,
+    box: [76, 52, 44, 50],
+  },
+  sled: {
+    id: "sled",
+    name: "Санки",
+    slot: "holds",
+    weathers: ["snow"],
+    why: "Санки — чтобы кататься с горки по снегу.",
+    body:
+      `<path d="M88 58 C 94 80 88 108 86 124" fill="none" stroke="#3b2e25" stroke-width="1.2"/>` +
+      `<path d="M84 124 L 116 124 L 116 129 L 84 129 Z" fill="#e8463a" ${O}/>` +
+      `<path d="M88 129 L 88 135 M 112 129 L 112 135" ${O}/>` +
+      `<path d="M80 136 C 80 132 84 134 86 135 L 118 135 C 122 135 122 131 120 130" fill="none" stroke="#3b2e25" stroke-width="2.4" stroke-linecap="round"/>` +
+      `<path d="M92 124 L 92 129 M 100 124 L 100 129 M 108 124 L 108 129" stroke="#c5302a" stroke-width="1.4"/>`,
+    box: [76, 110, 48, 30],
   },
 };
 

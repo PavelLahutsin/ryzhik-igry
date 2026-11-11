@@ -9,7 +9,7 @@ import { hint, svgNode } from "../../shared/ui";
 import baseCss from "../../shared/base.css?inline";
 import css from "./style.css?inline";
 import { ANCHORS, ITEMS, iconSvg, overlaySvg, type Slot } from "./items";
-import { WEATHER, levels, type OdezhdaLevel } from "./levels";
+import { WEATHER, hintItem, levels, worlds, type OdezhdaLevel } from "./levels";
 import { dressed, starsFor, tryWear } from "./logic";
 import { WEATHER_ART, WEATHER_BG } from "./weather";
 
@@ -25,6 +25,7 @@ export function mount(root: HTMLElement): () => void {
       title: "Одень Рыжика",
       subtitle: "Что надеть по погоде?",
       levels,
+      worlds,
       thumb: (level) => {
         const box = svgNode(WEATHER_ART[level.weather], "od-thumb");
         box.style.background = WEATHER_BG[level.weather];
@@ -121,6 +122,17 @@ function play(stage: HTMLElement, level: OdezhdaLevel, _index: number, api: Play
   }
 
   stage.append(banner, scene, tray);
+
+  // Hint: one thing Ryzhik still needs glows in the tray.
+  api.setHint(() => {
+    const id = hintItem(level, worn);
+    const node = id ? tray.querySelector<HTMLElement>(`.od-item[data-id="${id}"]`) : null;
+    if (!node) return;
+    misses++;
+    node.classList.remove("is-hinted");
+    void node.offsetWidth;
+    node.classList.add("is-hinted");
+  });
   return () => {
     for (const stop of stops) stop();
   };

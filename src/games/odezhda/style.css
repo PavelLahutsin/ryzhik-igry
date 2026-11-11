@@ -192,3 +192,50 @@
     animation: none;
   }
 }
+
+.od-item.is-hinted {
+  animation: od-glow 1600ms ease;
+}
+
+@keyframes od-glow {
+  20%,
+  70% {
+    box-shadow: 0 0 0 5px rgba(255, 201, 74, 0.95);
+    scale: 1.08;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .od-item.is-hinted {
+    animation: none;
+    box-shadow: 0 0 0 5px rgba(255, 201, 74, 0.95);
+  }
+}
+
+@media (orientation: landscape) and (max-height: 560px) {
+  .game--odezhda .stage {
+    display: grid;
+    grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas: "scene banner" "scene tray";
+    gap: 8px 12px;
+  }
+  .od-scene {
+    grid-area: scene;
+    padding-top: 24px;
+  }
+  .od-banner {
+    grid-area: banner;
+  }
+  .od-banner__art {
+    width: 60px;
+  }
+  .od-tray {
+    grid-area: tray;
+    align-self: start;
+    max-height: 100%;
+  }
+  .od-item__art {
+    height: min(48px, 10vh);
+  }
+}
