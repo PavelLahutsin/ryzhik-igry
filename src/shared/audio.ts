@@ -73,11 +73,8 @@ export const fileUrl = (kind: "voice" | "music", id: string): string => `${BASE}
 const present = new Set([...audioFiles.voice, ...audioFiles.music]);
 
 /** Is the optional recording there? (Known at build time, no network.) */
-export function hasFile(url: string): Promise<boolean> {
-  return Promise.resolve(fileKnown(url));
-}
 function fileKnown(url: string): boolean {
-  const id = url.split("/").pop()!.replace(/\.mp3$/, "");
+  const id = (url.split("/").pop() ?? "").replace(/\.mp3$/, "");
   return present.has(id);
 }
 
@@ -136,33 +133,26 @@ function syncMusic(): void {
   const want = enabled && musicOn && Boolean(musicFor(theme));
   const id = MUSIC_FILES[theme];
   const url = id ? fileUrl("music", id) : "";
-  if (!want || !url) stopTrack();
-  if (want && url) {
-    const forTheme = theme;
-    void hasFile(url).then((ok) => {
-      if (theme !== forTheme || !(enabled && musicOn)) return;
-      if (ok) {
-        if (musicTimer) {
-          clearInterval(musicTimer);
-          musicTimer = 0;
-        }
-        if (trackUrl !== url) {
-          stopTrack();
-          track = new Audio(url);
-          track.loop = true;
-          track.volume = TRACK_VOLUME;
-          trackUrl = url;
-        }
-        if (track && track.paused && !document.hidden) void track.play().catch(() => {});
-      } else {
-        stopTrack();
-        startSynth();
-      }
-    });
+  if (want && url && fileKnown(url)) {
+    // A recorded track replaces the synthesized loop.
+    stopSynth();
+    if (trackUrl !== url) {
+      stopTrack();
+      track = new Audio(url);
+      track.loop = true;
+      track.volume = TRACK_VOLUME;
+      trackUrl = url;
+    }
+    if (track && track.paused && !document.hidden) void track.play().catch(() => {});
     return;
   }
+  stopTrack();
   if (want) startSynth();
-  else if (musicTimer) {
+  else stopSynth();
+}
+
+function stopSynth(): void {
+  if (musicTimer) {
     clearInterval(musicTimer);
     musicTimer = 0;
   }
@@ -229,10 +219,11 @@ export const audio = {
         return;
       }
       // Every game has its own short tune.
+      const bus = fx;
       melodyFor(theme).forEach(([f, len], i, all) => {
         const at = c.currentTime + all.slice(0, i).reduce((s, n) => s + n[1], 0);
-        softNote(c, fx!, at, f, len * 1.6, "triangle", 0.13);
-        softNote(c, fx!, at, f * 2, len * 0.9, "sine", 0.03);
+        softNote(c, bus, at, f, len * 1.6, "triangle", 0.13);
+        softNote(c, bus, at, f * 2, len * 0.9, "sine", 0.03);
       });
       return;
     }
@@ -259,20 +250,18 @@ export const audio = {
   say(id: string): void {
     if (!enabled) return;
     const url = fileUrl("voice", id);
-    void hasFile(url).then((ok) => {
-      if (!ok || !enabled || document.hidden) return;
-      voicePlaying?.pause();
-      const a = new Audio(url);
-      a.volume = 0.95;
-      voicePlaying = a;
-      if (track) track.volume = TRACK_VOLUME * 0.35;
-      const back = (): void => {
-        if (track && voicePlaying === a) track.volume = TRACK_VOLUME;
-      };
-      a.addEventListener("ended", back);
-      a.addEventListener("error", back);
-      void a.play().catch(back);
-    });
+    if (!fileKnown(url) || document.hidden) return;
+    voicePlaying?.pause();
+    const a = new Audio(url);
+    a.volume = 0.95;
+    voicePlaying = a;
+    if (track) track.volume = TRACK_VOLUME * 0.35;
+    const back = (): void => {
+      if (track && voicePlaying === a) track.volume = TRACK_VOLUME;
+    };
+    a.addEventListener("ended", back);
+    a.addEventListener("error", back);
+    void a.play().catch(back);
   },
 };
 
