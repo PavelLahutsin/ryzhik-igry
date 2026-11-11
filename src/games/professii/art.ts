@@ -368,7 +368,6 @@ export function roomScene(): string {
 }
 
 export const badgeOk = `<g class="pr-badge"><circle r="26" fill="#3fae6a" stroke="#fff" stroke-width="5"/><path d="M-11 0 L-3 9 L12 -9" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></g>`;
-export const badgeWarn = `<g class="pr-badge"><path d="M0 -30 L30 22 H-30 Z" fill="#ffc94a" stroke="${INK}" stroke-width="4" stroke-linejoin="round"/><path d="M0 -12 V6" stroke="${INK}" stroke-width="6" stroke-linecap="round"/><circle cx="0" cy="15" r="3.5" fill="${INK}"/></g>`;
 
 // ---------------------------------------------------------------- shop
 

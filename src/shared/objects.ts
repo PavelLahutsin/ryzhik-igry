@@ -263,5 +263,3 @@ export const OBJECTS: Record<ObjectId, { name: string; svg: string; color: Objec
     ),
   },
 };
-
-export const OBJECT_IDS = Object.keys(OBJECTS) as ObjectId[];
