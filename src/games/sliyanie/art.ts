@@ -87,3 +87,64 @@ export const GARDEN_BACK = svg(
     `<g transform="translate(-18 6) scale(.62)">${CHAIN_ART[5]!.replace(/<\/?svg[^>]*>/g, "")}</g>` +
     `<g transform="translate(70 30) scale(.4)">${CHAIN_ART[3]!.replace(/<\/?svg[^>]*>/g, "")}</g>`,
 );
+
+// ---------- Winter chain ----------
+const SNOWY = `<ellipse cx="50" cy="86" rx="36" ry="8" fill="#d6e8f5"/><ellipse cx="50" cy="83" rx="32" ry="5.5" fill="#f4fbff"/>`;
+const ball = (x: number, y: number, r: number): string =>
+  `<circle cx="${x}" cy="${y}" r="${r}" fill="#ffffff" ${OUT}/>` +
+  `<path d="M${x - r * 0.6} ${y + r * 0.45} Q ${x} ${y + r * 0.85} ${x + r * 0.6} ${y + r * 0.45}" fill="none" stroke="#c7dcec" stroke-width="3" stroke-linecap="round"/>`;
+const eyes = (x: number, y: number, s: number): string =>
+  `<circle cx="${x - 4 * s}" cy="${y}" r="${1.8 * s}" fill="#3b2e25"/><circle cx="${x + 4 * s}" cy="${y}" r="${1.8 * s}" fill="#3b2e25"/>` +
+  `<path d="M${x} ${y + 3 * s} L ${x + 9 * s} ${y + 5 * s} L ${x} ${y + 6 * s} Z" fill="#ff8a2a" stroke="#3b2e25" stroke-width="1.4" stroke-linejoin="round"/>`;
+const buttons = (x: number, y: number, n: number, gap: number): string =>
+  Array.from({ length: n }, (_, i) => `<circle cx="${x}" cy="${y + i * gap}" r="2.2" fill="#3b2e25"/>`).join("");
+const flake = (x: number, y: number, r: number): string => {
+  let out = "";
+  for (let i = 0; i < 3; i++) {
+    const a = (i * Math.PI) / 3;
+    const dx = Math.cos(a) * r;
+    const dy = Math.sin(a) * r;
+    out += `<path d="M${(x - dx).toFixed(1)} ${(y - dy).toFixed(1)} L ${(x + dx).toFixed(1)} ${(y + dy).toFixed(1)}" stroke="#4aa3df" stroke-width="5" stroke-linecap="round"/>`;
+  }
+  for (let i = 0; i < 6; i++) {
+    const a = (i * Math.PI) / 3;
+    out += `<circle cx="${(x + Math.cos(a) * r).toFixed(1)}" cy="${(y + Math.sin(a) * r).toFixed(1)}" r="4" fill="#bfe3fb" stroke="#4aa3df" stroke-width="2"/>`;
+  }
+  return out + `<circle cx="${x}" cy="${y}" r="6" fill="#ffffff" stroke="#4aa3df" stroke-width="2.5"/>`;
+};
+const smallMan = (x: number, base: number, s: number): string =>
+  ball(x, base - 13 * s, 14 * s) + ball(x, base - 34 * s, 10 * s) + eyes(x, base - 36 * s, s * 0.9);
+const bigMan = (hat: boolean): string =>
+  ball(50, 68, 17) +
+  ball(50, 42, 13) +
+  buttons(50, 61, 3, 6) +
+  ball(50, 23, 10) +
+  eyes(50, 22, 1) +
+  `<path d="M38 36 Q 50 42 62 36" fill="none" stroke="#e8463a" stroke-width="5" stroke-linecap="round"/>` +
+  `<path d="M37 44 L 24 34 M63 44 L 76 36" stroke="#8a5a2b" stroke-width="3" stroke-linecap="round"/>` +
+  (hat
+    ? `<path d="M38 17 Q 50 -2 62 17 Z" fill="#e8463a" ${OUT}/><rect x="36" y="14" width="28" height="6" rx="3" fill="#ffffff" ${OUT}/><circle cx="50" cy="5" r="4" fill="#ffffff" ${OUT}/>`
+    : "");
+
+export const WINTER_ART: string[] = [
+  // Снежинка
+  svg(flake(50, 50, 24)),
+  // Снежок
+  svg(SNOWY + ball(50, 66, 14)),
+  // Снежный ком
+  svg(SNOWY + ball(50, 58, 26)),
+  // Маленький снеговик
+  svg(SNOWY + smallMan(50, 84, 1.25)),
+  // Снеговик
+  svg(SNOWY + bigMan(false)),
+  // Снеговик в шапке
+  svg(SNOWY + bigMan(true)),
+];
+
+/** Winter backdrop behind Ryzhik for the last winter step. */
+export const WINTER_BACK = svg(
+  `<rect width="100" height="100" fill="#dcefff"/>` +
+    `<circle cx="14" cy="14" r="2" fill="#fff"/><circle cx="34" cy="8" r="1.6" fill="#fff"/><circle cx="60" cy="18" r="2" fill="#fff"/><circle cx="88" cy="10" r="1.8" fill="#fff"/>` +
+    `<path d="M0 70 Q 30 60 60 68 T 100 64 V 100 H 0 Z" fill="#ffffff"/>` +
+    `<g transform="translate(-14 10) scale(.62)">${WINTER_ART[5]!.replace(/<\/?svg[^>]*>/g, "")}</g>`,
+);

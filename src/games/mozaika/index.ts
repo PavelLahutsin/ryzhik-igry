@@ -1,13 +1,13 @@
 import { audio } from "../../shared/audio";
 import { el } from "../../shared/dom";
 import { draggable } from "../../shared/drag";
-import { mountLevelGame } from "../../shared/levelgame";
+import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
 import { useStyles } from "../../shared/style";
 import { hint } from "../../shared/ui";
 import baseCss from "../../shared/base.css?inline";
 import css from "./style.css?inline";
-import { levels, pictureUrl, pieceWord, type MozaikaLevel } from "./levels";
-import { layout, makePieces, scatter, slotOf, snaps, starsFor, type Layout } from "./logic";
+import { levels, pictureUrl, pieceWord, worlds, type MozaikaLevel } from "./levels";
+import { hintPiece, layout, makePieces, scatter, slotOf, snaps, starsFor, type Layout } from "./logic";
 
 /** «Мозаика»: a picture cut into big rectangles; drag each one home. */
 export function mount(root: HTMLElement): () => void {
@@ -18,6 +18,7 @@ export function mount(root: HTMLElement): () => void {
       title: "Мозаика",
       subtitle: "Собери картинку",
       levels,
+      worlds,
       thumb: (level) => el("img", { attrs: { src: pictureUrl(level), alt: "", draggable: "false", loading: "lazy" } }),
       caption: (level) => pieceWord(level.cols * level.rows),
       play,
@@ -26,12 +27,13 @@ export function mount(root: HTMLElement): () => void {
   );
 }
 
-function play(stage: HTMLElement, level: MozaikaLevel, _index: number, api: { win: (stars: number) => void }): () => void {
+function play(stage: HTMLElement, level: MozaikaLevel, _index: number, api: PlayApi): () => void {
   const url = pictureUrl(level);
   const pieces = makePieces(level.cols, level.rows);
   const count = pieces.length;
   const placed = new Set<number>();
   let misses = 0;
+  let hints = 0;
   let geo: Layout | null = null;
   const loose = new Map<number, { x: number; y: number }>();
   const tilt = pieces.map(() => Math.round((Math.random() - 0.5) * 12));
@@ -95,7 +97,7 @@ function play(stage: HTMLElement, level: MozaikaLevel, _index: number, api: { wi
     if (placed.size === count) {
       board.classList.add("is-done");
       area.classList.add("is-done");
-      api.win(starsFor(misses, count));
+      api.win(starsFor(misses + hints * Math.ceil(count / 3), count), `${level.title}!`);
     }
   }
 
@@ -139,6 +141,20 @@ function play(stage: HTMLElement, level: MozaikaLevel, _index: number, api: { wi
       position(piece.index);
     });
   }
+
+  // Hint: one loose piece flies to its place by itself.
+  api.setHint(() => {
+    const index = hintPiece(
+      pieces.map((p) => p.index),
+      placed,
+      Math.random,
+    );
+    if (index < 0) return;
+    hints++;
+    const node = nodes[index]!;
+    node.classList.add("is-hinted");
+    place(index);
+  });
 
   const observer = new ResizeObserver(() => relayout());
   observer.observe(area);

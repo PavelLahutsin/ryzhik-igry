@@ -1,0 +1,210 @@
+.game--sortirovka .stage {
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.so-ask {
+  margin: 0;
+  text-align: center;
+  font-weight: 800;
+  color: var(--ink-soft);
+  font-size: clamp(14px, 2.2vh, 18px);
+}
+
+.so-baskets {
+  display: grid;
+  grid-template-columns: repeat(var(--n, 2), minmax(0, 1fr));
+  gap: 10px;
+  padding: 10px;
+  border-radius: var(--radius-xl);
+  background: color-mix(in srgb, #ffb23f 14%, var(--surface));
+  box-shadow: 0 0 0 3px color-mix(in srgb, #ffb23f 35%, transparent);
+}
+
+.so-baskets--2 {
+  --n: 2;
+}
+
+.so-baskets--3 {
+  --n: 3;
+}
+
+.so-baskets--4 {
+  --n: 2;
+}
+
+@media (orientation: landscape) {
+  .so-baskets--4 {
+    --n: 4;
+  }
+}
+
+.so-basket {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 0;
+  padding-top: 18px;
+  border-radius: 20px;
+  transition: background 160ms ease;
+}
+
+.so-basket.is-over {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.so-basket__art {
+  width: min(100%, 22vh, 170px);
+  height: auto;
+  aspect-ratio: 4 / 3;
+}
+
+.so-basket__in {
+  position: absolute;
+  top: 0;
+  left: 8%;
+  right: 8%;
+  height: 46%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 0 2px;
+  pointer-events: none;
+}
+
+.so-basket__thing {
+  width: min(30%, 6vh, 44px);
+  height: auto;
+  aspect-ratio: 1;
+  margin: 0 -3px -18%;
+  animation: pop-in 300ms cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+
+.so-basket__name {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 2px;
+  font-weight: 800;
+  font-size: clamp(13px, 2vh, 17px);
+  white-space: nowrap;
+}
+
+.so-basket__label {
+  width: 22px;
+  height: 22px;
+  flex: none;
+}
+
+.so-basket__swatch {
+  border-radius: 50%;
+  box-shadow: 0 0 0 2.5px var(--ink);
+}
+
+.so-basket.is-got .so-basket__art {
+  animation: so-got 380ms cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+
+@keyframes so-got {
+  40% {
+    transform: scale(1.08, 0.94);
+  }
+}
+
+.so-basket.is-wrong {
+  animation: wiggle 360ms ease;
+}
+
+.so-table {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.so-item {
+  position: relative;
+  width: min(22vw, 12vh, 104px);
+  aspect-ratio: 1;
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: 0 6px 0 rgba(59, 46, 37, 0.15), 0 0 0 3px var(--line);
+  cursor: grab;
+  touch-action: none;
+  animation: pop-in 320ms cubic-bezier(0.3, 1.4, 0.5, 1) backwards;
+}
+
+.so-item__art {
+  position: absolute;
+  inset: 10%;
+  width: auto;
+  height: auto;
+  pointer-events: none;
+}
+
+.so-item.is-dragging {
+  z-index: 30;
+}
+
+.so-item.is-placed {
+  display: none;
+}
+
+.so-item.is-hinted,
+.so-basket.is-hinted {
+  animation: so-glow 1600ms ease;
+}
+
+@keyframes so-glow {
+  20%,
+  70% {
+    box-shadow: 0 0 0 6px rgba(255, 201, 74, 0.95);
+    scale: 1.06;
+  }
+}
+
+.so-baskets.is-done .so-basket__art {
+  animation: so-got 500ms cubic-bezier(0.3, 1.5, 0.5, 1) 2;
+}
+
+.so-thumb {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 8%;
+  background: color-mix(in srgb, #ffb23f 12%, #fff);
+}
+
+.so-thumb__basket {
+  width: 100%;
+  height: auto;
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+  .so-basket__art {
+    width: min(100%, 18vh, 130px);
+  }
+  .so-item {
+    width: min(14vw, 18vh, 90px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .so-item,
+  .so-basket__thing,
+  .so-basket.is-got .so-basket__art,
+  .so-basket.is-wrong,
+  .so-item.is-hinted,
+  .so-basket.is-hinted,
+  .so-baskets.is-done .so-basket__art {
+    animation: none;
+  }
+}

@@ -44,6 +44,10 @@
   animation: pop-in 320ms cubic-bezier(0.3, 1.4, 0.5, 1) backwards;
 }
 
+.mz-piece.is-hinted {
+  transition: left 500ms ease, top 500ms ease, rotate 500ms ease;
+}
+
 .mz-piece.is-placed {
   border-radius: 0;
   box-shadow: none;

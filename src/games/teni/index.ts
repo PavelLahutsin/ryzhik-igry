@@ -7,8 +7,8 @@ import { useStyles } from "../../shared/style";
 import { hint, svgNode } from "../../shared/ui";
 import baseCss from "../../shared/base.css?inline";
 import css from "./style.css?inline";
-import { levels, thing, type TeniLevel, type Thing } from "./levels";
-import { judge, rowsOf, starsFor } from "./logic";
+import { levels, shadowCount, thing, worlds, type TeniLevel, type Thing } from "./levels";
+import { hintTarget, judge, rowsOf, starsFor } from "./logic";
 
 /** «Тени»: drag each thing onto its own shadow. */
 export function mount(root: HTMLElement): () => void {
@@ -19,11 +19,12 @@ export function mount(root: HTMLElement): () => void {
       title: "Тени",
       subtitle: "Найди, чья это тень",
       levels,
+      worlds,
       thumb: (level) => {
         const t = thing(level.items[0]!);
         return el("span", { class: "tn-thumb" }, [art(t, "tn-thumb__shadow"), art(t, "tn-thumb__item")]);
       },
-      caption: (level) => `${level.items.length} ${level.items.length < 5 ? "тени" : "теней"}`,
+      caption: (level) => `${shadowCount(level)} ${shadowCount(level) < 5 ? "тени" : "теней"}`,
       play,
     },
     root,
@@ -44,7 +45,7 @@ function play(stage: HTMLElement, level: TeniLevel, _index: number, api: PlayApi
 
   // Silhouettes: the same art rendered black and see-through (CSS filter).
   const board = el("div", { class: "tn-board" });
-  const order = shuffle(things);
+  const order = shuffle([...things, ...(level.decoys ?? []).map(thing)]);
   const shadows = new Map<string, HTMLElement>();
   let at = 0;
   for (const count of rowsOf(order.length)) {
@@ -107,7 +108,27 @@ function play(stage: HTMLElement, level: TeniLevel, _index: number, api: PlayApi
     );
   }
 
-  stage.append(board, el("p", { class: "tn-note", text: "Перетащи картинку на её тень" }), tray);
+  const note = level.decoys?.length
+    ? `Перетащи картинку на её тень. ${level.decoys.length === 1 ? "Одна тень лишняя!" : "Две тени лишние!"}`
+    : "Перетащи картинку на её тень";
+  stage.append(board, el("p", { class: "tn-note", text: note }), tray);
+
+  // Hint: one picture and its own shadow glow together.
+  api.setHint(() => {
+    const id = hintTarget(
+      things.map((t) => t.id),
+      filled,
+    );
+    if (!id) return;
+    misses++;
+    const pair = [shadows.get(id)!, tray.querySelector<HTMLElement>(`.tn-item[data-id="${id}"]`)];
+    for (const node of pair) {
+      if (!node) continue;
+      node.classList.remove("is-hinted");
+      void node.offsetWidth;
+      node.classList.add("is-hinted");
+    }
+  });
   return () => {
     for (const stop of stops) stop();
   };

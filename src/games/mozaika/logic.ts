@@ -93,3 +93,10 @@ export function starsFor(misses: number, pieces: number): number {
   if (misses <= pieces * 2) return 2;
   return 1;
 }
+
+/** A loose piece for the hint button to fly home, or -1 when all are placed. */
+export function hintPiece(indices: readonly number[], placed: ReadonlySet<number>, rand: () => number): number {
+  const loose = indices.filter((i) => !placed.has(i));
+  if (loose.length === 0) return -1;
+  return loose[Math.floor(rand() * loose.length)]!;
+}

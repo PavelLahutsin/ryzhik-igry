@@ -67,33 +67,77 @@ def cut(name, file, box, tol, erase=None):
         for nx, ny in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):
             if 0 <= nx < w and 0 <= ny < h and not seen[ny * w + nx]:
                 q.append((nx, ny, c))
+    # Second pass: grow the background through cool, grey pixels touching it.
+    # The studio grey and the floor shadow are neutral or bluish, while fur,
+    # skin and clothes here are warm or clearly coloured. Near the floor the
+    # rule is looser, so the soft contact shadow under the feet goes too.
+    rows = [y for y in range(h) if any(not seen[y * w + x] for x in range(w))]
+    top, bottom = rows[0], rows[-1]
+    feet = bottom - (bottom - top) * 0.14
+
+    def greyish(c, y):
+        r, g, b = c
+        spread = max(c) - min(c)
+        if y > feet:
+            # Light floor and contact shadow between and under the feet;
+            # paws and fur stay because they are darker or orange-brown.
+            return 6 < r - b < 48 and spread < 50 and sum(c) > 3 * 140
+        return r - b < 6 and spread < 24 and sum(c) > 3 * 120
+
+    q = deque(i for i in range(w * h) if seen[i])
+    while q:
+        i = q.popleft()
+        x, y = i % w, i // w
+        for nx, ny in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):
+            if 0 <= nx < w and 0 <= ny < h:
+                j = ny * w + nx
+                if not seen[j] and greyish(px[nx, ny], ny):
+                    seen[j] = 1
+                    q.append(j)
+    # Gaps between the legs are closed off from the border, so the passes
+    # above never reach them: clear neutral light pixels low in the figure.
+    gap = bottom - (bottom - top) * 0.18
+    for y in range(int(gap), h):
+        for x in range(w):
+            c = px[x, y]
+            # Neutral grey, not the bluish denim of the overalls.
+            if max(c) - min(c) < 24 and c[2] - c[0] < 8 and sum(c) > 3 * 125:
+                seen[y * w + x] = 1
     # Keep only the biggest figure: drops slivers of neighbours in the lineup.
     comp = [0] * (w * h)
     best, best_size, label = 0, 0, 0
+    parts = {}
     for start in range(w * h):
         if seen[start] or comp[start]:
             continue
         label += 1
-        size, stack = 0, [start]
+        size, stack, top_y = 0, [start], start // w
         comp[start] = label
         while stack:
             i = stack.pop()
             size += 1
             x, y = i % w, i // w
+            top_y = min(top_y, y)
             for nx, ny in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):
                 if 0 <= nx < w and 0 <= ny < h:
                     j = ny * w + nx
                     if not seen[j] and not comp[j]:
                         comp[j] = label
                         stack.append(j)
+        parts[label] = (size, top_y)
         if size > best_size:
             best, best_size = label, size
+    # Feet that the floor passes cut off from the body stay too: small parts
+    # that start low in the figure (neighbours in the lineup are tall).
+    keep = {best} | {k for k, (size, top_y) in parts.items() if size > best_size * 0.004 and top_y > gap}
     mask = Image.new("L", (w, h), 0)
     mp = mask.load()
     for y in range(h):
         for x in range(w):
-            if comp[y * w + x] == best:
+            if comp[y * w + x] in keep:
                 mp[x, y] = 255
+    # Close pin holes inside the figure, then shave and soften the edge.
+    mask = mask.filter(ImageFilter.MaxFilter(3)).filter(ImageFilter.MinFilter(3))
     mask = mask.filter(ImageFilter.MinFilter(3)).filter(ImageFilter.GaussianBlur(1.2))
     out = im.convert("RGBA")
     out.putalpha(mask)

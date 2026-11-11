@@ -9,6 +9,7 @@ import "@fontsource/nunito/latin-800.css";
 
 import { findGame } from "./games/registry";
 import { renderHome } from "./home/home";
+import { renderParents } from "./home/parents";
 import { platform } from "./shared/platform";
 import { gameOf } from "./shared/router";
 import { reducedMotion, useStyles } from "./shared/style";
@@ -28,14 +29,22 @@ let token = 0;
  * Changes inside the same game are left to the game.
  */
 function onHash(): void {
-  const game = findGame(gameOf(window.location.hash));
-  const id = game?.id ?? null;
+  const first = gameOf(window.location.hash);
+  const game = findGame(first);
+  const id = game?.id ?? (first === "roditelyam" ? "roditelyam" : null);
   if (current && current.id === id) return;
 
   current?.cleanup?.();
   root.replaceChildren();
   const mine = ++token;
   current = { id, cleanup: null };
+
+  if (id === "roditelyam") {
+    useStyles(baseCss);
+    document.body.dataset.route = "parents";
+    current.cleanup = renderParents(root);
+    return;
+  }
 
   if (!game) {
     if (gameOf(window.location.hash)) {

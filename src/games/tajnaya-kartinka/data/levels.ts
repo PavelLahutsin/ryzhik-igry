@@ -111,13 +111,24 @@ export function currentLevel(completed: readonly string[], list: readonly Level[
   return list.find((level) => !completed.includes(level.id)) ?? list[list.length - 1];
 }
 
-export function gameConfig(level: Level): GameConfig {
+/**
+ * Field for a phone held upright: about the same number of cells, but
+ * nearly square, so cells are bigger than in the wide 16:9 field.
+ */
+export function portraitSize(cols: number, rows: number): { cols: number; rows: number } {
+  const cells = cols * rows;
+  const r = Math.round(Math.sqrt(cells));
+  return { cols: Math.round(cells / r), rows: r };
+}
+
+export function gameConfig(level: Level, portrait = false): GameConfig {
+  const size = portrait ? portraitSize(level.cols, level.rows) : { cols: level.cols, rows: level.rows };
   return {
     enemies: level.enemies,
     winPercent: level.winPercent,
     lives: level.lives,
-    cols: level.cols,
-    rows: level.rows,
+    cols: size.cols,
+    rows: size.rows,
     beeStep: level.beeStep,
     fastBees: level.fastBees,
     ladybugs: level.ladybugs,

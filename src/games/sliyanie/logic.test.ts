@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createRng } from "../../shared/rng";
-import { CHAIN, levels } from "./levels";
+import { CHAIN, CHAINS, WINTER, levels } from "./levels";
+import { CHAIN_ART, WINTER_ART } from "./art";
 import { bestTier, canMove, emptyBoard, move, spawn, starsFor, unstick, type Board, type Tile } from "./logic";
 
 function board(size: number, rows: Array<Array<number | null>>): Board {
@@ -76,5 +77,19 @@ describe("sliyanie", () => {
   });
   it("gives fewer stars only for help", () => {
     expect([starsFor(0), starsFor(1), starsFor(4)]).toEqual([3, 2, 1]);
+  });
+  it("has two equal chains with art for every step but the last", () => {
+    expect(WINTER).toHaveLength(CHAIN.length);
+    expect(CHAIN_ART).toHaveLength(CHAIN.length - 1);
+    expect(WINTER_ART).toHaveLength(WINTER.length - 1);
+  });
+  it("has 12 levels in two worlds with reachable goals", () => {
+    expect(levels).toHaveLength(12);
+    expect(new Set(levels.map((l) => l.id)).size).toBe(12);
+    for (const level of levels) {
+      expect(level.goal).toBeLessThan(CHAINS[level.chain].length);
+      expect(level.world).toBe(level.chain);
+      expect(level.size).toBeGreaterThanOrEqual(3);
+    }
   });
 });

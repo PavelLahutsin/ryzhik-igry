@@ -11,7 +11,8 @@ export type Memory = {
 export type FlipResult = "ignored" | "first" | "match" | "miss";
 
 export function deal(faces: readonly string[], pairs: number, rand: () => number = Math.random): Memory {
-  const chosen = faces.slice(0, pairs);
+  // More faces than pairs: a random set, so replays look different.
+  const chosen = faces.length > pairs ? shuffle([...faces], rand).slice(0, pairs) : faces.slice(0, pairs);
   if (chosen.length < pairs) throw new Error("Мало картинок для пар");
   return { deck: shuffle([...chosen, ...chosen], rand), matched: new Set(), open: [], misses: 0 };
 }
@@ -41,6 +42,19 @@ export function closeMiss(state: Memory): number[] {
 
 export function solved(state: Memory): boolean {
   return state.matched.size === state.deck.length;
+}
+
+/** Cards the peek hint may show for a moment: closed and not matched. */
+export function peekable(state: Memory): number[] {
+  if (state.open.length >= 2) return [];
+  return state.deck.map((_, i) => i).filter((i) => !state.matched.has(i) && !state.open.includes(i));
+}
+
+/** Grid shape for the screen: lie the long side along the long side of the stage. */
+export function fitGrid(cols: number, rows: number, landscape: boolean): { cols: number; rows: number } {
+  const long = Math.max(cols, rows);
+  const short = Math.min(cols, rows);
+  return landscape ? { cols: long, rows: short } : { cols: short, rows: long };
 }
 
 /** No clock. Stars only look at extra tries, and generously. */

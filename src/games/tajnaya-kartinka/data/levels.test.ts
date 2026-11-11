@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { currentLevel, gameConfig, isUnlocked, levels, nextLevel, validateLevels, worlds } from "./levels";
+import { pictureCrop } from "../game/render";
+import { currentLevel, gameConfig, isUnlocked, levels, nextLevel, portraitSize, validateLevels, worlds } from "./levels";
 import levelsJson from "./levels.json";
 
 describe("levels.json", () => {
@@ -80,5 +81,26 @@ describe("unlocking", () => {
     expect(currentLevel([])?.id).toBe(levels[0]!.id);
     expect(currentLevel([levels[0]!.id, levels[1]!.id])?.id).toBe(levels[2]!.id);
     expect(currentLevel(levels.map((l) => l.id))?.id).toBe(levels[levels.length - 1]!.id);
+  });
+});
+
+describe("portrait field", () => {
+  it("keeps about the same number of cells but is nearly square", () => {
+    for (const [c, r] of [
+      [16, 9],
+      [18, 10],
+      [20, 11],
+    ] as const) {
+      const p = portraitSize(c, r);
+      expect(Math.abs(p.cols * p.rows - c * r) / (c * r)).toBeLessThan(0.06);
+      expect(p.cols / p.rows).toBeGreaterThanOrEqual(0.9);
+      expect(p.cols / p.rows).toBeLessThan(1.15);
+    }
+  });
+  it("crops the middle of the picture", () => {
+    expect(pictureCrop(1280, 720, 16, 9)).toEqual({ x: 0, y: 0, w: 1280, h: 720 });
+    const c = pictureCrop(1280, 720, 13, 11);
+    expect(c.h).toBe(720);
+    expect(c.x).toBeCloseTo((1280 - c.w) / 2);
   });
 });

@@ -225,3 +225,26 @@
     animation: none;
   }
 }
+
+@media (orientation: landscape) and (max-height: 560px) {
+  .game--sliyanie .stage {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-rows: 1fr auto;
+    grid-template-areas: "wrap top" "wrap pad";
+    align-items: center;
+    justify-items: center;
+    gap: 8px 24px;
+  }
+  .sl-top {
+    grid-area: top;
+  }
+  .sl-wrap {
+    grid-area: wrap;
+    width: min(calc(100dvh - 84px), 520px);
+    min-width: 0;
+  }
+  .sl-pad {
+    grid-area: pad;
+  }
+}

@@ -6,11 +6,15 @@ import { reducedMotion, useStyles } from "../../shared/style";
 import { hint, svgNode } from "../../shared/ui";
 import baseCss from "../../shared/base.css?inline";
 import css from "./style.css?inline";
-import { CHAIN_ART, GARDEN_BACK } from "./art";
-import { CHAIN, levels, type SliyanieLevel } from "./levels";
+import { CHAIN_ART, GARDEN_BACK, WINTER_ART, WINTER_BACK } from "./art";
+import { CHAINS, levels, worlds, type ChainId, type SliyanieLevel } from "./levels";
 import { bestTier, canMove, emptyBoard, move, spawn, starsFor, unstick, type Board, type Dir } from "./logic";
 
-const MAX = CHAIN.length - 1;
+const MAX = CHAINS.sad.length - 1;
+const ART: Record<ChainId, { steps: string[]; back: string }> = {
+  sad: { steps: CHAIN_ART, back: GARDEN_BACK },
+  zima: { steps: WINTER_ART, back: WINTER_BACK },
+};
 
 /** «Вырасти сад»: 2048 without numbers. */
 export function mount(root: HTMLElement): () => void {
@@ -21,8 +25,9 @@ export function mount(root: HTMLElement): () => void {
       title: "Вырасти сад",
       subtitle: "Соедини две одинаковые картинки",
       levels,
-      thumb: (level) => stepArt(level.goal, "sl-thumb"),
-      caption: (level) => CHAIN[level.goal]!.name,
+      worlds,
+      thumb: (level) => stepArt(level.chain, level.goal, "sl-thumb"),
+      caption: (level) => CHAINS[level.chain][level.goal]!.name,
       play,
     },
     root,
@@ -30,15 +35,15 @@ export function mount(root: HTMLElement): () => void {
 }
 
 /** Picture of one chain step. */
-export function stepArt(tier: number, className = ""): HTMLElement {
+export function stepArt(chain: ChainId, tier: number, className = ""): HTMLElement {
   if (tier < MAX) {
-    const node = svgNode(CHAIN_ART[tier]!, className);
-    node.style.background = CHAIN[tier]!.color;
+    const node = svgNode(ART[chain].steps[tier]!, className);
+    node.style.background = CHAINS[chain][tier]!.color;
     return node;
   }
   const wrap = el("span", { class: `sl-final ${className}`.trim(), attrs: { "aria-hidden": "true" } });
   wrap.append(
-    svgNode(GARDEN_BACK, "sl-final__back"),
+    svgNode(ART[chain].back, "sl-final__back"),
     el("img", { class: "sl-final__fox", attrs: { src: character("ryzhik"), alt: "", draggable: "false" } }),
   );
   return wrap;
@@ -50,12 +55,16 @@ function play(stage: HTMLElement, level: SliyanieLevel, _index: number, api: Pla
   let busy = false;
   let done = false;
   let seen = bestTier(board);
+  const CHAIN = CHAINS[level.chain];
+  const art = (tier: number, cls: string): HTMLElement => stepArt(level.chain, tier, cls);
+  // One step back (the hint lamp), remembered before each move.
+  let previous: Board | null = null;
 
   // Chain strip up to the goal, so the child sees what grows next.
   const strip = el("ol", { class: "sl-chain", attrs: { "aria-label": "Что вырастет" } });
   const stripItems = CHAIN.slice(0, level.goal + 1).map((step, tier) => {
     const item = el("li", { class: `sl-chain__item${tier === level.goal ? " is-goal" : ""}`, attrs: { title: step.name } }, [
-      stepArt(tier, "sl-chain__art"),
+      art(tier, "sl-chain__art"),
     ]);
     strip.append(item);
     return item;
@@ -108,7 +117,7 @@ function play(stage: HTMLElement, level: SliyanieLevel, _index: number, api: Pla
       let node = nodes.get(tile.id);
       if (!node) {
         node = el("div", { class: "sl-tile", attrs: { "aria-label": CHAIN[tile.tier]!.name, role: "img" } }, [
-          stepArt(tile.tier, "sl-tile__art"),
+          art(tile.tier, "sl-tile__art"),
         ]);
         if (tile.merged) node.classList.add("is-merged");
         if (tile.fresh) node.classList.add("is-fresh");
@@ -127,6 +136,19 @@ function play(stage: HTMLElement, level: SliyanieLevel, _index: number, api: Pla
     const best = bestTier(board);
     stripItems.forEach((item, tier) => item.classList.toggle("is-reached", tier <= best));
     help.hidden = done || canMove(board, MAX);
+    api.setHint(previous && !done ? undo : null);
+  }
+
+  function undo(): void {
+    if (!previous || busy || done) return;
+    helps++;
+    audio.play("tap");
+    board = previous;
+    previous = null;
+    for (const node of nodes.values()) node.remove();
+    nodes.clear();
+    render();
+    hint(stage, "Шаг назад!", 1000);
   }
 
   function go(dir: Dir): void {
@@ -140,6 +162,7 @@ function play(stage: HTMLElement, level: SliyanieLevel, _index: number, api: Pla
       return;
     }
     busy = true;
+    previous = board;
     board = res.board;
     if (res.mergedTiers.length) audio.play("merge");
     render();
@@ -169,6 +192,7 @@ function play(stage: HTMLElement, level: SliyanieLevel, _index: number, api: Pla
   function doHelp(): void {
     helps++;
     audio.play("tap");
+    previous = null;
     board = unstick(board, MAX, Math.random);
     for (const node of nodes.values()) node.remove();
     nodes.clear();
