@@ -16,9 +16,14 @@ export function starsFor(misses: number): number {
   return 1;
 }
 
-/** Silhouette rows: up to 3 per row, so 5 becomes 3 + 2. */
+/** Silhouette rows: up to 3 per row, so 5 becomes 3 + 2 and 6 is 3 + 3. */
 export function rowsOf(count: number): number[] {
   if (count <= 3) return [count];
   if (count === 4) return [2, 2];
   return [3, count - 3];
+}
+
+/** The thing the hint shows: the first one still in the tray. */
+export function hintTarget(items: readonly string[], filled: ReadonlySet<string>): string | null {
+  return items.find((id) => !filled.has(id)) ?? null;
 }
