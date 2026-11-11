@@ -4,6 +4,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  container-type: size;
 }
 
 .np-grid {
@@ -12,7 +13,7 @@
   grid-template-columns: repeat(var(--cols), 1fr);
   gap: var(--gap);
   /* Cards are 3:4; fit both the width and the height of the stage. */
-  width: min(100%, calc((100dvh - 150px - (var(--rows) - 1) * var(--gap)) / var(--rows) * 0.75 * var(--cols) + (var(--cols) - 1) * var(--gap)), 560px);
+  width: min(100cqw, calc((100cqh - (var(--rows) - 1) * var(--gap)) / var(--rows) * 0.75 * var(--cols) + (var(--cols) - 1) * var(--gap)), 760px);
 }
 
 .np-card {
@@ -122,4 +123,8 @@
   .np-card.is-matched .np-card__front {
     animation: none;
   }
+}
+
+.np-card.is-peek .np-card__front {
+  box-shadow: 0 0 0 4px #9ee07a, 0 6px 0 rgba(59, 46, 37, 0.18);
 }
