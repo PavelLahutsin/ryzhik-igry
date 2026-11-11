@@ -1,0 +1,780 @@
+/* Shared look of the games shell, taken from «Тайная картинка» v2 so all games feel like one family. */
+:root {
+  --bg: #f5ede0;
+  --surface: #fffcf7;
+  --line: #e9dac4;
+  --ink: #3b2e25;
+  --ink-soft: #5c4a3a;
+  --orange: #ff8a3d;
+  --orange-deep: #a3490d;
+  --orange-tint: #ffe6d2;
+  --emerald: #157a62;
+  --emerald-deep: #12654f;
+  --yellow: #ffc94a;
+  --yellow-tint: #fff1cb;
+  --sky: #6db3d4;
+
+  --radius-md: 20px;
+  --radius-lg: 28px;
+  --radius-xl: 40px;
+  --tap: 64px;
+  --shadow-card: 0 26px 55px -34px rgba(59, 46, 37, 0.55);
+  --shadow-btn: 0 14px 26px -14px rgba(233, 103, 26, 0.45);
+
+  --font-display: "Comfortaa", "Trebuchet MS", "Segoe UI", sans-serif;
+  --font-ui: "Nunito", "Segoe UI", "PT Sans", sans-serif;
+
+  color: var(--ink);
+  font-family: var(--font-ui);
+  background: var(--bg);
+  -webkit-text-size-adjust: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overscroll-behavior: none;
+}
+
+body {
+  background-color: var(--bg);
+  background-image: radial-gradient(rgba(163, 73, 13, 0.04) 1.6px, transparent 1.8px);
+  background-size: 48px 48px;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  touch-action: manipulation;
+}
+
+#app {
+  min-height: 100%;
+  height: 100%;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding-top: env(safe-area-inset-top);
+  padding-right: env(safe-area-inset-right);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+}
+
+.screen {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  gap: 16px;
+  overflow: auto;
+}
+
+.screen--game {
+  overflow: hidden;
+}
+
+.screen--start {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 8px;
+}
+
+.hero {
+  width: min(42vh, 280px);
+  height: auto;
+  max-width: 70vw;
+  object-fit: contain;
+  filter: drop-shadow(0 18px 24px rgba(59, 46, 37, 0.18));
+  pointer-events: none;
+}
+
+.eyebrow {
+  margin: 0;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--orange-deep);
+  font-size: 15px;
+}
+
+.title {
+  margin: 4px 0 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(32px, 8vw, 52px);
+  line-height: 1.05;
+}
+
+.lead {
+  margin: 10px auto 0;
+  max-width: 22rem;
+  font-size: 20px;
+  line-height: 1.35;
+  color: var(--ink-soft);
+}
+
+.start__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.btn {
+  appearance: none;
+  border: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--tap);
+  min-width: var(--tap);
+  padding: 0 28px;
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: var(--shadow-btn);
+}
+
+.btn--play {
+  min-width: 240px;
+  min-height: 80px;
+  background: linear-gradient(#ff9b4f, var(--orange));
+  color: #fff;
+  font-weight: 800;
+  font-size: 28px;
+}
+
+.btn--play:active {
+  transform: translateY(2px);
+}
+
+.btn--ghost {
+  min-width: 200px;
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 800;
+  font-size: 22px;
+  box-shadow: 0 0 0 3px var(--line);
+}
+
+.btn--back {
+  width: var(--tap);
+  padding: 0;
+  font-size: 32px;
+  background: var(--surface);
+  box-shadow: 0 0 0 3px var(--line);
+}
+
+.toolbar {
+  display: grid;
+  grid-template-columns: var(--tap) 1fr auto;
+  align-items: center;
+  gap: 12px;
+  min-height: var(--tap);
+}
+
+.toolbar__title {
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: clamp(22px, 5vw, 30px);
+  font-weight: 700;
+}
+
+.toolbar__spacer {
+  width: var(--tap);
+}
+
+
+.worlds {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.world {
+  --world: #ffb23f;
+  padding: 14px;
+  border-radius: var(--radius-xl);
+  background: color-mix(in srgb, var(--world) 16%, var(--surface));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--world) 45%, transparent);
+}
+
+.world.is-locked {
+  filter: saturate(0.55);
+}
+
+.world__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 2px 6px 12px;
+}
+
+.world__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(24px, 6vw, 32px);
+  font-weight: 700;
+}
+
+.world__stars {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--surface);
+  font-weight: 800;
+  font-size: 17px;
+  color: var(--orange-deep);
+  white-space: nowrap;
+}
+
+.world .level-grid {
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.level-card__frame {
+  position: relative;
+  display: block;
+}
+
+.level-card.is-next .level-card__art {
+  filter: blur(9px) saturate(1.2);
+  transform: scale(1.12);
+}
+
+.level-card.is-next .level-card__frame {
+  overflow: hidden;
+}
+
+.level-card.is-next {
+  box-shadow: var(--shadow-card), 0 0 0 4px var(--orange);
+  animation: next-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes next-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.025);
+  }
+}
+
+.level-card__mystery {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 54px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+  background: repeating-linear-gradient(
+    45deg,
+    color-mix(in srgb, var(--world, #ffb23f) 55%, #fff),
+    color-mix(in srgb, var(--world, #ffb23f) 55%, #fff) 14px,
+    color-mix(in srgb, var(--world, #ffb23f) 42%, #fff) 14px,
+    color-mix(in srgb, var(--world, #ffb23f) 42%, #fff) 28px
+  );
+}
+
+.level-card.is-locked {
+  filter: none;
+}
+
+.level-card__num {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--surface);
+  font-weight: 800;
+  font-size: 18px;
+  box-shadow: 0 2px 0 rgba(59, 46, 37, 0.15);
+}
+
+.level-card__play {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--orange);
+  box-shadow: 0 6px 14px -6px rgba(163, 73, 13, 0.7);
+}
+
+.level-card__play::after {
+  content: "";
+  position: absolute;
+  left: 22px;
+  top: 16px;
+  border-style: solid;
+  border-width: 12px 0 12px 19px;
+  border-color: transparent transparent transparent #fff;
+}
+
+.level-card__foot {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px 0;
+}
+
+.level-card__foot .level-card__name {
+  padding: 0;
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.stars {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.star {
+  width: 24px;
+  height: 24px;
+  fill: #eadcc8;
+}
+
+.star.is-on {
+  fill: #ffc12e;
+  stroke: #e08a00;
+  stroke-width: 1.5;
+}
+
+.stars--big .star {
+  width: 64px;
+  height: 64px;
+}
+
+.stars--big .star.is-on {
+  animation: star-pop 0.5s cubic-bezier(0.3, 1.6, 0.5, 1) backwards;
+}
+
+.stars--big .star:nth-child(2) {
+  animation-delay: 0.25s;
+}
+
+.stars--big .star:nth-child(3) {
+  animation-delay: 0.5s;
+}
+
+@keyframes star-pop {
+  from {
+    transform: scale(0) rotate(-40deg);
+  }
+  to {
+    transform: scale(1) rotate(0);
+  }
+}
+
+.confetti {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.confetti i {
+  position: absolute;
+  top: -20px;
+  width: 12px;
+  height: 18px;
+  border-radius: 3px;
+  opacity: 0;
+  animation: confetti-fall 2.6s ease-in 1 forwards;
+}
+
+@keyframes confetti-fall {
+  0% {
+    opacity: 1;
+    transform: translateY(0) rotate(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(70vh) rotate(540deg);
+  }
+}
+
+
+/* ---------- Games shell ---------- */
+
+.svg-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.svg-art svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* New games show their level art (it is not a secret like in «Тайная картинка»). */
+.level-card__art {
+  display: block;
+  overflow: hidden;
+}
+
+.level-card__art > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.level-card.is-next .level-card__art {
+  filter: none;
+  transform: none;
+}
+
+.level-card.is-next .level-card__play {
+  opacity: 0.92;
+}
+
+/* Home menu */
+.screen--home {
+  gap: 14px;
+  padding-bottom: 28px;
+}
+
+.home__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.home__hero {
+  width: 92px;
+  height: auto;
+  flex: 0 0 auto;
+  filter: drop-shadow(0 10px 14px rgba(59, 46, 37, 0.18));
+  pointer-events: none;
+}
+
+.home__text {
+  flex: 1;
+  min-width: 0;
+}
+
+.home__head .title {
+  font-size: clamp(30px, 8vw, 46px);
+  margin: 0;
+}
+
+.home__head .eyebrow {
+  font-size: 14px;
+}
+
+.home__sound {
+  flex: 0 0 auto;
+  font-size: 26px;
+}
+
+.home__sound[aria-pressed="false"] {
+  opacity: 0.55;
+}
+
+.home__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+@media (min-width: 720px) {
+  .home__grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+}
+
+.game-tile {
+  --tile: #ffb23f;
+  appearance: none;
+  border: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--tile) 22%, var(--surface));
+  box-shadow: var(--shadow-card), 0 0 0 3px color-mix(in srgb, var(--tile) 55%, transparent);
+  cursor: pointer;
+  overflow: hidden;
+  text-align: left;
+  transition: transform 160ms ease;
+}
+
+.game-tile:active {
+  transform: scale(0.97);
+}
+
+.game-tile--wide {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  align-items: center;
+}
+
+.game-tile__art {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  background: color-mix(in srgb, var(--tile) 35%, #fff);
+  overflow: hidden;
+}
+
+.game-tile--wide .game-tile__art {
+  width: 52%;
+  flex: 0 0 auto;
+}
+
+.game-tile--wide .game-tile__name {
+  font-size: 24px;
+}
+
+.game-tile__art > img,
+.game-tile__art > .svg-art {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.game-tile__art > img.is-figure {
+  object-fit: contain;
+  padding: 8px 0 0;
+}
+
+.game-tile__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 14px 14px;
+}
+
+.game-tile__name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 21px;
+  line-height: 1.1;
+}
+
+.game-tile__note {
+  font-size: 15px;
+  color: var(--ink-soft);
+  line-height: 1.25;
+}
+
+.game-tile__stars {
+  margin-top: 4px;
+  font-weight: 800;
+  font-size: 15px;
+  color: var(--orange-deep);
+}
+
+.home__foot {
+  margin: 6px 4px 0;
+  font-size: 14px;
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+.loading {
+  margin: auto;
+  font-family: var(--font-display);
+  font-size: 26px;
+  color: var(--orange-deep);
+}
+
+/* Play screen of the new games */
+.screen--play {
+  position: relative;
+  overflow: hidden;
+  gap: 10px;
+}
+
+.stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 52px;
+  min-width: var(--tap);
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--yellow-tint);
+  color: var(--orange-deep);
+  font: inherit;
+  font-weight: 800;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* Praise card: the only "end" of any level */
+.praise {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(245, 237, 224, 0.72);
+  opacity: 0;
+  transition: opacity 260ms ease;
+}
+
+.praise.is-open {
+  opacity: 1;
+}
+
+.praise__card {
+  position: relative;
+  width: min(100%, 420px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 24px 20px;
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  box-shadow: var(--shadow-card), 0 0 0 4px var(--yellow);
+  text-align: center;
+  transform: scale(0.9);
+  transition: transform 320ms cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+
+.praise.is-open .praise__card {
+  transform: scale(1);
+}
+
+.praise__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 40px;
+  color: var(--orange-deep);
+}
+
+.praise__text {
+  margin: 0;
+  font-size: 20px;
+  color: var(--ink-soft);
+}
+
+.praise__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.praise__actions .btn--ghost {
+  min-width: 200px;
+}
+
+.hint {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  z-index: 40;
+  margin: 0;
+  max-width: calc(100% - 32px);
+  padding: 12px 20px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: #fff;
+  font-weight: 800;
+  font-size: 20px;
+  text-align: center;
+  transform: translate(-50%, 20px);
+  opacity: 0;
+  transition: opacity 200ms ease, transform 200ms ease;
+  pointer-events: none;
+}
+
+.hint.is-open {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* Dragged pieces float above everything */
+.is-dragging {
+  z-index: 30 !important;
+  cursor: grabbing;
+  filter: drop-shadow(0 14px 16px rgba(59, 46, 37, 0.3));
+}
+
+@keyframes pop-in {
+  from {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes wiggle {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  25% {
+    transform: rotate(-6deg);
+  }
+  75% {
+    transform: rotate(6deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .level-card.is-next,
+  .confetti i,
+  .stars--big .star.is-on,
+  .game-tile {
+    animation: none !important;
+    transition: none !important;
+  }
+  .confetti {
+    display: none;
+  }
+  .praise,
+  .praise__card,
+  .hint {
+    transition: none;
+  }
+}
