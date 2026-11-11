@@ -273,6 +273,180 @@ await page("38-tajnaya-kartinka-big", "#/", async (p) => {
   await p.waitForTimeout(800);
 });
 
+// ---------------------------------------------------------------- v3 games
+
+/** Drag along a list of client points with the mouse held down. */
+async function trace(p, points) {
+  await p.mouse.move(points[0][0], points[0][1]);
+  await p.mouse.down();
+  for (const [x, y] of points) await p.mouse.move(x, y);
+  await p.mouse.up();
+}
+
+/** Drag the centre of one element onto the centre of another. */
+async function dragTo(p, fromSel, toSel) {
+  const a = await centre(p.locator(fromSel).first());
+  const b = await centre(p.locator(toSel).first());
+  await trace(p, Array.from({ length: 9 }, (_, i) => [a.x + ((b.x - a.x) * i) / 8, a.y + ((b.y - a.y) * i) / 8]));
+  await p.waitForTimeout(200);
+}
+
+await page("39-domik", "#/domik", async (p) => {
+  await p.locator(".dm-prop--radio").first().click({ force: true }).catch(() => {});
+  await p.waitForTimeout(600);
+});
+await page("40-domik-night-sad", "#/domik", async (p) => {
+  await p.locator('.dm-tab[aria-label="Сад"]').click().catch(() => {});
+  await p.waitForTimeout(400);
+  await p.locator(".dm-night-btn").click().catch(() => {});
+  await p.waitForTimeout(900);
+});
+await page("41-kuhnya", "#/kuhnya", async (p) => {
+  await dragTo(p, '.kt-food[aria-label="Яблоко"]', ".kt-tool--cut");
+  await p.waitForTimeout(400);
+});
+
+const RISOVALKA = ["r1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8"];
+async function traceGuides(p, limit = 99) {
+  const strokes = await p.evaluate(() =>
+    [...document.querySelectorAll(".rv-guide")].map((g) => {
+      const m = g.getScreenCTM();
+      const L = g.getTotalLength();
+      const pts = [];
+      for (let s = 0; s <= L + 4; s += 4) {
+        const q = g.getPointAtLength(Math.min(s, L));
+        pts.push([m.a * q.x + m.c * q.y + m.e, m.b * q.x + m.d * q.y + m.f]);
+      }
+      return pts;
+    }),
+  );
+  for (const s of strokes.slice(0, limit)) {
+    await trace(p, s);
+    await p.waitForTimeout(80);
+  }
+}
+await page("42-risovalka-levels", "#/risovalka/");
+await page("43-risovalka-trace", "#/risovalka/play/7", (p) => traceGuides(p, 1), ["risovalka", RISOVALKA]);
+await page("44-risovalka-alive", "#/risovalka/play/5", async (p) => {
+  await traceGuides(p);
+  await p.waitForTimeout(900);
+}, ["risovalka", RISOVALKA]);
+await page("45-risovalka-digit", "#/risovalka/play/21", async (p) => {
+  await traceGuides(p);
+  await p.waitForTimeout(3800);
+}, ["risovalka", RISOVALKA]);
+
+const TOCHKI = ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9", "t10", "t11"];
+async function joinDots(p, limit = 99) {
+  const pts = await p.evaluate(() =>
+    [...document.querySelectorAll(".td-dot__core")].map((n) => {
+      const r = n.getBoundingClientRect();
+      return [r.x + r.width / 2, r.y + r.height / 2];
+    }),
+  );
+  const path = [];
+  for (let i = 1; i < Math.min(pts.length, limit); i++)
+    for (let k = 0; k <= 6; k++) path.push([pts[i - 1][0] + ((pts[i][0] - pts[i - 1][0]) * k) / 6, pts[i - 1][1] + ((pts[i][1] - pts[i - 1][1]) * k) / 6]);
+  await trace(p, path);
+}
+await page("46-tochki-levels", "#/tochki/");
+await page("47-tochki-play", "#/tochki/play/12", (p) => joinDots(p, 8), ["tochki", TOCHKI]);
+await page("48-tochki-alive", "#/tochki/play/4", async (p) => {
+  await joinDots(p);
+  await p.waitForTimeout(1300);
+}, ["tochki", TOCHKI]);
+
+const PROF = ["vrach-zayka", "vrach-kotik", "vrach-mishka", "pozhar-dom", "pozhar-kotik", "pozhar-les", "magazin-1", "magazin-2", "magazin-3", "dom-kuhnya"];
+async function useTools(p, steps) {
+  for (const [tool, zone, rub] of steps) {
+    const a = await centre(p.locator(`[data-tool="${tool}"]`));
+    const box = await p.locator(`[data-zone="${zone}"]`).boundingBox();
+    const b = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+    const path = Array.from({ length: 9 }, (_, i) => [a.x + ((b.x - a.x) * i) / 8, a.y + ((b.y - a.y) * i) / 8]);
+    if (rub) for (let j = 0; j < 14; j++) for (let i = 0; i <= 6; i++) path.push([b.x - box.width * 0.35 + (box.width * 0.7 * (j % 2 ? 6 - i : i)) / 6, b.y + (i % 2) * 6]);
+    await trace(p, path);
+    await p.waitForTimeout(700);
+  }
+}
+await page("49-professii-levels", "#/professii/");
+await page("50-professii-doctor", "#/professii/play/1", (p) => useTools(p, [["thermo", "mouth"]]));
+await page("51-professii-doctor-done", "#/professii/play/1", (p) => useTools(p, [["thermo", "mouth"], ["medicine", "mouth"], ["blanket", "body"], ["tea", "mouth"]]));
+await page("52-professii-fire", "#/professii/play/4", (p) => useTools(p, [["hose", "hydrant"], ["water", "fire-a", true]]), ["professii", PROF]);
+await page("53-professii-cat", "#/professii/play/5", async (p) => {
+  await useTools(p, [["ladder", "tree"], ["glove", "cat"]]);
+  await p.waitForTimeout(800);
+}, ["professii", PROF]);
+await page("54-professii-shop", "#/professii/play/8", async (p) => {
+  for (const id of ["apple", "apple", "mushroom"]) {
+    await p.locator(`.pr-shelf__item[data-id="${id}"]`).click();
+    await p.waitForTimeout(400);
+  }
+}, ["professii", PROF]);
+await page("55-professii-pay", "#/professii/play/7", async (p) => {
+  for (const id of ["apple", "banana", "carrot"]) {
+    await p.locator(`.pr-shelf__item[data-id="${id}"]`).click();
+    await p.waitForTimeout(400);
+  }
+  await p.waitForTimeout(1300);
+  await dragTo(p, ".pr-coin", ".pr-till");
+}, ["professii", PROF]);
+await page("56-professii-safety", "#/professii/play/10", async (p) => {
+  for (const id of ["plita", "nozh", "frukty"]) {
+    await p.locator(`[data-thing="${id}"] .pr-thing__hit`).click({ force: true });
+    await p.waitForTimeout(400);
+  }
+}, ["professii", PROF]);
+
+const STROYKA = ["s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8"];
+async function buildAll(p, limit = 99) {
+  for (let k = 0; k < limit; k++) {
+    const pair = await p.evaluate(() => {
+      for (const g of document.querySelectorAll(".sk-ghost:not(.is-filled)")) {
+        const b = [...document.querySelectorAll(`.sk-block[data-key="${g.dataset.key}"]`)].find((n) => !n.classList.contains("is-placed"));
+        if (!b) continue;
+        const r1 = b.getBoundingClientRect();
+        const r2 = g.getBoundingClientRect();
+        return [r1.x + r1.width / 2, r1.y + r1.height / 2, r2.x + r2.width / 2, r2.y + r2.height / 2];
+      }
+      return null;
+    });
+    if (!pair) break;
+    await trace(p, Array.from({ length: 9 }, (_, i) => [pair[0] + ((pair[2] - pair[0]) * i) / 8, pair[1] + ((pair[3] - pair[1]) * i) / 8]));
+    await p.waitForTimeout(150);
+  }
+}
+await page("57-stroyka-levels", "#/stroyka/");
+await page("58-stroyka-train", "#/stroyka/play/4", (p) => buildAll(p, 5), ["stroyka", STROYKA]);
+await page("59-stroyka-house-alive", "#/stroyka/play/5", async (p) => {
+  await buildAll(p);
+  await p.waitForTimeout(1500);
+}, ["stroyka", STROYKA]);
+await page("60-stroyka-number-train", "#/stroyka/play/7", (p) => buildAll(p, 3), ["stroyka", STROYKA]);
+
+const FORMY = ["r1", "r2", "r3", "r4", "r5", "f1", "f2", "f3", "f4", "f5"];
+async function sortAll(p, limit = 99) {
+  for (let k = 0; k < limit; k++) {
+    const pair = await p.evaluate(() => {
+      const items = [...document.querySelectorAll(".fm-tray [data-key]:not(.is-placed)")];
+      if (!items.length) return null;
+      const pole = document.querySelector(".fm-pole");
+      const it = pole ? items.sort((a, b) => Number(b.dataset.key) - Number(a.dataset.key))[0] : items[0];
+      const tg = pole ?? document.querySelector(`.fm-layout > :nth-child(2) [data-key="${it.dataset.key}"]`);
+      const r1 = it.getBoundingClientRect();
+      const r2 = tg.getBoundingClientRect();
+      return [r1.x + r1.width / 2, r1.y + r1.height / 2, r2.x + r2.width / 2, r2.y + r2.height / 2];
+    });
+    if (!pair) break;
+    await trace(p, Array.from({ length: 9 }, (_, i) => [pair[0] + ((pair[2] - pair[0]) * i) / 8, pair[1] + ((pair[3] - pair[1]) * i) / 8]));
+    await p.waitForTimeout(250);
+  }
+}
+await page("61-formy-levels", "#/formy/");
+await page("62-formy-family", "#/formy/play/2", (p) => sortAll(p, 3), ["formy", FORMY]);
+await page("63-formy-pyramid", "#/formy/play/5", (p) => sortAll(p, 4), ["formy", FORMY]);
+await page("64-formy-sorter", "#/formy/play/11", (p) => sortAll(p, 2), ["formy", FORMY]);
+await page("65-formy-things", "#/formy/play/8", (p) => sortAll(p, 3), ["formy", FORMY]);
+
 await browser.close();
 if (errors.length) {
   console.error("Console errors:\n" + errors.join("\n"));

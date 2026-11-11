@@ -6,7 +6,7 @@ import { starSummary } from "../shared/levelgame";
 export type GameModule = { mount: (root: HTMLElement) => () => void };
 
 /** What the home tile shows: stars (or finished pictures) out of the maximum. */
-export type Summary = { got: number; max: number; unit: "stars" | "pictures" };
+export type Summary = { got: number; max: number; unit: "stars" | "pictures" | "finds" };
 
 export type GameEntry = {
   id: string;
@@ -34,6 +34,87 @@ async function levelStars(gameId: string, load: () => Promise<{ levels: Readonly
  * when opened, so one game can change without touching the others.
  */
 export const games: GameEntry[] = [
+  {
+    id: "domik",
+    title: "Домик Рыжика",
+    note: "Играй как хочешь: дом, сад и лес",
+    color: "#ff8a3d",
+    art: { src: picture("ryzhik-mashet") },
+    wide: true,
+    load: () => import("./domik"),
+    summary: async () => {
+      const [{ allFinds }, { gameFinds }] = await Promise.all([import("./domik/scenes"), import("../shared/finds")]);
+      const all = allFinds();
+      const list = await gameFinds("domik").load();
+      return { got: list.filter((id) => all.includes(id)).length, max: all.length, unit: "finds" };
+    },
+    resetKeys: ["ryzhik-igry:domik:found"],
+  },
+  {
+    id: "kuhnya",
+    title: "Кухня Рыжика",
+    note: "Готовь что хочешь и угощай",
+    color: "#e8463a",
+    art: { src: character("mama"), figure: true },
+    load: () => import("./kuhnya"),
+    summary: async () => {
+      const [{ allFinds }, { gameFinds }] = await Promise.all([import("./kuhnya/logic"), import("../shared/finds")]);
+      const all = allFinds();
+      const list = await gameFinds("kuhnya").load();
+      return { got: list.filter((id) => all.includes(id)).length, max: all.length, unit: "finds" };
+    },
+    resetKeys: ["ryzhik-igry:kuhnya:found"],
+  },
+  {
+    id: "risovalka",
+    title: "Рисовалка",
+    note: "Обведи — и рисунок оживёт",
+    color: "#9b6cd8",
+    art: { src: character("belka"), figure: true },
+    load: () => import("./risovalka"),
+    summary: () => levelStars("risovalka", () => import("./risovalka/pictures")),
+    resetKeys: ["ryzhik-igry:risovalka:progress"],
+  },
+  {
+    id: "tochki",
+    title: "По точкам",
+    note: "Соедини 1, 2, 3… — что получится?",
+    color: "#3fae6a",
+    art: { src: character("ezhik"), figure: true },
+    load: () => import("./tochki"),
+    summary: () => levelStars("tochki", () => import("./tochki/levels")),
+    resetKeys: ["ryzhik-igry:tochki:progress"],
+  },
+  {
+    id: "professii",
+    title: "Профессии",
+    note: "Доктор, пожарный, магазин и безопасный дом",
+    color: "#6db3d4",
+    art: { src: character("papa"), figure: true },
+    load: () => import("./professii"),
+    summary: () => levelStars("professii", () => import("./professii/data")),
+    resetKeys: ["ryzhik-igry:professii:progress"],
+  },
+  {
+    id: "stroyka",
+    title: "Стройка",
+    note: "Строй из больших кубиков — и всё оживёт",
+    color: "#ffb23f",
+    art: { src: character("mishka"), figure: true },
+    load: () => import("./stroyka"),
+    summary: () => levelStars("stroyka", () => import("./stroyka/levels")),
+    resetKeys: ["ryzhik-igry:stroyka:progress"],
+  },
+  {
+    id: "formy",
+    title: "Размер и форма",
+    note: "Большое и маленькое, круг и квадрат",
+    color: "#9b6cd8",
+    art: { src: character("mama"), figure: true },
+    load: () => import("./formy"),
+    summary: () => levelStars("formy", () => import("./formy/levels")),
+    resetKeys: ["ryzhik-igry:formy:progress"],
+  },
   {
     id: "tajnaya-kartinka",
     title: "Тайная картинка",
