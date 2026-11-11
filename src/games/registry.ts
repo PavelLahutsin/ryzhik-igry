@@ -6,7 +6,7 @@ import { starSummary } from "../shared/levelgame";
 export type GameModule = { mount: (root: HTMLElement) => () => void };
 
 /** What the home tile shows: stars (or finished pictures) out of the maximum. */
-export type Summary = { got: number; max: number; unit: "stars" | "pictures" };
+export type Summary = { got: number; max: number; unit: "stars" | "pictures" | "finds" };
 
 export type GameEntry = {
   id: string;
@@ -34,6 +34,22 @@ async function levelStars(gameId: string, load: () => Promise<{ levels: Readonly
  * when opened, so one game can change without touching the others.
  */
 export const games: GameEntry[] = [
+  {
+    id: "domik",
+    title: "Домик Рыжика",
+    note: "Играй как хочешь: дом, сад и лес",
+    color: "#ff8a3d",
+    art: { src: picture("ryzhik-mashet") },
+    wide: true,
+    load: () => import("./domik"),
+    summary: async () => {
+      const [{ allFinds }, { gameFinds }] = await Promise.all([import("./domik/scenes"), import("../shared/finds")]);
+      const all = allFinds();
+      const list = await gameFinds("domik").load();
+      return { got: list.filter((id) => all.includes(id)).length, max: all.length, unit: "finds" };
+    },
+    resetKeys: ["ryzhik-igry:domik:found"],
+  },
   {
     id: "tajnaya-kartinka",
     title: "Тайная картинка",
