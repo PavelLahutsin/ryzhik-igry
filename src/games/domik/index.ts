@@ -55,6 +55,13 @@ type SceneMemory = { chars: CharState[]; props: Record<string, { n: number; on: 
 const pct = (v: number, of: number): string => `${(v / of) * 100}%`;
 
 /** «Домик Рыжика»: a free-play house, garden and forest. No tasks, nothing to lose. */
+/** Each friend has a voice of their own when tapped. */
+const CHAR_SOUND: Partial<Record<string, Parameters<typeof audio.play>[0]>> = {
+  belka: "squirrel",
+  ezhik: "hedgehog",
+  mishka: "bear",
+};
+
 export function mount(root: HTMLElement): () => void {
   useStyles(baseCss, css);
   const finds = gameFinds("domik");
@@ -129,6 +136,7 @@ export function mount(root: HTMLElement): () => void {
     audio.unlock();
     audio.play("magic");
     night = !night;
+    audio.setTheme(night ? "domik-night" : "domik");
     paintNightBtn();
     view.classList.toggle("is-night", night);
     repaintNight?.();
@@ -368,6 +376,7 @@ export function mount(root: HTMLElement): () => void {
           }, 1800);
           break;
         case "butterfly":
+          audio.play("sparkle");
           anim(node, "is-fly", 2600);
           audio.play("whoosh");
           break;
@@ -396,14 +405,13 @@ export function mount(root: HTMLElement): () => void {
           break;
         case "frog":
           anim(node, "is-jump", 900);
-          audio.play("boing");
+          audio.play("frog");
           later(() => burst("bubble", prop.x + 40, prop.y + 80, 3, 80), 600);
           break;
         case "oak":
           if (night) {
             anim(node, "is-wiggle", 600);
-            audio.play("note");
-            later(() => audio.play("note"), 300);
+            audio.play("owl");
             bubbleAt(prop.x + 160, prop.y + 300, "Уху-у!");
           } else {
             anim(node, "is-shake", 600);
@@ -432,7 +440,7 @@ export function mount(root: HTMLElement): () => void {
           fxLayer.append(fish);
           later(() => fish.remove(), 1300);
           audio.play("drip");
-          later(() => audio.play("drip"), 700);
+          later(() => audio.play("splash"), 700);
           later(() => burst("bubble", fx0 + 100, prop.y + 70, 4, 100), 700);
           break;
         }
@@ -555,7 +563,7 @@ export function mount(root: HTMLElement): () => void {
               return;
             }
             anim(body, "is-hop", 600);
-            audio.play("boing");
+            audio.play(CHAR_SOUND[ch.state.id] ?? "boing");
             const list = PHRASES[ch.state.id];
             say(ch, list[Math.floor(Math.random() * list.length)]!);
             idle();

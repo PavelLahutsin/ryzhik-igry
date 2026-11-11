@@ -170,6 +170,21 @@ export const levels: Scenario[] = [
     done: "Праздник будет весёлым! Спасибо за покупки!",
   },
   {
+    id: "magazin-4",
+    world: "shop",
+    kind: "shop",
+    title: "На пикник",
+    icon: "cup",
+    intro: "Собираемся на пикник! Купи всё по списку.",
+    list: [
+      { id: "banana", n: 2 },
+      { id: "cup", n: 2 },
+      { id: "ball", n: 1 },
+    ],
+    shelf: ["cup", "kite", "banana", "pear", "ball", "fish", "apple", "cube"],
+    done: "Всё для пикника есть! Идём на полянку!",
+  },
+  {
     id: "dom-kuhnya",
     world: "safety",
     kind: "safety",

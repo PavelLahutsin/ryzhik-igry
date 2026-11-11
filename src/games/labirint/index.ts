@@ -1,4 +1,5 @@
 import { audio } from "../../shared/audio";
+import { showDrag } from "../../shared/guide";
 import { character } from "../../shared/assets";
 import { el } from "../../shared/dom";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
@@ -206,6 +207,24 @@ function play(stage: HTMLElement, level: LabLevel, _index: number, api: PlayApi)
     else bump();
   };
   window.addEventListener("keydown", key);
+
+  // The hand leads Ryzhik a few steps along the way (nothing moves by itself).
+  api.setDemo(() => {
+    if (done) return;
+    const targets = apples.filter((_, i) => !got.has(i));
+    const path = solve(maze, at, targets[0] ?? goal);
+    const to = path[Math.min(3, path.length - 1)];
+    const m = svg.getScreenCTM();
+    if (!to || !m) return;
+    const pt = (cell: Cell): { x: number; y: number } => {
+      const p = svg.createSVGPoint();
+      p.x = cell.c * 10 + 5;
+      p.y = cell.r * 10 + 5;
+      const q = p.matrixTransform(m);
+      return { x: q.x, y: q.y };
+    };
+    showDrag(pt(at), pt(to));
+  });
 
   // Hint: the way to the next apple (or the friend) shows for a moment.
   let hintTimer = 0;

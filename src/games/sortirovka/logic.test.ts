@@ -4,8 +4,8 @@ import { itemCount, levels } from "./levels";
 import { basketOf, hintFor, judge, starsFor } from "./logic";
 
 describe("sortirovka", () => {
-  it("has 12 levels, each thing in exactly one basket", () => {
-    expect(levels).toHaveLength(12);
+  it("has 15 levels, each thing in exactly one basket", () => {
+    expect(levels).toHaveLength(15);
     for (const level of levels) {
       const all = level.baskets.flatMap((b) => b.items);
       expect(new Set(all).size, level.id).toBe(all.length);

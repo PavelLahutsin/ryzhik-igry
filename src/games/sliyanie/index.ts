@@ -1,4 +1,5 @@
 import { audio } from "../../shared/audio";
+import { showDrag } from "../../shared/guide";
 import { character } from "../../shared/assets";
 import { el } from "../../shared/dom";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
@@ -139,10 +140,26 @@ function play(stage: HTMLElement, level: SliyanieLevel, _index: number, api: Pla
     api.setHint(previous && !done ? undo : null);
   }
 
+  // The hand shows a swipe that joins two same pictures (or at least moves).
+  api.setDemo(() => {
+    if (busy || done) return;
+    const dirs: Dir[] = ["left", "right", "up", "down"];
+    const tries = dirs.map((d) => ({ d, r: move(board, d, level.goal) }));
+    const pick = tries.find((t) => t.r.mergedTiers.length) ?? tries.find((t) => t.r.moved);
+    if (!pick) return;
+    const r = grid.getBoundingClientRect();
+    const cx = r.left + r.width / 2;
+    const cy = r.top + r.height / 2;
+    const k = r.width * 0.28;
+    const v = { left: [-1, 0], right: [1, 0], up: [0, -1], down: [0, 1] }[pick.d];
+    showDrag({ x: cx - v[0]! * k, y: cy - v[1]! * k }, { x: cx + v[0]! * k, y: cy + v[1]! * k });
+  });
+
   function undo(): void {
     if (!previous || busy || done) return;
     helps++;
     audio.play("tap");
+    audio.say("v17");
     board = previous;
     previous = null;
     for (const node of nodes.values()) node.remove();

@@ -28,6 +28,7 @@ const errors = [];
 /** `unlock`: [gameId, [level ids already won]] so a later level can open. */
 async function page(name, hash, steps, unlock) {
   if (ONLY && !name.includes(ONLY)) return;
+  if (process.env.SHOTS_FROM && parseInt(name, 10) < Number(process.env.SHOTS_FROM)) return;
   for (const vp of VIEWPORTS) await pageAt(vp, MULTI ? `${name}--${vp.tag}` : name, hash, steps, unlock);
 }
 
@@ -39,6 +40,12 @@ async function pageAt(vp, name, hash, steps, unlock) {
     hasTouch: touch,
     isMobile: touch && Math.min(vp.width, vp.height) < 500,
   });
+  // «Как играть» and the first tips were seen, except in the v4 shots of them.
+  if (!/howto|tutorial|tip-/.test(name)) {
+    await context.addInitScript((games) => {
+      if (!localStorage.getItem("ryzhik-igry:seen")) localStorage.setItem("ryzhik-igry:seen", JSON.stringify({ howto: games, tips: ["hint-lamp", "sound-button", ...games.map((g) => `tutorial:${g}`)] }));
+    }, ["domik", "kuhnya", "risovalka", "tochki", "professii", "stroyka", "formy", "tajnaya-kartinka", "mozaika", "sliyanie", "najdi-paru", "teni", "odezhda", "sortirovka", "labirint", "raskraska"]);
+  }
   if (unlock) {
     await context.addInitScript(([game, ids]) => {
       // Only before the first load, so a win during the steps is kept.
@@ -356,7 +363,7 @@ await page("48-tochki-alive", "#/tochki/play/4", async (p) => {
   await p.waitForTimeout(1300);
 }, ["tochki", TOCHKI]);
 
-const PROF = ["vrach-zayka", "vrach-kotik", "vrach-mishka", "pozhar-dom", "pozhar-kotik", "pozhar-les", "magazin-1", "magazin-2", "magazin-3", "dom-kuhnya"];
+const PROF = ["vrach-zayka", "vrach-kotik", "vrach-mishka", "pozhar-dom", "pozhar-kotik", "pozhar-les", "magazin-1", "magazin-2", "magazin-3", "magazin-4", "dom-kuhnya"];
 async function useTools(p, steps) {
   for (const [tool, zone, rub] of steps) {
     const a = await centre(p.locator(`[data-tool="${tool}"]`));
@@ -390,7 +397,7 @@ await page("55-professii-pay", "#/professii/play/7", async (p) => {
   await p.waitForTimeout(1300);
   await dragTo(p, ".pr-coin", ".pr-till");
 }, ["professii", PROF]);
-await page("56-professii-safety", "#/professii/play/10", async (p) => {
+await page("56-professii-safety", "#/professii/play/11", async (p) => {
   for (const id of ["plita", "nozh", "frukty"]) {
     await p.locator(`[data-thing="${id}"] .pr-thing__hit`).click({ force: true });
     await p.waitForTimeout(400);
@@ -460,6 +467,45 @@ await page("69-idle-tochki", "#/tochki/play/1", async (p) => {
   await waitHand(p);
 });
 await page("70-idle-kuhnya", "#/kuhnya", waitHand);
+
+// ---------------- v4: how-to cards, tutorial, tips, album, gift, new rounds
+const settle = (ms) => (p) => p.waitForTimeout(ms);
+await page("71-howto-mozaika", "#/mozaika/", settle(1500));
+await page("72-howto-domik", "#/domik", settle(1500));
+await page("73-howto-professii", "#/professii/", settle(1500));
+await page("74-tutorial-sortirovka", "#/sortirovka/play/1", async (p) => {
+  await p.click(".ht-ok");
+  await p.waitForSelector(".guide-hand", { timeout: 6000 });
+  await p.waitForTimeout(700);
+});
+await page("75-tip-teni-decoy", "#/teni/play/8", async (p) => {
+  await p.click(".ht-ok").catch(() => {});
+  await p.waitForSelector(".tip", { timeout: 6000 });
+  await p.waitForTimeout(500);
+}, ["teni", ["t1", "t2", "t3", "t7", "t4", "t8", "t6"]]);
+await page("76-album", "#/albom", settle(800), ["mozaika", ["m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10"]]);
+await page("77-gift", "#/", async (p) => {
+  await p.click(".home__gift");
+  await p.waitForTimeout(900);
+});
+await page("78-parents-rules", "#/roditelyam", async (p) => {
+  const ask = await p.locator(".gate__ask").textContent();
+  const words = ["один", "два", "три", "четыре", "пять", "шесть", "семь", "восемь", "девять"];
+  for (const d of ask.split(":")[1].split(",").map((w) => words.indexOf(w.trim()) + 1)) await p.locator(".gate__keys button", { hasText: String(d) }).click();
+  await p.locator("details.rules").nth(8).locator("summary").click();
+  await p.locator("details.rules").nth(8).scrollIntoViewIfNeeded();
+  await p.waitForTimeout(300);
+});
+const done = (ids) => ids;
+await page("79-new-teni-t13", "#/teni/play/13", settle(900), ["teni", done(["t1", "t2", "t3", "t7", "t4", "t8", "t6", "t9", "t5", "t10", "t11", "t12"])]);
+await page("80-new-najdi-paru-p14", "#/najdi-paru/play/14", settle(900), ["najdi-paru", ["p1", "p2", "p3", "p4", "p7", "p5", "p8", "p9", "p6", "p10", "p11", "p12", "p13"]]);
+await page("81-new-sortirovka-k7", "#/sortirovka/play/13", settle(900), ["sortirovka", ["c1", "c2", "c3", "c4", "c5", "c6", "k1", "k2", "k3", "k4", "k5", "k6"]]);
+await page("82-new-odezhda-o13", "#/odezhda/play/13", settle(900), ["odezhda", ["o1", "o2", "o3", "o4", "o5", "o7", "o8", "o9", "o6", "o10", "o11", "o12"]]);
+await page("83-new-labirint-l13", "#/labirint/play/13", settle(900), ["labirint", ["l1", "l2", "l3", "l4", "l5", "l6", "l7", "l8", "l9", "l10", "l11", "l12"]]);
+await page("84-new-formy-f7", "#/formy/play/13", settle(900), ["formy", [...FORMY, "f6", "r6"]]);
+await page("85-new-tochki-t13", "#/tochki/play/13", settle(900), ["tochki", [...TOCHKI, "t12"]]);
+await page("86-new-stroyka-s11", "#/stroyka/play/11", settle(900), ["stroyka", [...STROYKA, "s9", "s10"]]);
+await page("87-new-professii-magazin-4", "#/professii/play/10", settle(1200), ["professii", PROF.slice(0, 9)]);
 
 await browser.close();
 if (errors.length) {

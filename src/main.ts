@@ -10,15 +10,21 @@ import "@fontsource/nunito/latin-800.css";
 import { findGame } from "./games/registry";
 import { renderHome } from "./home/home";
 import { renderParents } from "./home/parents";
+import { renderAlbum } from "./home/album";
 import { platform } from "./shared/platform";
 import { gameOf } from "./shared/router";
 import { reducedMotion, useStyles } from "./shared/style";
 import { el } from "./shared/dom";
+import { audio } from "./shared/audio";
+import { attachHowToButton, closeHowTo, howToSeen, showHowTo } from "./shared/howto";
+import { clearTips } from "./shared/tips";
 import baseCss from "./shared/base.css?inline";
+import overlaysCss from "./shared/overlays.css?inline";
 
 const node = document.getElementById("app");
 if (!node) throw new Error("Нет #app");
 const root: HTMLElement = node;
+document.head.append(el("style", { attrs: { id: "overlay-style" }, text: overlaysCss }));
 
 let current: { id: string | null; cleanup: (() => void) | null } | null = null;
 let token = 0;
@@ -31,18 +37,29 @@ let token = 0;
 function onHash(): void {
   const first = gameOf(window.location.hash);
   const game = findGame(first);
-  const id = game?.id ?? (first === "roditelyam" ? "roditelyam" : null);
+  const id = game?.id ?? (first === "roditelyam" || first === "albom" ? first : null);
   if (current && current.id === id) return;
 
   current?.cleanup?.();
+  closeHowTo();
+  clearTips();
+  document.body.classList.remove("is-tutorial");
   root.replaceChildren();
   const mine = ++token;
   current = { id, cleanup: null };
+  audio.setTheme(id ?? "home");
 
   if (id === "roditelyam") {
     useStyles(baseCss);
     document.body.dataset.route = "parents";
     current.cleanup = renderParents(root);
+    return;
+  }
+
+  if (id === "albom") {
+    useStyles(baseCss);
+    document.body.dataset.route = "album";
+    current.cleanup = renderAlbum(root);
     return;
   }
 
@@ -63,7 +80,16 @@ function onHash(): void {
     .then((module) => {
       if (mine !== token || !current) return;
       root.replaceChildren();
-      current.cleanup = module.mount(root);
+      const stop = module.mount(root);
+      const stopHelp = attachHowToButton(game.id, root);
+      current.cleanup = () => {
+        stopHelp();
+        stop();
+      };
+      // First time in this game: show «Как играть».
+      void howToSeen(game.id).then((seen) => {
+        if (!seen && mine === token) void showHowTo(game.id);
+      });
     })
     .catch(() => {
       if (mine !== token) return;

@@ -208,3 +208,18 @@
     animation: none;
   }
 }
+
+/* Phones upright, four baskets and up to ten things: smaller baskets so the
+   things fit under them (k6 overlapped the tray on 390×844). */
+@media (orientation: portrait) {
+  .so-baskets--4 {
+    gap: 4px 10px;
+    padding: 6px 10px;
+  }
+  .so-baskets--4 .so-basket {
+    padding-top: 8px;
+  }
+  .so-baskets--4 .so-basket__art {
+    width: min(100%, 14vh, 150px);
+  }
+}

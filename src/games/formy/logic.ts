@@ -66,3 +66,24 @@ export function shapePath(shape: Shape, cx: number, cy: number, r: number): stri
       return `M${f(cx)} ${f(cy + r * 0.85)} C${f(cx - r * 1.3)} ${f(cy)} ${f(cx - r * 0.9)} ${f(cy - r * 1.05)} ${f(cx)} ${f(cy - r * 0.45)} C${f(cx + r * 0.9)} ${f(cy - r * 1.05)} ${f(cx + r * 1.3)} ${f(cy)} ${f(cx)} ${f(cy + r * 0.85)} Z`;
   }
 }
+
+type Box = { left: number; top: number; width: number; height: number };
+
+/**
+ * Which drop box the finger is over. Family members stand close and their
+ * boxes overlap a little, so among the boxes that contain the point the one
+ * whose centre is nearest across wins (QA v4: a drop on Mama landed on Papa).
+ */
+export function pickTarget(p: { x: number; y: number }, boxes: readonly Box[], pad = 0): number {
+  let best = -1;
+  let bestD = Infinity;
+  boxes.forEach((r, i) => {
+    if (p.x < r.left - pad || p.x > r.left + r.width + pad || p.y < r.top - pad || p.y > r.top + r.height + pad) return;
+    const d = Math.abs(p.x - (r.left + r.width / 2)) + 0.3 * Math.abs(p.y - (r.top + r.height / 2));
+    if (d < bestD) {
+      bestD = d;
+      best = i;
+    }
+  });
+  return best;
+}

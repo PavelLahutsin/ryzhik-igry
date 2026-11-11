@@ -20,6 +20,7 @@ export const worlds = [
   { id: "first", title: "Первые прогулки", color: "#ffb23f" },
   { id: "change", title: "Погода меняется", color: "#6db3d4" },
   { id: "big", title: "Большие сборы", color: "#9b8cf0" },
+  { id: "more", title: "Ещё прогулки", color: "#7cc46a" },
 ];
 
 /** Ids o1–o6 are the first version's levels, kept so saved stars stay. */
@@ -36,6 +37,9 @@ export const levels: OdezhdaLevel[] = [
   { id: "o10", world: "big", title: "Ветреный день", weather: "wind", wear: ["hat", "scarf", "jacket", "kite"], extra: ["umbrella", "cap", "sandals", "bucket"] },
   { id: "o11", world: "big", title: "Летний денёк", weather: "sun", wear: ["cap", "sunglasses", "tshirt", "sandals", "bucket"], extra: ["hat", "scarf", "winterboots"] },
   { id: "o12", world: "big", title: "Дождливая прогулка", weather: "rain", wear: ["raincoat", "rainboots", "umbrella"], extra: ["panama", "sunglasses", "sandals", "sled", "kite"] },
+  { id: "o13", world: "more", title: "На пляж", weather: "sun", wear: ["panama", "sunglasses", "tshirt", "sandals", "bucket"], extra: ["mittens", "winterboots", "scarf"] },
+  { id: "o14", world: "more", title: "Запускаем змея", weather: "wind", wear: ["hat", "jacket", "scarf", "kite"], extra: ["sled", "umbrella", "sandals"] },
+  { id: "o15", world: "more", title: "Горка во дворе", weather: "snow", wear: ["hat", "scarf", "jacket", "mittens", "winterboots", "sled"], extra: ["sunglasses", "sandals"] },
 ];
 
 /** A thing for the hint lamp: one Ryzhik still needs. */

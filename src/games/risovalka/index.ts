@@ -1,4 +1,5 @@
 import { audio } from "../../shared/audio";
+import { showDrag } from "../../shared/guide";
 import { el } from "../../shared/dom";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
 import { OBJECTS } from "../../shared/objects";
@@ -189,6 +190,21 @@ function play(stage: HTMLElement, level: Picture, _index: number, api: PlayApi):
   svg.style.touchAction = "none";
 
   // Hint: a dot runs along the rest of the line once.
+  // The hand runs a little way along the line from the marker.
+  api.setDemo(() => {
+    if (finished) return;
+    const s = strokes[current]!.samples;
+    const m = svg.getScreenCTM();
+    if (!m) return;
+    const pt = (p: Pt): { x: number; y: number } => {
+      const q = svg.createSVGPoint();
+      q.x = p.x;
+      q.y = p.y;
+      const r = q.matrixTransform(m);
+      return { x: r.x, y: r.y };
+    };
+    showDrag(pt(s[index]!), pt(s[Math.min(s.length - 1, index + 24)]!));
+  });
   api.setHint(() => {
     if (finished) return;
     hints++;

@@ -343,7 +343,7 @@
     grid-template-rows: auto minmax(0, auto) minmax(0, 1fr);
   }
   .sk-site {
-    height: clamp(42vh, calc((100vw - 32px) / (var(--ratio) * 0.82)), 60vh);
+    height: clamp(40vh, calc((100vw - 32px) / (var(--ratio) * 0.82)), 52vh);
     width: 100%;
     justify-self: center;
   }
@@ -364,4 +364,33 @@
 .sk-site--rocket .sk-guest {
   height: min(30%, 26cqw);
   right: 0;
+}
+
+/* QA v4: landscape phone — the tray is wider and tighter so a big model's
+   blocks all fit without scrolling. */
+@media (min-aspect-ratio: 5/4) and (max-height: 500px) {
+  .sk-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(200px, 42%);
+    gap: 8px;
+  }
+  .sk-say__fig {
+    height: 52px;
+  }
+  .sk-say__text {
+    font-size: 15px;
+  }
+  .sk-tray {
+    gap: 8px 8px;
+    padding: 8px 6px 4px;
+  }
+}
+
+/* A little more room around small blocks for small fingers. */
+.sk-block {
+  position: relative;
+}
+.sk-block::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
 }

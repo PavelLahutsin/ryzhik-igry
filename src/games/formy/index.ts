@@ -1,4 +1,5 @@
 import { audio, NOTES } from "../../shared/audio";
+import { centre, showDrag } from "../../shared/guide";
 import { character } from "../../shared/assets";
 import { el } from "../../shared/dom";
 import { draggable, type Point } from "../../shared/drag";
@@ -10,7 +11,7 @@ import baseCss from "../../shared/base.css?inline";
 import css from "./style.css?inline";
 import { blockSvg, holeSvg, PLATE, POLE, RING_COLORS, shapeIcon, THINGS } from "./art";
 import { levels, worlds, type FamilyLevel, type FormLevel, type PyramidLevel, type SorterLevel, type ThingId, type ThingsLevel } from "./levels";
-import { canStack, matches, nextRing, SHAPE_NAME, SIZE_NAME, starsFor, type Shape, type Size } from "./logic";
+import { canStack, matches, nextRing, pickTarget, SHAPE_NAME, SIZE_NAME, starsFor, type Shape, type Size } from "./logic";
 
 /** «Размер и форма»: big and small for the family, a ring pyramid, a shape sorter. */
 export function mount(root: HTMLElement): () => void {
@@ -64,12 +65,14 @@ function restart(node: Element, cls: string): void {
   node.classList.add(cls);
 }
 
-const inside = (p: Point, n: Element, pad = 0): boolean => {
-  const r = n.getBoundingClientRect();
-  return p.x >= r.left - pad && p.x <= r.right + pad && p.y >= r.top - pad && p.y <= r.bottom + pad;
-};
 
 type Target = { node: HTMLElement; key: string };
+
+/** The target under the finger (see pickTarget). */
+function targetAt<T extends { node: Element }>(p: Point, targets: readonly T[]): T | null {
+  const i = pickTarget(p, targets.map((t) => t.node.getBoundingClientRect()), 10);
+  return i < 0 ? null : targets[i]!;
+}
 type Item = { node: HTMLElement; key: string; name: string };
 
 type Setup = {
@@ -93,6 +96,7 @@ const SIZE_OWNER: Record<Size, { who: string; char: string; name: string }> = {
 };
 
 function play(stage: HTMLElement, level: FormLevel, _index: number, api: PlayApi): () => void {
+  if (level.mode === "sorter" || level.mode === "things") audio.say("v37");
   const timers = new Set<number>();
   const cleanups: (() => void)[] = [];
   const later = (fn: () => void, ms: number): void => {
@@ -133,11 +137,12 @@ function play(stage: HTMLElement, level: FormLevel, _index: number, api: PlayApi
           audio.play("pick");
         },
         onMove: (p) => {
-          for (const t of setup.targets) t.node.classList.toggle("is-over", inside(p, t.node, 10));
+          const over = targetAt(p, setup.targets);
+          for (const t of setup.targets) t.node.classList.toggle("is-over", t === over);
         },
         onDrop: (p) => {
           for (const t of setup.targets) t.node.classList.remove("is-over");
-          const target = setup.targets.find((t) => inside(p, t.node, 10)) ?? null;
+          const target = targetAt(p, setup.targets);
           if (!target) return false;
           const ok = setup.accept ? setup.accept(item, target) : matches(item.key, target.key) === "ok";
           if (!ok) {
@@ -163,6 +168,11 @@ function play(stage: HTMLElement, level: FormLevel, _index: number, api: PlayApi
     );
   }
 
+  // The hand shows the next move (free, no penalty).
+  api.setDemo(() => {
+    const pair = setup.hintPair();
+    if (pair) showDrag(centre(pair[0].node), centre(pair[1].node));
+  });
   api.setHint(() => {
     const pair = setup.hintPair();
     if (!pair) return;

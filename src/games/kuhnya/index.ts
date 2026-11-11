@@ -153,7 +153,8 @@ export function mount(root: HTMLElement): () => void {
     if (busyEating) return;
     busyEating = true;
     const r = taste(guest, dish);
-    audio.play("yum");
+    audio.play("munch");
+    later(() => audio.play("yum"), 380);
     restart(fig, "is-chew");
     later(() => {
       face.replaceChildren(svgNode(faceArt(r)));
@@ -161,6 +162,8 @@ export function mount(root: HTMLElement): () => void {
       fig.className = "kt-guest__fig";
       restart(fig, `is-${r}`);
       audio.play(SOUND[r]);
+      if (r === "yum" || r === "love") audio.say("v26");
+      if (r === "yuck") audio.say("v27");
       const list = SAY[r];
       say(list[Math.floor(Math.random() * list.length)]!);
       if (r === "love") puff("heart", 6);

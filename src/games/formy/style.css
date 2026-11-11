@@ -297,6 +297,15 @@
 
 .fm-tray .fm-ring {
   width: calc(var(--cell) * 2.3 * var(--wn, 1));
+  height: 40px;
+  position: relative;
+}
+
+/* QA v4: a bigger grip than the 40px ring for small fingers. */
+.fm-tray .fm-ring::after {
+  content: "";
+  position: absolute;
+  inset: -6px -2px;
 }
 
 .fm-ring--on {

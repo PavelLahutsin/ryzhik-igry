@@ -1,4 +1,5 @@
 import { audio } from "../../shared/audio";
+import { centre, showDrag } from "../../shared/guide";
 import { el } from "../../shared/dom";
 import { centerOf, draggable, nearestWithin } from "../../shared/drag";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
@@ -123,6 +124,13 @@ function play(stage: HTMLElement, level: SortLevel, _index: number, api: PlayApi
   stage.append(el("p", { class: "so-ask", text: level.ask }), row, table);
 
   // Hint: one thing and its basket glow together.
+  // The hand carries a thing to its basket.
+  api.setDemo(() => {
+    const id = hintFor(order, sorted);
+    const item = id && items.get(id);
+    const basket = id && baskets.get(basketOf(level, id)!);
+    if (item && basket) showDrag(centre(item), centre(basket));
+  });
   api.setHint(() => {
     const id = hintFor(order, sorted);
     if (!id) return;

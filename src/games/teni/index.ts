@@ -1,4 +1,5 @@
 import { audio } from "../../shared/audio";
+import { centre, showDrag } from "../../shared/guide";
 import { el } from "../../shared/dom";
 import { centerOf, draggable, nearestWithin } from "../../shared/drag";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
@@ -114,6 +115,15 @@ function play(stage: HTMLElement, level: TeniLevel, _index: number, api: PlayApi
   stage.append(board, el("p", { class: "tn-note", text: note }), tray);
 
   // Hint: one picture and its own shadow glow together.
+  // The hand carries a picture to its shadow.
+  api.setDemo(() => {
+    const id = hintTarget(
+      things.map((t) => t.id),
+      filled,
+    );
+    const item = id && tray.querySelector<HTMLElement>(`.tn-item[data-id="${id}"]`);
+    if (id && item) showDrag(centre(item), centre(shadows.get(id)!));
+  });
   api.setHint(() => {
     const id = hintTarget(
       things.map((t) => t.id),

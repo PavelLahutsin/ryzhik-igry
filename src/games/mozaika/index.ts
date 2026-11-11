@@ -1,4 +1,5 @@
 import { audio } from "../../shared/audio";
+import { centre, showDrag } from "../../shared/guide";
 import { el } from "../../shared/dom";
 import { draggable } from "../../shared/drag";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
@@ -143,6 +144,11 @@ function play(stage: HTMLElement, level: MozaikaLevel, _index: number, api: Play
   }
 
   // Hint: one loose piece flies to its place by itself.
+  // The hand shows a piece going to its place (free, no penalty).
+  api.setDemo(() => {
+    const i = pieces.findIndex((p) => !placed.has(p.index));
+    if (i >= 0) showDrag(centre(nodes[i]!), centre(slots[i]!));
+  });
   api.setHint(() => {
     const index = hintPiece(
       pieces.map((p) => p.index),
