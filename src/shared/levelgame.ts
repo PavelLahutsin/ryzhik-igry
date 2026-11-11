@@ -4,6 +4,11 @@ import { el } from "./dom";
 import { gameProgress, isUnlocked, totalStars, type Progress } from "./progress";
 import { goHome, listenGame, navigateGame } from "./router";
 import { praiseOverlay, starRow, toolbar } from "./ui";
+import { whenIdle } from "./guide";
+import { afterHowTo } from "./howto";
+import { LEVEL_TIPS } from "./tips-data";
+import { clearTips, tipOnce } from "./tips";
+import { newStickers, stickerArt, type Sticker } from "./stickers";
 
 export type LevelInfo = {
   id: string;
@@ -24,6 +29,11 @@ export type PlayApi = {
    * does (show the place, peek the cards …) and may count it for stars.
    */
   setHint: (onHint: (() => void) | null) => void;
+  /**
+   * The hand shows the next move (free, no penalty). Runs at the start of a
+   * first-time level 1 and whenever the child waits.
+   */
+  setDemo: (demo: (() => void) | null) => void;
 };
 
 export type LevelGameDef<L extends LevelInfo> = {
@@ -90,7 +100,7 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
           navigateGame(def.id, "/", { replace: true });
           return;
         }
-        cleanup = renderPlay(level, index);
+        cleanup = renderPlay(level, index, index === 0 && !progress.completed.includes(level.id));
       });
       document.body.dataset.route = "play";
       return;
@@ -192,7 +202,7 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
     );
   }
 
-  function renderPlay(level: L, index: number): () => void {
+  function renderPlay(level: L, index: number, tutorial: boolean): () => void {
     const tool = el("span", { class: "toolbar__tools" });
     const hintBtn = el(
       "button",
@@ -206,6 +216,11 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
     root.append(view);
     let won = false;
     let onHint: (() => void) | null = null;
+    let demo: (() => void) | null = null;
+    const timers: number[] = [];
+    const runDemo = (): void => {
+      if (!won && view.isConnected && !document.querySelector(".ht")) demo?.();
+    };
     hintBtn.addEventListener("click", () => {
       if (!onHint || won) return;
       audio.unlock();
@@ -219,9 +234,14 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
       win: (stars, text) => {
         if (won) return;
         won = true;
+        document.body.classList.remove("is-tutorial");
+        clearTips();
         hintBtn.hidden = true;
         audio.play("win");
-        void store.win(level.id, stars);
+        const fresh = store
+          .win(level.id, stars)
+          .then(() => newStickers())
+          .catch(() => [] as Sticker[]);
         const next = def.levels[index + 1];
         const actions = [
           next
@@ -237,14 +257,26 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
         // Let the finishing animation be seen before the card.
         setTimeout(() => {
           if (!view.isConnected) return;
-          view.append(
-            praiseOverlay({
-              stars,
-              text: next ? text : `${text ? `${text} ` : ""}Ты прошёл все уровни!`,
-              art,
-              actions,
-            }),
-          );
+          const card = praiseOverlay({
+            stars,
+            text: next ? text : `${text ? `${text} ` : ""}Ты прошёл все уровни!`,
+            art,
+            actions,
+          });
+          view.append(card);
+          // A new sticker for the album, if the stars opened one.
+          void fresh.then((list) => {
+            const s = list[list.length - 1];
+            const actionsRow = card.querySelector(".praise__actions");
+            if (!s || !actionsRow || !card.isConnected) return;
+            actionsRow.before(
+              el("a", { class: "praise__sticker", attrs: { href: "#/albom", "aria-label": `Новая наклейка: ${s.name}` } }, [
+                el("span", { class: "sticker sticker--new" }, [stickerArt(s)]),
+                el("span", { class: "praise__sticker-text", text: list.length > 1 ? `Новые наклейки: ${list.length}!` : "Новая наклейка!" }),
+              ]),
+            );
+            setTimeout(() => card.isConnected && (audio.play("sparkle"), audio.say("sticker")), 1200);
+          });
         }, 700);
       },
       setTool: (node) => {
@@ -258,9 +290,42 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
         onHint = fn;
         hintBtn.hidden = !fn;
       },
+      setDemo: (fn) => {
+        demo = fn;
+      },
     };
     const stop = def.play(stage, level, index, api);
+
+    // Level 1 the first time: a guided start. The hand shows the move right
+    // away and again after short pauses; the lamp and extra buttons appear
+    // after the child has made a couple of moves.
+    let stopIdle: () => void;
+    if (tutorial) {
+      document.body.classList.add("is-tutorial");
+      let moves = 0;
+      const onUp = (): void => {
+        if (++moves < 2) return;
+        stage.removeEventListener("pointerup", onUp);
+        document.body.classList.remove("is-tutorial");
+        timers.push(window.setTimeout(() => !won && !hintBtn.hidden && tipOnce("hint-lamp", hintBtn, "Лампочка подскажет, если трудно"), 600));
+      };
+      stage.addEventListener("pointerup", onUp);
+      timers.push(window.setTimeout(() => afterHowTo(() => {
+        audio.say("tutorial");
+        runDemo();
+      }), 900));
+      stopIdle = whenIdle(runDemo, 3500);
+    } else {
+      stopIdle = whenIdle(runDemo, 7000);
+      timers.push(window.setTimeout(() => !hintBtn.hidden && tipOnce("hint-lamp", hintBtn, "Лампочка подскажет, если трудно"), 1500));
+    }
+    const tip = LEVEL_TIPS[def.id]?.[level.id];
+    if (tip) timers.push(window.setTimeout(() => afterHowTo(() => tipOnce(`${def.id}:${level.id}`, stage.querySelector(tip.at) ?? stage, tip.text)), 1300));
+
     return () => {
+      stopIdle();
+      for (const t of timers) clearTimeout(t);
+      document.body.classList.remove("is-tutorial");
       stop();
       view.remove();
     };

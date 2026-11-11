@@ -1190,3 +1190,232 @@ button {
   max-width: 720px;
   margin-inline: auto;
 }
+
+/* ---------------- level 1: a guided start */
+.is-tutorial .btn--hint,
+.is-tutorial .toolbar__extra {
+  visibility: hidden;
+}
+
+/* ---------------- «Родителям»: rules */
+.rules {
+  border-top: 2px solid var(--line);
+  padding: 8px 0;
+}
+.rules summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  font: 800 17px var(--font-ui);
+  cursor: pointer;
+}
+.rules p {
+  margin: 4px 0 8px;
+}
+.rules__dev {
+  color: var(--ink-soft);
+}
+
+/* ---------------- stickers */
+.sticker {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 6px 8px;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 0 0 3px var(--line), 0 10px 18px -14px rgba(59, 46, 37, 0.6);
+  transform: rotate(-2deg);
+}
+.sticker:nth-child(2n) {
+  transform: rotate(2deg);
+}
+.sticker__art {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  display: block;
+}
+.sticker__art svg {
+  width: 100%;
+  height: 100%;
+}
+.sticker figcaption {
+  font: 800 14px var(--font-ui);
+  color: var(--ink);
+  text-align: center;
+}
+.sticker.is-locked {
+  background: #f1e8db;
+  box-shadow: none;
+  outline: 3px dashed var(--line);
+  outline-offset: -3px;
+  transform: none;
+}
+.sticker.is-locked .sticker__art {
+  filter: brightness(0);
+  opacity: 0.15;
+}
+.sticker.is-locked figcaption {
+  color: var(--ink-soft);
+}
+.screen--album {
+  gap: 12px;
+}
+.album__note {
+  margin: 0;
+  font: 800 18px/1.3 var(--font-ui);
+  text-align: center;
+}
+.album__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 14px;
+  padding: 6px 4px 24px;
+}
+.home__album {
+  min-height: 56px;
+  gap: 8px;
+}
+.home__album-icon {
+  width: 30px;
+  height: 30px;
+  display: block;
+}
+.home__album-icon svg {
+  width: 100%;
+  height: 100%;
+}
+.praise__sticker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--ink);
+}
+.praise__sticker .sticker {
+  padding: 6px;
+}
+.praise__sticker .sticker__art {
+  width: 52px;
+  height: 52px;
+}
+.praise__sticker-text {
+  font: 800 18px var(--font-ui);
+  color: var(--orange-deep);
+}
+.sticker--new {
+  animation: sticker-in 600ms cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+@keyframes sticker-in {
+  from { transform: scale(0.2) rotate(-30deg); opacity: 0; }
+  to { transform: rotate(-4deg); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sticker--new { animation: none; }
+}
+
+/* ---------------- «Подарок дня» */
+.home__gift {
+  animation: gift-wiggle 2.4s ease-in-out infinite;
+}
+.home__gift-art {
+  width: 40px;
+  height: 40px;
+  display: block;
+}
+.home__gift-art svg,
+.gift__art svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+@keyframes gift-wiggle {
+  0%, 70%, 100% { transform: none; }
+  76% { transform: rotate(-10deg) scale(1.06); }
+  84% { transform: rotate(10deg) scale(1.06); }
+  92% { transform: rotate(-4deg); }
+}
+.gift {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(59, 46, 37, 0.45);
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+.gift.is-open {
+  opacity: 1;
+}
+.gift__card {
+  width: min(360px, 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 22px 18px;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: 0 0 0 4px var(--line), var(--shadow-card);
+  text-align: center;
+}
+.gift--winter .gift__card { background: linear-gradient(#eef6ff, #fff); }
+.gift--spring .gift__card { background: linear-gradient(#effbe8, #fff); }
+.gift--summer .gift__card { background: linear-gradient(#fff6d6, #fff); }
+.gift--autumn .gift__card { background: linear-gradient(#ffeedd, #fff); }
+.gift__title {
+  margin: 0;
+  font: 700 24px var(--font-display);
+}
+.gift__art {
+  width: 140px;
+  height: 140px;
+  animation: gift-pop 700ms cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+.gift__text {
+  margin: 0;
+  font: 800 19px/1.3 var(--font-ui);
+}
+@keyframes gift-pop {
+  from { transform: scale(0.2) rotate(-20deg); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home__gift, .gift__art { animation: none; }
+}
+@media (max-height: 500px) {
+  .gift__card { gap: 6px; padding: 14px 16px; }
+  .gift__art { width: 96px; height: 96px; }
+}
+
+/* Phones: the «?» button sits next to the lamp; keep the top bar one row
+   high (a long level name gets two lines at most). */
+@media (max-width: 520px) {
+  .toolbar {
+    gap: 8px;
+  }
+  .toolbar__tools .btn--howto {
+    width: 48px;
+    min-width: 48px;
+    height: 48px;
+    min-height: 48px;
+  }
+  .toolbar__tools .btn--howto span {
+    font-size: 22px;
+  }
+  .toolbar__title {
+    font-size: 19px;
+    line-height: 1.15;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+  }
+}

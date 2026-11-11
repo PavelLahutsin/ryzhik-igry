@@ -1,4 +1,5 @@
 import { audio } from "../../shared/audio";
+import { centre, showDrag } from "../../shared/guide";
 import { character } from "../../shared/assets";
 import { el } from "../../shared/dom";
 import { draggable } from "../../shared/drag";
@@ -124,6 +125,13 @@ function play(stage: HTMLElement, level: OdezhdaLevel, _index: number, api: Play
   stage.append(banner, scene, tray);
 
   // Hint: one thing Ryzhik still needs glows in the tray.
+  // The hand puts a fitting thing on Ryzhik.
+  api.setDemo(() => {
+    const id = hintItem(level, worn);
+    const node = id ? tray.querySelector<HTMLElement>(`.od-item[data-id="${id}"]`) : null;
+    const anchor = id ? figure.querySelector(`.od-anchor[data-slot="${ITEMS[id]!.slot}"]`) : null;
+    if (node) showDrag(centre(node), centre(anchor ?? figure));
+  });
   api.setHint(() => {
     const id = hintItem(level, worn);
     const node = id ? tray.querySelector<HTMLElement>(`.od-item[data-id="${id}"]`) : null;

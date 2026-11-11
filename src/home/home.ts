@@ -2,6 +2,10 @@ import { audio } from "../shared/audio";
 import { character } from "../shared/assets";
 import { el } from "../shared/dom";
 import { navigate } from "../shared/router";
+import { tipOnce } from "../shared/tips";
+import { dailyButton } from "./daily";
+import { svgNode } from "../shared/ui";
+import { OBJECTS } from "../shared/objects";
 import { games, type GameEntry, type Summary } from "../games/registry";
 
 /** Home menu: one big tile per game with its progress. No ads, no store, no timers. */
@@ -25,6 +29,7 @@ export function renderHome(root: HTMLElement): () => void {
     },
     [soundIcon],
   );
+  const gift = dailyButton((overlay) => view.append(overlay));
   const total = el("span", { class: "home__chip", attrs: { hidden: true } });
   const view = el("div", { class: "screen screen--home" }, [
     el("header", { class: "home__head" }, [
@@ -37,11 +42,17 @@ export function renderHome(root: HTMLElement): () => void {
         el("h1", { class: "title", text: "Игры с Рыжиком" }),
         total,
       ]),
+      gift,
       soundBtn,
     ]),
     el("main", { class: "home__grid" }, games.map((game) => tile(game))),
     el("footer", { class: "home__foot" }, [
       el("span", { text: "Без рекламы и интернета. Прогресс хранится только на этом устройстве." }),
+      el(
+        "button",
+        { class: "btn btn--play home__album", attrs: { type: "button" }, on: { click: () => navigate("/albom") } },
+        [svgNode(OBJECTS.star.svg, "home__album-icon"), el("span", { text: "Мои наклейки" })],
+      ),
       el("button", {
         class: "btn btn--parent",
         attrs: { type: "button" },
@@ -51,6 +62,7 @@ export function renderHome(root: HTMLElement): () => void {
     ]),
   ]);
   root.append(view);
+  const tipTimer = window.setTimeout(() => tipOnce("sound-button", soundBtn, "Здесь звук: включить или выключить"), 1500);
 
   let stars = 0;
   for (const game of games) {
@@ -70,6 +82,7 @@ export function renderHome(root: HTMLElement): () => void {
   }
   return () => {
     gone = true;
+    clearTimeout(tipTimer);
     view.remove();
   };
 }

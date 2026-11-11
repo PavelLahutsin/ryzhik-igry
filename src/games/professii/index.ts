@@ -6,7 +6,7 @@ import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
 import { OBJECTS, type ObjectId } from "../../shared/objects";
 import { reducedMotion, useStyles } from "../../shared/style";
 import { svgNode } from "../../shared/ui";
-import { showDrag, showTap, whenIdle } from "../../shared/guide";
+import { showDrag, showTap } from "../../shared/guide";
 import baseCss from "../../shared/base.css?inline";
 import css from "./style.css?inline";
 import {
@@ -147,6 +147,30 @@ const BLEED: Record<string, [string, string]> = {
  * shape; on a tall one the picture grows taller (more wall/sky above, more
  * floor below) instead of leaving empty space.
  */
+/** What each tool sounds like when it does its job. */
+const TOOL_SOUND: Partial<Record<string, Parameters<typeof audio.play>[0]>> = {
+  thermo: "beep",
+  medicine: "pour",
+  blanket: "rustle",
+  tea: "pour",
+  honey: "pour",
+  cotton: "rustle",
+  cream: "pop",
+  bandage: "plaster",
+  sticker: "plaster",
+  light: "click",
+  spray: "spray",
+  scarf: "rustle",
+  stethoscope: "thump",
+  hose: "clack",
+  ladder: "clack",
+  glove: "pop",
+  milk: "pour",
+  bucket: "splash",
+  water: "spray",
+  shovel: "rustle",
+};
+
 function sceneBox(markup: string, id: string, cleanups: (() => void)[]): { box: HTMLElement; svg: SVGSVGElement } {
   const holder = svgNode(markup, `pr-scene pr-scene--${id}`);
   const svg = holder.querySelector("svg")!;
@@ -201,6 +225,8 @@ function playSteps(ctx: Ctx, level: GuidedLevel): void {
   let finished = false;
 
   const guide = guideBar(level.intro);
+  // The fire engine arrives with its siren.
+  if (level.scene === "house-fire" || level.scene === "forest-fire") setTimeout(() => audio.play("siren"), 400);
   const { box, svg } = sceneBox(SCENES[level.scene](), level.scene, ctx.cleanups);
   const patient = svg.querySelector<SVGGElement>(".pr-patient");
   if (patient && level.mood !== undefined) patient.setAttribute("class", `pr-patient ${level.mood}`);
@@ -253,11 +279,11 @@ function playSteps(ctx: Ctx, level: GuidedLevel): void {
       guide.dots(level.steps.length, level.steps.length);
       guide.say(level.done);
       audio.play("magic");
-      if (level.scene === "house-fire" || level.scene === "cat-tree") later(() => audio.play("honk"), 500);
+      if (level.scene === "house-fire" || level.scene === "cat-tree" || level.scene === "forest-fire") later(() => audio.play("siren"), 500);
       later(() => api.win(starsFor(g.misses, hints), level.done), 2200);
       return;
     }
-    audio.play(step.kind === "rub" ? "pop" : "ding");
+    audio.play(TOOL_SOUND[step.tool] ?? (step.kind === "rub" ? "pop" : "ding"));
     if (step.done) {
       guide.say(step.done);
       later(() => !finished && sayStep(), 1500);
@@ -296,7 +322,7 @@ function playSteps(ctx: Ctx, level: GuidedLevel): void {
             const now = performance.now();
             if (now - soundAt > 260) {
               soundAt = now;
-              audio.play(id === "shovel" ? "chop" : id === "cotton" ? "tap" : "drip");
+              audio.play(id === "shovel" ? "rustle" : id === "cotton" ? "rustle" : id === "water" ? "spray" : "splash");
             }
           } else if (res === "next" || res === "finish") stepDone();
         },
@@ -345,7 +371,7 @@ function playSteps(ctx: Ctx, level: GuidedLevel): void {
   });
 
   // A child who cannot read yet: after a pause the hand shows the next move (no penalty).
-  ctx.cleanups.push(whenIdle(() => !finished && guideHand(), 6000));
+  api.setDemo(() => !finished && guideHand());
 
   guide.dots(0, level.steps.length);
   later(() => !finished && sayStep(), 2200);
@@ -467,11 +493,11 @@ function playShop(ctx: Ctx, level: ShopLevel): void {
             coin.style.visibility = "hidden";
             counter.textContent = String(paid);
             restart(till, "is-bump");
-            audio.tone(523 * Math.pow(2, (paid - 1) / 12), 0.16);
+            audio.play("coin");
             guide.dots(paid, need);
             guide.say(`${countWord(paid)}!`);
             if (paid === need) {
-              audio.play("ding");
+              audio.play("till");
               later(() => {
                 guide.say("Спасибо за покупки! — говорит продавец.");
                 audio.play("magic");
@@ -505,7 +531,7 @@ function playShop(ctx: Ctx, level: ShopLevel): void {
       showDrag(mid(item), mid(basket));
     }
   }
-  ctx.cleanups.push(whenIdle(shopHand, 6000));
+  api.setDemo(shopHand);
 
   api.setHint(() => {
     if (cartComplete(level.list, cart)) return;
@@ -565,13 +591,11 @@ function playSafety(ctx: Ctx, level: SafetyLevel): void {
   svg.addEventListener("click", onTap);
   ctx.cleanups.push(() => svg.removeEventListener("click", onTap));
 
-  ctx.cleanups.push(
-    whenIdle(() => {
-      const left = dangersLeft(level.things, s)[0];
-      const hit = left && svg.querySelector(`[data-thing="${left.id}"] .pr-thing__hit`);
-      if (hit) showTap(mid(hit));
-    }, 9000),
-  );
+  api.setDemo(() => {
+    const left = dangersLeft(level.things, s)[0];
+    const hit = left && svg.querySelector(`[data-thing="${left.id}"] .pr-thing__hit`);
+    if (hit) showTap(mid(hit));
+  });
 
   api.setHint(() => {
     const left = dangersLeft(level.things, s)[0];

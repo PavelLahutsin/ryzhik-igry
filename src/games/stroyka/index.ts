@@ -5,7 +5,7 @@ import { draggable, type Point } from "../../shared/drag";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
 import { reducedMotion, useStyles } from "../../shared/style";
 import { svgNode } from "../../shared/ui";
-import { centre, showDrag, whenIdle } from "../../shared/guide";
+import { centre, showDrag } from "../../shared/guide";
 import baseCss from "../../shared/base.css?inline";
 import css from "./style.css?inline";
 import { pieceSvg } from "./art";
@@ -165,7 +165,7 @@ function play(stage: HTMLElement, plan: Plan, _index: number, api: PlayApi): () 
     place(piece, plan, s);
     model.append(piece);
     slotNodes[found.index]!.classList.add("is-filled");
-    audio.play("snap");
+    audio.play("clack");
     audio.tone(392 * Math.pow(2, Math.min(placed, 14) / 12), 0.14);
     counter.textContent = `${placed} / ${total}`;
     say(`${countWord(placed)}!`);
@@ -180,8 +180,12 @@ function play(stage: HTMLElement, plan: Plan, _index: number, api: PlayApi): () 
     say(plan.done);
     later(() => {
       site.classList.add("is-alive");
-      if (plan.alive === "train" || plan.alive === "boat") audio.play("honk");
-      if (plan.alive === "rocket") audio.play("whoosh");
+      if (plan.alive === "train") {
+        audio.play("toot");
+        setTimeout(() => audio.play("chug"), 500);
+      }
+      if (plan.alive === "boat") audio.play("honk");
+      if (plan.alive === "rocket") audio.play("rocket");
       if (!reducedMotion()) puffs();
     }, 500);
     later(() => api.win(starsFor(misses, hints), plan.done), 3000);
@@ -201,13 +205,11 @@ function play(stage: HTMLElement, plan: Plan, _index: number, api: PlayApi): () 
   }
 
   // After a pause the hand shows which block goes where (no penalty).
-  cleanups.push(
-    whenIdle(() => {
-      if (finished) return;
-      const pair = nextPair();
-      if (pair) showDrag(centre(pair[0]), centre(pair[1]));
-    }, 6000),
-  );
+  api.setDemo(() => {
+    if (finished) return;
+    const pair = nextPair();
+    if (pair) showDrag(centre(pair[0]), centre(pair[1]));
+  });
 
   function nextPair(): [HTMLElement, HTMLElement] | null {
     for (let i = 0; i < slots.length; i++) {

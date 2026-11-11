@@ -3,7 +3,7 @@ import { el } from "../../shared/dom";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
 import { reducedMotion, useStyles } from "../../shared/style";
 import { svgNode } from "../../shared/ui";
-import { centre, showDrag, showTap, whenIdle } from "../../shared/guide";
+import { centre, showDrag, showTap } from "../../shared/guide";
 import baseCss from "../../shared/base.css?inline";
 import css from "./style.css?inline";
 import { allJoined, centroid, labelAt, startDots, starsFor, touch, type Pt } from "./logic";
@@ -170,7 +170,7 @@ function play(stage: HTMLElement, level: DotPicture, _index: number, api: PlayAp
   svg.style.touchAction = "none";
 
   // When the child waits: the next dot wiggles and the hand draws the next line.
-  const stopIdle = whenIdle(() => {
+  api.setDemo(() => {
     if (allJoined(dots, state)) return;
     const next = dotNodes[state.next]!;
     restart(next, "is-call");
@@ -178,7 +178,7 @@ function play(stage: HTMLElement, level: DotPicture, _index: number, api: PlayAp
     const core = (g: SVGGElement): Element => g.querySelector(".td-dot__core")!;
     if (prev) showDrag(centre(core(prev)), centre(core(next)));
     else showTap(centre(core(next)));
-  }, 5000);
+  });
   const restart = (n: Element, cls: string): void => {
     n.classList.remove(cls);
     void (n as HTMLElement).getBoundingClientRect();
@@ -222,7 +222,6 @@ function play(stage: HTMLElement, level: DotPicture, _index: number, api: PlayAp
   paint();
   return () => {
     for (const t of timers) clearTimeout(t);
-    stopIdle();
     svg.removeEventListener("pointerdown", down);
     svg.removeEventListener("pointermove", move);
     svg.removeEventListener("pointerup", up);

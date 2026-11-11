@@ -1,4 +1,5 @@
 import { audio } from "../../shared/audio";
+import { centre, showTap } from "../../shared/guide";
 import { el } from "../../shared/dom";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
 import { reducedMotion, useStyles } from "../../shared/style";
@@ -76,6 +77,11 @@ function play(stage: HTMLElement, level: ParaLevel, _index: number, api: PlayApi
   window.addEventListener("resize", shape);
 
   // Hint: all closed cards peek for a moment.
+  // The hand taps a card that is still closed.
+  api.setDemo(() => {
+    const card = cards.find((c) => !c.classList.contains("is-open") && !c.classList.contains("is-matched"));
+    if (card && !peeking) showTap(centre(card));
+  });
   api.setHint(() => {
     if (peeking) return;
     const ids = peekable(state);

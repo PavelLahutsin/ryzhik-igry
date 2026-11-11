@@ -153,7 +153,8 @@ export function mount(root: HTMLElement): () => void {
     if (busyEating) return;
     busyEating = true;
     const r = taste(guest, dish);
-    audio.play("yum");
+    audio.play("munch");
+    later(() => audio.play("yum"), 380);
     restart(fig, "is-chew");
     later(() => {
       face.replaceChildren(svgNode(faceArt(r)));
