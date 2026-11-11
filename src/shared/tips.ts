@@ -12,6 +12,10 @@ import { reducedMotion } from "./style";
 type Tip = { id: string; target: Element; text: string; ms: number };
 const queue: Tip[] = [];
 let showing = false;
+/** Closes the bubble on screen right away (set while one is shown). */
+let closeNow: (() => void) | null = null;
+/** Bumped by clearTips(), so a fading old bubble does not start the next one. */
+let generation = 0;
 
 export function tipOnce(id: string, target: Element | null, text: string, ms = 4200): void {
   if (!target) return;
@@ -58,25 +62,42 @@ function next(): void {
   if (!reducedMotion()) requestAnimationFrame(() => bubble.classList.add("is-open"));
   else bubble.classList.add("is-open", "is-still");
   let gone = false;
-  const done = (): void => {
-    if (gone) return;
+  const timers: Array<ReturnType<typeof setTimeout>> = [];
+  const finish = (): void => {
     gone = true;
     window.removeEventListener("pointerdown", done, true);
-    bubble.classList.remove("is-open");
+    for (const t of timers) clearTimeout(t);
     ring.remove();
+    if (closeNow === cut) closeNow = null;
+  };
+  // A new screen: remove at once, and don't let this tip's timers run later.
+  const cut = (): void => {
+    if (gone) return;
+    finish();
+    bubble.remove();
+  };
+  function done(): void {
+    if (gone) return;
+    finish();
+    bubble.classList.remove("is-open");
     setTimeout(() => {
       bubble.remove();
+      if (gen !== generation) return;
       showing = false;
       setTimeout(next, 400);
     }, 200);
-  };
-  setTimeout(() => window.addEventListener("pointerdown", done, true), 300);
-  setTimeout(done, tip.ms);
+  }
+  const gen = generation;
+  closeNow = cut;
+  timers.push(setTimeout(() => window.addEventListener("pointerdown", done, true), 300));
+  timers.push(setTimeout(done, tip.ms));
 }
 
 /** Drop tips that wait (the screen changed). */
 export function clearTips(): void {
   queue.length = 0;
+  generation++;
+  closeNow?.();
   document.querySelectorAll(".tip, .tip-ring").forEach((n) => n.remove());
   showing = false;
 }
