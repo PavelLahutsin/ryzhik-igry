@@ -19,6 +19,15 @@ export type GameEntry = {
  */
 export const games: GameEntry[] = [
   {
+    id: "tajnaya-kartinka",
+    title: "Тайная картинка",
+    note: "Веди Рыжика и открывай картинку",
+    color: "#ff8a3d",
+    art: { src: picture("ryzhik-zmey") },
+    wide: true,
+    load: () => import("./tajnaya-kartinka"),
+  },
+  {
     id: "mozaika",
     title: "Мозаика",
     note: "Собери картинку",
