@@ -198,6 +198,85 @@ button {
 }
 
 
+.screen--list {
+  gap: 20px;
+}
+
+.level-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.level-card {
+  appearance: none;
+  border: 0;
+  padding: 0 0 14px;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-card), 0 0 0 3px var(--line);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  cursor: pointer;
+  overflow: hidden;
+  text-align: left;
+  position: relative;
+}
+
+.level-card__art {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  background: var(--yellow-tint);
+  pointer-events: none;
+}
+
+.level-card__name {
+  padding: 12px 16px 0;
+  font-weight: 800;
+  font-size: 22px;
+}
+
+.level-card__badge,
+.level-card__lock {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 16px;
+  background: var(--yellow);
+  color: var(--ink);
+}
+
+.level-card.is-locked {
+  cursor: default;
+  filter: grayscale(0.7);
+}
+
+.level-card.is-locked .level-card__art {
+  opacity: 0.55;
+}
+
+.level-card__lock {
+  background: var(--ink);
+  color: #fff;
+}
+
+.level-card.is-done .level-card__badge {
+  background: var(--emerald);
+  color: #fff;
+}
+
+.empty {
+  margin: 8px 8px 0;
+  font-size: 22px;
+  line-height: 1.4;
+  color: var(--ink-soft);
+}
+
 .worlds {
   display: flex;
   flex-direction: column;
@@ -777,4 +856,19 @@ button {
   .hint {
     transition: none;
   }
+}
+
+.level-grid > * {
+  min-width: 0;
+}
+
+.btn:focus-visible,
+.level-card:focus-visible,
+.game-tile:focus-visible {
+  outline: 4px solid var(--yellow);
+  outline-offset: 3px;
+}
+
+.btn:focus:not(:focus-visible) {
+  outline: none;
 }

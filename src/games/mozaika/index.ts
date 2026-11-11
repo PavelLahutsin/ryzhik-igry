@@ -1,13 +1,151 @@
+import { audio } from "../../shared/audio";
 import { el } from "../../shared/dom";
-import { goHome } from "../../shared/router";
+import { draggable } from "../../shared/drag";
+import { mountLevelGame } from "../../shared/levelgame";
 import { useStyles } from "../../shared/style";
-import { toolbar } from "../../shared/ui";
+import { hint } from "../../shared/ui";
 import baseCss from "../../shared/base.css?inline";
+import css from "./style.css?inline";
+import { levels, pictureUrl, pieceWord, type MozaikaLevel } from "./levels";
+import { layout, makePieces, scatter, slotOf, snaps, starsFor, type Layout } from "./logic";
 
-/** Placeholder until the game lands. */
+/** «Мозаика»: a picture cut into big rectangles; drag each one home. */
 export function mount(root: HTMLElement): () => void {
-  useStyles(baseCss);
-  const view = el("div", { class: "screen" }, [toolbar("Скоро", goHome), el("p", { class: "loading", text: "Игра скоро появится" })]);
-  root.append(view);
-  return () => view.remove();
+  useStyles(baseCss, css);
+  return mountLevelGame(
+    {
+      id: "mozaika",
+      title: "Мозаика",
+      subtitle: "Собери картинку",
+      levels,
+      thumb: (level) => el("img", { attrs: { src: pictureUrl(level), alt: "", draggable: "false", loading: "lazy" } }),
+      caption: (level) => pieceWord(level.cols * level.rows),
+      play,
+    },
+    root,
+  );
+}
+
+function play(stage: HTMLElement, level: MozaikaLevel, _index: number, api: { win: (stars: number) => void }): () => void {
+  const url = pictureUrl(level);
+  const pieces = makePieces(level.cols, level.rows);
+  const count = pieces.length;
+  const placed = new Set<number>();
+  let misses = 0;
+  let geo: Layout | null = null;
+  const loose = new Map<number, { x: number; y: number }>();
+  const tilt = pieces.map(() => Math.round((Math.random() - 0.5) * 12));
+
+  const area = el("div", { class: "mz-area" });
+  const board = el("div", { class: `mz-board${level.ghost ? " has-ghost" : ""}` });
+  board.style.setProperty("--pic", `url("${url}")`);
+  area.append(board);
+  stage.append(area);
+
+  const slots = pieces.map((piece) => {
+    const slot = el("span", { class: "mz-slot", attrs: { "data-index": piece.index } });
+    board.append(slot);
+    return slot;
+  });
+
+  const stops: Array<() => void> = [];
+  const nodes = pieces.map((piece) => {
+    const node = el("div", {
+      class: "mz-piece",
+      attrs: { "data-index": piece.index, role: "img", "aria-label": `Кусочек ${piece.index + 1}` },
+    });
+    node.style.backgroundImage = `url("${url}")`;
+    area.append(node);
+    stops.push(
+      draggable(node, {
+        onStart: () => {
+          audio.unlock();
+          audio.play("pick");
+          node.style.zIndex = "20";
+        },
+        onDrop: (center) => {
+          node.style.zIndex = "";
+          if (!geo) return false;
+          const areaBox = area.getBoundingClientRect();
+          const local = { x: center.x - areaBox.left, y: center.y - areaBox.top };
+          const home = slotOf(piece, geo.board, geo.piece);
+          if (snaps(local, home, geo.piece)) {
+            place(piece.index);
+            return true;
+          }
+          const b = geo.board;
+          if (local.x > b.x && local.x < b.x + b.w && local.y > b.y && local.y < b.y + b.h) {
+            misses++;
+            audio.play("miss");
+            if (misses % 3 === 0) hint(stage, "Посмотри на картинку внимательно!");
+          }
+          return false;
+        },
+      }),
+    );
+    return node;
+  });
+
+  function place(index: number): void {
+    placed.add(index);
+    const node = nodes[index]!;
+    node.classList.add("is-placed");
+    position(index);
+    audio.play("snap");
+    if (placed.size === count) {
+      board.classList.add("is-done");
+      area.classList.add("is-done");
+      api.win(starsFor(misses, count));
+    }
+  }
+
+  function position(index: number): void {
+    if (!geo) return;
+    const node = nodes[index]!;
+    const piece = pieces[index]!;
+    const home = placed.has(index);
+    const at = home ? slotOf(piece, geo.board, geo.piece) : loose.get(index)!;
+    node.style.left = `${at.x}px`;
+    node.style.top = `${at.y}px`;
+    // Loose pieces lie a little crooked, like on a table.
+    node.style.rotate = home ? "" : `${tilt[index]}deg`;
+  }
+
+  function relayout(): void {
+    const box = area.getBoundingClientRect();
+    if (box.width < 10 || box.height < 10) return;
+    geo = layout(box.width, box.height, level.cols, level.rows);
+    const { board: b, piece: size } = geo;
+    Object.assign(board.style, { left: `${b.x}px`, top: `${b.y}px`, width: `${b.w}px`, height: `${b.h}px` });
+    pieces.forEach((piece, i) => {
+      const slot = slots[i]!;
+      Object.assign(slot.style, {
+        left: `${piece.col * size.w}px`,
+        top: `${piece.row * size.h}px`,
+        width: `${size.w}px`,
+        height: `${size.h}px`,
+      });
+      const node = nodes[i]!;
+      Object.assign(node.style, {
+        width: `${size.w}px`,
+        height: `${size.h}px`,
+        backgroundSize: `${b.w}px ${b.h}px`,
+        backgroundPosition: `${-piece.col * size.w}px ${-piece.row * size.h}px`,
+      });
+    });
+    const spots = scatter(count, geo.tray, size, Math.random);
+    pieces.forEach((piece, i) => {
+      if (!placed.has(piece.index)) loose.set(piece.index, spots[i]!);
+      position(piece.index);
+    });
+  }
+
+  const observer = new ResizeObserver(() => relayout());
+  observer.observe(area);
+  requestAnimationFrame(relayout);
+
+  return () => {
+    observer.disconnect();
+    for (const stop of stops) stop();
+  };
 }
