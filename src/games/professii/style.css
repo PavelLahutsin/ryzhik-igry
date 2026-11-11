@@ -640,6 +640,7 @@
 
 .pr-pay__desk {
   min-height: 0;
+  overflow: hidden;
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -656,7 +657,9 @@
 
 .pr-till {
   position: relative;
-  width: min(46%, 220px);
+  height: min(100%, 176px);
+  width: auto;
+  max-width: 46%;
   aspect-ratio: 200 / 160;
 }
 
@@ -688,6 +691,7 @@
 .pr-coin {
   width: 54px;
   height: 54px;
+  flex: none;
   cursor: grab;
   touch-action: none;
 }
@@ -747,5 +751,16 @@
 @media (prefers-reduced-motion: reduce) {
   .pr-guide__fig {
     animation: none;
+  }
+}
+
+@media (max-height: 500px) {
+  .pr-coin {
+    width: 42px;
+    height: 42px;
+  }
+  .pr-pay {
+    padding: 6px;
+    gap: 4px;
   }
 }
