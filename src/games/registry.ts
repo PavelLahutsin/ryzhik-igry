@@ -1,4 +1,5 @@
 import { character, picture } from "../shared/assets";
+import coloringArt from "./raskraska/assets/pictures/ryzhik_sharik.png";
 
 export type GameModule = { mount: (root: HTMLElement) => () => void };
 
@@ -66,6 +67,14 @@ export const games: GameEntry[] = [
     color: "#ffc94a",
     art: { src: character("ryzhik"), figure: true },
     load: () => import("./odezhda"),
+  },
+  {
+    id: "raskraska",
+    title: "Раскраска",
+    note: "Раскрашивай Рыжика и друзей",
+    color: "#157a62",
+    art: { src: coloringArt },
+    load: () => import("./raskraska"),
   },
 ];
 
