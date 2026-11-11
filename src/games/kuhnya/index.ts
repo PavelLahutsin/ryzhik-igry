@@ -6,6 +6,7 @@ import { gameFinds } from "../../shared/finds";
 import { goHome } from "../../shared/router";
 import { reducedMotion, useStyles } from "../../shared/style";
 import { hint, svgNode, toolbar } from "../../shared/ui";
+import { centre, showDrag, showTap, whenIdle } from "../../shared/guide";
 import baseCss from "../../shared/base.css?inline";
 import css from "./style.css?inline";
 import { BIN, BOWL, faceArt, GLASS, INGREDIENT_ART, KITCHEN, PLATE, TABLE, TOOL_ART } from "./art";
@@ -379,6 +380,24 @@ export function mount(root: HTMLElement): () => void {
   root.append(view);
   paintScore();
   pickGuest("ryzhik");
+
+  // Nobody here reads yet: after a pause a hand shows the next thing to try.
+  let demo = 0;
+  stops.push(
+    whenIdle(() => {
+      const ready = tools.find((t) => t.done && t.contents.length > 0);
+      const readyDish = ready?.slot.querySelector(".kt-dish");
+      if (readyDish) return showDrag(centre(readyDish), centre(guestBox));
+      const board = tools.find((t) => t.op === "cut" && t.contents.length > 0 && !t.done);
+      if (board) return showTap(centre(board.node));
+      const foods = [...pantry.querySelectorAll<HTMLElement>(".kt-food")];
+      const loved = foods.find((f) => GUESTS[guest].loves.some((id) => INGREDIENTS[id].name === f.getAttribute("aria-label")));
+      const food = loved ?? foods[0];
+      if (!food) return;
+      const cut = tools.find((t) => t.op === "cut")!;
+      showDrag(centre(food), centre(demo++ % 2 === 0 ? guestBox : cut.node));
+    }, 6000),
+  );
 
   return () => {
     for (const t of timers) clearTimeout(t);
