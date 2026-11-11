@@ -96,6 +96,16 @@ export const games: GameEntry[] = [
     resetKeys: ["ryzhik-igry:professii:progress"],
   },
   {
+    id: "stroyka",
+    title: "Стройка",
+    note: "Строй из больших кубиков — и всё оживёт",
+    color: "#ffb23f",
+    art: { src: character("mishka"), figure: true },
+    load: () => import("./stroyka"),
+    summary: () => levelStars("stroyka", () => import("./stroyka/levels")),
+    resetKeys: ["ryzhik-igry:stroyka:progress"],
+  },
+  {
     id: "tajnaya-kartinka",
     title: "Тайная картинка",
     note: "Веди Рыжика и открывай картинку",
