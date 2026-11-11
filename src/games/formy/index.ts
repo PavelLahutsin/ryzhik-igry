@@ -5,7 +5,7 @@ import { el, replayClass } from "../../shared/dom";
 import { draggable, type Point } from "../../shared/drag";
 import { createScope } from "../../shared/lifecycle";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
-import { OBJECTS } from "../../shared/objects";
+import { OBJECT_GENDER, OBJECTS, type Gender } from "../../shared/objects";
 import { shuffle } from "../../shared/rng";
 import { reducedMotion, useStyles } from "../../shared/style";
 import { svgNode } from "../../shared/ui";
@@ -13,7 +13,7 @@ import baseCss from "../../shared/base.css?inline";
 import css from "./style.css?inline";
 import { blockSvg, holeSvg, PLATE, POLE, RING_COLORS, shapeIcon, THINGS } from "./art";
 import { levels, worlds, type FamilyLevel, type FormLevel, type PyramidLevel, type SorterLevel, type ThingId, type ThingsLevel } from "./levels";
-import { canStack, matches, nextRing, pickTarget, SHAPE_NAME, SIZE_NAME, starsFor, type Shape, type Size } from "./logic";
+import { canStack, matches, nextRing, pickTarget, SHAPE_NAME, sizedName, starsFor, whoFits, type Shape, type Size } from "./logic";
 
 /** «Размер и форма»: big and small for the family, a ring pyramid, a shape sorter. */
 export function mount(root: HTMLElement): () => void {
@@ -61,7 +61,7 @@ function targetAt<T extends { node: Element }>(p: Point, targets: readonly T[]):
   const i = pickTarget(p, targets.map((t) => t.node.getBoundingClientRect()), 10);
   return i < 0 ? null : targets[i]!;
 }
-type Item = { node: HTMLElement; key: string; name: string };
+type Item = { node: HTMLElement; key: string; name: string; gender?: Gender };
 
 type Setup = {
   area: HTMLElement;
@@ -183,7 +183,7 @@ function play(stage: HTMLElement, level: FormLevel, _index: number, api: PlayApi
     for (const obj of l.objects)
       for (const size of l.sizes) {
         const node = el("div", { class: `fm-item fm-size--${size}` }, [svgNode(OBJECTS[obj].svg, "fm-item__art")]);
-        items.push({ node, key: size, name: `${SIZE_NAME[size]} ${OBJECTS[obj].name.toLowerCase()}` });
+        items.push({ node, key: size, name: sizedName(size, OBJECTS[obj].name, OBJECT_GENDER[obj]), gender: OBJECT_GENDER[obj] });
       }
     return {
       area,
@@ -197,7 +197,7 @@ function play(stage: HTMLElement, level: FormLevel, _index: number, api: PlayApi
         audio.play("yum");
         say(`${item.name} — ${SIZE_OWNER[item.key as Size].who}! Спасибо!`);
       },
-      wrongText: (item) => `${item.name}… Кому оно подойдёт?`,
+      wrongText: (item) => `${item.name}… ${whoFits(item.gender ?? "n")}`,
       hintPair: () => {
         const item = items.find((i) => !i.node.classList.contains("is-placed"));
         const target = item && targets.find((t) => t.key === item.key);

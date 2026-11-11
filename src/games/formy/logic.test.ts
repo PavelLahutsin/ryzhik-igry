@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { OBJECTS } from "../../shared/objects";
+import { OBJECT_GENDER, OBJECTS } from "../../shared/objects";
 import { THINGS } from "./art";
 import { levels, worlds } from "./levels";
-import { canStack, matches, nextRing, pickTarget, shapePath, starsFor, type Shape } from "./logic";
+import { canStack, matches, nextRing, pickTarget, shapePath, sizedName, starsFor, whoFits, type Shape } from "./logic";
 
 describe("formy rules", () => {
   it("matches keys", () => {
@@ -66,5 +66,22 @@ describe("pickTarget", () => {
     expect(pickTarget({ x: 150, y: 380 }, [papa, mama])).toBe(1);
     expect(pickTarget({ x: 60, y: 380 }, [papa, mama])).toBe(0);
     expect(pickTarget({ x: 500, y: 380 }, [papa, mama])).toBe(-1);
+  });
+});
+
+describe("sizedName", () => {
+  it("agrees the size word with the thing", () => {
+    expect(sizedName("small", "Чашка", OBJECT_GENDER.cup)).toBe("Маленькая чашка");
+    expect(sizedName("big", "Яблоко", OBJECT_GENDER.apple)).toBe("Большое яблоко");
+    expect(sizedName("mid", "Мячик", OBJECT_GENDER.ball)).toBe("Средний мячик");
+    expect(sizedName("big", "Вишенки", OBJECT_GENDER.cherry)).toBe("Большие вишенки");
+  });
+});
+
+describe("whoFits", () => {
+  it("agrees the pronoun", () => {
+    expect(whoFits("f")).toBe("Кому она подойдёт?");
+    expect(whoFits("n")).toBe("Кому оно подойдёт?");
+    expect(whoFits("pl")).toBe("Кому они подойдут?");
   });
 });
