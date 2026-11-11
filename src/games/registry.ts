@@ -66,6 +66,16 @@ export const games: GameEntry[] = [
     resetKeys: ["ryzhik-igry:kuhnya:found"],
   },
   {
+    id: "risovalka",
+    title: "Рисовалка",
+    note: "Обведи — и рисунок оживёт",
+    color: "#9b6cd8",
+    art: { src: character("belka"), figure: true },
+    load: () => import("./risovalka"),
+    summary: () => levelStars("risovalka", () => import("./risovalka/pictures")),
+    resetKeys: ["ryzhik-igry:risovalka:progress"],
+  },
+  {
     id: "tajnaya-kartinka",
     title: "Тайная картинка",
     note: "Веди Рыжика и открывай картинку",

@@ -1,0 +1,230 @@
+.rv-wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  container-type: size;
+}
+
+.rv-board {
+  position: relative;
+  width: min(100cqw, calc(100cqh - 40px), 640px);
+  aspect-ratio: 1;
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 1px 1px, rgba(59, 46, 37, 0.08) 1.5px, transparent 2px) 0 0 / 22px 22px,
+    #fffdf8;
+  box-shadow: 0 0 0 4px var(--surface), 0 0 0 7px var(--line), var(--shadow-card);
+}
+
+.rv-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  cursor: crosshair;
+}
+
+.rv-say {
+  min-height: 28px;
+  margin: 0;
+  font: 800 20px/1.3 var(--font-ui);
+  color: var(--orange-deep);
+}
+
+.rv-fill {
+  opacity: 0;
+  transition: opacity 600ms ease;
+}
+
+.is-finished .rv-fill {
+  opacity: 1;
+}
+
+.rv-guide {
+  fill: none;
+  stroke: #c9b8a3;
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-dasharray: 0.1 12;
+  opacity: 0.55;
+}
+
+.rv-guide.is-now {
+  stroke: #8f7a63;
+  stroke-width: 7;
+  opacity: 1;
+  animation: rv-march 1.2s linear infinite;
+}
+
+.rv-guide.is-done,
+.is-finished .rv-guide {
+  opacity: 0;
+}
+
+.rv-stroke {
+  animation: rv-pop 300ms ease;
+}
+
+.rv-marker__halo {
+  fill: rgba(63, 174, 106, 0.25);
+  animation: rv-pulse 1.2s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.rv-marker__dot {
+  fill: #3fae6a;
+  stroke: #fff;
+  stroke-width: 3;
+}
+
+.rv-marker__arrow {
+  fill: none;
+  stroke: #3fae6a;
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.rv-marker.is-wobble .rv-marker__dot {
+  animation: rv-wobble 400ms ease;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.rv-marker.is-call .rv-marker__halo {
+  animation: rv-call 600ms ease 2;
+}
+
+.rv-finger {
+  display: none;
+  fill: rgba(255, 138, 61, 0.85);
+  stroke: #fff;
+  stroke-width: 3;
+}
+
+/* ---------------- coming alive */
+.rv-pic {
+  transform-box: view-box;
+  transform-origin: 100px 100px;
+}
+
+.is-alive .rv-alive--glow { animation: rv-glow 1.4s ease-in-out infinite; }
+.is-alive .rv-alive--bounce { animation: rv-bounce 0.9s cubic-bezier(0.3, 0, 0.7, 1) infinite; transform-origin: 100px 160px; }
+.is-alive .rv-alive--float { animation: rv-float 2.4s ease-in-out infinite; }
+.is-alive .rv-alive--swim { animation: rv-swim 2.6s ease-in-out infinite; }
+.is-alive .rv-alive--flutter { animation: rv-flutter 0.35s ease-in-out infinite alternate, rv-float 2.4s ease-in-out infinite; }
+.is-alive .rv-alive--run { animation: rv-run 1.6s ease-in-out infinite; }
+.is-alive .rv-alive--crawl { animation: rv-crawl 4s ease-in-out infinite; }
+.is-alive .rv-alive--smoke { animation: rv-glow 2s ease-in-out infinite; transform-origin: 100px 170px; }
+.is-alive .rv-alive--drive { animation: rv-drive 2.4s ease-in-out infinite; }
+.is-alive .rv-alive--sway { animation: rv-sway 2s ease-in-out infinite; transform-origin: 100px 190px; }
+.is-alive .rv-alive--rain { animation: rv-float 3s ease-in-out infinite; }
+.is-alive .rv-alive--rock { animation: rv-rock 2s ease-in-out infinite; transform-origin: 100px 160px; }
+.is-alive .rv-alive--count { animation: rv-glow 1.2s ease-in-out infinite; }
+
+.rv-drop {
+  stroke: #3a8fd4;
+  stroke-width: 4;
+  stroke-linecap: round;
+  animation: rv-drop 0.9s linear infinite;
+}
+
+.rv-smoke {
+  fill: rgba(200, 200, 210, 0.85);
+  animation: rv-smoke 1.5s ease-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.rv-bubble {
+  fill: none;
+  stroke: #6db3d4;
+  stroke-width: 2.5;
+  animation: rv-bubble 1.2s ease-out infinite;
+}
+
+.rv-spark {
+  fill: #ffc94a;
+  animation: rv-spark 1.2s ease-in-out infinite;
+}
+
+.rv-count {
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  bottom: 3%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+  pointer-events: none;
+}
+
+.rv-count__item {
+  position: relative;
+  width: 15%;
+  aspect-ratio: 1;
+  padding: 1.5%;
+  box-sizing: border-box;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(59, 46, 37, 0.18);
+  animation: rv-pop 360ms cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+
+.rv-count__item svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.rv-count__item b {
+  position: absolute;
+  right: -4px;
+  top: -6px;
+  min-width: 22px;
+  padding: 0 4px;
+  border-radius: 11px;
+  background: var(--orange);
+  color: #fff;
+  font: 800 13px/22px var(--font-ui);
+  text-align: center;
+}
+
+.rv-thumb svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+@keyframes rv-march { to { stroke-dashoffset: -24; } }
+@keyframes rv-pulse { 50% { transform: scale(1.5); opacity: 0.4; } }
+@keyframes rv-call { 50% { transform: scale(2.2); } }
+@keyframes rv-wobble { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+@keyframes rv-pop { from { opacity: 0.2; transform: scale(0.6); } }
+@keyframes rv-glow { 50% { transform: scale(1.06) rotate(3deg); } }
+@keyframes rv-bounce { 0%, 100% { transform: translateY(0) scale(1.06, 0.92); } 50% { transform: translateY(-34px) scale(0.96, 1.04); } }
+@keyframes rv-float { 0%, 100% { transform: translate(0, 0) rotate(-3deg); } 50% { transform: translate(6px, -16px) rotate(3deg); } }
+@keyframes rv-swim { 0%, 100% { transform: translateX(-16px) rotate(-4deg); } 50% { transform: translateX(16px) rotate(4deg); } }
+@keyframes rv-flutter { to { transform: scaleX(0.82); } }
+@keyframes rv-run { 0%, 100% { transform: translateX(-18px); } 25% { transform: translate(0, -8px); } 50% { transform: translateX(18px); } 75% { transform: translate(0, -8px); } }
+@keyframes rv-crawl { 0%, 100% { transform: translateX(-14px) scaleX(1); } 50% { transform: translateX(14px) scaleX(1.04); } }
+@keyframes rv-drive { 0%, 100% { transform: translateX(0); } 40% { transform: translateX(40px) rotate(-1deg); } 70% { transform: translateX(-30px); } }
+@keyframes rv-sway { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(6deg); } }
+@keyframes rv-rock { 0%, 100% { transform: rotate(-5deg) translateY(0); } 50% { transform: rotate(5deg) translateY(-4px); } }
+@keyframes rv-drop { from { transform: translateY(0); opacity: 1; } to { transform: translateY(46px); opacity: 0; } }
+@keyframes rv-smoke { from { transform: translate(0, 0) scale(0.6); opacity: 0.9; } to { transform: translate(10px, -40px) scale(1.6); opacity: 0; } }
+@keyframes rv-bubble { from { transform: translate(0, 0); opacity: 1; } to { transform: translate(-10px, -50px); opacity: 0; } }
+@keyframes rv-spark { 50% { opacity: 0.2; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .rv-guide.is-now,
+  .rv-marker__halo {
+    animation: none;
+  }
+}
