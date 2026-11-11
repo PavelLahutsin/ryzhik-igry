@@ -19,7 +19,8 @@ await mkdir(OUT, { recursive: true });
 const browser = await chromium.launch();
 const errors = [];
 
-async function page(name, hash, steps) {
+/** `unlock`: [gameId, [level ids already won]] so a later level can open. */
+async function page(name, hash, steps, unlock) {
   if (ONLY && !name.includes(ONLY)) return;
   const context = await browser.newContext({
     viewport: { width: 390, height: 844 },
@@ -27,6 +28,11 @@ async function page(name, hash, steps) {
     hasTouch: true,
     isMobile: true,
   });
+  if (unlock) {
+    await context.addInitScript(([game, ids]) => {
+      localStorage.setItem(`ryzhik-igry:${game}:progress`, JSON.stringify({ completed: ids, stars: {} }));
+    }, unlock);
+  }
   const p = await context.newPage();
   p.on("console", (msg) => {
     if (msg.type() === "error") errors.push(`${name}: ${msg.text()}`);
@@ -103,7 +109,7 @@ await page("14-najdi-paru-play", "#/najdi-paru/play/3", async (p) => {
   await cards.nth(0).click();
   await cards.nth(1).click();
   await p.waitForTimeout(300);
-});
+}, ["najdi-paru", ["p1", "p2"]]);
 await page("15-najdi-paru-win", "#/najdi-paru/play/1", async (p) => {
   const ids = await p.locator(".np-card").evaluateAll((nodes) => nodes.map((n) => n.dataset.face));
   const done = new Set();
@@ -125,7 +131,7 @@ await page("17-teni-play", "#/teni/play/4", async (p) => {
   const id = await item.getAttribute("data-id");
   await drag(p, item, await centre(p.locator(`.tn-shadow[data-id="${id}"]`)));
   await p.waitForTimeout(300);
-});
+}, ["teni", ["t1", "t2", "t3"]]);
 
 await page("18-odezhda-levels", "#/odezhda/");
 await page("19-odezhda-play", "#/odezhda/play/3", async (p) => {
@@ -135,7 +141,7 @@ await page("19-odezhda-play", "#/odezhda/play/3", async (p) => {
   const bad = p.locator('.od-item[data-good="0"]').first();
   await drag(p, bad, await centre(p.locator(".od-figure")));
   await p.waitForTimeout(300);
-});
+}, ["odezhda", ["o1", "o2"]]);
 await page("20-odezhda-win", "#/odezhda/play/1", async (p) => {
   for (;;) {
     const good = p.locator('.od-item[data-good="1"]:not(.is-placed)').first();
