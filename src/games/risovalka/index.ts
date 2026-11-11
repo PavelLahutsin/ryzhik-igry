@@ -1,6 +1,7 @@
 import { audio } from "../../shared/audio";
 import { showDrag } from "../../shared/guide";
-import { el } from "../../shared/dom";
+import { el, svgEl, svgLocal } from "../../shared/dom";
+import { coalesced, pointerTrack } from "../../shared/drag";
 import { createScope } from "../../shared/lifecycle";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
 import { OBJECTS } from "../../shared/objects";
@@ -10,8 +11,6 @@ import baseCss from "../../shared/base.css?inline";
 import css from "./style.css?inline";
 import { advance, numberWord, offTrack, starsFor, strokeDone, TOLERANCE, type Pt } from "./logic";
 import { levels, worlds, type Picture } from "./pictures";
-
-const NS = "http://www.w3.org/2000/svg";
 
 /** «Рисовалка»: trace the dotted line with a finger, and the picture comes alive. */
 export function mount(root: HTMLElement): () => void {
@@ -37,7 +36,7 @@ function thumbArt(p: Picture): string {
 }
 
 function sample(d: string, step = 3): Pt[] {
-  const path = document.createElementNS(NS, "path");
+  const path = svgEl("path");
   path.setAttribute("d", d);
   const len = path.getTotalLength();
   const out: Pt[] = [];
@@ -48,12 +47,6 @@ function sample(d: string, step = 3): Pt[] {
   const end = path.getPointAtLength(len);
   out.push({ x: end.x, y: end.y });
   return out;
-}
-
-function node<K extends keyof SVGElementTagNameMap>(tag: K, attrs: Record<string, string | number>): SVGElementTagNameMap[K] {
-  const n = document.createElementNS(NS, tag);
-  for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, String(v));
-  return n;
 }
 
 function play(stage: HTMLElement, level: Picture, _index: number, api: PlayApi): () => void {
@@ -68,23 +61,23 @@ function play(stage: HTMLElement, level: Picture, _index: number, api: PlayApi):
   let slipped = false;
   let finished = false;
 
-  const svg = node("svg", { viewBox: "0 0 200 200", class: "rv-svg", role: "img", "aria-label": `Обведи: ${level.title}` });
-  const pic = node("g", { class: `rv-pic rv-alive--${level.alive}` });
-  const fill = node("g", { class: "rv-fill" });
+  const svg = svgEl("svg", { viewBox: "0 0 200 200", class: "rv-svg", role: "img", "aria-label": `Обведи: ${level.title}` });
+  const pic = svgEl("g", { class: `rv-pic rv-alive--${level.alive}` });
+  const fill = svgEl("g", { class: "rv-fill" });
   fill.innerHTML = level.fill;
-  const guides = node("g", { class: "rv-guides" });
-  const ink = node("g", { class: "rv-ink" });
-  const live = node("polyline", { class: "rv-live", fill: "none", stroke: level.ink, "stroke-width": 9, "stroke-linecap": "round", "stroke-linejoin": "round", points: "" });
-  const extras = node("g", { class: "rv-extras" });
-  const marker = node("g", { class: "rv-marker" });
-  marker.append(node("circle", { r: 13, class: "rv-marker__halo" }), node("circle", { r: 8, class: "rv-marker__dot" }));
-  const arrow = node("path", { d: "M-5 -6 L 6 0 L -5 6", class: "rv-marker__arrow" });
+  const guides = svgEl("g", { class: "rv-guides" });
+  const ink = svgEl("g", { class: "rv-ink" });
+  const live = svgEl("polyline", { class: "rv-live", fill: "none", stroke: level.ink, "stroke-width": 9, "stroke-linecap": "round", "stroke-linejoin": "round", points: "" });
+  const extras = svgEl("g", { class: "rv-extras" });
+  const marker = svgEl("g", { class: "rv-marker" });
+  marker.append(svgEl("circle", { r: 13, class: "rv-marker__halo" }), svgEl("circle", { r: 8, class: "rv-marker__dot" }));
+  const arrow = svgEl("path", { d: "M-5 -6 L 6 0 L -5 6", class: "rv-marker__arrow" });
   marker.append(arrow);
-  const finger = node("circle", { r: 9, class: "rv-finger" });
+  const finger = svgEl("circle", { r: 9, class: "rv-finger" });
   pic.append(fill, guides, ink, live);
   svg.append(pic, extras, marker, finger);
 
-  for (const s of strokes) guides.append(node("path", { d: s.d, class: "rv-guide" }));
+  for (const s of strokes) guides.append(svgEl("path", { d: s.d, class: "rv-guide" }));
 
   const box = el("div", { class: "rv-board" });
   box.append(svg);
@@ -110,15 +103,7 @@ function play(stage: HTMLElement, level: Picture, _index: number, api: PlayApi):
     live.setAttribute("points", s.samples.slice(0, index + 1).map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" "));
   }
 
-  function toLocal(e: PointerEvent): Pt {
-    const m = svg.getScreenCTM();
-    if (!m) return { x: 0, y: 0 };
-    const pt = svg.createSVGPoint();
-    pt.x = e.clientX;
-    pt.y = e.clientY;
-    const p = pt.matrixTransform(m.inverse());
-    return { x: p.x, y: p.y };
-  }
+  const toLocal = (e: PointerEvent): Pt => svgLocal(svg, e);
 
   function step(p: Pt): void {
     const s = strokes[current]!;
@@ -134,7 +119,7 @@ function play(stage: HTMLElement, level: Picture, _index: number, api: PlayApi):
       audio.play("miss");
     }
     if (strokeDone(s.samples, index)) {
-      ink.append(node("path", { d: s.d, fill: "none", stroke: level.ink, "stroke-width": 9, "stroke-linecap": "round", "stroke-linejoin": "round", class: "rv-stroke" }));
+      ink.append(svgEl("path", { d: s.d, fill: "none", stroke: level.ink, "stroke-width": 9, "stroke-linecap": "round", "stroke-linejoin": "round", class: "rv-stroke" }));
       live.setAttribute("points", "");
       audio.play("snap");
       drawing = false;
@@ -148,8 +133,8 @@ function play(stage: HTMLElement, level: Picture, _index: number, api: PlayApi):
     paint();
   }
 
-  const down = (e: PointerEvent): void => {
-    if (finished) return;
+  const down = (e: PointerEvent): boolean | void => {
+    if (finished) return false;
     audio.unlock();
     const p = toLocal(e);
     const s = strokes[current]!;
@@ -159,18 +144,16 @@ function play(stage: HTMLElement, level: Picture, _index: number, api: PlayApi):
       marker.classList.remove("is-call");
       void marker.getBoundingClientRect();
       marker.classList.add("is-call");
-      return;
+      return false;
     }
     say.textContent = "";
     drawing = true;
     slipped = false;
-    svg.setPointerCapture?.(e.pointerId);
-    e.preventDefault();
     step(p);
   };
   const move = (e: PointerEvent): void => {
     if (!drawing) return;
-    for (const ev of e.getCoalescedEvents?.() ?? [e]) {
+    for (const ev of coalesced(e)) {
       if (!drawing) break;
       step(toLocal(ev));
     }
@@ -178,11 +161,7 @@ function play(stage: HTMLElement, level: Picture, _index: number, api: PlayApi):
   const up = (): void => {
     drawing = false;
   };
-  svg.addEventListener("pointerdown", down);
-  svg.addEventListener("pointermove", move);
-  svg.addEventListener("pointerup", up);
-  svg.addEventListener("pointercancel", up);
-  svg.style.touchAction = "none";
+  scope.add(pointerTrack(svg, { down, move, up }));
 
   // Hint: a dot runs along the rest of the line once.
   // The hand runs a little way along the line from the marker.
@@ -258,22 +237,16 @@ function play(stage: HTMLElement, level: Picture, _index: number, api: PlayApi):
   function addExtras(): void {
     if (reducedMotion()) return;
     if (level.alive === "rain")
-      for (let i = 0; i < 9; i++) extras.append(node("path", { d: `M${60 + (i % 5) * 20} 140 l-4 12`, class: "rv-drop", style: `animation-delay:${i * 0.15}s` }));
+      for (let i = 0; i < 9; i++) extras.append(svgEl("path", { d: `M${60 + (i % 5) * 20} 140 l-4 12`, class: "rv-drop", style: `animation-delay:${i * 0.15}s` }));
     if (level.alive === "smoke")
-      for (let i = 0; i < 3; i++) extras.append(node("circle", { cx: 135, cy: 46, r: 8, class: "rv-smoke", style: `animation-delay:${i * 0.5}s` }));
+      for (let i = 0; i < 3; i++) extras.append(svgEl("circle", { cx: 135, cy: 46, r: 8, class: "rv-smoke", style: `animation-delay:${i * 0.5}s` }));
     if (level.alive === "swim")
-      for (let i = 0; i < 3; i++) extras.append(node("circle", { cx: 40, cy: 90, r: 5, class: "rv-bubble", style: `animation-delay:${i * 0.4}s` }));
+      for (let i = 0; i < 3; i++) extras.append(svgEl("circle", { cx: 40, cy: 90, r: 5, class: "rv-bubble", style: `animation-delay:${i * 0.4}s` }));
     if (level.alive === "glow" || level.alive === "flutter")
       for (let i = 0; i < 6; i++)
-        extras.append(node("circle", { cx: 30 + Math.random() * 140, cy: 30 + Math.random() * 140, r: 4, class: "rv-spark", style: `animation-delay:${i * 0.2}s` }));
+        extras.append(svgEl("circle", { cx: 30 + Math.random() * 140, cy: 30 + Math.random() * 140, r: 4, class: "rv-spark", style: `animation-delay:${i * 0.2}s` }));
   }
 
   paint();
-  return () => {
-    scope.dispose();
-    svg.removeEventListener("pointerdown", down);
-    svg.removeEventListener("pointermove", move);
-    svg.removeEventListener("pointerup", up);
-    svg.removeEventListener("pointercancel", up);
-  };
+  return scope.dispose;
 }

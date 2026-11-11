@@ -1,6 +1,6 @@
 import { audio } from "../../shared/audio";
 import { character } from "../../shared/assets";
-import { el } from "../../shared/dom";
+import { el, svgEl } from "../../shared/dom";
 import { draggable, type Point } from "../../shared/drag";
 import { createScope, type Scope } from "../../shared/lifecycle";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
@@ -169,18 +169,11 @@ function sceneBox(markup: string, id: string, scope: Scope): { box: HTMLElement;
   const svg = holder.querySelector("svg")!;
   svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
   const [top, bottom] = BLEED[id] ?? ["#fff", "#fff"];
-  const ns = "http://www.w3.org/2000/svg";
   for (const [y, fill] of [
     [-3000, top],
     [800, bottom],
   ] as const) {
-    const r = document.createElementNS(ns, "rect");
-    r.setAttribute("x", "-500");
-    r.setAttribute("y", String(y));
-    r.setAttribute("width", "2000");
-    r.setAttribute("height", "3000");
-    r.setAttribute("fill", fill);
-    svg.prepend(r);
+    svg.prepend(svgEl("rect", { x: -500, y, width: 2000, height: 3000, fill }));
   }
   const box = el("div", { class: "pr-scene-wrap" }, [holder]);
   const fit = (): void => {
@@ -562,7 +555,7 @@ function playSafety(ctx: Ctx, level: SafetyLevel): void {
       node.classList.add("is-found");
       const hit = node.querySelector<SVGGraphicsElement>(".pr-thing__hit")!;
       const b = hit.getBBox();
-      const badge = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      const badge = svgEl("g");
       badge.setAttribute("transform", `translate(${b.x + b.width - 10} ${b.y + 14})`);
       badge.innerHTML = badgeOk;
       svg.append(badge);

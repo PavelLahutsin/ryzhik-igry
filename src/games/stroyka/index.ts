@@ -228,7 +228,5 @@ function play(stage: HTMLElement, plan: Plan, _index: number, api: PlayApi): () 
     say(`Найди ${COLOR_NAME[s.color]} ${s.kind === "wheel" ? "колесо" : s.kind === "window" ? "окошко" : "блок"} — вот для этого места.`);
   });
 
-  return () => {
-    scope.dispose();
-  };
+  return scope.dispose;
 }

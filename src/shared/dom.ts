@@ -40,3 +40,26 @@ export function el<K extends keyof HTMLElementTagNameMap>(
   }
   return node;
 }
+
+export const SVG_NS = "http://www.w3.org/2000/svg";
+
+/** Small SVG element helper: `svgEl("circle", { cx: 5, cy: 5, r: 2 })`. */
+export function svgEl<K extends keyof SVGElementTagNameMap>(
+  tag: K,
+  attrs: Record<string, string | number> = {},
+): SVGElementTagNameMap[K] {
+  const node = document.createElementNS(SVG_NS, tag);
+  for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, String(value));
+  return node;
+}
+
+/** A client (screen) point in the SVG's own units; {0,0} before layout. */
+export function svgLocal(svg: SVGSVGElement, client: { clientX: number; clientY: number }): { x: number; y: number } {
+  const m = svg.getScreenCTM();
+  if (!m) return { x: 0, y: 0 };
+  const pt = svg.createSVGPoint();
+  pt.x = client.clientX;
+  pt.y = client.clientY;
+  const p = pt.matrixTransform(m.inverse());
+  return { x: p.x, y: p.y };
+}

@@ -1,7 +1,8 @@
 import { audio } from "../../shared/audio";
 import { showDrag } from "../../shared/guide";
 import { character } from "../../shared/assets";
-import { el } from "../../shared/dom";
+import { el, svgEl } from "../../shared/dom";
+import { pointerTrack } from "../../shared/drag";
 import { createScope } from "../../shared/lifecycle";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
 import { OBJECTS } from "../../shared/objects";
@@ -65,10 +66,7 @@ function play(stage: HTMLElement, level: LabLevel, _index: number, api: PlayApi)
   let done = false;
   const trail: Cell[] = [start];
 
-  const ns = "http://www.w3.org/2000/svg";
-  const svg = document.createElementNS(ns, "svg");
-  svg.setAttribute("viewBox", `-2 -2 ${cols * 10 + 4} ${rows * 10 + 4}`);
-  svg.setAttribute("class", "lb-svg");
+  const svg = svgEl("svg", { viewBox: `-2 -2 ${cols * 10 + 4} ${rows * 10 + 4}`, class: "lb-svg" });
   svg.innerHTML =
     `<rect x="0" y="0" width="${cols * 10}" height="${rows * 10}" rx="2" fill="#e9f7dc"/>` +
     `<polyline class="lb-hint" points="" fill="none"/>` +
@@ -173,31 +171,23 @@ function play(stage: HTMLElement, level: LabLevel, _index: number, api: PlayApi)
   }
 
   // Finger: press anywhere and move; Ryzhik follows through open corridors.
-  let pointer: number | null = null;
-  const down = (event: PointerEvent): void => {
-    audio.unlock();
-    pointer = event.pointerId;
-    board.setPointerCapture?.(event.pointerId);
-    const cell = cellAt(event);
-    if (cell && !same(cell, at)) {
-      const before = at;
-      walk(cell);
-      if (same(before, at) && Math.abs(cell.c - at.c) + Math.abs(cell.r - at.r) === 1) bump();
-    }
-    event.preventDefault();
-  };
-  const move = (event: PointerEvent): void => {
-    if (event.pointerId !== pointer) return;
-    const cell = cellAt(event);
-    if (cell && !same(cell, at)) walk(cell);
-  };
-  const up = (event: PointerEvent): void => {
-    if (event.pointerId === pointer) pointer = null;
-  };
-  board.addEventListener("pointerdown", down);
-  board.addEventListener("pointermove", move);
-  board.addEventListener("pointerup", up);
-  board.addEventListener("pointercancel", up);
+  scope.add(
+    pointerTrack(board, {
+      down: (event) => {
+        audio.unlock();
+        const cell = cellAt(event);
+        if (cell && !same(cell, at)) {
+          const before = at;
+          walk(cell);
+          if (same(before, at) && Math.abs(cell.c - at.c) + Math.abs(cell.r - at.r) === 1) bump();
+        }
+      },
+      move: (event) => {
+        const cell = cellAt(event);
+        if (cell && !same(cell, at)) walk(cell);
+      },
+    }),
+  );
 
   const keys: Record<string, [number, number]> = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
   const key = (event: KeyboardEvent): void => {

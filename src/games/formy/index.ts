@@ -175,9 +175,7 @@ function play(stage: HTMLElement, level: FormLevel, _index: number, api: PlayApi
     restart(pair[1].node, "is-hint");
   });
 
-  return () => {
-    scope.dispose();
-  };
+  return scope.dispose;
 
   // ------------------------------------------------------------ modes
 
