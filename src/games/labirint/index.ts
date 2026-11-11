@@ -2,6 +2,7 @@ import { audio } from "../../shared/audio";
 import { showDrag } from "../../shared/guide";
 import { character } from "../../shared/assets";
 import { el } from "../../shared/dom";
+import { createScope } from "../../shared/lifecycle";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
 import { OBJECTS } from "../../shared/objects";
 import { useStyles } from "../../shared/style";
@@ -50,6 +51,7 @@ function wallsPath(maze: Maze): string {
 }
 
 function play(stage: HTMLElement, level: LabLevel, _index: number, api: PlayApi): () => void {
+  const scope = createScope();
   // Lie the maze the long way along the screen.
   const box = stage.getBoundingClientRect();
   const { cols, rows } = fitMaze(level.cols, level.rows, box.width, box.height - 40);
@@ -206,7 +208,7 @@ function play(stage: HTMLElement, level: LabLevel, _index: number, api: PlayApi)
     if (canStep(maze, at, next)) stepTo(next);
     else bump();
   };
-  window.addEventListener("keydown", key);
+  scope.listen(window, "keydown", key);
 
   // The hand leads Ryzhik a few steps along the way (nothing moves by itself).
   api.setDemo(() => {
@@ -243,8 +245,6 @@ function play(stage: HTMLElement, level: LabLevel, _index: number, api: PlayApi)
     hintTimer = window.setTimeout(() => hintLine.classList.remove("is-on"), 2200);
   });
 
-  return () => {
-    clearTimeout(hintTimer);
-    window.removeEventListener("keydown", key);
-  };
+  scope.add(() => clearTimeout(hintTimer));
+  return scope.dispose;
 }

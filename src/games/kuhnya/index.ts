@@ -8,6 +8,7 @@ import { reducedMotion, useStyles } from "../../shared/style";
 import { hint, svgNode, toolbar } from "../../shared/ui";
 import { centre, showDrag, showTap, whenIdle } from "../../shared/guide";
 import baseCss from "../../shared/base.css?inline";
+import { createScope } from "../../shared/lifecycle";
 import css from "./style.css?inline";
 import { BIN, BOWL, faceArt, GLASS, INGREDIENT_ART, KITCHEN, PLATE, TABLE, TOOL_ART } from "./art";
 import {
@@ -56,15 +57,8 @@ export function mount(root: HTMLElement): () => void {
   let guest: GuestId = "ryzhik";
   let bites = 0;
   let busyEating = false;
-  const timers = new Set<number>();
-  const later = (fn: () => void, ms: number): void => {
-    const t = window.setTimeout(() => {
-      timers.delete(t);
-      fn();
-    }, ms);
-    timers.add(t);
-  };
-  const stops: Array<() => void> = [];
+  const scope = createScope();
+  const { later } = scope;
 
   const score = el("span", { class: "list__score" });
   const paintScore = (): void => {
@@ -214,7 +208,7 @@ export function mount(root: HTMLElement): () => void {
       const node = dishNode(dish);
       node.style.setProperty("--i", String(i));
       t.slot.append(node);
-      stops.push(
+      scope.add(
         draggable(node, {
           onStart: () => audio.play("pick"),
           onDrop: (at) => {
@@ -345,7 +339,7 @@ export function mount(root: HTMLElement): () => void {
       svgNode(INGREDIENT_ART[id], "kt-food__art"),
     ]);
     pantry.append(node);
-    stops.push(
+    scope.add(
       draggable(node, {
         onStart: () => {
           audio.unlock();
@@ -386,7 +380,7 @@ export function mount(root: HTMLElement): () => void {
 
   // Nobody here reads yet: after a pause a hand shows the next thing to try.
   let demo = 0;
-  stops.push(
+  scope.add(
     whenIdle(() => {
       const ready = tools.find((t) => t.done && t.contents.length > 0);
       const readyDish = ready?.slot.querySelector(".kt-dish");
@@ -403,9 +397,8 @@ export function mount(root: HTMLElement): () => void {
   );
 
   return () => {
-    for (const t of timers) clearTimeout(t);
+    scope.dispose();
     for (const t of tools) window.clearTimeout(t.timer);
-    for (const s of stops) s();
     view.remove();
   };
 }

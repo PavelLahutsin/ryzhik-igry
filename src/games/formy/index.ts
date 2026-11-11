@@ -3,6 +3,7 @@ import { centre, showDrag } from "../../shared/guide";
 import { character } from "../../shared/assets";
 import { el } from "../../shared/dom";
 import { draggable, type Point } from "../../shared/drag";
+import { createScope } from "../../shared/lifecycle";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
 import { OBJECTS } from "../../shared/objects";
 import { reducedMotion, useStyles } from "../../shared/style";
@@ -97,15 +98,8 @@ const SIZE_OWNER: Record<Size, { who: string; char: string; name: string }> = {
 
 function play(stage: HTMLElement, level: FormLevel, _index: number, api: PlayApi): () => void {
   if (level.mode === "sorter" || level.mode === "things") audio.say("v37");
-  const timers = new Set<number>();
-  const cleanups: (() => void)[] = [];
-  const later = (fn: () => void, ms: number): void => {
-    const t = window.setTimeout(() => {
-      timers.delete(t);
-      fn();
-    }, ms);
-    timers.add(t);
-  };
+  const scope = createScope();
+  const { later } = scope;
   let misses = 0;
   let hints = 0;
   let placed = 0;
@@ -130,7 +124,7 @@ function play(stage: HTMLElement, level: FormLevel, _index: number, api: PlayApi
   for (const t of setup.targets) t.node.dataset.key = t.key;
 
   for (const item of setup.items) {
-    cleanups.push(
+    scope.add(
       draggable(item.node, {
         onStart: () => {
           audio.unlock();
@@ -182,8 +176,7 @@ function play(stage: HTMLElement, level: FormLevel, _index: number, api: PlayApi
   });
 
   return () => {
-    for (const t of timers) clearTimeout(t);
-    for (const c of cleanups) c();
+    scope.dispose();
   };
 
   // ------------------------------------------------------------ modes

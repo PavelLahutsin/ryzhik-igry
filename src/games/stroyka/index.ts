@@ -2,6 +2,7 @@ import { audio } from "../../shared/audio";
 import { character } from "../../shared/assets";
 import { el } from "../../shared/dom";
 import { draggable, type Point } from "../../shared/drag";
+import { createScope } from "../../shared/lifecycle";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
 import { reducedMotion, useStyles } from "../../shared/style";
 import { svgNode } from "../../shared/ui";
@@ -66,15 +67,8 @@ function restart(node: Element, cls: string): void {
 }
 
 function play(stage: HTMLElement, plan: Plan, _index: number, api: PlayApi): () => void {
-  const timers = new Set<number>();
-  const cleanups: (() => void)[] = [];
-  const later = (fn: () => void, ms: number): void => {
-    const t = window.setTimeout(() => {
-      timers.delete(t);
-      fn();
-    }, ms);
-    timers.add(t);
-  };
+  const scope = createScope();
+  const { later } = scope;
   const slots = plan.pieces;
   const filled = slots.map(() => false);
   let placed = 0;
@@ -126,7 +120,7 @@ function play(stage: HTMLElement, plan: Plan, _index: number, api: PlayApi): () 
     node.setAttribute("aria-label", `${COLOR_NAME[block.color]} ${block.kind === "wheel" ? "колесо" : "кубик"}`);
     tray.append(node);
     blockNodes.push({ node, block });
-    cleanups.push(
+    scope.add(
       draggable(node, {
         onStart: () => {
           audio.unlock();
@@ -183,7 +177,7 @@ function play(stage: HTMLElement, plan: Plan, _index: number, api: PlayApi): () 
       site.classList.add("is-alive");
       if (plan.alive === "train") {
         audio.play("toot");
-        setTimeout(() => audio.play("chug"), 500);
+        later(() => audio.play("chug"), 500);
       }
       if (plan.alive === "boat") audio.play("honk");
       if (plan.alive === "rocket") audio.play("rocket");
@@ -235,7 +229,6 @@ function play(stage: HTMLElement, plan: Plan, _index: number, api: PlayApi): () 
   });
 
   return () => {
-    for (const t of timers) clearTimeout(t);
-    for (const c of cleanups) c();
+    scope.dispose();
   };
 }

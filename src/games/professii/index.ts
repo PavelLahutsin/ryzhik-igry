@@ -2,6 +2,7 @@ import { audio } from "../../shared/audio";
 import { character } from "../../shared/assets";
 import { el } from "../../shared/dom";
 import { draggable, type Point } from "../../shared/drag";
+import { createScope, type Scope } from "../../shared/lifecycle";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
 import { OBJECTS, type ObjectId } from "../../shared/objects";
 import { reducedMotion, useStyles } from "../../shared/style";
@@ -81,27 +82,19 @@ type Ctx = {
   stage: HTMLElement;
   api: PlayApi;
   later: (fn: () => void, ms: number) => void;
-  cleanups: (() => void)[];
+  scope: Scope;
 };
 
 function play(stage: HTMLElement, level: Scenario, _index: number, api: PlayApi): () => void {
-  const timers = new Set<number>();
-  const cleanups: (() => void)[] = [];
-  const later = (fn: () => void, ms: number): void => {
-    const t = window.setTimeout(() => {
-      timers.delete(t);
-      fn();
-    }, ms);
-    timers.add(t);
-  };
-  const ctx: Ctx = { stage, api, later, cleanups };
+  const scope = createScope();
+  const { later } = scope;
+  const ctx: Ctx = { stage, api, later, scope };
   stage.classList.add("pr-stage");
   if (level.kind === "steps") playSteps(ctx, level);
   else if (level.kind === "shop") playShop(ctx, level);
   else playSafety(ctx, level);
   return () => {
-    for (const t of timers) clearTimeout(t);
-    for (const c of cleanups) c();
+    scope.dispose();
     stage.classList.remove("pr-stage");
   };
 }
@@ -171,7 +164,7 @@ const TOOL_SOUND: Partial<Record<string, Parameters<typeof audio.play>[0]>> = {
   shovel: "rustle",
 };
 
-function sceneBox(markup: string, id: string, cleanups: (() => void)[]): { box: HTMLElement; svg: SVGSVGElement } {
+function sceneBox(markup: string, id: string, scope: Scope): { box: HTMLElement; svg: SVGSVGElement } {
   const holder = svgNode(markup, `pr-scene pr-scene--${id}`);
   const svg = holder.querySelector("svg")!;
   svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
@@ -201,7 +194,7 @@ function sceneBox(markup: string, id: string, cleanups: (() => void)[]): { box: 
   };
   const ro = new ResizeObserver(fit);
   ro.observe(box);
-  cleanups.push(() => ro.disconnect());
+  scope.add(() => ro.disconnect());
   return { box, svg };
 }
 
@@ -226,10 +219,10 @@ function playSteps(ctx: Ctx, level: GuidedLevel): void {
 
   const guide = guideBar(level.intro);
   if (level.id === "vrach-zayka") audio.say("v31");
-  if (level.scene === "house-fire" || level.scene === "forest-fire") setTimeout(() => audio.say("v32"), 1400);
+  if (level.scene === "house-fire" || level.scene === "forest-fire") later(() => audio.say("v32"), 1400);
   // The fire engine arrives with its siren.
-  if (level.scene === "house-fire" || level.scene === "forest-fire") setTimeout(() => audio.play("siren"), 400);
-  const { box, svg } = sceneBox(SCENES[level.scene](), level.scene, ctx.cleanups);
+  if (level.scene === "house-fire" || level.scene === "forest-fire") later(() => audio.play("siren"), 400);
+  const { box, svg } = sceneBox(SCENES[level.scene](), level.scene, ctx.scope);
   const patient = svg.querySelector<SVGGElement>(".pr-patient");
   if (patient && level.mood !== undefined) patient.setAttribute("class", `pr-patient ${level.mood}`);
   for (const id of level.start ?? []) svg.querySelector(`[data-fx="${id}"]`)?.classList.add("is-on");
@@ -302,7 +295,7 @@ function playSteps(ctx: Ctx, level: GuidedLevel): void {
     tray.append(node);
     let last: Point | null = null;
     let soundAt = 0;
-    ctx.cleanups.push(
+    ctx.scope.add(
       draggable(node, {
         onStart: () => {
           audio.unlock();
@@ -454,7 +447,7 @@ function playShop(ctx: Ctx, level: ShopLevel): void {
     shelf.append(item);
     let moved = false;
     let start: Point = { x: 0, y: 0 };
-    ctx.cleanups.push(
+    ctx.scope.add(
       draggable(item, {
         onStart: () => {
           audio.unlock();
@@ -486,7 +479,7 @@ function playShop(ctx: Ctx, level: ShopLevel): void {
     for (let i = 0; i < need + 2; i++) {
       const coin = el("div", { class: "pr-coin", attrs: { "aria-label": "Монетка" } }, [svgNode(coinArt(), "pr-coin__art")]);
       coins.append(coin);
-      ctx.cleanups.push(
+      ctx.scope.add(
         draggable(coin, {
           onStart: () => audio.play("pick"),
           onDrop: (p) => {
@@ -552,7 +545,7 @@ function playSafety(ctx: Ctx, level: SafetyLevel): void {
   const total = level.things.filter((t) => t.danger).length;
   const guide = guideBar(level.intro);
   guide.dots(0, total);
-  const { box, svg } = sceneBox(level.room === "kitchen" ? kitchenScene() : roomScene(), level.room, ctx.cleanups);
+  const { box, svg } = sceneBox(level.room === "kitchen" ? kitchenScene() : roomScene(), level.room, ctx.scope);
   if (!reducedMotion()) svg.classList.add("is-live");
   const layout = el("div", { class: "pr-layout pr-layout--safety" }, [guide.node, box]);
   stage.append(layout);
@@ -592,7 +585,7 @@ function playSafety(ctx: Ctx, level: SafetyLevel): void {
     }
   };
   svg.addEventListener("click", onTap);
-  ctx.cleanups.push(() => svg.removeEventListener("click", onTap));
+  ctx.scope.add(() => svg.removeEventListener("click", onTap));
 
   api.setDemo(() => {
     const left = dangersLeft(level.things, s)[0];

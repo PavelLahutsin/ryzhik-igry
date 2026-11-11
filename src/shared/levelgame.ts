@@ -5,6 +5,7 @@ import { gameProgress, isUnlocked, totalStars, type Progress } from "./progress"
 import { goHome, listenGame, navigateGame } from "./router";
 import { praiseOverlay, starRow, toolbar } from "./ui";
 import { whenIdle } from "./guide";
+import { createScope } from "./lifecycle";
 import { afterHowTo } from "./howto";
 import { LEVEL_TIPS } from "./tips-data";
 import { clearTips, tipOnce } from "./tips";
@@ -220,7 +221,7 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
     let won = false;
     let onHint: (() => void) | null = null;
     let demo: (() => void) | null = null;
-    const timers: number[] = [];
+    const scope = createScope();
     const runDemo = (): void => {
       if (!won && view.isConnected && !document.querySelector(".ht")) demo?.();
     };
@@ -266,7 +267,7 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
           attrs: { src: character("ryzhik"), alt: "", draggable: "false" },
         });
         // Let the finishing animation be seen before the card.
-        setTimeout(() => {
+        scope.later(() => {
           if (!view.isConnected) return;
           const card = praiseOverlay({
             stars,
@@ -287,7 +288,7 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
                 el("span", { class: "praise__sticker-text", text: list.length > 1 ? `Новые наклейки: ${list.length}!` : "Новая наклейка!" }),
               ]),
             );
-            setTimeout(() => card.isConnected && audio.play("sparkle"), 1200);
+            scope.later(() => card.isConnected && audio.play("sparkle"), 1200);
           });
         }, 700);
       },
@@ -320,24 +321,26 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
         stage.removeEventListener("pointerup", onUp);
         document.body.classList.remove("is-tutorial");
         void markSeen("tips", `tutorial:${def.id}`);
-        timers.push(window.setTimeout(() => !won && !hintBtn.hidden && tipOnce("hint-lamp", hintBtn, "Лампочка подскажет, если трудно"), 600));
+        scope.later(() => !won && !hintBtn.hidden && tipOnce("hint-lamp", hintBtn, "Лампочка подскажет, если трудно"), 600);
       };
       stage.addEventListener("pointerup", onUp);
-      timers.push(window.setTimeout(() => afterHowTo(() => {
+      scope.later(() => afterHowTo(() => {
+        // The «Как играть» card may close after the child already left.
+        if (scope.disposed) return;
         audio.say("v07");
         runDemo();
-      }), 900));
+      }), 900);
       stopIdle = whenIdle(runDemo, 3500);
     } else {
       stopIdle = whenIdle(runDemo, 7000);
-      timers.push(window.setTimeout(() => !hintBtn.hidden && tipOnce("hint-lamp", hintBtn, "Лампочка подскажет, если трудно"), 1500));
+      scope.later(() => !hintBtn.hidden && tipOnce("hint-lamp", hintBtn, "Лампочка подскажет, если трудно"), 1500);
     }
     const tip = LEVEL_TIPS[def.id]?.[level.id];
-    if (tip) timers.push(window.setTimeout(() => afterHowTo(() => tipOnce(`${def.id}:${level.id}`, stage.querySelector(tip.at) ?? stage, tip.text)), 1300));
+    if (tip) scope.later(() => afterHowTo(() => tipOnce(`${def.id}:${level.id}`, stage.querySelector(tip.at) ?? stage, tip.text)), 1300);
 
     return () => {
       stopIdle();
-      for (const t of timers) clearTimeout(t);
+      scope.dispose();
       document.body.classList.remove("is-tutorial");
       stop();
       view.remove();

@@ -8,6 +8,7 @@ import { goHome } from "../../shared/router";
 import { reducedMotion, useStyles } from "../../shared/style";
 import { hint, svgNode, toolbar } from "../../shared/ui";
 import baseCss from "../../shared/base.css?inline";
+import { createScope } from "../../shared/lifecycle";
 import css from "./style.css?inline";
 import { BERRIES, CONE, FISH_JUMP, FX } from "./art";
 import {
@@ -166,15 +167,8 @@ export function mount(root: HTMLElement): () => void {
 
   // ---------------------------------------------------------------- scene
   function runScene(scene: SceneDef, mem: SceneMemory): { stop: () => void; repaintNight: () => void } {
-    const timers = new Set<number>();
-    const later = (fn: () => void, ms: number): void => {
-      const t = window.setTimeout(() => {
-        timers.delete(t);
-        fn();
-      }, ms);
-      timers.add(t);
-    };
-    const stops: Array<() => void> = [];
+    const scope = createScope();
+    const { later } = scope;
     const world = el("div", { class: `dm-world dm-world--${scene.id}` });
     const back = el("div", { class: "dm-back" });
     const dark = el("div", { class: "dm-dark", attrs: { "aria-hidden": "true" } });
@@ -553,7 +547,7 @@ export function mount(root: HTMLElement): () => void {
       world.append(node);
       placeChar(ch);
       body.style.animationDelay = `${-Math.random() * 3}s`;
-      stops.push(
+      scope.add(
         freeDrag(node, {
           onTap: () => {
             audio.unlock();
@@ -746,8 +740,7 @@ export function mount(root: HTMLElement): () => void {
         observer.disconnect();
         window.clearInterval(zzzTimer);
         window.clearTimeout(idleTimer);
-        for (const t of timers) clearTimeout(t);
-        for (const s of stops) s();
+        scope.dispose();
         for (const c of [...carries]) removeCarry(c);
         // remember where everyone is
         mem.chars = chars.map((c) => ({ ...c.state }));

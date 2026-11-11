@@ -1,5 +1,6 @@
 import { audio, NOTES } from "../../shared/audio";
 import { el } from "../../shared/dom";
+import { createScope } from "../../shared/lifecycle";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
 import { reducedMotion, useStyles } from "../../shared/style";
 import { svgNode } from "../../shared/ui";
@@ -49,14 +50,8 @@ function node<K extends keyof SVGElementTagNameMap>(tag: K, attrs: Record<string
 }
 
 function play(stage: HTMLElement, level: DotPicture, _index: number, api: PlayApi): () => void {
-  const timers = new Set<number>();
-  const later = (fn: () => void, ms: number): void => {
-    const t = window.setTimeout(() => {
-      timers.delete(t);
-      fn();
-    }, ms);
-    timers.add(t);
-  };
+  const scope = createScope();
+  const { later } = scope;
   const dots = level.dots;
   const state = startDots();
   let hints = 0;
@@ -221,7 +216,7 @@ function play(stage: HTMLElement, level: DotPicture, _index: number, api: PlayAp
 
   paint();
   return () => {
-    for (const t of timers) clearTimeout(t);
+    scope.dispose();
     svg.removeEventListener("pointerdown", down);
     svg.removeEventListener("pointermove", move);
     svg.removeEventListener("pointerup", up);

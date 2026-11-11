@@ -1,6 +1,7 @@
 import { audio } from "../../shared/audio";
 import { centre, showTap } from "../../shared/guide";
 import { el } from "../../shared/dom";
+import { createScope } from "../../shared/lifecycle";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
 import { reducedMotion, useStyles } from "../../shared/style";
 import { hint, svgNode } from "../../shared/ui";
@@ -42,7 +43,7 @@ function faceNode(key: string, className = "np-face"): HTMLElement {
 function play(stage: HTMLElement, level: ParaLevel, _index: number, api: PlayApi): () => void {
   const pairs = pairsOf(level);
   const state = deal(level.faces, pairs);
-  const timers: number[] = [];
+  const scope = createScope();
   let peeks = 0;
   let peeking = false;
   const grid = el("div", { class: "np-grid" });
@@ -74,7 +75,7 @@ function play(stage: HTMLElement, level: ParaLevel, _index: number, api: PlayApi
   });
   stage.append(el("div", { class: "np-wrap" }, [grid]));
   shape();
-  window.addEventListener("resize", shape);
+  scope.listen(window, "resize", shape);
 
   // Hint: all closed cards peek for a moment.
   // The hand taps a card that is still closed.
@@ -90,15 +91,13 @@ function play(stage: HTMLElement, level: ParaLevel, _index: number, api: PlayApi
     peeks++;
     audio.play("tap");
     for (const i of ids) cards[i]!.classList.add("is-open", "is-peek");
-    timers.push(
-      window.setTimeout(() => {
-        for (const i of ids) {
-          cards[i]!.classList.remove("is-peek");
-          if (!state.open.includes(i) && !state.matched.has(i)) cards[i]!.classList.remove("is-open");
-        }
-        peeking = false;
-      }, 1300),
-    );
+    scope.later(() => {
+      for (const i of ids) {
+        cards[i]!.classList.remove("is-peek");
+        if (!state.open.includes(i) && !state.matched.has(i)) cards[i]!.classList.remove("is-open");
+      }
+      peeking = false;
+    }, 1300);
   });
 
   function show(i: number, open: boolean): void {
@@ -116,27 +115,20 @@ function play(stage: HTMLElement, level: ParaLevel, _index: number, api: PlayApi
     audio.play("pick");
     if (result === "match") {
       const [a, b] = [...state.matched].slice(-2) as [number, number];
-      timers.push(
-        window.setTimeout(() => {
-          cards[a]!.classList.add("is-matched");
-          cards[b]!.classList.add("is-matched");
-          audio.play("snap");
-          if (solved(state)) api.win(starsFor(state.misses + peeks * Math.ceil(pairs / 2), pairs));
-        }, reducedMotion() ? 0 : 320),
-      );
+      scope.later(() => {
+        cards[a]!.classList.add("is-matched");
+        cards[b]!.classList.add("is-matched");
+        audio.play("snap");
+        if (solved(state)) api.win(starsFor(state.misses + peeks * Math.ceil(pairs / 2), pairs));
+      }, reducedMotion() ? 0 : 320);
     }
     if (result === "miss") {
       if (state.misses === pairs * 2) hint(stage, "Запоминай, где какая картинка!");
-      timers.push(
-        window.setTimeout(() => {
-          for (const j of closeMiss(state)) show(j, false);
-        }, 1000),
-      );
+      scope.later(() => {
+        for (const j of closeMiss(state)) show(j, false);
+      }, 1000);
     }
   }
 
-  return () => {
-    window.removeEventListener("resize", shape);
-    for (const t of timers) clearTimeout(t);
-  };
+  return scope.dispose;
 }
