@@ -51,6 +51,21 @@ export const games: GameEntry[] = [
     resetKeys: ["ryzhik-igry:domik:found"],
   },
   {
+    id: "kuhnya",
+    title: "Кухня Рыжика",
+    note: "Готовь что хочешь и угощай",
+    color: "#e8463a",
+    art: { src: character("mama"), figure: true },
+    load: () => import("./kuhnya"),
+    summary: async () => {
+      const [{ allFinds }, { gameFinds }] = await Promise.all([import("./kuhnya/logic"), import("../shared/finds")]);
+      const all = allFinds();
+      const list = await gameFinds("kuhnya").load();
+      return { got: list.filter((id) => all.includes(id)).length, max: all.length, unit: "finds" };
+    },
+    resetKeys: ["ryzhik-igry:kuhnya:found"],
+  },
+  {
     id: "tajnaya-kartinka",
     title: "Тайная картинка",
     note: "Веди Рыжика и открывай картинку",
