@@ -1,3 +1,4 @@
+import { audio } from "../../../shared/audio";
 import heroUrl from "../assets/hero.webp";
 import { INTROS, gameConfig, getLevel, getWorld } from "../data/levels";
 import { EFFECT_TIME, Game, type ItemKind } from "../game/engine";
@@ -217,6 +218,8 @@ export function renderGame(root: HTMLElement, levelId: string): () => void {
   retryBtn.addEventListener("click", restartLevel);
 
   const stopWin = game.on("win", () => {
+    audio.play("reveal");
+    setTimeout(() => audio.play("win"), 500);
     percent.textContent = "100%";
     goalFill.style.width = "100%";
     note.textContent = "Картинка открыта!";
@@ -228,14 +231,20 @@ export function renderGame(root: HTMLElement, levelId: string): () => void {
       });
     }, 1100);
   });
-  const stopCapture = game.on("capture", paintGoal);
+  const stopCapture = game.on("capture", () => {
+    audio.play("snap");
+    paintGoal();
+  });
   const stopItem = game.on("item", () => {
     if (game.lastItem) flashNote(ITEM_NOTE[game.lastItem]);
+    audio.play("powerup");
     paintLives();
     paintGoal();
     paintEffects();
   });
   const stopRewind = game.on("rewind", () => {
+    audio.play("buzz");
+    setTimeout(() => audio.play("hurt"), 120);
     paintLives(true);
     if (game.failed) return;
     flashNote("Ещё раз!", 800);
@@ -267,6 +276,7 @@ export function renderGame(root: HTMLElement, levelId: string): () => void {
   };
 
   const onDown = (event: PointerEvent): void => {
+    audio.unlock();
     if (game.won || game.failed || game.paused) return;
     pointerId = event.pointerId;
     canvas.setPointerCapture(event.pointerId);
@@ -289,7 +299,10 @@ export function renderGame(root: HTMLElement, levelId: string): () => void {
     const dir = KEYS[event.key];
     if (!dir) return;
     event.preventDefault();
-    if (event.type === "keydown" && !event.repeat) game.setDirection(dir.x, dir.y);
+    if (event.type === "keydown" && !event.repeat) {
+      audio.unlock();
+      game.setDirection(dir.x, dir.y);
+    }
     if (event.type === "keyup") {
       // Stop only if this key matches the current direction.
       if (game.dirX === dir.x && game.dirY === dir.y) game.release();

@@ -1,3 +1,5 @@
+import { audio } from "./audio";
+import { praiseLine } from "./voice-lines";
 import { el } from "./dom";
 import { reducedMotion } from "./style";
 
@@ -80,15 +82,26 @@ export function praiseOverlay(options: {
   text?: string;
   stars?: number;
   art?: Node | null;
+  /** Extra line under the text (e.g. a new sticker). */
+  extra?: Node | null;
   actions: PraiseAction[];
 }): HTMLElement {
+  let chosen = false;
   const buttons = options.actions.map((action) =>
     el(
       "button",
       {
         class: `btn ${action.primary ? "btn--play" : "btn--ghost"}`,
         attrs: { type: "button" },
-        on: { click: action.onClick },
+        on: {
+          click: () => {
+            // One choice only: a double tap must not open two levels.
+            if (chosen) return;
+            chosen = true;
+            audio.play("click");
+            action.onClick();
+          },
+        },
       },
       [el("span", { text: action.label })],
     ),
@@ -98,10 +111,14 @@ export function praiseOverlay(options: {
     el("p", { class: "praise__title", text: options.title ?? praiseWord() }),
     options.stars ? starRow(options.stars, "stars stars--big") : null,
     options.text ? el("p", { class: "praise__text", text: options.text }) : null,
+    options.extra ?? null,
     el("div", { class: "praise__actions" }, buttons),
   ]);
   const overlay = el("div", { class: "praise" }, [confetti(), card]);
   requestAnimationFrame(() => overlay.classList.add("is-open"));
+  // Ryzhik's voice, once recorded (see voice-lines.ts); silent until then.
+  setTimeout(() => overlay.isConnected && audio.say(praiseLine()), 250);
+  for (let i = 0; i < (options.stars ?? 0); i++) setTimeout(() => overlay.isConnected && audio.star(i), 350 + i * 260);
   setTimeout(() => (buttons[0] as HTMLButtonElement | undefined)?.focus({ preventScroll: true }), 50);
   return overlay;
 }
