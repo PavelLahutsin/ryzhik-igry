@@ -343,7 +343,7 @@
     grid-template-rows: auto minmax(0, auto) minmax(0, 1fr);
   }
   .sk-site {
-    height: clamp(42vh, calc((100vw - 32px) / (var(--ratio) * 0.82)), 60vh);
+    height: clamp(40vh, calc((100vw - 32px) / (var(--ratio) * 0.82)), 52vh);
     width: 100%;
     justify-self: center;
   }
