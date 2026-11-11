@@ -80,12 +80,21 @@ function fillProgress(node: HTMLElement, summary: Summary): void {
     el("span", { class: "game-tile__bar" }, [el("i", { style: { width: `${share}%` } })]),
     el("span", {
       class: "game-tile__stars",
-      text: summary.unit === "stars" ? `★ ${summary.got}/${summary.max}` : `${summary.got}/${summary.max}`,
+      text:
+        summary.unit === "stars"
+          ? `★ ${summary.got}/${summary.max}`
+          : summary.unit === "finds"
+            ? `✦ ${summary.got}/${summary.max}`
+            : `${summary.got}/${summary.max}`,
     }),
   );
   node.setAttribute(
     "aria-label",
-    summary.unit === "stars" ? `Звёзд: ${summary.got} из ${summary.max}` : `Готово картинок: ${summary.got} из ${summary.max}`,
+    summary.unit === "stars"
+      ? `Звёзд: ${summary.got} из ${summary.max}`
+      : summary.unit === "finds"
+        ? `Найдено: ${summary.got} из ${summary.max}`
+        : `Готово картинок: ${summary.got} из ${summary.max}`,
   );
 }
 

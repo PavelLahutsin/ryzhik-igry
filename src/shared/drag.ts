@@ -91,3 +91,83 @@ export function draggable(node: HTMLElement, options: DragOptions): () => void {
     node.removeEventListener("pointercancel", up);
   };
 }
+
+export type FreeDragOptions = {
+  /** A short touch without moving. */
+  onTap?: () => void;
+  onStart?: () => void;
+  onMove?: (center: Point) => void;
+  /** Released after moving; the node stays where it was left (`left/top` are updated by the caller). */
+  onDrop?: (center: Point, moved: Point) => void;
+};
+
+/** Below this many pixels a touch is a tap, not a drag. Pure, for tests. */
+export function isTap(dx: number, dy: number, threshold = 10): boolean {
+  return Math.hypot(dx, dy) < threshold;
+}
+
+/**
+ * Drag that does not bounce back (sandbox toys, characters). While dragging
+ * the node follows by transform; on release the caller gets the total move
+ * and decides where the node lives now.
+ */
+export function freeDrag(node: HTMLElement, options: FreeDragOptions): () => void {
+  let pointer: number | null = null;
+  let startX = 0;
+  let startY = 0;
+  let base: Point = { x: 0, y: 0 };
+  let dx = 0;
+  let dy = 0;
+  let dragging = false;
+
+  const down = (event: PointerEvent): void => {
+    if (pointer !== null) return;
+    pointer = event.pointerId;
+    startX = event.clientX;
+    startY = event.clientY;
+    dx = 0;
+    dy = 0;
+    dragging = false;
+    base = centerOf(node);
+    node.setPointerCapture?.(event.pointerId);
+    event.preventDefault();
+    event.stopPropagation();
+  };
+  const move = (event: PointerEvent): void => {
+    if (event.pointerId !== pointer) return;
+    dx = event.clientX - startX;
+    dy = event.clientY - startY;
+    if (!dragging && isTap(dx, dy)) return;
+    if (!dragging) {
+      dragging = true;
+      node.classList.add("is-dragging");
+      options.onStart?.();
+    }
+    node.style.transform = `translate(${dx}px, ${dy}px) scale(1.06)`;
+    options.onMove?.({ x: base.x + dx, y: base.y + dy });
+  };
+  const up = (event: PointerEvent): void => {
+    if (event.pointerId !== pointer) return;
+    pointer = null;
+    node.classList.remove("is-dragging");
+    node.style.transform = "";
+    if (!dragging) {
+      options.onTap?.();
+      return;
+    }
+    dragging = false;
+    options.onDrop?.({ x: base.x + dx, y: base.y + dy }, { x: dx, y: dy });
+  };
+
+  node.style.touchAction = "none";
+  node.addEventListener("pointerdown", down);
+  node.addEventListener("pointermove", move);
+  node.addEventListener("pointerup", up);
+  node.addEventListener("pointercancel", up);
+  return () => {
+    node.removeEventListener("pointerdown", down);
+    node.removeEventListener("pointermove", move);
+    node.removeEventListener("pointerup", up);
+    node.removeEventListener("pointercancel", up);
+  };
+}
