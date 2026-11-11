@@ -1,6 +1,6 @@
 import { audio } from "./audio";
 import { character } from "./assets";
-import { el } from "./dom";
+import { el, svgEl } from "./dom";
 import { gameProgress, isUnlocked, totalStars, type Progress } from "./progress";
 import { goHome, listenGame, navigateGame } from "./router";
 import { praiseOverlay, starRow, toolbar } from "./ui";
@@ -64,9 +64,7 @@ export async function starSummary(gameId: string, ids: readonly string[]): Promi
 
 /** Lamp icon for the hint button. */
 function lampIcon(): SVGSVGElement {
-  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  svg.setAttribute("viewBox", "0 0 32 32");
-  svg.setAttribute("aria-hidden", "true");
+  const svg = svgEl("svg", { viewBox: "0 0 32 32", "aria-hidden": "true" });
   svg.innerHTML =
     '<path d="M16 3a9 9 0 0 0-5 16.5V23h10v-3.5A9 9 0 0 0 16 3z" fill="#ffc94a" stroke="#3b2e25" stroke-width="2" stroke-linejoin="round"/>' +
     '<path d="M12 26h8M13 29h6" stroke="#3b2e25" stroke-width="2.4" stroke-linecap="round"/>' +
@@ -87,6 +85,8 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
   function show(sub: string[]): void {
     cleanup?.();
     cleanup = null;
+    // A «Новое!» bubble belongs to the screen that showed it.
+    clearTips();
     root.replaceChildren();
     const mine = ++token;
     if (sub[0] === "play") {
@@ -357,10 +357,7 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
 }
 
 function lockIcon(): SVGSVGElement {
-  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  svg.setAttribute("viewBox", "0 0 32 32");
-  svg.setAttribute("class", "lock-icon");
-  svg.setAttribute("aria-hidden", "true");
+  const svg = svgEl("svg", { viewBox: "0 0 32 32", class: "lock-icon", "aria-hidden": "true" });
   svg.innerHTML =
     '<rect x="7" y="14" width="18" height="14" rx="4" fill="#fffcf7" stroke="#a3490d" stroke-width="2.4"/>' +
     '<path d="M11 14v-3a5 5 0 0 1 10 0v3" fill="none" stroke="#a3490d" stroke-width="2.4"/>' +

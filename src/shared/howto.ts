@@ -81,12 +81,16 @@ export function showHowTo(gameId: string): Promise<void> {
     ]);
     const overlay = el("div", { class: `ht${reducedMotion() ? " is-still" : ""}` }, [card]);
     open = overlay;
+    let closed = false;
     const close = (): void => {
+      // A quick double tap must not close twice (and drop another card).
+      if (closed) return;
+      closed = true;
       audio.unlock();
       audio.play("click");
       overlay.classList.remove("is-open");
       setTimeout(() => overlay.remove(), 200);
-      open = null;
+      if (open === overlay) open = null;
       void markSeen("howto", gameId);
       const list = waiting;
       waiting = [];
