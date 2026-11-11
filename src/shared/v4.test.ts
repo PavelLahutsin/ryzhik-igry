@@ -81,11 +81,20 @@ describe("daily gift", () => {
   });
 });
 
-import { VOICE_LINES, praiseLine } from "./voice-lines";
-describe("voice lines", () => {
-  it("has a how-to line for every game and praise lines", () => {
-    for (const g of games) expect(VOICE_LINES[`howto-${g.id}`], g.id).toBeTruthy();
-    for (let i = 0; i < 20; i++) expect(VOICE_LINES[praiseLine()]).toBeTruthy();
-    expect(praiseLine(() => 0.999)).toBe("praise-6");
+import { HOWTO_VOICE, MUSIC_FILES, PRAISE_LINES, VOICE_LINES, VOICE_WHEN, WIN_JINGLE, praiseLine } from "./voice-lines";
+describe("voice and music files", () => {
+  it("has v01–v37 and m01–m12 as in the prompts", () => {
+    const ids = Object.keys(VOICE_LINES);
+    expect(ids).toHaveLength(37);
+    expect(ids[0]).toBe("v01");
+    expect(ids[36]).toBe("v37");
+    const music = new Set([...Object.values(MUSIC_FILES), WIN_JINGLE]);
+    for (let i = 1; i <= 12; i++) expect(music.has(`m${String(i).padStart(2, "0")}`), `m${i}`).toBe(true);
+  });
+  it("only points at known lines", () => {
+    for (const id of [...PRAISE_LINES, ...Object.values(HOWTO_VOICE), ...Object.keys(VOICE_WHEN)]) expect(VOICE_LINES[id], id).toBeTruthy();
+    for (const g of games) if (g.id !== "raskraska") expect(HOWTO_VOICE[g.id], g.id).toBeTruthy();
+    for (let i = 0; i < 20; i++) expect(PRAISE_LINES).toContain(praiseLine());
+    expect(MUSIC_FILES.raskraska).toBeUndefined();
   });
 });

@@ -96,6 +96,7 @@ const SIZE_OWNER: Record<Size, { who: string; char: string; name: string }> = {
 };
 
 function play(stage: HTMLElement, level: FormLevel, _index: number, api: PlayApi): () => void {
+  if (level.mode === "sorter" || level.mode === "things") audio.say("v37");
   const timers = new Set<number>();
   const cleanups: (() => void)[] = [];
   const later = (fn: () => void, ms: number): void => {

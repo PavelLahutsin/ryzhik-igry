@@ -245,6 +245,7 @@ export function renderGame(root: HTMLElement, levelId: string): () => void {
   const stopRewind = game.on("rewind", () => {
     audio.play("buzz");
     setTimeout(() => audio.play("hurt"), 120);
+    audio.say("v14");
     paintLives(true);
     if (game.failed) return;
     flashNote("Ещё раз!", 800);

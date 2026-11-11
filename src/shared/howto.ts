@@ -5,6 +5,7 @@ import { HOWTO, type Art, type Step } from "./howto-data";
 import { OBJECTS } from "./objects";
 import { loadSeen, markSeen } from "./seen";
 import { reducedMotion } from "./style";
+import { HOWTO_VOICE } from "./voice-lines";
 
 /**
  * «Как играть»: a picture-first card shown the first time a game opens and
@@ -97,7 +98,8 @@ export function showHowTo(gameId: string): Promise<void> {
       if (e.target === overlay) close();
     });
     document.body.append(overlay);
-    audio.say(`howto-${gameId}`);
+    const line = HOWTO_VOICE[gameId];
+    if (line) audio.say(line);
     requestAnimationFrame(() => overlay.classList.add("is-open"));
     setTimeout(() => ok.focus({ preventScroll: true }), 60);
   });

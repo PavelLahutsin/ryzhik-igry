@@ -136,6 +136,7 @@ export function mount(root: HTMLElement): () => void {
     audio.unlock();
     audio.play("magic");
     night = !night;
+    audio.setTheme(night ? "domik-night" : "domik");
     paintNightBtn();
     view.classList.toggle("is-night", night);
     repaintNight?.();

@@ -1419,3 +1419,41 @@ button {
     overflow: hidden;
   }
 }
+
+/* Phones sideways: the praise card (now maybe with a sticker) stays on
+   screen — buttons in one row, smaller fox. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .praise {
+    padding: 8px;
+  }
+  .praise__card {
+    width: min(100%, 560px);
+    max-height: 100%;
+    overflow: auto;
+    gap: 4px;
+    padding: 10px 16px 12px;
+  }
+  .praise__fox {
+    width: 56px;
+    margin-top: 0;
+  }
+  .praise__title {
+    font-size: 30px;
+  }
+  .praise__text {
+    font-size: 17px;
+  }
+  .praise__actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 4px;
+  }
+  .praise__actions .btn--ghost {
+    min-width: 0;
+  }
+  .praise__sticker .sticker__art {
+    width: 40px;
+    height: 40px;
+  }
+}

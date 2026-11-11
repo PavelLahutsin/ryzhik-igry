@@ -225,6 +225,8 @@ function playSteps(ctx: Ctx, level: GuidedLevel): void {
   let finished = false;
 
   const guide = guideBar(level.intro);
+  if (level.id === "vrach-zayka") audio.say("v31");
+  if (level.scene === "house-fire" || level.scene === "forest-fire") setTimeout(() => audio.say("v32"), 1400);
   // The fire engine arrives with its siren.
   if (level.scene === "house-fire" || level.scene === "forest-fire") setTimeout(() => audio.play("siren"), 400);
   const { box, svg } = sceneBox(SCENES[level.scene](), level.scene, ctx.cleanups);
@@ -387,6 +389,7 @@ function playShop(ctx: Ctx, level: ShopLevel): void {
   let paid = 0;
   const need = coinsNeeded(level.list);
   const guide = guideBar(level.intro);
+  audio.say("v33");
   guide.dots(0, need);
 
   const listRows = level.list.map((line) =>

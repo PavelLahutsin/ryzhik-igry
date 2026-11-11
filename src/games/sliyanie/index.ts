@@ -159,6 +159,7 @@ function play(stage: HTMLElement, level: SliyanieLevel, _index: number, api: Pla
     if (!previous || busy || done) return;
     helps++;
     audio.play("tap");
+    audio.say("v17");
     board = previous;
     previous = null;
     for (const node of nodes.values()) node.remove();

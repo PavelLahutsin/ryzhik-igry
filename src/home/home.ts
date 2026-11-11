@@ -8,6 +8,8 @@ import { svgNode } from "../shared/ui";
 import { OBJECTS } from "../shared/objects";
 import { games, type GameEntry, type Summary } from "../games/registry";
 
+let greeted = false;
+
 /** Home menu: one big tile per game with its progress. No ads, no store, no timers. */
 export function renderHome(root: HTMLElement): () => void {
   let gone = false;
@@ -62,6 +64,9 @@ export function renderHome(root: HTMLElement): () => void {
     ]),
   ]);
   root.append(view);
+  // Ryzhik greets (when his voice is recorded): hello first, then «Выбирай игру!».
+  audio.say(greeted ? "v11" : "v01");
+  greeted = true;
   const tipTimer = window.setTimeout(() => tipOnce("sound-button", soundBtn, "Здесь звук: включить или выключить"), 1500);
 
   let stars = 0;

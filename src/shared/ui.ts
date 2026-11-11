@@ -84,6 +84,8 @@ export function praiseOverlay(options: {
   art?: Node | null;
   /** Extra line under the text (e.g. a new sticker). */
   extra?: Node | null;
+  /** Recorded line to say (default: a random praise). */
+  voice?: string;
   actions: PraiseAction[];
 }): HTMLElement {
   let chosen = false;
@@ -117,7 +119,7 @@ export function praiseOverlay(options: {
   const overlay = el("div", { class: "praise" }, [confetti(), card]);
   requestAnimationFrame(() => overlay.classList.add("is-open"));
   // Ryzhik's voice, once recorded (see voice-lines.ts); silent until then.
-  setTimeout(() => overlay.isConnected && audio.say(praiseLine()), 250);
+  setTimeout(() => overlay.isConnected && audio.say(options.voice ?? praiseLine()), 250);
   for (let i = 0; i < (options.stars ?? 0); i++) setTimeout(() => overlay.isConnected && audio.star(i), 350 + i * 260);
   setTimeout(() => (buttons[0] as HTMLButtonElement | undefined)?.focus({ preventScroll: true }), 50);
   return overlay;

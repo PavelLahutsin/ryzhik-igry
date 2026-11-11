@@ -162,6 +162,8 @@ export function mount(root: HTMLElement): () => void {
       fig.className = "kt-guest__fig";
       restart(fig, `is-${r}`);
       audio.play(SOUND[r]);
+      if (r === "yum" || r === "love") audio.say("v26");
+      if (r === "yuck") audio.say("v27");
       const list = SAY[r];
       say(list[Math.floor(Math.random() * list.length)]!);
       if (r === "love") puff("heart", 6);

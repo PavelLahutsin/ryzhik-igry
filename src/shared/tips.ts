@@ -39,6 +39,7 @@ function next(): void {
   showing = true;
   void markSeen("tips", tip.id);
   audio.play("sparkle");
+  audio.say("v08");
   const ring = el("span", { class: "tip-ring", attrs: { "aria-hidden": "true" } });
   Object.assign(ring.style, { left: `${r.left - 6}px`, top: `${r.top - 6}px`, width: `${r.width + 12}px`, height: `${r.height + 12}px` });
   const below = r.top + r.height / 2 < window.innerHeight / 2;

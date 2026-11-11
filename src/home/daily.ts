@@ -78,7 +78,6 @@ export function dailyButton(onOpen: (overlay: HTMLElement) => void): HTMLElement
 
 function giftOverlay(gift: { obj: ObjectId; text: string; season: Season }): HTMLElement {
   audio.play("reveal");
-  audio.say("gift");
   const close = (): void => {
     audio.play("click");
     overlay.remove();

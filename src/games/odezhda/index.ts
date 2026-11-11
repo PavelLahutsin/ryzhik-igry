@@ -96,6 +96,7 @@ function play(stage: HTMLElement, level: OdezhdaLevel, _index: number, api: Play
           const result = tryWear(id, level.weather, worn);
           if (result === "wear") {
             worn.push(id);
+            if (id === "mittens") audio.say("v21");
             const layer = svgNode(overlaySvg(item), "od-wear");
             layer.style.zIndex = String(LAYER[item.slot]);
             layer.dataset.id = id;

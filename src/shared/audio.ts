@@ -1,8 +1,9 @@
 /**
  * Sound for all games: soft synthesized effects and a quiet optional music
- * loop, no files and no network. Recorded voice lines for Ryzhik can be
- * dropped into src/shared/voice/<id>.mp3 later; `audio.say(id)` plays them
- * when present (see NEEDED_ASSETS.json for the phrase list).
+ * loop. Recorded files are optional: public/audio/voice/vNN.mp3 (Ryzhik's
+ * phrases, `audio.say("v02")`) and public/audio/music/mNN.mp3 (music per
+ * world, m12 = win jingle) are used when present, otherwise the synthesized
+ * sounds play (see voice-lines.ts and public/audio/README.md).
  *
  * Nothing sounds until the first tap (browsers require a gesture), and
  * nothing sounds when the grown-up turns effects off in «Родителям».
@@ -11,6 +12,7 @@
 import { platform } from "./platform";
 import { recipe, type SoundKind, SOUND_KINDS } from "./sounds";
 import { melodyFor, musicFor } from "./music";
+import { MUSIC_FILES, WIN_JINGLE } from "./voice-lines";
 
 export type { SoundKind };
 export { SOUND_KINDS };
@@ -63,9 +65,40 @@ function ready(): AudioContext | null {
   return c && c.state === "running" ? c : null;
 }
 
-// ---------------------------------------------------------------- voice
-const VOICE = import.meta.glob("./voice/*.{mp3,ogg,m4a}", { eager: true, query: "?url", import: "default" }) as Record<string, string>;
+// ---------------------------------------------------------------- files
+const BASE = (import.meta.env?.BASE_URL as string | undefined) ?? "/";
+export const fileUrl = (kind: "voice" | "music", id: string): string => `${BASE}audio/${kind}/${id}.mp3`;
+const probes = new Map<string, Promise<boolean>>();
+const known = new Map<string, boolean>();
+
+/** Is the optional file there? Asked once per file (same-origin, offline-safe). */
+export function hasFile(url: string): Promise<boolean> {
+  let p = probes.get(url);
+  if (!p) {
+    p = fetch(url, { method: "HEAD" })
+      .then((r) => {
+        const type = r.headers.get("content-type") ?? "";
+        // A dev server answers unknown paths with index.html — not a sound.
+        return r.ok && !type.includes("text/html");
+      })
+      .catch(() => false)
+      .then((ok) => {
+        known.set(url, ok);
+        return ok;
+      });
+    probes.set(url, p);
+  }
+  return p;
+}
+
 let voicePlaying: HTMLAudioElement | null = null;
+let lastMissVoice = 0;
+let misses = 0;
+
+// Recorded music: one looping element, quieter while Ryzhik speaks.
+let track: HTMLAudioElement | null = null;
+let trackUrl = "";
+const TRACK_VOLUME = 0.22;
 
 // ---------------------------------------------------------------- music
 let musicTimer = 0;
@@ -103,15 +136,53 @@ function softNote(c: AudioContext, out: AudioNode, at: number, freq: number, len
   o.stop(at + len + 0.05);
 }
 
+function stopTrack(): void {
+  track?.pause();
+  track = null;
+  trackUrl = "";
+}
+
 function syncMusic(): void {
   const want = enabled && musicOn && Boolean(musicFor(theme));
-  if (want && !musicTimer) {
+  const id = MUSIC_FILES[theme];
+  const url = id ? fileUrl("music", id) : "";
+  if (!want || !url) stopTrack();
+  if (want && url) {
+    const forTheme = theme;
+    void hasFile(url).then((ok) => {
+      if (theme !== forTheme || !(enabled && musicOn)) return;
+      if (ok) {
+        if (musicTimer) {
+          clearInterval(musicTimer);
+          musicTimer = 0;
+        }
+        if (trackUrl !== url) {
+          stopTrack();
+          track = new Audio(url);
+          track.loop = true;
+          track.volume = TRACK_VOLUME;
+          trackUrl = url;
+        }
+        if (track && track.paused && !document.hidden) void track.play().catch(() => {});
+      } else {
+        stopTrack();
+        startSynth();
+      }
+    });
+    return;
+  }
+  if (want) startSynth();
+  else if (musicTimer) {
+    clearInterval(musicTimer);
+    musicTimer = 0;
+  }
+}
+
+function startSynth(): void {
+  if (!musicTimer) {
     musicStep = 0;
     musicNext = 0;
     musicTimer = window.setInterval(musicTick, 200);
-  } else if (!want && musicTimer) {
-    clearInterval(musicTimer);
-    musicTimer = 0;
   }
 }
 
@@ -146,12 +217,28 @@ export const audio = {
   unlock(): void {
     const c = context();
     if (c && c.state === "suspended") void c.resume();
+    void hasFile(fileUrl("music", WIN_JINGLE));
     syncMusic();
   },
   play(kind: SoundKind): void {
     const c = ready();
     if (!c || !fx) return;
+    if (kind === "miss" || kind === "boing") {
+      // Now and then Ryzhik cheers up after a miss (when recorded).
+      misses++;
+      if (misses % 3 === 0 && Date.now() - lastMissVoice > 15000) {
+        lastMissVoice = Date.now();
+        setTimeout(() => audio.say("v05"), 300);
+      }
+    }
     if (kind === "win") {
+      const jingle = fileUrl("music", WIN_JINGLE);
+      if (known.get(jingle)) {
+        const a = new Audio(jingle);
+        a.volume = 0.6;
+        void a.play().catch(() => {});
+        return;
+      }
       // Every game has its own short tune.
       melodyFor(theme).forEach(([f, len], i, all) => {
         const at = c.currentTime + all.slice(0, i).reduce((s, n) => s + n[1], 0);
@@ -177,26 +264,34 @@ export const audio = {
     softNote(c, fx, c.currentTime, freq, length, "triangle", 0.12);
   },
   /**
-   * Ryzhik says a phrase when a recording exists (src/shared/voice/<id>.mp3).
-   * Returns false when there is no recording yet, so callers keep the text.
+   * Ryzhik says a phrase (public/audio/voice/<id>.mp3) when it is recorded;
+   * otherwise nothing happens and the game's own sounds and text stay.
    */
-  say(id: string): boolean {
-    const url = VOICE[`./voice/${id}.mp3`] ?? VOICE[`./voice/${id}.ogg`] ?? VOICE[`./voice/${id}.m4a`];
-    if (!url || !enabled) return false;
-    voicePlaying?.pause();
-    const a = new Audio(url);
-    a.volume = 0.9;
-    voicePlaying = a;
-    void a.play().catch(() => {});
-    return true;
-  },
-  hasVoice(id: string): boolean {
-    return Object.keys(VOICE).some((k) => k.startsWith(`./voice/${id}.`));
+  say(id: string): void {
+    if (!enabled) return;
+    const url = fileUrl("voice", id);
+    void hasFile(url).then((ok) => {
+      if (!ok || !enabled || document.hidden) return;
+      voicePlaying?.pause();
+      const a = new Audio(url);
+      a.volume = 0.95;
+      voicePlaying = a;
+      if (track) track.volume = TRACK_VOLUME * 0.35;
+      const back = (): void => {
+        if (track && voicePlaying === a) track.volume = TRACK_VOLUME;
+      };
+      a.addEventListener("ended", back);
+      a.addEventListener("error", back);
+      void a.play().catch(back);
+    });
   },
 };
 
 if (typeof document !== "undefined") {
   document.addEventListener("visibilitychange", () => {
-    if (document.hidden) voicePlaying?.pause();
+    if (document.hidden) {
+      voicePlaying?.pause();
+      track?.pause();
+    } else syncMusic();
   });
 }

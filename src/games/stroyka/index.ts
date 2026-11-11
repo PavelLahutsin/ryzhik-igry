@@ -153,6 +153,7 @@ function play(stage: HTMLElement, plan: Plan, _index: number, api: PlayApi): () 
     if (found.fit === "color") {
       misses++;
       audio.play("boing");
+      if (s.color === "blue") audio.say("v35");
       say(`Сюда нужен ${COLOR_NAME[s.color]}! А этот — ${COLOR_NAME[block.color]}.`);
       restart(slotNodes[found.index]!, "is-call");
       return false;

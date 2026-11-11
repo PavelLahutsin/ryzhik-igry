@@ -228,6 +228,7 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
       hintBtn.classList.remove("is-used");
       void hintBtn.offsetWidth;
       hintBtn.classList.add("is-used");
+      audio.say("v06");
       onHint();
     });
     const api: PlayApi = {
@@ -246,7 +247,14 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
         const actions = [
           next
             ? { label: "Дальше", primary: true, onClick: () => navigateGame(def.id, `/play/${index + 2}`) }
-            : { label: "Все игры", primary: true, onClick: goHome },
+            : {
+                label: "Все игры",
+                primary: true,
+                onClick: () => {
+                  audio.say("v12");
+                  goHome();
+                },
+              },
           { label: "Ещё раз", onClick: () => navigateGame(def.id, `/play/${index + 1}`) },
           { label: "Уровни", onClick: () => navigateGame(def.id, "/") },
         ];
@@ -262,6 +270,7 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
             text: next ? text : `${text ? `${text} ` : ""}Ты прошёл все уровни!`,
             art,
             actions,
+            voice: next ? undefined : "v09",
           });
           view.append(card);
           // A new sticker for the album, if the stars opened one.
@@ -275,7 +284,7 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
                 el("span", { class: "praise__sticker-text", text: list.length > 1 ? `Новые наклейки: ${list.length}!` : "Новая наклейка!" }),
               ]),
             );
-            setTimeout(() => card.isConnected && (audio.play("sparkle"), audio.say("sticker")), 1200);
+            setTimeout(() => card.isConnected && audio.play("sparkle"), 1200);
           });
         }, 700);
       },
@@ -311,7 +320,7 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
       };
       stage.addEventListener("pointerup", onUp);
       timers.push(window.setTimeout(() => afterHowTo(() => {
-        audio.say("tutorial");
+        audio.say("v07");
         runDemo();
       }), 900));
       stopIdle = whenIdle(runDemo, 3500);
