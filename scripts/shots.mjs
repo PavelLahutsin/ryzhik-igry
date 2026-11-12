@@ -206,14 +206,14 @@ await page("26-sliyanie-zima", "#/sliyanie/play/9", async (p) => {
     await p.waitForTimeout(160);
   }
 }, ["sliyanie", ["s1", "s2", "s3", "s4", "s5", "s6", "z1", "z2"]]);
-await page("27-najdi-paru-20", "#/najdi-paru/play/12", async (p) => {
+await page("27-najdi-paru-20", "#/najdi-paru/play/15", async (p) => {
   await p.locator(".btn--hint").click();
   await p.waitForTimeout(500);
-}, ["najdi-paru", ["p1", "p2", "p3", "p4", "p7", "p5", "p8", "p9", "p6", "p10", "p11"]]);
-await page("28-teni-six", "#/teni/play/11", async (p) => {
+}, ["najdi-paru", ["p1", "p2", "p3", "p4", "p7", "p5", "p8", "p9", "p13", "p14", "p15", "p6", "p10", "p11"]]);
+await page("28-teni-six", "#/teni/play/14", async (p) => {
   await p.locator(".btn--hint").click();
   await p.waitForTimeout(400);
-}, ["teni", ["t1", "t2", "t3", "t7", "t4", "t8", "t6", "t9", "t5", "t10"]]);
+}, ["teni", ["t1", "t2", "t3", "t7", "t4", "t8", "t6", "t9", "t13", "t14", "t15", "t5", "t10"]]);
 await page("29-odezhda-sled", "#/odezhda/play/8", async (p) => {
   for (;;) {
     const good = p.locator('.od-item[data-good="1"]:not(.is-placed)').first();
@@ -236,7 +236,7 @@ await page("32-sortirovka-play", "#/sortirovka/play/6", async (p) => {
   await drag(p, item, await centre(p.locator(".so-basket").first()));
   await p.waitForTimeout(300);
 }, ["sortirovka", all("c", 5)]);
-await page("33-sortirovka-kinds", "#/sortirovka/play/12", async (p) => {
+await page("33-sortirovka-kinds", "#/sortirovka/play/15", async (p) => {
   await p.locator(".btn--hint").click();
   await p.waitForTimeout(400);
 }, ["sortirovka", [...all("c", 6), ...all("k", 5)]]);
@@ -253,7 +253,7 @@ await page("34-sortirovka-win", "#/sortirovka/play/1", async (p) => {
 });
 
 await page("35-labirint-levels", "#/labirint/");
-await page("36-labirint-apples", "#/labirint/play/10", async (p) => {
+await page("36-labirint-apples", "#/labirint/play/13", async (p) => {
   for (const key of ["ArrowRight", "ArrowDown", "ArrowRight", "ArrowDown"]) await p.keyboard.press(key);
   await p.locator(".btn--hint").click();
   await p.waitForTimeout(500);
@@ -340,7 +340,7 @@ await page("44-risovalka-alive", "#/risovalka/play/5", async (p) => {
 }, ["risovalka", RISOVALKA]);
 await page("45-risovalka-master", "#/risovalka/play/22", (p) => traceGuides(p, 2), ["risovalka", RISOVALKA]);
 
-const TOCHKI = ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9", "t10", "t11"];
+const TOCHKI = ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t13", "t14", "t8", "t9", "t10", "t11"];
 async function joinDots(p, limit = 99) {
   const pts = await p.evaluate(() =>
     [...document.querySelectorAll(".td-dot__core")].map((n) => {
@@ -354,7 +354,7 @@ async function joinDots(p, limit = 99) {
   await trace(p, path);
 }
 await page("46-tochki-levels", "#/tochki/");
-await page("47-tochki-play", "#/tochki/play/12", (p) => joinDots(p, 8), ["tochki", TOCHKI]);
+await page("47-tochki-play", "#/tochki/play/14", (p) => joinDots(p, 8), ["tochki", TOCHKI]);
 await page("48-tochki-alive", "#/tochki/play/4", async (p) => {
   await joinDots(p);
   await p.waitForTimeout(1300);
@@ -401,7 +401,7 @@ await page("56-professii-safety", "#/professii/play/11", async (p) => {
   }
 }, ["professii", PROF]);
 
-const STROYKA = ["s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8"];
+const STROYKA = ["s1", "s2", "s3", "s10", "s8", "s11", "s5", "s6", "s4", "s7"];
 async function buildAll(p, limit = 99) {
   for (let k = 0; k < limit; k++) {
     const pair = await p.evaluate(() => {
@@ -420,12 +420,12 @@ async function buildAll(p, limit = 99) {
   }
 }
 await page("57-stroyka-levels", "#/stroyka/");
-await page("58-stroyka-train", "#/stroyka/play/4", (p) => buildAll(p, 5), ["stroyka", STROYKA]);
-await page("59-stroyka-house-alive", "#/stroyka/play/5", async (p) => {
+await page("58-stroyka-train", "#/stroyka/play/9", (p) => buildAll(p, 5), ["stroyka", STROYKA]);
+await page("59-stroyka-house-alive", "#/stroyka/play/7", async (p) => {
   await buildAll(p);
   await p.waitForTimeout(1500);
 }, ["stroyka", STROYKA]);
-await page("60-stroyka-number-train", "#/stroyka/play/7", (p) => buildAll(p, 3), ["stroyka", STROYKA]);
+await page("60-stroyka-number-train", "#/stroyka/play/10", (p) => buildAll(p, 3), ["stroyka", STROYKA]);
 
 const FORMY = ["r1", "r2", "r3", "r4", "r5", "f1", "f2", "f3", "f4", "f5"];
 async function sortAll(p, limit = 99) {
@@ -450,7 +450,7 @@ await page("62-formy-family", "#/formy/play/2", (p) => sortAll(p, 3), ["formy", 
 await page("63-formy-pyramid", "#/formy/play/5", (p) => sortAll(p, 4), ["formy", FORMY]);
 await page("64-formy-sorter", "#/formy/play/11", (p) => sortAll(p, 2), ["formy", FORMY]);
 await page("65-formy-things", "#/formy/play/8", (p) => sortAll(p, 3), ["formy", FORMY]);
-await page("66-stroyka-rocket", "#/stroyka/play/6", async (p) => {
+await page("66-stroyka-rocket", "#/stroyka/play/8", async (p) => {
   await buildAll(p);
   await p.waitForTimeout(900);
 }, ["stroyka", STROYKA]);
@@ -494,14 +494,14 @@ await page("78-parents-rules", "#/roditelyam", async (p) => {
   await p.waitForTimeout(300);
 });
 const done = (ids) => ids;
-await page("79-new-teni-t13", "#/teni/play/13", settle(900), ["teni", done(["t1", "t2", "t3", "t7", "t4", "t8", "t6", "t9", "t5", "t10", "t11", "t12"])]);
-await page("80-new-najdi-paru-p14", "#/najdi-paru/play/14", settle(900), ["najdi-paru", ["p1", "p2", "p3", "p4", "p7", "p5", "p8", "p9", "p6", "p10", "p11", "p12", "p13"]]);
-await page("81-new-sortirovka-k7", "#/sortirovka/play/13", settle(900), ["sortirovka", ["c1", "c2", "c3", "c4", "c5", "c6", "k1", "k2", "k3", "k4", "k5", "k6"]]);
+await page("79-new-teni-t13", "#/teni/play/9", settle(900), ["teni", done(["t1", "t2", "t3", "t7", "t4", "t8", "t6", "t9", "t5", "t10", "t11", "t12"])]);
+await page("80-new-najdi-paru-p14", "#/najdi-paru/play/10", settle(900), ["najdi-paru", ["p1", "p2", "p3", "p4", "p7", "p5", "p8", "p9", "p6", "p10", "p11", "p12", "p13"]]);
+await page("81-new-sortirovka-k7", "#/sortirovka/play/7", settle(900), ["sortirovka", ["c1", "c2", "c3", "c4", "c5", "c6", "k1", "k2", "k3", "k4", "k5", "k6"]]);
 await page("82-new-odezhda-o13", "#/odezhda/play/13", settle(900), ["odezhda", ["o1", "o2", "o3", "o4", "o5", "o7", "o8", "o9", "o6", "o10", "o11", "o12"]]);
-await page("83-new-labirint-l13", "#/labirint/play/13", settle(900), ["labirint", ["l1", "l2", "l3", "l4", "l5", "l6", "l7", "l8", "l9", "l10", "l11", "l12"]]);
+await page("83-new-labirint-l13", "#/labirint/play/9", settle(900), ["labirint", ["l1", "l2", "l3", "l4", "l5", "l6", "l7", "l8", "l9", "l10", "l11", "l12"]]);
 await page("84-new-formy-f7", "#/formy/play/13", settle(900), ["formy", [...FORMY, "f6", "r6"]]);
-await page("85-new-tochki-t13", "#/tochki/play/13", settle(900), ["tochki", [...TOCHKI, "t12"]]);
-await page("86-new-stroyka-s11", "#/stroyka/play/11", settle(900), ["stroyka", [...STROYKA, "s9", "s10"]]);
+await page("85-new-tochki-t13", "#/tochki/play/8", settle(900), ["tochki", [...TOCHKI, "t12"]]);
+await page("86-new-stroyka-s11", "#/stroyka/play/6", settle(900), ["stroyka", [...STROYKA, "s9", "s10"]]);
 await page("87-new-professii-magazin-4", "#/professii/play/10", settle(1200), ["professii", PROF.slice(0, 9)]);
 
 // v6: «Удвоялка» in «Вырасти сад». Rows of numbers (0 = empty).
