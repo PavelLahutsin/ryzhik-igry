@@ -50,6 +50,10 @@ export type LevelGameDef<L extends LevelInfo> = {
   /** Short line under the card, e.g. "4 кусочка". */
   caption?: (level: L, index: number) => string;
   play: (stage: HTMLElement, level: L, index: number, api: PlayApi) => () => void;
+  /** Extra screens: "#/<id>/<name>/…" → render(root, rest); returns cleanup. */
+  routes?: Record<string, (root: HTMLElement, rest: string[]) => () => void>;
+  /** Shown above the worlds on the level list (e.g. a big mode card). */
+  listTop?: () => Node | null;
 };
 
 /** Ids of a game's levels and its stored stars, for the home menu. */
@@ -89,6 +93,11 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
     clearTips();
     root.replaceChildren();
     const mine = ++token;
+    const route = sub[0] ? def.routes?.[sub[0]] : undefined;
+    if (route) {
+      cleanup = route(root, sub.slice(1));
+      return;
+    }
     if (sub[0] === "play") {
       const index = Number(sub[1]) - 1;
       const level = def.levels[index];
@@ -119,6 +128,7 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
     const view = el("div", { class: `screen screen--list game--${def.id}` }, [
       toolbar(def.title, goHome, score),
       el("p", { class: "list__lead", text: def.subtitle }),
+      def.listTop?.() ?? null,
       sections,
     ]);
     root.append(view);

@@ -157,6 +157,8 @@ export const games: GameEntry[] = [
     art: { src: picture("sad") },
     load: () => import("./sliyanie"),
     ...levelStars("sliyanie", () => import("./sliyanie/levels")),
+    // Levels plus the record and the started «Большая игра 2048» (the chosen pictures stay).
+    resetKeys: [`${SHELL_PREFIX}sliyanie:progress`, `${SHELL_PREFIX}sliyanie:best`, `${SHELL_PREFIX}sliyanie:big`],
   },
   {
     id: "najdi-paru",

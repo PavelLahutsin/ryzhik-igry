@@ -2,13 +2,13 @@
  * Flat, rounded art for the chain, drawn in code (viewBox 0 0 100 100).
  * The last step uses the real Ryzhik cutout over a little garden.
  */
-const SOIL = `<ellipse cx="50" cy="84" rx="34" ry="9" fill="#a8743f"/><ellipse cx="50" cy="81" rx="30" ry="6" fill="#c08a52"/>`;
-const OUT = `stroke="#3b2e25" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"`;
+export const SOIL = `<ellipse cx="50" cy="84" rx="34" ry="9" fill="#a8743f"/><ellipse cx="50" cy="81" rx="30" ry="6" fill="#c08a52"/>`;
+export const OUT = `stroke="#3b2e25" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"`;
 
-const leaf = (x: number, y: number, rot: number, s = 1): string =>
+export const leaf = (x: number, y: number, rot: number, s = 1): string =>
   `<path transform="translate(${x} ${y}) rotate(${rot}) scale(${s})" d="M0 0 C 6 -12 20 -14 26 -8 C 20 2 8 6 0 0 Z" fill="#6fbf4a" ${OUT}/>`;
 
-const flowerHead = (x: number, y: number, r: number, petal: string): string => {
+export const flowerHead = (x: number, y: number, r: number, petal: string): string => {
   const line = r < 6 ? `stroke="#3b2e25" stroke-width="1.2"` : OUT;
   let out = "";
   for (let i = 0; i < 6; i++) {
@@ -18,16 +18,16 @@ const flowerHead = (x: number, y: number, r: number, petal: string): string => {
   return out + `<circle cx="${x}" cy="${y}" r="${(r * 0.62).toFixed(1)}" fill="#ffc94a" ${line}/>`;
 };
 
-const crown = (cx: number, cy: number, r: number): string =>
+export const crown = (cx: number, cy: number, r: number): string =>
   `<circle cx="${cx - r * 0.55}" cy="${cy + r * 0.15}" r="${r * 0.62}" fill="#5aac3e" ${OUT}/>` +
   `<circle cx="${cx + r * 0.55}" cy="${cy + r * 0.15}" r="${r * 0.62}" fill="#5aac3e" ${OUT}/>` +
   `<circle cx="${cx}" cy="${cy - r * 0.25}" r="${r * 0.72}" fill="#6fbf4a" ${OUT}/>` +
   `<path d="M${cx - r * 0.9} ${cy + r * 0.2} Q ${cx} ${cy + r * 0.75} ${cx + r * 0.9} ${cy + r * 0.2}" fill="#5aac3e"/>`;
 
-const apple = (x: number, y: number): string =>
+export const apple = (x: number, y: number): string =>
   `<circle cx="${x}" cy="${y}" r="5.5" fill="#e8463a" stroke="#3b2e25" stroke-width="2"/><circle cx="${x - 1.8}" cy="${y - 2}" r="1.6" fill="#fff" opacity=".7"/>`;
 
-const svg = (body: string): string =>
+export const svg = (body: string): string =>
   `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">${body}</svg>`;
 
 export const CHAIN_ART: string[] = [
@@ -89,16 +89,16 @@ export const GARDEN_BACK = svg(
 );
 
 // ---------- Winter chain ----------
-const SNOWY = `<ellipse cx="50" cy="86" rx="36" ry="8" fill="#d6e8f5"/><ellipse cx="50" cy="83" rx="32" ry="5.5" fill="#f4fbff"/>`;
-const ball = (x: number, y: number, r: number): string =>
+export const SNOWY = `<ellipse cx="50" cy="86" rx="36" ry="8" fill="#d6e8f5"/><ellipse cx="50" cy="83" rx="32" ry="5.5" fill="#f4fbff"/>`;
+export const ball = (x: number, y: number, r: number): string =>
   `<circle cx="${x}" cy="${y}" r="${r}" fill="#ffffff" ${OUT}/>` +
   `<path d="M${x - r * 0.6} ${y + r * 0.45} Q ${x} ${y + r * 0.85} ${x + r * 0.6} ${y + r * 0.45}" fill="none" stroke="#c7dcec" stroke-width="3" stroke-linecap="round"/>`;
-const eyes = (x: number, y: number, s: number): string =>
+export const eyes = (x: number, y: number, s: number): string =>
   `<circle cx="${x - 4 * s}" cy="${y}" r="${1.8 * s}" fill="#3b2e25"/><circle cx="${x + 4 * s}" cy="${y}" r="${1.8 * s}" fill="#3b2e25"/>` +
   `<path d="M${x} ${y + 3 * s} L ${x + 9 * s} ${y + 5 * s} L ${x} ${y + 6 * s} Z" fill="#ff8a2a" stroke="#3b2e25" stroke-width="1.4" stroke-linejoin="round"/>`;
-const buttons = (x: number, y: number, n: number, gap: number): string =>
+export const buttons = (x: number, y: number, n: number, gap: number): string =>
   Array.from({ length: n }, (_, i) => `<circle cx="${x}" cy="${y + i * gap}" r="2.2" fill="#3b2e25"/>`).join("");
-const flake = (x: number, y: number, r: number): string => {
+export const flake = (x: number, y: number, r: number): string => {
   let out = "";
   for (let i = 0; i < 3; i++) {
     const a = (i * Math.PI) / 3;
@@ -112,9 +112,9 @@ const flake = (x: number, y: number, r: number): string => {
   }
   return out + `<circle cx="${x}" cy="${y}" r="6" fill="#ffffff" stroke="#4aa3df" stroke-width="2.5"/>`;
 };
-const smallMan = (x: number, base: number, s: number): string =>
+export const smallMan = (x: number, base: number, s: number): string =>
   ball(x, base - 13 * s, 14 * s) + ball(x, base - 34 * s, 10 * s) + eyes(x, base - 36 * s, s * 0.9);
-const bigMan = (hat: boolean): string =>
+export const bigMan = (hat: boolean): string =>
   ball(50, 68, 17) +
   ball(50, 42, 13) +
   buttons(50, 61, 3, 6) +

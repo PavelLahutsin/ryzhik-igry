@@ -28,8 +28,8 @@ export type ChainId = "sad" | "zima";
 export const CHAINS: Record<ChainId, ChainStep[]> = { sad: CHAIN, zima: WINTER };
 
 export const worlds = [
-  { id: "sad", title: "Сад", color: "#7cc46a" },
-  { id: "zima", title: "Зима", color: "#6db3d4" },
+  { id: "sad", title: "Для малышей: сад", color: "#7cc46a" },
+  { id: "zima", title: "Для малышей: зима", color: "#6db3d4" },
 ];
 
 export type SliyanieLevel = LevelInfo & {

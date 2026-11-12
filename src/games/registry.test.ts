@@ -15,7 +15,7 @@ describe("registry storage keys", () => {
       formy: ["ryzhik-igry:formy:progress"],
       "tajnaya-kartinka": ["ryzhik-kartinka:progress", "ryzhik-kartinka:last-win"],
       mozaika: ["ryzhik-igry:mozaika:progress"],
-      sliyanie: ["ryzhik-igry:sliyanie:progress"],
+      sliyanie: ["ryzhik-igry:sliyanie:progress", "ryzhik-igry:sliyanie:best", "ryzhik-igry:sliyanie:big"],
       "najdi-paru": ["ryzhik-igry:najdi-paru:progress"],
       teni: ["ryzhik-igry:teni:progress"],
       odezhda: ["ryzhik-igry:odezhda:progress"],

@@ -10,6 +10,7 @@ import baseCss from "../../shared/base.css?inline";
 import css from "./style.css?inline";
 import { CHAIN_ART, GARDEN_BACK, WINTER_ART, WINTER_BACK } from "./art";
 import { CHAINS, levels, worlds, type ChainId, type SliyanieLevel } from "./levels";
+import { bigCard, bigRoute } from "./big";
 import { bestTier, canMove, emptyBoard, move, spawn, starsFor, unstick, type Board, type Dir } from "./logic";
 
 const MAX = CHAINS.sad.length - 1;
@@ -25,12 +26,14 @@ export function mount(root: HTMLElement): () => void {
     {
       id: "sliyanie",
       title: "Вырасти сад",
-      subtitle: "Соедини две одинаковые картинки",
+      subtitle: "Соединяй две одинаковые картинки — вырастет новая",
       levels,
       worlds,
       thumb: (level) => stepArt(level.chain, level.goal, "sl-thumb"),
       caption: (level) => CHAINS[level.chain][level.goal]!.name,
       play,
+      routes: { big: bigRoute },
+      listTop: bigCard,
     },
     root,
   );
