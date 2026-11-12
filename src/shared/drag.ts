@@ -157,6 +157,12 @@ export function draggable(node: HTMLElement, options: DragOptions): () => void {
     if (event.pointerId !== pointer) return;
     pointer = null;
     node.classList.remove("is-dragging");
+    // Placed meanwhile (the lamp flew it home): nothing to drop.
+    if (node.classList.contains("is-placed")) {
+      node.style.transition = "none";
+      node.style.transform = "";
+      return;
+    }
     if (event.type === "pointerup" && isTap(dx, dy)) {
       node.style.transition = "none";
       node.style.transform = "";
