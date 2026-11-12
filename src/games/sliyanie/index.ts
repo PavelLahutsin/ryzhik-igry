@@ -40,7 +40,7 @@ export function mount(root: HTMLElement): () => void {
       play,
       routes: { big: bigRoute },
       home: (root) => bigHome(root, trainingCard),
-      listTitle: TRAINING,
+      listTitle: "Тренировка",
     },
     root,
   );

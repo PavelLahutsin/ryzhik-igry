@@ -968,9 +968,9 @@ button {
 /* A level's own picture instead of Рыжик (a letter's word in «Цифры и буквы»). */
 .praise__word {
   display: block;
-  width: 104px;
-  height: 104px;
-  margin-top: -74px;
+  width: 96px;
+  height: 96px;
+  margin-top: -30px;
   padding: 10px;
   border-radius: 50%;
   background: #fff;
