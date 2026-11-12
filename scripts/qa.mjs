@@ -210,7 +210,7 @@ const SOLVE = {
   async stroyka(p) {
     for (let k = 0; k < 40 && !(await won(p)); k++) {
       const pair = await p.evaluate(() => {
-        for (const g of document.querySelectorAll(".sk-ghost:not(.is-filled)")) {
+        for (const g of document.querySelectorAll(".sk-ghost:not(.is-filled):not(.is-fixed)")) {
           const b = [...document.querySelectorAll(`.sk-block[data-key="${g.dataset.key}"]`)].find((n) => !n.classList.contains("is-placed"));
           if (!b) continue;
           const r1 = b.getBoundingClientRect();

@@ -56,6 +56,9 @@ export const LEVEL_TIPS: Record<string, Record<string, LevelTip>> = {
   stroyka: {
     s10: { at: ".sk-model", text: "Смотри на картинку и ставь кубик в его окошко" },
     s7: { at: ".sk-say", text: "На вагончиках цифры: 1, 2, 3…" },
+    h1: { at: ".sk-board", text: "Половинка уже есть. Вторую строй такой же — как в зеркале!" },
+    c1: { at: ".sk-sample__box", text: "Места серые. Цвет смотри на образце!" },
+    b1: { at: ".sk-sample__box", text: "Большая стройка — много кубиков, смотри на образец" },
   },
   formy: {
     r3: { at: ".fm-pole", text: "Самое большое колечко — первым!" },
