@@ -48,7 +48,7 @@ export function play(stage: HTMLElement, level: Traceable, _index: number, api: 
   let slipped = false;
   let finished = false;
 
-  const svg = svgEl("svg", { viewBox: "0 0 200 200", class: `rv-svg${level.help === "less" ? " rv-svg--less" : ""}`, role: "img", "aria-label": `Обведи: ${level.title}` });
+  const svg = svgEl("svg", { viewBox: "0 0 200 200", class: `rv-svg${level.help ? ` rv-svg--${level.help}` : ""}`, role: "img", "aria-label": `Обведи: ${level.title}` });
   const pic = svgEl("g", { class: `rv-pic rv-alive--${level.alive}` });
   const fill = svgEl("g", { class: "rv-fill" });
   fill.innerHTML = level.fill;
@@ -114,6 +114,15 @@ export function play(stage: HTMLElement, level: Traceable, _index: number, api: 
   }
 
   const toLocal = (e: PointerEvent): Pt => svgLocal(svg, e);
+  const toScreen = (p: Pt): { x: number; y: number } => {
+    const m = svg.getScreenCTM();
+    if (!m) return { x: 0, y: 0 };
+    const q = svg.createSVGPoint();
+    q.x = p.x;
+    q.y = p.y;
+    const r = q.matrixTransform(m);
+    return { x: r.x, y: r.y };
+  };
 
   function step(p: Pt): void {
     const s = strokes[current]!;
@@ -123,8 +132,17 @@ export function play(stage: HTMLElement, level: Traceable, _index: number, api: 
     if (!slipped && offTrack(s.samples, index, p)) {
       slipped = true;
       slips++;
+      // A slip: the line stops, the green dot calls, the words say what to
+      // do, and the hand goes from the finger back to the dot.
+      drawing = false;
       replayClass(marker, "is-wobble");
+      replayClass(marker, "is-call");
+      replayClass(box, "is-slip");
       audio.play("miss");
+      say.textContent = "Ой! Вернись к зелёной точке";
+      const back = s.samples[index]!;
+      later(() => showDrag(toScreen(p), toScreen(back)), 250);
+      return;
     }
     if (strokeDone(s.samples, index)) {
       ink.append(svgEl("path", { d: s.d, fill: "none", stroke: level.ink, "stroke-width": 9, "stroke-linecap": "round", "stroke-linejoin": "round", class: "rv-stroke" }));

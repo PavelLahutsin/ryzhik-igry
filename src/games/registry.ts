@@ -82,8 +82,8 @@ export const games: GameEntry[] = [
   },
   {
     id: "risovalka",
-    title: "Рисовалка",
-    note: "Обведи — и рисунок оживёт. 30 картинок",
+    title: "Обводилка",
+    note: "Обведи — и рисунок оживёт. 30 картинок и свободное рисование",
     color: "#9b6cd8",
     art: { src: svgUrl(TILE_ART.risovalka), figure: true },
     load: () => import("./risovalka"),
