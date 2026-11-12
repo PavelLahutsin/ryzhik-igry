@@ -33,7 +33,7 @@ export const LEVEL_TIPS: Record<string, Record<string, LevelTip>> = {
     b1: { at: ".rv-board", text: "Цифры на линиях: какую вести первой, какую второй" },
   },
   tochki: {
-    t8: { at: ".td-board", text: "Теперь точек больше десяти!" },
+    t13: { at: ".td-board", text: "Теперь точек больше десяти!" },
   },
   professii: {
     "vrach-kotik": { at: '[data-tool="cotton"]', text: "Ватку надо потереть по лапке туда-сюда" },

@@ -1,4 +1,5 @@
 import type { LevelInfo } from "../../shared/levelgame";
+import { inWorldOrder } from "../../shared/order";
 import type { ObjectColor, ObjectId } from "../../shared/objects";
 
 /** A basket: by colour (all its things share the colour) or by kind. */
@@ -50,7 +51,7 @@ export const worlds = [
 const COLOR_ASK = "Разложи по цвету: каждую картинку в корзинку своего цвета";
 
 /** 4 → 10 things, 2 → 4 baskets. */
-export const levels: SortLevel[] = [
+const ALL: SortLevel[] = [
   { id: "c1", world: "colors", title: "Красное и жёлтое", ask: COLOR_ASK, baskets: [byColor("red", ["apple", "car"]), byColor("yellow", ["sun", "star"])] },
   { id: "c2", world: "colors", title: "Синее и зелёное", ask: COLOR_ASK, baskets: [byColor("blue", ["boat", "drop"]), byColor("green", ["pear", "leaf"])] },
   {
@@ -175,6 +176,9 @@ export const levels: SortLevel[] = [
     ],
   },
 ];
+
+/** Easier extra worlds sit where their difficulty fits, so levels keep getting harder. */
+export const levels: SortLevel[] = inWorldOrder(ALL, ["colors", "more", "kinds"]);
 
 export function itemCount(level: SortLevel): number {
   return level.baskets.reduce((sum, b) => sum + b.items.length, 0);

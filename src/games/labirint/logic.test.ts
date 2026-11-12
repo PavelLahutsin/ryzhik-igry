@@ -52,7 +52,9 @@ describe("labirint", () => {
     for (const level of levels) expect(characters[level.goal], level.goal).toBeDefined();
     const sizes = levels.map((l) => l.cols * l.rows);
     expect(sizes[0]).toBe(9);
-    expect(sizes[11]).toBe(72);
+    // The biggest maze is the last one: the game keeps getting harder.
+    expect(sizes[sizes.length - 1]).toBe(72);
+    expect(Math.max(...sizes)).toBe(72);
   });
   it("shapes the maze like the screen", () => {
     const tall = fitMaze(7, 8, 390, 700);

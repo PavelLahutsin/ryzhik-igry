@@ -1,4 +1,5 @@
 import type { LevelInfo } from "../../shared/levelgame";
+import { inWorldOrder } from "../../shared/order";
 
 export type LabLevel = LevelInfo & {
   cols: number;
@@ -19,7 +20,7 @@ export const worlds = [
 ];
 
 /** 3×3 → 8×9. Apples come in from the middle world. */
-export const levels: LabLevel[] = [
+const ALL: LabLevel[] = [
   { id: "l1", world: "home", title: "К маме", cols: 3, rows: 3, goal: "mama", apples: 0, done: "Рыжик пришёл к маме!" },
   { id: "l2", world: "home", title: "К папе", cols: 3, rows: 4, goal: "papa", apples: 0, done: "Рыжик пришёл к папе!" },
   { id: "l3", world: "home", title: "Домой", cols: 4, rows: 4, goal: "mama", apples: 0, done: "Мама ждала Рыжика!" },
@@ -36,3 +37,6 @@ export const levels: LabLevel[] = [
   { id: "l14", world: "forest", title: "Мишкина поляна", cols: 6, rows: 6, goal: "mishka", apples: 2, done: "Мишка рад яблокам!" },
   { id: "l15", world: "forest", title: "Ёжикина тропинка", cols: 6, rows: 7, goal: "ezhik", apples: 3, done: "Ёжик собрал яблоки на иголки!" },
 ];
+
+/** Easier extra worlds sit where their difficulty fits, so levels keep getting harder. */
+export const levels: LabLevel[] = inWorldOrder(ALL, ["home", "guests", "forest", "big"]);
