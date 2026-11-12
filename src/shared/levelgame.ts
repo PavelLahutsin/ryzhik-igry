@@ -1,7 +1,7 @@
 import { audio } from "./audio";
 import { character } from "./assets";
 import { el, svgEl, replayClass } from "./dom";
-import { gameProgress, isUnlocked, totalStars, type Progress } from "./progress";
+import { gameProgress, isUnlocked, isUnlockedInWorld, totalStars, type Progress } from "./progress";
 import { goHome, listenGame, navigateGame } from "./router";
 import { praiseOverlay, starRow, toolbar } from "./ui";
 import { whenIdle } from "./guide";
@@ -58,6 +58,10 @@ export type LevelGameDef<L extends LevelInfo> = {
   routes?: Record<string, (root: HTMLElement, rest: string[]) => () => void>;
   /** Shown above the worlds on the level list (e.g. a big mode card). */
   listTop?: () => Node | null;
+  /** Every world starts open; levels open one by one inside it. */
+  openWorlds?: boolean;
+  /** Runs once before progress is first read (e.g. levels moved from another game). */
+  migrate?: () => Promise<void>;
 };
 
 /** Ids of a game's levels and its stored stars, for the home menu. */
@@ -85,8 +89,15 @@ function lampIcon(): SVGSVGElement {
  * Routes inside the game: "#/<id>/" list, "#/<id>/play/<n>" level n (1-based).
  */
 export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: HTMLElement): () => void {
-  const store = gameProgress(def.id);
+  const base = gameProgress(def.id);
+  const ready = def.migrate ? def.migrate().catch(() => undefined) : Promise.resolve();
+  const store = {
+    load: () => ready.then(() => base.load()),
+    win: (id: string, stars: number) => ready.then(() => base.win(id, stars)),
+  };
   const ids = def.levels.map((level) => level.id);
+  const unlocked = (id: string, completed: readonly string[]): boolean =>
+    def.openWorlds ? isUnlockedInWorld(def.levels, id, completed) : isUnlocked(ids, id, completed);
   let cleanup: (() => void) | null = null;
   let token = 0;
 
@@ -111,7 +122,7 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
       }
       void Promise.all([store.load(), loadSeen()]).then(([progress, seen]) => {
         if (mine !== token) return;
-        if (!isUnlocked(ids, level.id, progress.completed)) {
+        if (!unlocked(level.id, progress.completed)) {
           navigateGame(def.id, "/", { replace: true });
           return;
         }
@@ -179,7 +190,7 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
   }
 
   function levelCard(level: L, index: number, progress: Progress): HTMLElement {
-    const open = isUnlocked(ids, level.id, progress.completed);
+    const open = unlocked(level.id, progress.completed);
     const done = progress.completed.includes(level.id);
     const stars = progress.stars[level.id] ?? 0;
     const state = done ? " is-done" : open ? " is-next" : " is-locked";

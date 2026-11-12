@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { PlatformStorage } from "./platform";
-import { emptyProgress, gameProgress, isUnlocked, normalizeProgress, recordWin, totalStars } from "./progress";
+import { adoptLevels, emptyProgress, gameProgress, isUnlocked, isUnlockedInWorld, normalizeProgress, recordWin, totalStars } from "./progress";
 
 function memory(): PlatformStorage {
   const data = new Map<string, unknown>();
@@ -46,5 +46,25 @@ describe("shared progress", () => {
     await one.win("m1", 2);
     expect((await one.load()).stars).toEqual({ m1: 2 });
     expect((await gameProgress("teni", storage).load()).completed).toEqual([]);
+  });
+});
+
+describe("levels moving to another game", () => {
+  it("copies stars of the moved levels once, old key untouched", async () => {
+    const st = memory();
+    await st.set("risovalka:progress", { completed: ["r1", "d1", "d2"], stars: { r1: 3, d1: 2, d2: 3 } });
+    await adoptLevels("risovalka", "bukvy", ["d1", "d2", "d3"], st);
+    expect(await st.get("bukvy:progress")).toEqual({ completed: ["d1", "d2"], stars: { d1: 2, d2: 3 } });
+    expect(await st.get("risovalka:progress")).toEqual({ completed: ["r1", "d1", "d2"], stars: { r1: 3, d1: 2, d2: 3 } });
+    // Later wins in the new game are never overwritten.
+    await st.set("bukvy:progress", { completed: ["d1", "d2", "d3"], stars: { d1: 3, d2: 3, d3: 1 } });
+    await adoptLevels("risovalka", "bukvy", ["d1", "d2", "d3"], st);
+    expect((await st.get<{ completed: string[] }>("bukvy:progress"))!.completed).toEqual(["d1", "d2", "d3"]);
+  });
+  it("starts every world open", () => {
+    const levels = [{ id: "d1", world: "d" }, { id: "d2", world: "d" }, { id: "a", world: "l" }, { id: "b", world: "l" }];
+    expect(isUnlockedInWorld(levels, "a", [])).toBe(true);
+    expect(isUnlockedInWorld(levels, "b", [])).toBe(false);
+    expect(isUnlockedInWorld(levels, "d2", ["d1"])).toBe(true);
   });
 });

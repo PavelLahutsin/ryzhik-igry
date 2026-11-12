@@ -61,3 +61,28 @@ export function gameProgress(gameId: string, storage: PlatformStorage = platform
     },
   };
 }
+
+/**
+ * Levels that moved to another game keep their stars: the first time the new
+ * game's progress is read (its key does not exist yet), the listed levels are
+ * copied from the old game. The old key is left as it was.
+ */
+export async function adoptLevels(fromGame: string, toGame: string, ids: readonly string[], storage: PlatformStorage = platform.storage): Promise<void> {
+  const toKey = `${toGame}:progress`;
+  if ((await storage.get<unknown>(toKey)) != null) return;
+  const from = normalizeProgress(await storage.get<unknown>(`${fromGame}:progress`));
+  const next = emptyProgress();
+  for (const id of ids) {
+    if (from.completed.includes(id)) next.completed.push(id);
+    if (from.stars[id]) next.stars[id] = from.stars[id]!;
+  }
+  await storage.set(toKey, next);
+}
+
+/** Unlocking inside each world: every world starts open (used by «Цифры и буквы»). */
+export function isUnlockedInWorld(levels: ReadonlyArray<{ id: string; world?: string }>, id: string, completed: readonly string[]): boolean {
+  const level = levels.find((l) => l.id === id);
+  if (!level) return false;
+  const same = levels.filter((l) => l.world === level.world).map((l) => l.id);
+  return isUnlocked(same, id, completed);
+}

@@ -228,3 +228,14 @@
     animation: none;
   }
 }
+
+/* «Мастер рисования»: only the line being drawn is shown, and no arrow. */
+.rv-svg--less .rv-guide.is-later {
+  display: none;
+}
+.rv-svg--less .rv-guide.is-now {
+  stroke-dasharray: 0.1 17;
+}
+.rv-svg--less .rv-marker__arrow {
+  display: none;
+}
