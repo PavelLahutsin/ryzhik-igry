@@ -1,4 +1,4 @@
-import { rate, type Score } from "../../shared/stars";
+import { rateBy, STARS, type Score } from "../../shared/stars";
 /** Tracing rules for «Обводилка» (id "risovalka"). Pure functions over sampled points. */
 export type Pt = { x: number; y: number };
 
@@ -61,7 +61,7 @@ export function resample(points: readonly Pt[], step = 3): Pt[] {
 
 /** Slips off the line: a couple are free, the lamp counts as a hint. */
 export function starsFor(slips: number, hints: number): Score {
-  return rate(slips, hints, { free: 2, more: 4 });
+  return rateBy(STARS.risovalka, slips, hints);
 }
 
 const WORDS = ["Ноль", "Один", "Два", "Три", "Четыре", "Пять", "Шесть", "Семь", "Восемь", "Девять"];

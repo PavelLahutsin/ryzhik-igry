@@ -1,7 +1,7 @@
 import { audio } from "../../shared/audio";
 import { centre, showDrag } from "../../shared/guide";
 import { el, replayClass } from "../../shared/dom";
-import { centerOf, draggable, nearestWithin } from "../../shared/drag";
+import { draggable, dropHits } from "../../shared/drag";
 import { createScope } from "../../shared/lifecycle";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
 import { OBJECTS } from "../../shared/objects";
@@ -93,7 +93,7 @@ function play(stage: HTMLElement, level: SortLevel, _index: number, api: PlayApi
         },
         onDrop: (center) => {
           for (const b of baskets.values()) b.classList.remove("is-over");
-          const target = hitBasket(center);
+          const target = hitBasket(center, (b) => judge(level, key, b, fills.get(b) ?? 0) === "placed");
           const result = judge(level, key, target, target ? fills.get(target) ?? 0 : 0);
           const basket = target ? baskets.get(target) : undefined;
           if (result === "placed") {
@@ -123,18 +123,21 @@ function play(stage: HTMLElement, level: SortLevel, _index: number, api: PlayApi
               const own = level.baskets.find((b) => b.id === targetFor(level, key, fills));
               hint(stage, own ? `${label} — не сюда. Ищи корзинку «${own.name}»!` : `${obj.name} — не сюда.`, 2200);
             }
+            return false;
           }
-          return false;
+          return "none";
         },
       }),
     );
     return node;
   });
 
-  function hitBasket(center: { x: number; y: number }): string | null {
+  function hitBasket(center: { x: number; y: number }, ok?: (basket: string) => boolean): string | null {
     const list = [...baskets.entries()];
-    const reach = Math.max(80, (list[0]?.[1].getBoundingClientRect().width ?? 100) * 0.75);
-    const i = nearestWithin(center, list.map(([, node]) => centerOf(node)), reach);
+    // A basket that takes the thing: anywhere on it; any other basket only on
+    // the basket itself (0.45 of its size) — beside it is no mistake.
+    const hit = dropHits(center, list.map(([, node]) => node.getBoundingClientRect()));
+    const i = hit.box >= 0 && ok?.(list[hit.box]![0]) ? hit.box : hit.zone;
     return i >= 0 ? list[i]![0] : null;
   }
 

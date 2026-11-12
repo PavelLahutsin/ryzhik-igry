@@ -1,7 +1,8 @@
 import { audio } from "../../shared/audio";
+import type { SoundKind } from "../../shared/sounds";
 import { centre, showDrag } from "../../shared/guide";
 import { el, replayClass } from "../../shared/dom";
-import { centerOf, draggable, nearestWithin } from "../../shared/drag";
+import { draggable, dropHits } from "../../shared/drag";
 import { createScope } from "../../shared/lifecycle";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
 import { shuffle } from "../../shared/rng";
@@ -10,7 +11,15 @@ import { hint, praiseWord, svgNode } from "../../shared/ui";
 import baseCss from "../../shared/base.css?inline";
 import css from "./style.css?inline";
 import { levels, roundsOf, shadowCount, specOf, thing, worlds, SMALL, type Hide, type Round, type TeniLevel, type Thing } from "./levels";
-import { hintTarget, judge, noteFor, rowsOf, shadowsWord, starsFor } from "./logic";
+import { hintTarget, judge, mainMechanic, NEW_IN, noteFor, rowsOf, shadowsWord, starsFor, type Mechanic } from "./logic";
+
+/** Animals answer when they get their shadow (sounds from shared/sounds.ts). */
+const VOICE_OF: Record<string, SoundKind> = {
+  cat: "meow", cat2: "meow", dog: "woof", owl: "owl", frog: "frog", bird: "tweet", bird2: "tweet", duck: "tweet", hen: "tweet",
+  "char:belka": "squirrel", "char:ezhik": "hedgehog", "char:mishka": "bear", butterfly: "bee",
+};
+/** Ryzhik's line at the start of a level (v12 slots, silent until recorded). */
+const LINE_OF: Partial<Record<Mechanic, string>> = { extras: "v39", hidden: "v40", twins: "v41" };
 
 /** «Тени»: drag each thing onto its own shadow. */
 export function mount(root: HTMLElement): () => void {
@@ -82,6 +91,13 @@ function play(stage: HTMLElement, level: TeniLevel, _index: number, api: PlayApi
   let tray: HTMLElement = el("div");
   let roundScope = createScope();
   scope.add(() => roundScope.dispose());
+  const fresh = NEW_IN[level.world ?? ""];
+  // Extra pictures tried once already: the first try is free (a safe probe).
+  const probed = new Set<string>();
+  // Ryzhik says what is new here (or just what to do, in the first worlds).
+  const main = mainMechanic(rounds[0]!, fresh);
+  const line = (main && LINE_OF[main]) ?? (level.world === "easy" || level.world === "friends" ? "v38" : null);
+  if (line) scope.later(() => audio.say(line), 600);
 
   function showRound(round: Round): void {
     roundScope.dispose();
@@ -137,9 +153,12 @@ function play(stage: HTMLElement, level: TeniLevel, _index: number, api: PlayApi
           },
           onDrop: (center) => {
             const open = [...shadows.entries()].filter(([id]) => !filled.has(id));
-            const reach = Math.max(60, (open[0]?.[1].getBoundingClientRect().width ?? 100) * 0.7);
-            const hit = nearestWithin(center, open.map(([, node]) => centerOf(node)), reach);
-            const target = hit >= 0 ? open[hit]![0] : null;
+            // Its own shadow takes it anywhere on the tile; a wrong shadow counts
+            // only on the tile itself (0.45 of its size) — beside it is no mistake.
+            const hit = dropHits(center, open.map(([, node]) => node.getBoundingClientRect()));
+            const own = hit.box >= 0 && open[hit.box]![0] === t.id;
+            const target = own ? t.id : hit.zone >= 0 ? open[hit.zone]![0] : null;
+            if (!target) return "none";
             const result = judge(t.id, target, filled);
             if (result === "placed") {
               filled.add(t.id);
@@ -152,15 +171,28 @@ function play(stage: HTMLElement, level: TeniLevel, _index: number, api: PlayApi
               if (pic) pic.style.transform = shapeTransform(t, s.turn, s.flip);
               shadow.append(item);
               audio.play("snap");
+              const voice = VOICE_OF[t.id.replace(/@s$/, "")];
+              if (voice) roundScope.later(() => audio.play(voice), 220);
               if (filled.size === things.length) roundDone(board);
               return true;
+            }
+            if (result === "wrong" && isExtra && !probed.has(t.id)) {
+              // A safe probe: the first try of an extra picture is no mistake —
+              // it wobbles, goes pale and stays in the tray.
+              probed.add(t.id);
+              item.classList.add("is-known");
+              replayClass(item, "is-probe");
+              audio.play("drop");
+              audio.say("v39");
+              hint(stage, "У этой картинки нет тени — оставь её!");
+              return false;
             }
             if (result === "wrong") {
               misses++;
               audio.play("miss");
               const shadow = target ? shadows.get(target) : undefined;
               if (shadow) replayClass(shadow, "is-wrong");
-              hint(stage, isExtra ? `У этой картинки здесь нет тени — оставь её!` : `Это не тень: ${t.name.toLowerCase()}. Попробуй другую!`);
+              hint(stage, isExtra ? "У этой картинки нет тени — оставь её!" : `Это не тень: ${t.name.toLowerCase()}. Попробуй другую!`);
             }
             return false;
           },
@@ -168,7 +200,7 @@ function play(stage: HTMLElement, level: TeniLevel, _index: number, api: PlayApi
       );
     }
 
-    const note = el("p", { class: "tn-note", text: noteFor(round) });
+    const note = el("p", { class: "tn-note", text: noteFor(round, fresh) });
     if (rounds.length > 1) {
       const dots = el(
         "span",
@@ -187,6 +219,7 @@ function play(stage: HTMLElement, level: TeniLevel, _index: number, api: PlayApi
       return;
     }
     audio.play("sparkle");
+    audio.say("v42");
     hint(stage, `${praiseWord()} Дальше — новые тени!`, 1200);
     current++;
     roundScope.later(() => showRound(rounds[current]!), 1300);
@@ -198,12 +231,15 @@ function play(stage: HTMLElement, level: TeniLevel, _index: number, api: PlayApi
       filled,
     );
 
-  // The hand carries a picture to its shadow (free).
+  // The hand (free, after a pause) shows only the move — a picture goes up
+  // to the shadows — not which shadow is its own; that is the lamp's job.
   api.setDemo(() => {
     const id = nextId();
     const item = id && tray.querySelector<HTMLElement>(`.tn-item[data-id="${id}"]`);
-    const shadow = id ? shadows.get(id) : undefined;
-    if (item && shadow) showDrag(centre(item), centre(shadow));
+    const board = stage.querySelector<HTMLElement>(".tn-board");
+    if (!item || !board) return;
+    const r = board.getBoundingClientRect();
+    showDrag(centre(item), { x: r.left + r.width / 2, y: r.top + Math.min(24, r.height * 0.1) });
   });
   // Hint: one picture and its own shadow glow together.
   api.setHint(() => {

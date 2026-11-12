@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { levels, roundShadows, roundsOf, specOf, thing, worlds } from "./levels";
-import { difficulty, hintTarget, judge, noteFor, roundFeatures, rowsOf, shadowsWord, starsFor } from "./logic";
+import { difficulty, hintTarget, judge, mainMechanic, NEW_IN, noteFor, roundFeatures, rowsOf, shadowsWord, starsFor } from "./logic";
 import { SHAPES, TWINS } from "./shapes";
 import { OBJECTS } from "../../shared/objects";
 
 const OLD_IDS = Array.from({ length: 15 }, (_, i) => `t${i + 1}`);
 
 describe("teni levels", () => {
-  it("has 36 levels with unique ids, the 15 old ids kept", () => {
-    expect(levels).toHaveLength(36);
+  it("has 37 levels with unique ids, the 15 old ids kept", () => {
+    expect(levels).toHaveLength(37);
     const ids = levels.map((l) => l.id);
     expect(new Set(ids).size).toBe(ids.length);
     for (const id of OLD_IDS) expect(ids).toContain(id);
@@ -133,7 +133,7 @@ describe("teni rules", () => {
     expect(rowsOf(8)).toEqual([4, 4]);
   });
   it("gives stars kindly (shared rule)", () => {
-    expect([starsFor(0).stars, starsFor(1).stars, starsFor(3).stars, starsFor(8).stars]).toEqual([3, 3, 2, 1]);
+    expect([starsFor(0).stars, starsFor(1).stars, starsFor(3).stars, starsFor(8).stars, starsFor(4, 2).stars]).toEqual([3, 3, 2, 2, 1]);
     expect(starsFor(0, 1).stars).toBe(2);
   });
   it("says what is tricky in a round", () => {
@@ -144,5 +144,32 @@ describe("teni rules", () => {
   });
   it("counts shadows in Russian", () => {
     expect([1, 2, 5, 11, 21, 22, 14].map(shadowsWord)).toEqual(["1 тень", "2 тени", "5 теней", "11 теней", "21 тень", "22 тени", "14 теней"]);
+  });
+});
+
+describe("v12 «Тени»", () => {
+  const byId = (id: string) => levels.find((l) => l.id === id)!;
+  it("the note says «У одной картинки нет тени» (grammar) and names up to two tricks, the world's new one first", () => {
+    const t34 = byId("t34");
+    const note = noteFor(t34, NEW_IN[t34.world!]);
+    expect(note).toBe("Перетащи картинку на её тень. У одной картинки нет тени — оставь её! Тени прячутся — узнай по кусочку! Две тени лишние!");
+    expect(noteFor({ items: ["cat"], extra: ["dog", "duck"] })).toContain("У некоторых картинок нет тени — оставь их!");
+    expect(noteFor({ items: [{ id: "dog", hide: "bush" }, { id: "cat", flip: true }] }, "turned")).toBe(
+      "Перетащи картинку на её тень. Некоторые тени перевернулись! Тени прячутся — узнай по кусочку!",
+    );
+    for (const l of levels) for (const r of roundsOf(l)) expect(noteFor(r, NEW_IN[l.world!])).not.toMatch(/Некоторым|Одной картинке/);
+    expect(mainMechanic(t34, "extras")).toBe("extras");
+  });
+  it("«Лишние картинки» starts with one extra picture, then two", () => {
+    const odd = levels.filter((l) => l.world === "odd");
+    expect(odd[0]!.extra).toHaveLength(1);
+    expect(odd[1]!.extra).toHaveLength(2);
+  });
+  it("«Ещё тени» has one level with a different rhythm: few pictures, many shadows", () => {
+    const more = levels.filter((l) => l.world === "more");
+    const odd = more.filter((l) => (l.decoys?.length ?? 0) >= l.items.length);
+    expect(odd.map((l) => l.id)).toEqual(["t37"]);
+    expect(more.indexOf(odd[0]!)).toBeGreaterThan(0);
+    expect(more.indexOf(odd[0]!)).toBeLessThan(more.length - 1);
   });
 });

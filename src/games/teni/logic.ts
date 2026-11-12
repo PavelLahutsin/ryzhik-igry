@@ -1,4 +1,4 @@
-import { rate, type Score } from "../../shared/stars";
+import { rateBy, STARS, type Score } from "../../shared/stars";
 import { roundsOf, specOf, type Round, type TeniLevel } from "./levels";
 import { TWINS } from "./shapes";
 
@@ -15,7 +15,7 @@ export function judge(itemId: string, target: string | null, filled: ReadonlySet
 }
 
 export function starsFor(misses: number, hints = 0): Score {
-  return rate(misses, hints, { free: 1, more: 2 });
+  return rateBy(STARS.teni, misses, hints);
 }
 
 /** Silhouette rows: up to 3 per row for six, 4 per row for seven or eight. */
@@ -80,17 +80,37 @@ export function difficulty(level: TeniLevel): number {
 
 const EXTRA = ["", "Одна тень лишняя!", "Две тени лишние!", "Три тени лишние!"];
 
-/** The line under the board: what to do and what is new or tricky here. */
-export function noteFor(round: Round): string {
+type Features = ReturnType<typeof roundFeatures>;
+export type Mechanic = "extras" | "hidden" | "turned" | "small" | "twins";
+/** The tricks of a round, in the order the note names them. */
+const MECHANICS: ReadonlyArray<[Mechanic, (f: Features) => boolean, (f: Features) => string]> = [
+  ["extras", (f) => f.extras > 0, (f) => (f.extras === 1 ? "У одной картинки нет тени — оставь её!" : "У некоторых картинок нет тени — оставь их!")],
+  ["hidden", (f) => f.hidden > 0, () => "Тени прячутся — узнай по кусочку!"],
+  ["turned", (f) => f.turned > 0, () => "Некоторые тени перевернулись!"],
+  ["small", (f) => f.small > 0, () => "Смотри на размер!"],
+  ["twins", (f) => f.twins >= 2, () => "Тени похожи — смотри на мелочи!"],
+];
+/** The trick a world brings first (its note names it first). */
+export const NEW_IN: Readonly<Record<string, Mechanic>> = { tricky: "twins", turn: "turned", hide: "hidden", odd: "extras" };
+
+/**
+ * The line under the board: what to do and up to two tricks of this round —
+ * the one that is new in this world first — then the extra shadows.
+ */
+export function noteFor(round: Round, fresh?: Mechanic): string {
   const f = roundFeatures(round);
-  const parts = ["Перетащи картинку на её тень."];
-  if (f.extras) parts.push(f.extras === 1 ? "Одной картинке тени нет — оставь её!" : "Некоторым картинкам тени нет — оставь их!");
-  else if (f.hidden) parts.push("Тени прячутся — узнай по кусочку!");
-  else if (f.turned) parts.push("Некоторые тени перевернулись!");
-  else if (f.small) parts.push("Смотри на размер!");
-  else if (f.twins >= 2) parts.push("Тени похожи — смотри на мелочи!");
+  const on = MECHANICS.filter(([, has]) => has(f));
+  on.sort((a, b) => Number(b[0] === fresh) - Number(a[0] === fresh));
+  const parts = ["Перетащи картинку на её тень.", ...on.slice(0, 2).map(([, , say]) => say(f))];
   if (f.decoys) parts.push(EXTRA[f.decoys] ?? `Лишних теней: ${f.decoys}!`);
-  return parts.slice(0, 3).join(" ");
+  return parts.join(" ");
+}
+
+/** The first trick the note names (for the voice line). */
+export function mainMechanic(round: Round, fresh?: Mechanic): Mechanic | null {
+  const f = roundFeatures(round);
+  const on = MECHANICS.filter(([, has]) => has(f)).map(([m]) => m);
+  return fresh && on.includes(fresh) ? fresh : on[0] ?? null;
 }
 
 /** "1 тень", "3 тени", "7 теней". */

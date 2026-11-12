@@ -2,7 +2,7 @@ import { audio, NOTES } from "../../shared/audio";
 import { centre, showDrag, showTap } from "../../shared/guide";
 import { character } from "../../shared/assets";
 import { el, replayClass } from "../../shared/dom";
-import { draggable, type Point } from "../../shared/drag";
+import { draggable, dropTarget, type Point } from "../../shared/drag";
 import { createScope } from "../../shared/lifecycle";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
 import { OBJECT_GENDER, OBJECTS, type Gender } from "../../shared/objects";
@@ -212,9 +212,14 @@ function play(stage: HTMLElement, level: FormLevel, index: number, api: PlayApi)
         },
         onDrop: (p) => {
           for (const t of setup.targets) t.node.classList.remove("is-over");
-          const target = targetAt(p, setup.targets);
-          if (!target) return false;
-          const ok = setup.accept ? setup.accept(item, target) : matches(item.key, target.key) === "ok";
+          const takes = (t: Target): boolean => (setup.accept ? setup.accept(item, t) : matches(item.key, t.key) === "ok");
+          // The right target takes it anywhere on its box; a wrong one counts
+          // only on the target itself (0.45 of its size) — beside it is no mistake.
+          const near = targetAt(p, setup.targets);
+          const zone = dropTarget(p, setup.targets.map((t) => t.node.getBoundingClientRect()));
+          const target = near && takes(near) ? near : zone >= 0 ? setup.targets[zone]! : null;
+          if (!target) return "none";
+          const ok = takes(target);
           if (!ok) {
             misses++;
             audio.play("boing");

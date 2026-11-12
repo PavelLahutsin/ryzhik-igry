@@ -8,8 +8,8 @@ export type LevelTip = { at: string; text: string };
 export const LEVEL_TIPS: Record<string, Record<string, LevelTip>> = {
   mozaika: {
     m3: { at: ".mz-area", text: "Теперь без подсказки на рамке. Смотри на картинку!" },
-    m16: { at: ".mz-piece.is-flipped", text: "Этот кусочек вверх ногами. Нажми — он перевернётся" },
-    m20: { at: ".mz-area", text: "Тут есть кусочки из другой картинки — им нет места!" },
+    m23: { at: ".mz-piece.is-flipped", text: "Этот кусочек вверх ногами. Нажми — он перевернётся" },
+    m20: { at: ".mz-basket", text: "Кусочки из другой картинки клади в корзинку!" },
   },
   "najdi-paru": {
     c1: { at: ".np-grid", text: "Пара — это цифра и столько же предметов: 3 и три яблока" },
@@ -23,6 +23,7 @@ export const LEVEL_TIPS: Record<string, Record<string, LevelTip>> = {
     t22: { at: ".tn-board", text: "Тени смотрят в другую сторону — всё равно узнай!" },
     t23: { at: ".tn-board", text: "Тени вверх ногами! Переверни картинку в уме" },
     t27: { at: ".tn-board", text: "Тень спряталась в кустах — узнай по кусочку" },
+    t37: { at: ".tn-board", text: "Картинок три, а теней шесть — найди нужные!" },
     t34: { at: ".tn-tray", text: "Не у всех картинок есть тень — лишние оставь!" },
     t31: { at: ".tn-round", text: "Тут две части: после первых теней будут новые" },
   },
@@ -45,7 +46,7 @@ export const LEVEL_TIPS: Record<string, Record<string, LevelTip>> = {
   risovalka: {
     r13: { at: ".rv-board", text: "Теперь линий больше — веди по очереди" },
     r19: { at: ".rv-board", text: "Мастер! Видна только одна линия — следующая появится потом" },
-    r22: { at: ".rv-board", text: "Теперь и стрелки нет — куда вести, угадай сам" },
+    r22: { at: ".rv-board", text: "Теперь и стрелки нет — куда вести, подскажет рисунок" },
   },
   bukvy: {
     b1: { at: ".rv-board", text: "Цифры на линиях: какую вести первой, какую второй" },

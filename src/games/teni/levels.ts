@@ -66,6 +66,8 @@ export const levels: TeniLevel[] = [
   { id: "t13", world: "more", title: "Друзья и фрукты", items: ["char:belka", "grapes", "char:ezhik", "watermelon", "candy"], decoys: ["pizza"] },
   { id: "t18", world: "more", title: "Поехали!", items: ["bus", "plane", "rocket", "bicycle", "tractor"], decoys: ["helicopter"] },
   { id: "t14", world: "more", title: "В саду", items: ["flower", "leaf", "mushroom", "drop", "butterfly"], decoys: ["sun"] },
+  // v12: a different rhythm in the middle — only three pictures, but six shadows.
+  { id: "t37", world: "more", title: "Три из шести", items: ["char:belka", "tractor", "umbrella"], decoys: ["teapot", "giraffe", "boat"] },
   { id: "t15", world: "more", title: "Все-все тени", items: ["char:papa", "char:mishka", "kite", "boat", "cup"], decoys: ["ball", "hat"] },
   { id: "t19", world: "more", title: "Игрушки", items: ["teddy", "pyramid", "top", "rattle", "matryoshka"], decoys: ["drum", "bucket"] },
   // Похожие тени: twins that differ in one detail — a tail, an ear, a candle.
@@ -91,9 +93,10 @@ export const levels: TeniLevel[] = [
     id: "t34",
     world: "odd",
     title: "Кому нет тени?",
+    // v12: the world starts with one extra picture (the next ones have two).
     items: [hide("elephant"), "giraffe", flip("whale"), "pear", hide("owl", "cloud"), turn("snail", 180)],
-    extra: ["frog", "apple"],
-    decoys: [hide("hen", "cloud")],
+    extra: ["frog"],
+    decoys: [hide("hen", "cloud"), "apple"],
   },
   {
     id: "t35",

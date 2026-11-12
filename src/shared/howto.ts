@@ -80,9 +80,10 @@ export function showHowTo(gameId: string): Promise<void> {
       el("p", { class: "ht-eyebrow", text: "Как играть" }),
       el("h2", { class: "ht-title", text: h.title }),
       el("ol", { class: `ht-steps ht-steps--${h.steps.length}` }, h.steps.map(stepNode)),
-      h.stars ? el("p", { class: "ht-stars", text: h.stars }) : null,
       ok,
       el("p", { class: "ht-anywhere", text: "или нажми в любом месте" }),
+      // v12: the star rule under the button (one line per star), so «Понятно!» stays on a small screen.
+      h.stars ? el("p", { class: "ht-stars" }, h.stars.split(" · ").map((t) => el("span", { text: t }))) : null,
     ]);
     const overlay = el("div", { class: `ht${reducedMotion() ? " is-still" : ""}` }, [card]);
     open = overlay;

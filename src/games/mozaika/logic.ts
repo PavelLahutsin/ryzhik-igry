@@ -1,4 +1,5 @@
-import { rate, type Score } from "../../shared/stars";
+import { DROP_RATIO } from "../../shared/drag";
+import { rateBy, STARS, type Score } from "../../shared/stars";
 import { shuffle } from "../../shared/rng";
 
 export type Rect = { x: number; y: number; w: number; h: number };
@@ -17,22 +18,48 @@ export type Layout = {
   board: Rect;
   tray: Rect;
   piece: { w: number; h: number };
+  /** Loose pieces on the tray at a time; the rest wait and slide in one by one. */
+  visible: number;
 };
+
+/** The smallest side a piece should have (a 3-year-old's finger, v12). */
+export const MIN_PIECE = 56;
+/** When the tray streams pieces, at least this many lie there at a time. */
+export const MIN_VISIBLE = 4;
+/** Never smaller than a touch target. */
+export const TOUCH_PX = 44;
+
+/** How many pieces lie side by side in the tray. */
+export function trayCapacity(tray: Rect, piece: { w: number; h: number }): number {
+  return Math.floor(tray.w / (piece.w * 1.08)) * Math.floor(tray.h / (piece.h * 1.08));
+}
 
 /**
  * Board for a 16:9 picture plus a tray for the loose pieces. Portrait puts
- * the tray under the board, landscape puts it on the right.
+ * the tray under the board, landscape puts it on the right. `slots` extra
+ * cells in the tray (the basket for extra pieces).
+ *
+ * Preference: the biggest board where every loose piece fits and pieces are
+ * at least MIN_PIECE; else the biggest board with MIN_PIECE pieces where the
+ * tray streams (≥ MIN_VISIBLE at a time, the next slides in after a
+ * placement — a landscape phone); else, as before, the biggest board where
+ * all fit (a portrait phone, whose width limits a 16:9 board anyway).
  */
-export function layout(width: number, height: number, cols: number, rows: number, aspect = 16 / 9, extra = 0): Layout {
-  // The biggest board whose loose pieces still lie side by side in the tray
-  // (a landscape phone has little room next to the board).
-  let first: Layout | null = null; // nothing fits: keep the full-size board
-  for (let scale = 1; scale >= 0.5; scale -= 0.05) {
-    const l = layoutAt(width, height, cols, rows, aspect, scale);
-    first ??= l;
-    if (trayFits(cols * rows + extra, l.tray, l.piece)) return l;
+export function layout(width: number, height: number, cols: number, rows: number, aspect = 16 / 9, extra = 0, slots = 0): Layout {
+  const loose = cols * rows + extra;
+  const all: Layout[] = [];
+  for (let scale = 1; scale >= 0.5 - 1e-9; scale -= 0.05) all.push(layoutAt(width, height, cols, rows, aspect, scale, loose));
+  const side = (l: Layout): number => Math.min(l.piece.w, l.piece.h);
+  const cap = (l: Layout): number => trayCapacity(l.tray, l.piece) - slots;
+  const streamed = (l: Layout): Layout => ({ ...l, visible: Math.min(loose, cap(l)) });
+  // Big pieces first, then at least a touch target (44 px), streaming if needed.
+  for (const min of [MIN_PIECE, TOUCH_PX]) {
+    const fitsAll = all.find((l) => side(l) >= min && cap(l) >= loose);
+    if (fitsAll) return fitsAll;
+    const stream = all.find((l) => side(l) >= min && cap(l) >= Math.min(loose, MIN_VISIBLE));
+    if (stream) return streamed(stream);
   }
-  return first!;
+  return all.find((l) => cap(l) >= loose) ?? all[0]!;
 }
 
 /** Do `count` pieces fit in the tray without lying on top of each other? */
@@ -42,7 +69,7 @@ export function trayFits(count: number, tray: Rect, piece: { w: number; h: numbe
   return across * down >= count;
 }
 
-function layoutAt(width: number, height: number, cols: number, rows: number, aspect: number, scale: number): Layout {
+function layoutAt(width: number, height: number, cols: number, rows: number, aspect: number, scale: number, loose: number): Layout {
   const gap = 14;
   const portrait = height >= width * 0.9;
   let bw: number;
@@ -59,7 +86,7 @@ function layoutAt(width: number, height: number, cols: number, rows: number, asp
   const tray: Rect = portrait
     ? { x: 0, y: bh + gap, w: width, h: Math.max(0, height - bh - gap) }
     : { x: bw + gap, y: 0, w: Math.max(0, width - bw - gap), h: height };
-  return { board, tray, piece: { w: bw / cols, h: bh / rows } };
+  return { board, tray, piece: { w: bw / cols, h: bh / rows }, visible: loose };
 }
 
 /** Top-left of a piece's home cell inside the board. */
@@ -104,14 +131,21 @@ export function scatter(count: number, tray: Rect, size: { w: number; h: number 
 export function snaps(center: { x: number; y: number }, home: { x: number; y: number }, size: { w: number; h: number }): boolean {
   const cx = home.x + size.w / 2;
   const cy = home.y + size.h / 2;
-  return Math.hypot(center.x - cx, center.y - cy) <= Math.max(size.w, size.h) * 0.45;
+  return Math.hypot((center.x - cx) / (size.w * DROP_RATIO), (center.y - cy) / (size.h * DROP_RATIO)) <= 1;
+}
+
+/** The point is in the 0.45 zone of some place on the board (not on a seam), so a wrong drop there may count. */
+export function onCell(p: { x: number; y: number }, board: { x: number; y: number; w: number; h: number }, size: { w: number; h: number }): boolean {
+  const col = Math.floor((p.x - board.x) / size.w);
+  const row = Math.floor((p.y - board.y) / size.h);
+  if (col < 0 || row < 0 || p.x > board.x + board.w || p.y > board.y + board.h) return false;
+  return snaps(p, { x: board.x + col * size.w, y: board.y + row * size.h }, size);
 }
 
 /** Stars are generous: a few wrong drops still give three. */
 /** Pieces dropped in a wrong place; half the piece count is free. */
 export function starsFor(misses: number, pieces: number, hints = 0): Score {
-  const free = Math.max(1, Math.ceil(pieces / 2));
-  return rate(misses, hints, { free, more: pieces });
+  return rateBy(STARS.mozaika, misses, hints, pieces);
 }
 
 /** A loose piece for the hint button to fly home, or -1 when all are placed. */

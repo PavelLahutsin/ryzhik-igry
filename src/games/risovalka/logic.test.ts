@@ -32,7 +32,8 @@ describe("risovalka", () => {
   it("is kind with stars and knows number words", () => {
     expect(starsFor(0, 0).stars).toBe(3);
     expect(starsFor(5, 0).stars).toBe(2);
-    expect(starsFor(3, 3).stars).toBe(1);
+    expect(starsFor(3, 3).stars).toBe(2);
+    expect(starsFor(7, 2).stars).toBe(1);
     expect(numberWord(3)).toBe("Три");
   });
   it("has 30 pictures, old ids first so progress keeps working", () => {

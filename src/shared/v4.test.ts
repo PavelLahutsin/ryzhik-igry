@@ -83,11 +83,13 @@ describe("daily gift", () => {
 
 import { HOWTO_VOICE, MUSIC_FILES, PRAISE_LINES, VOICE_LINES, VOICE_WHEN, WIN_JINGLE, praiseLine } from "./voice-lines";
 describe("voice and music files", () => {
-  it("has v01–v37 and m01–m12 as in the prompts", () => {
+  it("has v01–v37 and m01–m12 as in the prompts, and the v12 slots v38–v42", () => {
     const ids = Object.keys(VOICE_LINES);
-    expect(ids).toHaveLength(37);
+    expect(ids).toHaveLength(42);
     expect(ids[0]).toBe("v01");
     expect(ids[36]).toBe("v37");
+    expect(ids.slice(37)).toEqual(["v38", "v39", "v40", "v41", "v42"]);
+    for (const id of ids.slice(37)) expect(VOICE_WHEN[id], id).toBeTruthy();
     const music = new Set([...Object.values(MUSIC_FILES), WIN_JINGLE]);
     for (let i = 1; i <= 12; i++) expect(music.has(`m${String(i).padStart(2, "0")}`), `m${i}`).toBe(true);
   });

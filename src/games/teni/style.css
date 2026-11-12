@@ -34,7 +34,8 @@
   width: auto;
   height: auto;
   filter: brightness(0);
-  opacity: 0.32;
+  /* v12: darker, so a silhouette reads as black (contrast about 4:1 on the tile). */
+  opacity: 0.52;
 }
 
 .tn-shadow.is-filled .tn-shadow__art {
@@ -256,4 +257,17 @@
 .tn-board.is-done ~ .tn-tray .tn-item.is-extra {
   opacity: 0.35;
   transition: opacity 400ms ease;
+}
+
+/* v12: an extra picture tried once — it wobbles and goes pale (a safe probe). */
+.tn-item.is-known {
+  opacity: 0.52;
+  transition: opacity 300ms ease;
+}
+.tn-item.is-probe { animation: tn-probe 500ms ease; }
+@keyframes tn-probe {
+  0%, 100% { rotate: 0deg; }
+  25% { rotate: -8deg; }
+  55% { rotate: 6deg; }
+  80% { rotate: -3deg; }
 }

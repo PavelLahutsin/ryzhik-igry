@@ -16,10 +16,13 @@ import { gameOf } from "./shared/router";
 import { reducedMotion, useStyles } from "./shared/style";
 import { el } from "./shared/dom";
 import { audio } from "./shared/audio";
+import { dragFeedback } from "./shared/drag";
 import { attachHowToButton, closeHowTo, howToSeen, showHowTo } from "./shared/howto";
 import { clearTips } from "./shared/tips";
 import baseCss from "./shared/base.css?inline";
 import overlaysCss from "./shared/overlays.css?inline";
+
+dragFeedback.none = () => audio.play("drop");
 
 const node = document.getElementById("app");
 if (!node) throw new Error("Нет #app");

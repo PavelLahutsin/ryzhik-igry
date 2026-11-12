@@ -1,4 +1,5 @@
-import { rate, type Score } from "../../shared/stars";
+import { DROP_RATIO } from "../../shared/drag";
+import { rateBy, STARS, type Score } from "../../shared/stars";
 /** Rules for «Стройка»: big blocks snap into a picture plan. Pure functions. */
 
 export type Kind = "brick" | "roof" | "wheel" | "window" | "door" | "chimney" | "cone" | "fin-l" | "fin-r" | "hull" | "num" | "loco";
@@ -45,7 +46,9 @@ export function findSlot(slots: readonly Piece[], filled: readonly boolean[], bl
     if (f === "ok" && d < bestD) {
       best = { index: i, fit: "ok" };
       bestD = d;
-    } else if (f === "color" && d < nearD) {
+    } else if (f === "color" && d < nearD && Math.hypot((s.x + s.w / 2 - at.x) / (s.w * DROP_RATIO), (s.y + s.h / 2 - at.y) / (s.h * DROP_RATIO)) <= 1) {
+      // A wrong colour counts only when dropped on the slot itself (0.45 of
+      // its size): beside it, or between two slots, is no mistake.
       near = { index: i, fit: "color" };
       nearD = d;
     }
@@ -76,7 +79,7 @@ export function overlaps(slots: readonly Piece[]): boolean {
 }
 
 export function starsFor(misses: number, hints: number): Score {
-  return rate(misses, hints, { free: 1, more: 3 });
+  return rateBy(STARS.stroyka, misses, hints);
 }
 
 const WORDS = ["", "Один", "Два", "Три", "Четыре", "Пять", "Шесть", "Семь", "Восемь", "Девять", "Десять", "Одиннадцать", "Двенадцать", "Тринадцать", "Четырнадцать", "Пятнадцать"];
