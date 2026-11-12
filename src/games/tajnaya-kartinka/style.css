@@ -7,6 +7,7 @@
   --ink-soft: #5c4a3a;
   --orange: #ff8a3d;
   --orange-deep: #a3490d;
+  --orange-ink: #4d1d02;
   --orange-tint: #ffe6d2;
   --emerald: #157a62;
   --emerald-deep: #12654f;
@@ -20,6 +21,14 @@
   --tap: 64px;
   --shadow-card: 0 26px 55px -34px rgba(59, 46, 37, 0.55);
   --shadow-btn: 0 14px 26px -14px rgba(233, 103, 26, 0.45);
+  /* v13 tokens: 4 radii, 2 shadows, 1 inset outline. */
+  --r-sm: 12px;
+  --r-md: 18px;
+  --r-lg: 24px;
+  --r-xl: 32px;
+  --shadow-1: 0 2px 0 rgba(59, 46, 37, 0.1);
+  --shadow-2: 0 10px 22px -12px rgba(59, 46, 37, 0.45);
+  --outline: inset 0 0 0 3px var(--line);
 
   --font-display: "Comfortaa", "Trebuchet MS", "Segoe UI", sans-serif;
   --font-ui: "Nunito", "Segoe UI", "PT Sans", sans-serif;
@@ -147,17 +156,22 @@ button {
   box-shadow: var(--shadow-btn);
 }
 
+/* v13: dark text on the orange (white was 2.1:1), a hard bottom edge that presses in. */
 .btn--play {
   min-width: 240px;
   min-height: 80px;
-  background: linear-gradient(#ff9b4f, var(--orange));
-  color: #fff;
+  background: linear-gradient(#ffa25c, var(--orange));
+  color: var(--orange-ink);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
   font-weight: 800;
   font-size: 28px;
+  box-shadow: inset 0 0 0 3px #d96a22, 0 4px 0 #c25a17, var(--shadow-2);
+  transition: transform 90ms ease, box-shadow 90ms ease;
 }
 
 .btn--play:active {
-  transform: translateY(2px);
+  transform: translateY(4px);
+  box-shadow: inset 0 0 0 3px #d96a22, 0 0 0 #c25a17;
 }
 
 .btn--ghost {
