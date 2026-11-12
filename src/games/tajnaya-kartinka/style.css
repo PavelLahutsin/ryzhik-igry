@@ -610,22 +610,15 @@
   }
 }
 
-.win__score {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
+.win__card {
+  align-self: center;
+  flex: none;
+  gap: 8px;
+  padding: 16px;
 }
 
 .win__stars {
-  min-height: 64px;
-}
-
-.win__praise {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: 28px;
-  font-weight: 700;
+  min-height: 56px;
 }
 
 .confetti {
@@ -711,5 +704,39 @@
   .screen--game {
     padding-block: 8px;
     gap: 8px;
+  }
+}
+
+/* v13: phones sideways — the picture on the left, the win card on the right. */
+@media (orientation: landscape) and (max-height: 560px) {
+  .screen--win {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+    grid-template-rows: auto minmax(0, 1fr);
+    align-items: center;
+  }
+  .screen--win > .toolbar {
+    grid-column: 1 / -1;
+  }
+  .screen--win .win__art-wrap {
+    height: 100%;
+  }
+  .win__card {
+    gap: 4px;
+    padding: 12px;
+  }
+  .win__card .praise__title {
+    font-size: 26px;
+  }
+  .win__card .stars--big .star {
+    width: 40px;
+    height: 40px;
+  }
+  .win__stars {
+    min-height: 44px;
+  }
+  .win__card .btn {
+    min-height: 48px;
+    font-size: 18px;
   }
 }

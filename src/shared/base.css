@@ -794,17 +794,18 @@ button {
   opacity: 1;
 }
 
+/* v13: the one win card of all games (also «Тайная картинка» and «Вырасти сад»). */
 .praise__card {
   position: relative;
-  width: min(100%, 420px);
+  width: min(100%, 400px);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  padding: 24px 20px;
-  border-radius: var(--radius-xl);
+  padding: 24px 16px;
+  border-radius: var(--r-xl);
   background: var(--surface);
-  box-shadow: var(--shadow-card), 0 0 0 4px var(--yellow);
+  box-shadow: inset 0 0 0 4px var(--yellow), var(--shadow-card);
   text-align: center;
   transform: scale(0.9);
   transition: transform 320ms cubic-bezier(0.3, 1.5, 0.5, 1);
@@ -818,13 +819,15 @@ button {
   margin: 0;
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 40px;
+  font-size: 32px;
+  line-height: 1.1;
+  text-wrap: balance;
   color: var(--orange-deep);
 }
 
 .praise__text {
   margin: 0;
-  font-size: 20px;
+  font-size: 17px;
   color: var(--ink-soft);
 }
 

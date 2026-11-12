@@ -2,7 +2,7 @@ import { getLevel, isUnlocked, nextLevel } from "../data/levels";
 import { navigate } from "../router";
 import { clearLastWin, lastWin, loadProgress } from "../storage";
 import { el } from "../ui/dom";
-import { starRow } from "../ui/icons";
+import { praiseWord, starRow } from "../../../shared/ui";
 import { toolbar } from "./levels";
 
 /** Why this many stars: bees and ladybugs that caught Ryzhik. */
@@ -39,7 +39,7 @@ export function renderWin(root: HTMLElement, levelId: string): () => void {
     [el("span", { text: "Ещё раз" })],
   );
   const starsSlot = el("div", { class: "win__stars" });
-  const praise = el("p", { class: "win__praise" });
+  const praise = el("p", { class: "praise__why" });
   const confetti = el("div", { class: "confetti", attrs: { "aria-hidden": "true" } });
   for (let i = 0; i < 18; i++) {
     confetti.append(
@@ -62,19 +62,24 @@ export function renderWin(root: HTMLElement, levelId: string): () => void {
       }),
       confetti,
     ]),
-    el("div", { class: "win__score" }, [starsSlot, praise]),
-    el("div", { class: "win__actions" }, [
-      nextBtn,
-      againBtn,
-      el(
-        "button",
-        {
-          class: "btn btn--ghost",
-          attrs: { type: "button" },
-          on: { click: () => navigate("/collection") },
-        },
-        [el("span", { text: "Коллекция" })],
-      ),
+    // v13: the same win card as every other game (yellow ring, title, SVG stars, why, buttons).
+    el("div", { class: "praise__card win__card" }, [
+      el("p", { class: "praise__title", text: praiseWord() }),
+      starsSlot,
+      praise,
+      el("div", { class: "praise__actions win__actions" }, [
+        nextBtn,
+        againBtn,
+        el(
+          "button",
+          {
+            class: "btn btn--ghost",
+            attrs: { type: "button" },
+            on: { click: () => navigate("/collection") },
+          },
+          [el("span", { text: "Коллекция" })],
+        ),
+      ]),
     ]),
   ]);
   root.append(view);
