@@ -128,7 +128,7 @@ export function starsFor(helps: number): number {
   return helps === 0 ? 3 : helps === 1 ? 2 : 1;
 }
 
-// ---------- «Большая игра 2048» ----------
+// ---------- «Удвоялка» ----------
 // The same board, tier t is the number 2^(t+1): tier 0 = 2, tier 10 = 2048.
 
 /** Tier of the 2048 tile (the win). */

@@ -43,7 +43,7 @@ const ROW = [
   [0, 0, 0, 0],
 ];
 
-describe("Большая игра 2048", () => {
+describe("Удвоялка", () => {
   it("numbers double by tier: 2 … 2048", () => {
     expect([0, 1, 2, WIN_TIER].map(tileValue)).toEqual([2, 4, 8, 2048]);
   });

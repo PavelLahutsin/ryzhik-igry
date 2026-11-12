@@ -507,7 +507,7 @@ await page("85-new-tochki-t13", "#/tochki/play/13", settle(900), ["tochki", [...
 await page("86-new-stroyka-s11", "#/stroyka/play/11", settle(900), ["stroyka", [...STROYKA, "s9", "s10"]]);
 await page("87-new-professii-magazin-4", "#/professii/play/10", settle(1200), ["professii", PROF.slice(0, 9)]);
 
-// v6: «Большая игра 2048» in «Вырасти сад». Rows of numbers (0 = empty).
+// v6: «Удвоялка» in «Вырасти сад». Rows of numbers (0 = empty).
 async function seedBig(p, skin, rows, score = 0) {
   await p.evaluate(([skin, rows, score]) => {
     const tiles = [];

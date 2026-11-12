@@ -1,5 +1,5 @@
 /**
- * Skins of «Большая игра 2048»: 11 pictures per skin, one per number
+ * Skins of «Удвоялка»: 11 pictures per skin, one per number
  * 2 … 2048 (tier 0 … 10). Flat vector art in the style of art.ts
  * (viewBox 0 0 100 100), drawn in code. The number is always shown too.
  */
