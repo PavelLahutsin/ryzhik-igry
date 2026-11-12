@@ -69,15 +69,15 @@ const SOLVE = {
         const cards = [...document.querySelectorAll(".np-card")];
         const i = cards.findIndex((c) => !c.classList.contains("is-matched") && !c.classList.contains("is-open"));
         if (i < 0) return null;
-        const j = cards.findIndex((c, n) => n !== i && c.dataset.face === cards[i].dataset.face);
-        return [i, j];
+        // Cards of one group (a pair, a thing and its shadow, three alike).
+        const key = (c) => c.dataset.group ?? c.dataset.face;
+        return cards.map((c, n) => n).filter((n) => key(cards[n]) === key(cards[i]) && !cards[n].classList.contains("is-matched"));
       });
       if (!pair) {
         await p.waitForTimeout(300);
         continue;
       }
-      await p.locator(".np-card").nth(pair[0]).click();
-      await p.locator(".np-card").nth(pair[1]).click();
+      for (const n of pair) await p.locator(".np-card").nth(n).click();
       await p.waitForTimeout(700);
     }
   },

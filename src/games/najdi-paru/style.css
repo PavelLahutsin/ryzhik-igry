@@ -128,3 +128,48 @@
 .np-card.is-peek .np-card__front {
   box-shadow: 0 0 0 4px #9ee07a, 0 6px 0 rgba(59, 46, 37, 0.18);
 }
+
+/* ---------------- v10: number, «that many» and shadow cards */
+.np-face.is-shadow .svg-art,
+.np-thumb.is-shadow .svg-art {
+  padding: 14%;
+  filter: brightness(0);
+  opacity: 0.82;
+}
+.np-face.is-number,
+.np-thumb.is-number {
+  display: grid;
+  place-items: center;
+}
+.np-num {
+  font: 900 clamp(28px, 11cqmin, 72px) / 1 var(--font-ui);
+  color: #3b7fc4;
+}
+.np-face.is-many,
+.np-thumb.is-many {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  align-content: center;
+  justify-items: center;
+  gap: 2%;
+  padding: 8%;
+}
+.np-face.is-many[data-n="1"] {
+  grid-template-columns: 1fr;
+}
+.np-face.is-many[data-n="1"] .svg-art {
+  width: 70%;
+}
+.np-face.is-many .svg-art,
+.np-thumb.is-many .svg-art {
+  width: 100%;
+  aspect-ratio: 1;
+}
+.np-face.is-many[data-n="5"],
+.np-face.is-many[data-n="6"],
+.np-face.is-many[data-n="7"],
+.np-face.is-many[data-n="8"] {
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0;
+  padding: 4% 14%;
+}

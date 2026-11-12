@@ -11,6 +11,11 @@ export const LEVEL_TIPS: Record<string, Record<string, LevelTip>> = {
     m16: { at: ".mz-piece.is-flipped", text: "Этот кусочек вверх ногами. Нажми — он перевернётся" },
     m20: { at: ".mz-area", text: "Тут есть кусочки из другой картинки — им нет места!" },
   },
+  "najdi-paru": {
+    c1: { at: ".np-grid", text: "Пара — это цифра и столько же предметов: 3 и три яблока" },
+    q1: { at: ".np-grid", text: "Пара — это предмет и его тень" },
+    r1: { at: ".np-grid", text: "Теперь открывай по три одинаковые!" },
+  },
   teni: {
     t9: { at: ".tn-board", text: "Тут есть лишняя тень. Её никто не ищет!" },
     t10: { at: ".tn-board", text: "Тени похожи — смотри на мелочи!" },

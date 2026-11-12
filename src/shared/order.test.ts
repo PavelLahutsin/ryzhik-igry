@@ -4,7 +4,7 @@ import { levels as tochki } from "../games/tochki/levels";
 import { levels as teni } from "../games/teni/levels";
 import { difficulty as teniDifficulty } from "../games/teni/logic";
 import { levels as labirint } from "../games/labirint/levels";
-import { levels as pary, pairsOf } from "../games/najdi-paru/levels";
+import { levels as pary, difficulty as paryDifficulty } from "../games/najdi-paru/levels";
 import { levels as sortirovka, itemCount } from "../games/sortirovka/levels";
 import { levels as stroyka } from "../games/stroyka/levels";
 
@@ -22,7 +22,7 @@ describe("levels keep getting harder", () => {
     lastWorldIsTop(tochki, (l) => l.dots.length);
     lastWorldIsTop(teni, teniDifficulty);
     lastWorldIsTop(labirint, (l) => l.cols * l.rows);
-    lastWorldIsTop(pary, pairsOf);
+    lastWorldIsTop(pary, paryDifficulty);
     lastWorldIsTop(sortirovka, (l) => l.baskets.length * 10 + itemCount(l));
   });
   it("worlds stay together on the list", () => {

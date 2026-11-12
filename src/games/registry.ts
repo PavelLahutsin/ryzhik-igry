@@ -182,7 +182,7 @@ export const games: GameEntry[] = [
   {
     id: "najdi-paru",
     title: "Найди пару",
-    note: "Открывай карточки",
+    note: "Открывай карточки — пары, тени, счёт и тройки",
     color: "#f27aa0",
     art: { src: picture("vse-vmeste") },
     load: () => import("./najdi-paru"),
