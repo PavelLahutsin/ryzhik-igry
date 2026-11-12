@@ -507,6 +507,50 @@ await page("85-new-tochki-t13", "#/tochki/play/13", settle(900), ["tochki", [...
 await page("86-new-stroyka-s11", "#/stroyka/play/11", settle(900), ["stroyka", [...STROYKA, "s9", "s10"]]);
 await page("87-new-professii-magazin-4", "#/professii/play/10", settle(1200), ["professii", PROF.slice(0, 9)]);
 
+// v6: «Большая игра 2048» in «Вырасти сад». Rows of numbers (0 = empty).
+async function seedBig(p, skin, rows, score = 0) {
+  await p.evaluate(([skin, rows, score]) => {
+    const tiles = [];
+    let id = 1;
+    rows.forEach((row, r) => row.forEach((v, c) => v && tiles.push({ id: id++, tier: Math.log2(v) - 1, r, c })));
+    localStorage.setItem("ryzhik-igry:sliyanie:skin", JSON.stringify(skin));
+    localStorage.setItem("ryzhik-igry:sliyanie:best", JSON.stringify(Math.max(score, 1200)));
+    localStorage.setItem("ryzhik-igry:sliyanie:big", JSON.stringify({ board: { size: 4, tiles, nextId: id }, score, won: false, prev: null }));
+  }, [skin, rows, score]);
+  await p.goto(`${BASE}#/sliyanie/big/play`, { waitUntil: "networkidle" });
+  await p.reload({ waitUntil: "networkidle" });
+  await p.waitForTimeout(700);
+}
+const MID = [
+  [2, 4, 8, 16],
+  [256, 128, 64, 32],
+  [512, 1024, 0, 2],
+  [0, 4, 0, 2048],
+];
+await page("90-sliyanie-big-list", "#/sliyanie/");
+await page("91-sliyanie-big-picker", "#/sliyanie/big", async (p) => {
+  await p.locator('.sb-skin[aria-label="Зима"]').click();
+  await p.waitForTimeout(300);
+});
+await page("92-sliyanie-big-sad", "#/sliyanie/", (p) => seedBig(p, "sad", MID, 8204));
+await page("93-sliyanie-big-zima", "#/sliyanie/", (p) => seedBig(p, "zima", MID, 8204));
+await page("94-sliyanie-big-les", "#/sliyanie/", (p) => seedBig(p, "les", MID, 8204));
+await page("95-sliyanie-big-kosmos", "#/sliyanie/", (p) => seedBig(p, "kosmos", MID, 8204));
+await page("96-sliyanie-big-cifry", "#/sliyanie/", async (p) => {
+  await seedBig(p, "cifry", [[2, 4, 8, 16], [256, 128, 64, 32], [512, 1024, 0, 2], [0, 4, 0, 0]], 7000);
+  await p.keyboard.press("ArrowLeft");
+  await p.waitForTimeout(400);
+});
+await page("97-sliyanie-big-win", "#/sliyanie/", async (p) => {
+  await seedBig(p, "zima", [[1024, 1024, 0, 0], [4, 8, 16, 0], [0, 0, 0, 0], [0, 0, 0, 2]], 18000);
+  await p.keyboard.press("ArrowLeft");
+  await p.waitForTimeout(1800);
+});
+await page("98-sliyanie-big-stuck", "#/sliyanie/", async (p) => {
+  await seedBig(p, "les", [[2, 4, 2, 4], [4, 2, 4, 2], [2, 4, 2, 4], [4, 2, 8, 2]], 300);
+  await p.waitForTimeout(1500);
+});
+
 await browser.close();
 if (errors.length) {
   console.error("Console errors:\n" + errors.join("\n"));
