@@ -48,10 +48,10 @@ describe("guided steps", () => {
   });
 
   it("gives stars for few slips and hints", () => {
-    expect(starsFor(0, 0)).toBe(3);
-    expect(starsFor(1, 0)).toBe(3);
-    expect(starsFor(0, 1)).toBe(2);
-    expect(starsFor(3, 2)).toBe(1);
+    expect(starsFor(0, 0).stars).toBe(3);
+    expect(starsFor(1, 0).stars).toBe(3);
+    expect(starsFor(0, 1).stars).toBe(2);
+    expect(starsFor(3, 2).stars).toBe(1);
   });
 });
 

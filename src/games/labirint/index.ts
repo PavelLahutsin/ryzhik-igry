@@ -7,6 +7,7 @@ import { createScope } from "../../shared/lifecycle";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
 import { OBJECTS } from "../../shared/objects";
 import { useStyles } from "../../shared/style";
+import { rate } from "../../shared/stars";
 import { hint, svgNode } from "../../shared/ui";
 import baseCss from "../../shared/base.css?inline";
 import css from "./style.css?inline";
@@ -145,7 +146,7 @@ function play(stage: HTMLElement, level: LabLevel, _index: number, api: PlayApi)
       friend.classList.add("is-met");
       fox.classList.add("is-met");
       api.setHint(null);
-      api.win(Math.max(1, 3 - hints), level.done);
+      api.win(rate(0, hints), level.done);
     }
   }
 

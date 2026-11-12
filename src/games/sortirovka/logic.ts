@@ -1,3 +1,4 @@
+import { rate, type Score } from "../../shared/stars";
 import type { ObjectId } from "../../shared/objects";
 import type { SortLevel } from "./levels";
 
@@ -18,8 +19,8 @@ export function hintFor(order: readonly ObjectId[], sorted: ReadonlySet<ObjectId
   return order.find((id) => !sorted.has(id)) ?? null;
 }
 
-export function starsFor(misses: number, count: number): number {
-  if (misses <= Math.floor(count / 4)) return 3;
-  if (misses <= Math.floor(count / 2)) return 2;
-  return 1;
+/** Stars: hints and wrong baskets; a quarter of the things may go wrong for ★★★. */
+export function starsFor(misses: number, count: number, hints = 0): Score {
+  const free = Math.max(1, Math.floor(count / 4));
+  return rate(misses, hints, { free, more: free + 1 });
 }

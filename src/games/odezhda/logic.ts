@@ -1,3 +1,4 @@
+import { rate, type Score } from "../../shared/stars";
 import { ITEMS, type Weather } from "./items";
 
 export type DressResult = "wear" | "wrong" | "taken";
@@ -14,8 +15,6 @@ export function dressed(wear: readonly string[], worn: readonly string[]): boole
   return wear.every((id) => worn.includes(id));
 }
 
-export function starsFor(misses: number): number {
-  if (misses <= 1) return 3;
-  if (misses <= 3) return 2;
-  return 1;
+export function starsFor(misses: number, hints = 0): Score {
+  return rate(misses, hints, { free: 1, more: 2 });
 }

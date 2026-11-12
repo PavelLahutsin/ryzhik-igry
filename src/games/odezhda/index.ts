@@ -43,6 +43,7 @@ export function mount(root: HTMLElement): () => void {
 function play(stage: HTMLElement, level: OdezhdaLevel, _index: number, api: PlayApi): () => void {
   const worn: string[] = [];
   let misses = 0;
+  let hints = 0;
 
   const banner = el("div", { class: "od-banner" }, [
     svgNode(WEATHER_ART[level.weather], "od-banner__art"),
@@ -106,7 +107,7 @@ function play(stage: HTMLElement, level: OdezhdaLevel, _index: number, api: Play
             audio.play("snap");
             if (dressed(level.wear, worn)) {
               figure.classList.add("is-done");
-              api.win(starsFor(misses), "Рыжик готов к прогулке!");
+              api.win(starsFor(misses, hints), "Рыжик готов к прогулке!");
             }
             return true;
           }
@@ -136,7 +137,7 @@ function play(stage: HTMLElement, level: OdezhdaLevel, _index: number, api: Play
     const id = hintItem(level, worn);
     const node = id ? tray.querySelector<HTMLElement>(`.od-item[data-id="${id}"]`) : null;
     if (!node) return;
-    misses++;
+    hints++;
     replayClass(node, "is-hinted");
   });
   return scope.dispose;

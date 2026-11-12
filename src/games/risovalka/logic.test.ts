@@ -30,9 +30,9 @@ describe("risovalka", () => {
     expect(offTrack(line, 10, { x: 30, y: 4 })).toBe(false);
   });
   it("is kind with stars and knows number words", () => {
-    expect(starsFor(0, 0)).toBe(3);
-    expect(starsFor(5, 0)).toBe(2);
-    expect(starsFor(3, 3)).toBe(1);
+    expect(starsFor(0, 0).stars).toBe(3);
+    expect(starsFor(5, 0).stars).toBe(2);
+    expect(starsFor(3, 3).stars).toBe(1);
     expect(numberWord(3)).toBe("Три");
   });
   it("has 12 pictures and 9 digits with strokes", () => {

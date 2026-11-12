@@ -31,6 +31,6 @@ describe("teni", () => {
     expect(rowsOf(6)).toEqual([3, 3]);
   });
   it("gives stars kindly", () => {
-    expect([starsFor(0), starsFor(1), starsFor(3), starsFor(8)]).toEqual([3, 3, 2, 1]);
+    expect([starsFor(0).stars, starsFor(1).stars, starsFor(3).stars, starsFor(8).stars]).toEqual([3, 3, 2, 1]);
   });
 });

@@ -276,3 +276,16 @@
   right: calc(12px + env(safe-area-inset-right));
   z-index: 5;
 }
+
+/* How stars are given: one quiet line under the steps. */
+.ht-stars {
+  margin: 4px 0 0;
+  padding: 6px 12px;
+  border-radius: 14px;
+  background: #fff4dc;
+  color: #8a5a10;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.35;
+}

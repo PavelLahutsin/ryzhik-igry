@@ -1,3 +1,4 @@
+import { rate, type Score } from "../../shared/stars";
 /**
  * Rules for «Профессии»: guided step-by-step role play (doctor, firefighter),
  * a shop with a picture list, and «find the danger at home». Pure functions.
@@ -77,11 +78,8 @@ export function rubProgress(steps: readonly Step[], g: Guided): number {
 }
 
 /** Stars for any profession game: a slip costs 1, a hint 2 «points». */
-export function starsFor(misses: number, hints: number): number {
-  const n = misses + hints * 2;
-  if (n <= 1) return 3;
-  if (n <= 4) return 2;
-  return 1;
+export function starsFor(misses: number, hints: number): Score {
+  return rate(misses, hints, { free: 1, more: 3 });
 }
 
 // ---------------------------------------------------------------- shop

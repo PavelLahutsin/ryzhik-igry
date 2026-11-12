@@ -1,3 +1,4 @@
+import { rate, type Score } from "../../shared/stars";
 /** Rules for «По точкам»: connect numbered dots 1 → N, then the picture appears. */
 export type Pt = { x: number; y: number };
 
@@ -38,11 +39,8 @@ export function allJoined(dots: readonly Pt[], state: DotsState): boolean {
   return state.next >= dots.length;
 }
 
-export function starsFor(misses: number, hints: number): number {
-  const n = misses + hints * 2;
-  if (n <= 1) return 3;
-  if (n <= 5) return 2;
-  return 1;
+export function starsFor(misses: number, hints: number): Score {
+  return rate(misses, hints, { free: 1, more: 3 });
 }
 
 export function centroid(dots: readonly Pt[]): Pt {

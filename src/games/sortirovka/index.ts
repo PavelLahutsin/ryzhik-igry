@@ -52,6 +52,7 @@ function play(stage: HTMLElement, level: SortLevel, _index: number, api: PlayApi
   const count = itemCount(level);
   const sorted = new Set<ObjectId>();
   let misses = 0;
+  let hints = 0;
 
   const baskets = new Map<string, HTMLElement>();
   const row = el("div", { class: `so-baskets so-baskets--${level.baskets.length}` });
@@ -93,7 +94,7 @@ function play(stage: HTMLElement, level: SortLevel, _index: number, api: PlayApi
             audio.play("snap");
             if (sorted.size === count) {
               row.classList.add("is-done");
-              api.win(starsFor(misses, count), "Всё разложено по местам!");
+              api.win(starsFor(misses, count, hints), "Всё разложено по местам!");
             }
             return true;
           }
@@ -131,7 +132,7 @@ function play(stage: HTMLElement, level: SortLevel, _index: number, api: PlayApi
   api.setHint(() => {
     const id = hintFor(order, sorted);
     if (!id) return;
-    misses++;
+    hints++;
     for (const node of [items.get(id), baskets.get(basketOf(level, id)!)]) {
       if (!node) continue;
       replayClass(node, "is-hinted");

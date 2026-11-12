@@ -29,10 +29,10 @@ describe("tochki rules", () => {
   });
 
   it("gives stars for few misses", () => {
-    expect(starsFor(0, 0)).toBe(3);
-    expect(starsFor(1, 0)).toBe(3);
-    expect(starsFor(1, 1)).toBe(2);
-    expect(starsFor(8, 0)).toBe(1);
+    expect(starsFor(0, 0).stars).toBe(3);
+    expect(starsFor(1, 0).stars).toBe(3);
+    expect(starsFor(1, 1).stars).toBe(2);
+    expect(starsFor(8, 0).stars).toBe(1);
   });
 
   it("puts numbers outside the shape", () => {

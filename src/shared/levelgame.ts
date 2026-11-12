@@ -11,6 +11,7 @@ import { LEVEL_TIPS } from "./tips-data";
 import { clearTips, tipOnce } from "./tips";
 import { loadSeen, markSeen } from "./seen";
 import { newStickers, stickerArt, type Sticker } from "./stickers";
+import { isScore, type Score } from "./stars";
 
 export type LevelInfo = {
   id: string;
@@ -22,8 +23,11 @@ export type LevelInfo = {
 export type World = { id: string; title: string; color: string };
 
 export type PlayApi = {
-  /** Call once when the level is solved; stars 1–3. */
-  win: (stars: number, text?: string) => void;
+  /**
+   * Call once when the level is solved: a `rate()` score (stars and why,
+   * shown on the card) or plain stars 1–3.
+   */
+  win: (score: Score | number, text?: string) => void;
   /** Put game-specific controls in the top bar (right side). */
   setTool: (node: HTMLElement | null) => void;
   /**
@@ -244,8 +248,10 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
       onHint();
     });
     const api: PlayApi = {
-      win: (stars, text) => {
+      win: (score, text) => {
         if (won) return;
+        const stars = isScore(score) ? score.stars : score;
+        const why = isScore(score) ? score.why : undefined;
         won = true;
         document.body.classList.remove("is-tutorial");
         clearTips();
@@ -279,6 +285,7 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
           if (!view.isConnected) return;
           const card = praiseOverlay({
             stars,
+            why,
             text: next ? text : `${text ? `${text} ` : ""}Ты прошёл все уровни!`,
             art,
             actions,

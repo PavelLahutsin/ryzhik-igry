@@ -16,7 +16,14 @@ export type Art =
 export type Move = "drag" | "tap" | "trace" | "swipe";
 
 export type Step = { move: Move; from: Art; to?: Art; text: string };
-export type HowTo = { title: string; steps: Step[]; rules: string; develops: string };
+export type HowTo = {
+  title: string;
+  steps: Step[];
+  rules: string;
+  develops: string;
+  /** How stars are given (level games), shown on the card and to parents. */
+  stars?: string;
+};
 
 export const HOWTO: Record<string, HowTo> = {
   domik: {
@@ -171,3 +178,11 @@ export const HOWTO: Record<string, HowTo> = {
     develops: "Цвета, аккуратность, творчество.",
   },
 };
+
+/** Level games: the same star rule everywhere (see shared/stars.ts). */
+const STAR_LINE = "★★★ — сам, без лампочки · ★★ — с одной подсказкой или с ошибками · ★ — с помощью";
+for (const id of ["risovalka", "bukvy", "tochki", "professii", "stroyka", "formy", "mozaika", "sliyanie", "najdi-paru", "teni", "odezhda", "sortirovka", "labirint"]) {
+  const h = HOWTO[id];
+  if (h) h.stars = STAR_LINE;
+}
+if (HOWTO["tajnaya-kartinka"]) HOWTO["tajnaya-kartinka"].stars = "★★★ — ни одного укуса · ★★ — один укус · ★ — больше";

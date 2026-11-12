@@ -99,7 +99,7 @@ function play(stage: HTMLElement, level: MozaikaLevel, _index: number, api: Play
     if (placed.size === count) {
       board.classList.add("is-done");
       area.classList.add("is-done");
-      api.win(starsFor(misses + hints * Math.ceil(count / 3), count), `${level.title}!`);
+      api.win(starsFor(misses, count, hints), `${level.title}!`);
     }
   }
 

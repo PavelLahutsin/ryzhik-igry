@@ -1,3 +1,4 @@
+import { STAR_RULES } from "../shared/stars";
 import { audio } from "../shared/audio";
 import { el } from "../shared/dom";
 import { goHome } from "../shared/router";
@@ -108,6 +109,7 @@ function settings(view: HTMLElement): void {
       return el("details", { class: "rules" }, [
         el("summary", { text: game.title }),
         el("p", { text: h.rules }),
+        h.stars ? el("p", { class: "rules__dev" }, [el("b", { text: "Звёзды: " }), h.stars.replace(/ · /g, "; ")]) : null,
         el("p", { class: "rules__dev" }, [el("b", { text: "Развивает: " }), h.develops]),
       ]);
     });
@@ -147,6 +149,7 @@ function settings(view: HTMLElement): void {
     ]),
     el("section", { class: "panel" }, [
       el("h2", { text: "Как играть и что развивает" }),
+      el("p", { text: STAR_RULES }),
       ...rules,
     ]),
     el("section", { class: "panel" }, [

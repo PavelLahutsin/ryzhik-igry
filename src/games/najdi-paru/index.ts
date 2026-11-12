@@ -119,7 +119,7 @@ function play(stage: HTMLElement, level: ParaLevel, _index: number, api: PlayApi
         cards[a]!.classList.add("is-matched");
         cards[b]!.classList.add("is-matched");
         audio.play("snap");
-        if (solved(state)) api.win(starsFor(state.misses + peeks * Math.ceil(pairs / 2), pairs));
+        if (solved(state)) api.win(starsFor(state.misses, pairs, peeks));
       }, reducedMotion() ? 0 : 320);
     }
     if (result === "miss") {

@@ -1,3 +1,4 @@
+import { rate, type Score } from "../../shared/stars";
 /** Tracing rules for «Рисовалка». Pure functions over sampled points. */
 export type Pt = { x: number; y: number };
 
@@ -58,11 +59,9 @@ export function resample(points: readonly Pt[], step = 3): Pt[] {
   return out;
 }
 
-export function starsFor(slips: number, hints: number): number {
-  const n = slips + hints * 2;
-  if (n <= 2) return 3;
-  if (n <= 6) return 2;
-  return 1;
+/** Slips off the line: a couple are free, the lamp counts as a hint. */
+export function starsFor(slips: number, hints: number): Score {
+  return rate(slips, hints, { free: 2, more: 4 });
 }
 
 const WORDS = ["", "Один", "Два", "Три", "Четыре", "Пять", "Шесть", "Семь", "Восемь", "Девять"];

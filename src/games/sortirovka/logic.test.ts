@@ -35,6 +35,6 @@ describe("sortirovka", () => {
     expect(hintFor(["apple"], new Set(["apple"]))).toBeNull();
   });
   it("gives stars kindly", () => {
-    expect([starsFor(0, 4), starsFor(1, 4), starsFor(2, 4), starsFor(3, 4)]).toEqual([3, 3, 2, 1]);
+    expect([starsFor(0, 4).stars, starsFor(1, 4).stars, starsFor(3, 4).stars, starsFor(5, 4).stars]).toEqual([3, 3, 2, 1]);
   });
 });
