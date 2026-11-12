@@ -43,7 +43,7 @@ async function pageAt(vp, name, hash, steps, unlock) {
   // «Как играть» and the first tips were seen, except in the v4 shots of them.
   if (!/howto|tutorial|tip-/.test(name)) {
     await context.addInitScript((games) => {
-      if (!localStorage.getItem("ryzhik-igry:seen")) localStorage.setItem("ryzhik-igry:seen", JSON.stringify({ howto: games, tips: ["hint-lamp", "sound-button", ...games.map((g) => `tutorial:${g}`)] }));
+      if (!localStorage.getItem("ryzhik-igry:seen")) localStorage.setItem("ryzhik-igry:seen", JSON.stringify({ howto: games, tips: ["hint-lamp", "sound-button", "sliyanie:big", ...games.map((g) => `tutorial:${g}`)] }));
     }, ["domik", "kuhnya", "risovalka", "tochki", "professii", "stroyka", "formy", "tajnaya-kartinka", "mozaika", "sliyanie", "najdi-paru", "teni", "odezhda", "sortirovka", "labirint", "raskraska"]);
   }
   if (unlock) {
@@ -520,6 +520,17 @@ async function seedBig(p, skin, rows, score = 0) {
   await p.goto(`${BASE}#/sliyanie/big/play`, { waitUntil: "networkidle" });
   await p.reload({ waitUntil: "networkidle" });
   await p.waitForTimeout(700);
+  const bad = await p.evaluate(() => {
+    const out = [];
+    if (document.documentElement.scrollHeight > innerHeight + 1) out.push(`play screen scrolls (${document.documentElement.scrollHeight}px)`);
+    for (const n of document.querySelectorAll(".sb-play .btn, .sb-tile, .sb-score__box")) {
+      const r = n.getBoundingClientRect();
+      if (r.bottom > innerHeight + 1 || r.right > innerWidth + 1 || r.left < -1) out.push(`off-screen: ${n.className}`);
+      if (n.matches(".btn") && Math.min(r.width, r.height) < 44) out.push(`small: ${n.className} ${Math.round(Math.min(r.width, r.height))}`);
+    }
+    return [...new Set(out)];
+  });
+  if (bad.length) errors.push(`big ${p.viewportSize().width}x${p.viewportSize().height}: ${bad.join("; ")}`);
 }
 const MID = [
   [2, 4, 8, 16],
