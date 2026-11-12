@@ -41,3 +41,21 @@ describe("design tokens", () => {
       for (const bg of ["bg", "surface"]) expect(contrast(token(ink), token(bg)), `${ink}/${bg}`).toBeGreaterThanOrEqual(4.5);
   });
 });
+
+describe("assets", () => {
+  it("no image is shipped twice (v13: three byte-identical copies of Ryzhik were one)", async () => {
+    const { readdirSync, statSync } = await import("node:fs");
+    const { join } = await import("node:path");
+    const { createHash } = await import("node:crypto");
+    const walk = (d: string): string[] =>
+      readdirSync(d).flatMap((f) => (statSync(join(d, f)).isDirectory() ? walk(join(d, f)) : /\.(webp|png|jpe?g)$/i.test(f) ? [join(d, f)] : []));
+    const seen = new Map<string, string>();
+    const dup: string[] = [];
+    for (const f of walk("src")) {
+      const h = createHash("md5").update(readFileSync(f)).digest("hex");
+      if (seen.has(h)) dup.push(`${seen.get(h)} = ${f}`);
+      else seen.set(h, f);
+    }
+    expect(dup).toEqual([]);
+  });
+});
