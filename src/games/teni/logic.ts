@@ -1,4 +1,4 @@
-import { rate, type Score } from "../../shared/stars";
+import { rateBy, STARS, type Score } from "../../shared/stars";
 import { roundsOf, specOf, type Round, type TeniLevel } from "./levels";
 import { TWINS } from "./shapes";
 
@@ -15,7 +15,7 @@ export function judge(itemId: string, target: string | null, filled: ReadonlySet
 }
 
 export function starsFor(misses: number, hints = 0): Score {
-  return rate(misses, hints, { free: 1, more: 2 });
+  return rateBy(STARS.teni, misses, hints);
 }
 
 /** Silhouette rows: up to 3 per row for six, 4 per row for seven or eight. */

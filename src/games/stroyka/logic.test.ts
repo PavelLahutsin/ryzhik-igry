@@ -30,7 +30,8 @@ describe("stroyka rules", () => {
     expect(doneAll([...slots, { ...slots[0]!, fixed: true, y: 5 }], [true, true, true, false])).toBe(true);
     expect(starsFor(0, 0).stars).toBe(3);
     expect(starsFor(3, 1).stars).toBe(2);
-    expect(starsFor(0, 2).stars).toBe(1);
+    expect(starsFor(0, 2).stars).toBe(2);
+    expect(starsFor(5, 2).stars).toBe(1);
     expect(countWord(6)).toBe("Шесть");
   });
 });

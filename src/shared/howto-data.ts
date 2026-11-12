@@ -1,4 +1,5 @@
 import type { ObjectId } from "./objects";
+import { STARS, starLine } from "./stars";
 
 /**
  * «Как играть» for every game: 2–4 picture steps for the child (a few words
@@ -194,14 +195,9 @@ export const HOWTO: Record<string, HowTo> = {
   },
 };
 
-/** Level games: the same star rule everywhere (see shared/stars.ts). */
-const STAR_LINE = "★★★ — сам, без лампочки · ★★ — с одной подсказкой или с ошибками · ★ — с помощью";
-for (const id of ["risovalka", "bukvy", "professii", "stroyka", "formy", "mozaika", "sliyanie", "najdi-paru", "teni", "odezhda", "sortirovka", "labirint"]) {
+/** Level games: the star numbers come from shared/stars.ts, so the card says exactly what the code does. */
+for (const [id, spec] of Object.entries(STARS)) {
   const h = HOWTO[id];
-  if (h) h.stars = STAR_LINE;
+  if (h) h.stars = starLine(spec);
 }
-// По точкам: 1 wrong dot is free (see tochki/logic.ts).
-if (HOWTO.tochki) HOWTO.tochki.stars = "★★★ — без лампочки и не больше 1 ошибки · ★★ — одна лампочка или 2–4 ошибки · ★ — больше";
-// Обводилка counts slips off the line: 2 are free (see risovalka/logic.ts).
-if (HOWTO.risovalka) HOWTO.risovalka.stars = "★★★ — без лампочки и не больше 2 съездов с линии · ★★ — одна лампочка или 3–6 съездов · ★ — больше";
 if (HOWTO["tajnaya-kartinka"]) HOWTO["tajnaya-kartinka"].stars = "★★★ — ни одного укуса · ★★ — один укус · ★ — больше";

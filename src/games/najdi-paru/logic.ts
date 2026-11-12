@@ -1,4 +1,4 @@
-import { rate, type Score } from "../../shared/stars";
+import { rateBy, STARS, type Score } from "../../shared/stars";
 import { shuffle } from "../../shared/rng";
 
 /**
@@ -82,5 +82,5 @@ export function fitGrid(cols: number, rows: number, landscape: boolean): { cols:
 /** No clock. Stars only look at extra tries, and generously. */
 /** Memory: an open pair that does not match is normal, so one per pair is free. */
 export function starsFor(misses: number, pairs: number, peeks = 0): Score {
-  return rate(misses, peeks, { free: pairs, more: pairs });
+  return rateBy(STARS["najdi-paru"], misses, peeks, pairs);
 }

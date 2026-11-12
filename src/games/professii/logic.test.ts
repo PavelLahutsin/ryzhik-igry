@@ -52,7 +52,8 @@ describe("guided steps", () => {
     expect(starsFor(0, 0).stars).toBe(3);
     expect(starsFor(1, 0).stars).toBe(3);
     expect(starsFor(0, 1).stars).toBe(2);
-    expect(starsFor(3, 2).stars).toBe(1);
+    expect(starsFor(3, 2).stars).toBe(2);
+    expect(starsFor(5, 2).stars).toBe(1);
   });
 });
 

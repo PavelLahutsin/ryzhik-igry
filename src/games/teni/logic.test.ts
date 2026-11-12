@@ -133,7 +133,7 @@ describe("teni rules", () => {
     expect(rowsOf(8)).toEqual([4, 4]);
   });
   it("gives stars kindly (shared rule)", () => {
-    expect([starsFor(0).stars, starsFor(1).stars, starsFor(3).stars, starsFor(8).stars]).toEqual([3, 3, 2, 1]);
+    expect([starsFor(0).stars, starsFor(1).stars, starsFor(3).stars, starsFor(8).stars, starsFor(4, 2).stars]).toEqual([3, 3, 2, 2, 1]);
     expect(starsFor(0, 1).stars).toBe(2);
   });
   it("says what is tricky in a round", () => {

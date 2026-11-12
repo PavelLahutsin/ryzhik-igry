@@ -36,7 +36,8 @@ describe("najdi-paru", () => {
   it("is kind with stars", () => {
     expect(starsFor(2, 2).stars).toBe(3);
     expect(starsFor(4, 2).stars).toBe(2);
-    expect(starsFor(9, 2).stars).toBe(1);
+    expect(starsFor(9, 2).stars).toBe(2);
+    expect(starsFor(5, 2, 2).stars).toBe(1);
   });
   it("has 24 levels up to 20 cards, old ids kept", () => {
     expect(levels).toHaveLength(24);

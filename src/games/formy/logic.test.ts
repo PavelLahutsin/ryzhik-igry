@@ -45,7 +45,8 @@ describe("formy rules", () => {
     expect(starsFor(0, 0, 6).stars).toBe(3);
     expect(starsFor(1, 0, 6).stars).toBe(3);
     expect(starsFor(3, 0, 6).stars).toBe(2);
-    expect(starsFor(2, 2, 6).stars).toBe(1);
+    expect(starsFor(2, 2, 6).stars).toBe(2);
+    expect(starsFor(4, 2, 6).stars).toBe(1);
   });
 
   it("draws every shape as a closed path", () => {

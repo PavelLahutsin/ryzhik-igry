@@ -1,4 +1,4 @@
-import { rate, type Score } from "../../shared/stars";
+import { rateBy, STARS, type Score } from "../../shared/stars";
 import { ITEMS, type Weather } from "./items";
 
 export type DressResult = "wear" | "wrong" | "taken";
@@ -16,5 +16,5 @@ export function dressed(wear: readonly string[], worn: readonly string[]): boole
 }
 
 export function starsFor(misses: number, hints = 0): Score {
-  return rate(misses, hints, { free: 1, more: 2 });
+  return rateBy(STARS.odezhda, misses, hints);
 }

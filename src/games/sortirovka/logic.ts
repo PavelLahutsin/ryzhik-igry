@@ -1,4 +1,4 @@
-import { rate, type Score } from "../../shared/stars";
+import { rateBy, STARS, type Score } from "../../shared/stars";
 import type { SortLevel } from "./levels";
 
 /** Basket id a thing belongs to on this level, or null. */
@@ -33,6 +33,5 @@ export function hintFor<T>(order: readonly T[], sorted: ReadonlySet<T>): T | nul
 
 /** Stars: hints and wrong baskets; a quarter of the things may go wrong for ★★★. */
 export function starsFor(misses: number, count: number, hints = 0): Score {
-  const free = Math.max(1, Math.floor(count / 4));
-  return rate(misses, hints, { free, more: free + 1 });
+  return rateBy(STARS.sortirovka, misses, hints, count);
 }

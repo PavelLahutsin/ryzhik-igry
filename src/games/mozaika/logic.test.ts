@@ -61,7 +61,8 @@ describe("mozaika", () => {
     expect(starsFor(2, 4).stars).toBe(3);
     expect(starsFor(6, 4).stars).toBe(2);
     expect(starsFor(0, 4, 1).stars).toBe(2);
-    expect(starsFor(20, 4).stars).toBe(1);
+    expect(starsFor(20, 4).stars).toBe(2);
+    expect(starsFor(5, 4, 2).stars).toBe(1);
   });
   it("v10: new worlds — upside-down and extra pieces — keep ids and get harder", () => {
     expect(levels.map((l) => l.id)).toEqual(Array.from({ length: 22 }, (_, i) => `m${i + 1}`));

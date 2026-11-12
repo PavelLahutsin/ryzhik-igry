@@ -1,4 +1,4 @@
-import { rate, type Score } from "../../shared/stars";
+import { rateBy, STARS, type Score } from "../../shared/stars";
 /** Rules for «Размер и форма». Pure functions. */
 import type { Gender } from "../../shared/objects";
 
@@ -62,8 +62,7 @@ export function canStack(onPole: readonly number[], total: number, rank: number)
 }
 
 export function starsFor(misses: number, hints: number, count: number): Score {
-  const free = Math.max(1, Math.floor(count / 4));
-  return rate(misses, hints, { free, more: Math.max(2, free + 1) });
+  return rateBy(STARS.formy, misses, hints, count);
 }
 
 /** SVG path of a shape centred at (cx, cy) fitting a circle of radius r. */
