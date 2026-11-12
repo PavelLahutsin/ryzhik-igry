@@ -107,7 +107,7 @@ export const games: GameEntry[] = [
   {
     id: "tochki",
     title: "По точкам",
-    note: "Соедини 1, 2, 3… — что получится?",
+    note: "Соедини точки по порядку — 31 картинка: цифры, счёт назад, буквы",
     color: "#3fae6a",
     art: { src: svgUrl(TILE_ART.tochki), figure: true },
     load: () => import("./tochki"),

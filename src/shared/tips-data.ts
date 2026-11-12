@@ -41,11 +41,6 @@ export const LEVEL_TIPS: Record<string, Record<string, LevelTip>> = {
   },
   tochki: {
     t13: { at: ".td-board", text: "Теперь точек больше десяти!" },
-    d2: { at: ".td-board", text: "Считаем назад: 10, 9, 8… до единицы" },
-    k1: { at: ".td-board", text: "Через одну: 2, 4, 6, 8…" },
-    k3: { at: ".td-board", text: "Пятёрками: 5, 10, 15, 20…" },
-    k4: { at: ".td-board", text: "Десятками: 10, 20, 30… до ста!" },
-    a1: { at: ".td-board", text: "Вместо цифр — буквы: А, Б, В, Г…" },
     g1: { at: ".td-board", text: "Много точек — больше двадцати! Следующая светится зелёным" },
   },
   professii: {

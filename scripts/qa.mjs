@@ -172,6 +172,9 @@ const SOLVE = {
     }
   },
   async tochki(p) {
+    // A new way of counting opens a short demo first: close it.
+    await p.waitForTimeout(300);
+    if (await p.locator(".td-intro").count()) await p.locator(".td-intro__go").click();
     const pts = await p.evaluate(() => [...document.querySelectorAll(".td-dot__core")].map((n) => { const r = n.getBoundingClientRect(); return [r.x + r.width / 2, r.y + r.height / 2]; }));
     const path = [];
     for (let i = 1; i < pts.length; i++) path.push(...line(pts[i - 1], pts[i], 6));

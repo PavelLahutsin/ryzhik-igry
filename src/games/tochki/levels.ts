@@ -64,8 +64,8 @@ const balloon = [...curve(11, (t) => {
 /** Spikes on a hedgehog's back: valleys and tips along an arc. */
 const spikes = Array.from({ length: 15 }, (_, k) => {
   const a = ((150 - 10 * k) * Math.PI) / 180;
-  const r = k % 2 ? 80 : 54;
-  return { x: Math.round(104 + r * Math.cos(a)), y: Math.round(150 - r * Math.sin(a)) };
+  const r = k % 2 ? 88 : 65;
+  return { x: Math.round(100 + r * Math.cos(a)), y: Math.round(150 - r * Math.sin(a)) };
 });
 
 const ALL: DotPicture[] = [
@@ -153,9 +153,9 @@ const ALL: DotPicture[] = [
     id: "t9",
     title: "Тюльпан",
     world: "more",
-    dots: P(60, 30, 80, 60, 100, 24, 120, 60, 140, 30, 152, 86, 130, 120, 108, 124, 108, 182, 92, 182, 92, 124, 70, 120, 48, 86),
+    dots: P(60, 30, 80, 60, 100, 24, 120, 60, 140, 30, 152, 86, 134, 118, 112, 124, 112, 182, 88, 182, 88, 124, 66, 118, 48, 86),
     color: "#e8708a",
-    details: `<rect x="92" y="122" width="16" height="60" fill="#5fae4e"/><path d="M100 168 q-30 -6 -40 -34 q28 4 40 26 M100 160 q30 -8 40 -36 q-28 4 -40 28" fill="#7cc46a"/>`,
+    details: `<rect x="88" y="122" width="24" height="60" fill="#5fae4e"/><path d="M100 168 q-30 -6 -40 -34 q28 4 40 26 M100 160 q30 -8 40 -36 q-28 4 -40 28" fill="#7cc46a"/>`,
     alive: "sway",
     done: "Расцвёл!",
   },
@@ -163,9 +163,9 @@ const ALL: DotPicture[] = [
     id: "t10",
     title: "Ёлочка",
     world: "more",
-    dots: P(100, 20, 136, 64, 118, 64, 152, 104, 130, 104, 166, 150, 110, 150, 110, 182, 90, 182, 90, 150, 34, 150, 70, 104, 48, 104, 82, 64, 64, 64),
+    dots: P(100, 20, 136, 64, 114, 64, 152, 104, 130, 104, 166, 150, 112, 150, 112, 182, 88, 182, 88, 150, 34, 150, 70, 104, 48, 104, 86, 64, 64, 64),
     color: "#4f9a4a",
-    details: `<rect x="90" y="150" width="20" height="32" fill="#9a6a3a"/><circle cx="96" cy="58" r="6" fill="#e8463a"/><circle cx="118" cy="96" r="6" fill="#ffd54a"/><circle cx="80" cy="100" r="6" fill="#6db3d4"/><circle cx="130" cy="138" r="6" fill="#e8463a"/><circle cx="70" cy="140" r="6" fill="#ffd54a"/><circle cx="100" cy="124" r="6" fill="#e8708a"/>`,
+    details: `<rect x="88" y="150" width="24" height="32" fill="#9a6a3a"/><circle cx="96" cy="58" r="6" fill="#e8463a"/><circle cx="118" cy="96" r="6" fill="#ffd54a"/><circle cx="80" cy="100" r="6" fill="#6db3d4"/><circle cx="130" cy="138" r="6" fill="#e8463a"/><circle cx="70" cy="140" r="6" fill="#ffd54a"/><circle cx="100" cy="124" r="6" fill="#e8708a"/>`,
     alive: "sway",
     done: "Ёлочка зажглась!",
   },
@@ -270,7 +270,7 @@ const ALL: DotPicture[] = [
     title: "Кит",
     world: "skip",
     count: 5,
-    dots: P(26, 108, 40, 76, 78, 60, 122, 64, 150, 90, 176, 62, 164, 100, 178, 136, 146, 114, 116, 142, 70, 148, 36, 136),
+    dots: P(26, 108, 40, 76, 78, 60, 122, 64, 150, 90, 176, 62, 168, 104, 178, 136, 146, 114, 116, 142, 70, 148, 36, 136),
     color: "#5b8fd4",
     details: `${eye(56, 96)}<path d="M30 116 q30 30 80 24" fill="none" stroke="#cfe3f7" stroke-width="5" stroke-linecap="round"/><path d="M80 56 q-4 -18 -16 -24 M80 56 q2 -20 14 -26 M80 56 V30" fill="none" stroke="#6db3d4" stroke-width="4" stroke-linecap="round"/>`,
     alive: "swim",
@@ -281,9 +281,9 @@ const ALL: DotPicture[] = [
     title: "Тортик",
     world: "skip",
     count: 10,
-    dots: P(24, 172, 24, 112, 56, 100, 90, 98, 90, 56, 110, 56, 110, 98, 144, 100, 176, 112, 176, 172),
+    dots: P(24, 172, 24, 112, 56, 100, 88, 98, 88, 56, 112, 56, 112, 98, 144, 100, 176, 112, 176, 172),
     color: "#f7c6d4",
-    details: `<rect x="90" y="56" width="20" height="42" fill="#6db3d4" stroke="${INK}" stroke-width="3"/><path class="td-flame" d="M100 30 q-9 12 0 22 q9 -10 0 -22 Z" fill="#ffb23f"/><path d="M24 128 q19 14 38 0 t38 0 t38 0 t38 0" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round"/><circle cx="48" cy="152" r="7" fill="#e8463a"/><circle cx="100" cy="152" r="7" fill="#e8463a"/><circle cx="152" cy="152" r="7" fill="#e8463a"/>`,
+    details: `<rect x="88" y="56" width="24" height="42" fill="#6db3d4" stroke="${INK}" stroke-width="3"/><path class="td-flame" d="M100 30 q-9 12 0 22 q9 -10 0 -22 Z" fill="#ffb23f"/><path d="M24 128 q19 14 38 0 t38 0 t38 0 t38 0" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round"/><circle cx="48" cy="152" r="7" fill="#e8463a"/><circle cx="100" cy="152" r="7" fill="#e8463a"/><circle cx="152" cy="152" r="7" fill="#e8463a"/>`,
     alive: "glow",
     done: "С днём рождения! Задуй свечку!",
   },
@@ -325,7 +325,7 @@ const ALL: DotPicture[] = [
     title: "Автобус",
     world: "abc",
     count: "abc",
-    dots: P(24, 150, 24, 110, 26, 72, 40, 56, 72, 52, 104, 52, 136, 52, 162, 56, 176, 70, 176, 110, 176, 150, 150, 152, 118, 152, 84, 152, 52, 152),
+    dots: P(24, 150, 24, 110, 26, 72, 42, 54, 72, 52, 104, 52, 136, 52, 160, 54, 176, 70, 176, 110, 176, 150, 150, 152, 118, 152, 84, 152, 52, 152),
     color: "#ffd54a",
     details: `<rect x="36" y="70" width="28" height="26" rx="4" fill="#cdeefb" stroke="${INK}" stroke-width="3"/><rect x="72" y="70" width="28" height="26" rx="4" fill="#cdeefb" stroke="${INK}" stroke-width="3"/><rect x="108" y="70" width="28" height="26" rx="4" fill="#cdeefb" stroke="${INK}" stroke-width="3"/><rect x="144" y="70" width="24" height="56" rx="4" fill="#cdeefb" stroke="${INK}" stroke-width="3"/><path d="M24 112 H140" stroke="#e8463a" stroke-width="6"/><circle cx="60" cy="150" r="15" fill="${INK}"/><circle cx="60" cy="150" r="6" fill="#ccc"/><circle cx="140" cy="150" r="15" fill="${INK}"/><circle cx="140" cy="150" r="6" fill="#ccc"/>`,
     alive: "drive",
@@ -355,9 +355,9 @@ const ALL: DotPicture[] = [
     id: "g2",
     title: "Паровозик",
     world: "big",
-    dots: P(22, 150, 22, 100, 40, 96, 40, 58, 30, 44, 70, 44, 60, 58, 60, 96, 78, 96, 84, 78, 100, 78, 106, 96, 124, 96, 124, 58, 108, 44, 188, 44, 176, 58, 176, 150, 140, 150, 100, 150, 60, 150),
+    dots: P(22, 150, 22, 104, 44, 100, 44, 62, 30, 42, 76, 42, 66, 62, 66, 96, 84, 80, 108, 76, 128, 96, 128, 62, 110, 42, 188, 42, 176, 62, 176, 150, 150, 150, 124, 150, 98, 150, 72, 150, 46, 150),
     color: "#4f9ad4",
-    details: `<rect x="134" y="66" width="30" height="30" rx="4" fill="#cdeefb" stroke="${INK}" stroke-width="3"/><path d="M22 120 H124" stroke="#ffd54a" stroke-width="6"/><circle cx="48" cy="156" r="16" fill="${INK}"/><circle cx="48" cy="156" r="6" fill="#e8463a"/><circle cx="96" cy="156" r="16" fill="${INK}"/><circle cx="96" cy="156" r="6" fill="#e8463a"/><circle cx="150" cy="154" r="20" fill="${INK}"/><circle cx="150" cy="154" r="8" fill="#e8463a"/><path d="M48 156 H150" stroke="#ccc" stroke-width="4"/>`,
+    details: `<rect x="134" y="66" width="30" height="30" rx="4" fill="#cdeefb" stroke="${INK}" stroke-width="3"/><path d="M22 120 H128" stroke="#ffd54a" stroke-width="6"/><circle cx="48" cy="156" r="16" fill="${INK}"/><circle cx="48" cy="156" r="6" fill="#e8463a"/><circle cx="96" cy="156" r="16" fill="${INK}"/><circle cx="96" cy="156" r="6" fill="#e8463a"/><circle cx="150" cy="154" r="20" fill="${INK}"/><circle cx="150" cy="154" r="8" fill="#e8463a"/><path d="M48 156 H150" stroke="#ccc" stroke-width="4"/>`,
     alive: "drive",
     done: "Ту-ту! Паровозик поехал!",
   },
@@ -365,13 +365,34 @@ const ALL: DotPicture[] = [
     id: "g3",
     title: "Ёжик",
     world: "big",
-    dots: [{ x: 20, y: 148 }, { x: 36, y: 130 }, ...spikes, ...P(170, 160, 136, 162, 102, 162, 68, 162, 40, 160)],
+    dots: [{ x: 18, y: 154 }, { x: 25, y: 131 }, ...spikes, ...P(172, 162, 136, 162, 102, 162, 68, 162, 40, 160)],
     color: "#a07a55",
-    details: `<path d="M20 148 L36 130 L57 123 Q64 150 40 160 Z" fill="#f2d2a8"/>${eye(40, 136)}<circle cx="20" cy="148" r="5" fill="${INK}"/><path d="M80 120 l10 -14 M110 112 l6 -16 M136 122 l12 -12 M100 140 l8 -12 M130 146 l10 -10" stroke="#6e5238" stroke-width="3" stroke-linecap="round"/><circle cx="118" cy="92" r="9" fill="#e8463a"/><path d="M118 83 v-6" stroke="#5fae4e" stroke-width="3"/>`,
+    details: `<path d="M18 154 L25 131 L44 118 Q62 150 40 160 Z" fill="#f2d2a8"/>${eye(38, 138)}<circle cx="18" cy="154" r="5" fill="${INK}"/><path d="M80 120 l10 -14 M110 112 l6 -16 M136 122 l12 -12 M100 140 l8 -12 M130 146 l10 -10" stroke="#6e5238" stroke-width="3" stroke-linecap="round"/><circle cx="118" cy="92" r="9" fill="#e8463a"/><path d="M118 83 v-6" stroke="#5fae4e" stroke-width="3"/>`,
     alive: "bounce",
     done: "Ёжик несёт яблочко домой!",
   },
+  // v10: two bigger «Весёлые картинки», so the world sits after «Дальше 10».
+  {
+    id: "f1",
+    title: "Чайник",
+    world: "fun",
+    dots: P(52, 162, 148, 162, 158, 140, 180, 130, 181, 102, 162, 84, 148, 108, 140, 78, 116, 72, 112, 48, 88, 48, 84, 72, 58, 80, 42, 100, 28, 72, 20, 94, 36, 130),
+    color: "#6db3d4",
+    details: `<circle cx="100" cy="40" r="6" fill="${INK}"/><path d="M60 92 H140" stroke="#fff" stroke-width="5" stroke-linecap="round"/><circle cx="100" cy="124" r="14" fill="#ffd54a"/><circle cx="100" cy="124" r="5" fill="#e8708a"/><circle cx="76" cy="132" r="6" fill="#fff"/><circle cx="124" cy="132" r="6" fill="#fff"/>`,
+    alive: "rock",
+    done: "Чай готов! Пых-пых!",
+  },
+  {
+    id: "f2",
+    title: "Самолёт",
+    world: "fun",
+    dots: P(182, 100, 162, 112, 120, 112, 100, 150, 78, 150, 88, 112, 50, 112, 40, 136, 18, 128, 28, 100, 20, 62, 42, 62, 52, 90, 88, 90, 78, 50, 100, 50, 120, 90, 162, 88),
+    color: "#f2f2f2",
+    details: `<circle cx="134" cy="100" r="5" fill="#6db3d4"/><circle cx="150" cy="100" r="5" fill="#6db3d4"/><circle cx="118" cy="100" r="5" fill="#6db3d4"/><path d="M164 94 q12 2 16 6 q-4 4 -16 6 Z" fill="#6db3d4"/><path d="M30 70 L42 96" stroke="#e8463a" stroke-width="5" stroke-linecap="round"/>`,
+    alive: "drive",
+    done: "Самолёт полетел!",
+  },
 ];
 
-/** Easier extra worlds sit where their difficulty fits, so levels keep getting harder. */
-export const levels: DotPicture[] = inWorldOrder(ALL, ["ten", "fun", "more", "down", "skip", "abc", "big"]);
+/** Worlds go from easy to hard (tests check the mean difficulty rises world by world). */
+export const levels: DotPicture[] = inWorldOrder(ALL, ["ten", "more", "fun", "down", "skip", "abc", "big"]);

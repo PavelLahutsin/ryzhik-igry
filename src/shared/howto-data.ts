@@ -68,11 +68,11 @@ export const HOWTO: Record<string, HowTo> = {
   tochki: {
     title: "По точкам",
     steps: [
-      { move: "tap", from: { mark: "number" }, text: "Начни с цифры 1" },
-      { move: "trace", from: { mark: "dots" }, text: "Соединяй по порядку: 1, 2, 3…" },
+      { move: "tap", from: { mark: "number" }, text: "Начни с первой точки" },
+      { move: "trace", from: { mark: "dots" }, text: "Соединяй по порядку" },
       { move: "tap", from: { o: "star" }, text: "Получится картинка" },
     ],
-    rules: "Соединяем точки по порядку, не отрывая или отрывая палец. Когда последняя точка соединена, появляется картинка. 29 картинок в семи мирах: сначала до 10, потом дальше 10, затем обратный счёт (10, 9, 8…), счёт через одну, пятёрками и десятками (2, 4, 6… / 5, 10, 15… / 10, 20, 30…), алфавит вместо цифр (А, Б, В…) и в конце большие картинки до 22 точек.",
+    rules: "Соединяем точки по порядку, можно не отрывая палец, можно по одной. Когда последняя точка соединена, появляется картинка. 31 картинка в семи мирах, от простого к сложному: до 10, дальше 10, «Весёлые картинки», обратный счёт (10, 9, 8…), через одну, пятёрками и десятками (2, 4, 6… / 5, 10, 15… / 10, 20, 30…), алфавит (А, Б, В…) и в конце большие картинки до 22 точек. Перед каждым новым способом счёта короткая подсказка показывает три первые точки (10 → 9 → 8, А → Б → В); кнопка «Как считать?» покажет её ещё раз — это не подсказка и звёзд не снимает. Ошибка — только нажать на другую, ещё не соединённую точку; нажать мимо или провести пальцем через другие точки — не ошибка. Точки стоят так, что их зоны касания не пересекаются.",
     develops: "Счёт вперёд и назад (до 22), счёт двойками, пятёрками и десятками, порядок букв в алфавите, моторику.",
   },
   professii: {
@@ -194,10 +194,12 @@ export const HOWTO: Record<string, HowTo> = {
 
 /** Level games: the same star rule everywhere (see shared/stars.ts). */
 const STAR_LINE = "★★★ — сам, без лампочки · ★★ — с одной подсказкой или с ошибками · ★ — с помощью";
-for (const id of ["risovalka", "bukvy", "tochki", "professii", "stroyka", "formy", "mozaika", "sliyanie", "najdi-paru", "teni", "odezhda", "sortirovka", "labirint"]) {
+for (const id of ["risovalka", "bukvy", "professii", "stroyka", "formy", "mozaika", "sliyanie", "najdi-paru", "teni", "odezhda", "sortirovka", "labirint"]) {
   const h = HOWTO[id];
   if (h) h.stars = STAR_LINE;
 }
+// По точкам: 1 wrong dot is free (see tochki/logic.ts).
+if (HOWTO.tochki) HOWTO.tochki.stars = "★★★ — без лампочки и не больше 1 ошибки · ★★ — одна лампочка или 2–4 ошибки · ★ — больше";
 // Обводилка counts slips off the line: 2 are free (see risovalka/logic.ts).
 if (HOWTO.risovalka) HOWTO.risovalka.stars = "★★★ — без лампочки и не больше 2 съездов с линии · ★★ — одна лампочка или 3–6 съездов · ★ — больше";
 if (HOWTO["tajnaya-kartinka"]) HOWTO["tajnaya-kartinka"].stars = "★★★ — ни одного укуса · ★★ — один укус · ★ — больше";

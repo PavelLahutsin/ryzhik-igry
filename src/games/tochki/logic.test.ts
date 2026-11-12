@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { allJoined, centroid, closestPair, difficulty, labelAt, labelOf, labelSpots, REACH, startDots, starsFor, touch } from "./logic";
+import { allJoined, centroid, closestPair, difficulty, labelAt, labelOf, labelSpots, MIN_GAP, REACH, zones, startDots, starsFor, touch } from "./logic";
 import { levels, worlds } from "./levels";
 
 const dots = [
@@ -49,7 +49,7 @@ describe("tochki levels", () => {
       expect(worlds.some((w) => w.id === l.world)).toBe(true);
       expect(l.dots.length).toBeGreaterThanOrEqual(5);
       expect(l.dots.length).toBeLessThanOrEqual(24);
-      expect(closestPair(l.dots), l.title).toBeGreaterThan(REACH * 0.9);
+      expect(closestPair(l.dots), l.title).toBeGreaterThanOrEqual(MIN_GAP);
       for (const d of l.dots) {
         expect(d.x).toBeGreaterThanOrEqual(8);
         expect(d.x).toBeLessThanOrEqual(192);
@@ -100,5 +100,40 @@ describe("tochki levels", () => {
         expect(near, `${l.title} ${i + 1}`).toBeGreaterThanOrEqual(10);
       });
     }
+  });
+  it("touch zones never overlap, in every picture, and stay big enough", () => {
+    for (const l of levels) {
+      const z = zones(l.dots);
+      for (let i = 0; i < l.dots.length; i++) {
+        expect(z[i]!, `${l.title} ${i}`).toBeGreaterThanOrEqual(MIN_GAP / 2);
+        expect(z[i]!).toBeLessThanOrEqual(REACH);
+        for (let j = i + 1; j < l.dots.length; j++) {
+          const d = Math.hypot(l.dots[i]!.x - l.dots[j]!.x, l.dots[i]!.y - l.dots[j]!.y);
+          expect(z[i]! + z[j]!, `${l.title}: ${i}–${j}`).toBeLessThanOrEqual(d + 1e-9);
+        }
+      }
+    }
+  });
+  it("a touch in a dot's zone is that dot only: the right one joins, a wrong tap is the only mistake", () => {
+    for (const l of levels) {
+      const st = startDots();
+      // Tap each dot a little off-centre (inside its zone), in order: no mistakes.
+      const z = zones(l.dots);
+      l.dots.forEach((d, i) => expect(touch(l.dots, st, { x: d.x + z[i]! * 0.7, y: d.y }, true)).toBe(i));
+      expect(st.misses).toBe(0);
+    }
+    const l = levels[0]!;
+    const st = startDots();
+    touch(l.dots, st, { x: -50, y: -50 }, true); // empty paper
+    expect(st.misses).toBe(0);
+    touch(l.dots, st, l.dots[2]!, true); // a wrong dot
+    expect(st.misses).toBe(1);
+  });
+  it("keep the new pictures' numbers on the board", () => {
+    for (const l of levels.filter((x) => ["f1", "f2", "g3"].includes(x.id)))
+      for (const p of labelSpots(l.dots)) {
+        expect(p.x, l.title).toBeGreaterThanOrEqual(4);
+        expect(p.x, l.title).toBeLessThanOrEqual(196);
+      }
   });
 });
