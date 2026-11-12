@@ -35,7 +35,20 @@ export const worlds = [
   { id: "animals", title: "Оживают!", color: "#7cc46a" },
   { id: "harder", title: "Посложнее", color: "#6db3d4" },
   { id: "master", title: "Мастер рисования", color: "#9b6cd8" },
+  { id: "paths", title: "Длинные дорожки", color: "#3fae6a" },
 ];
+
+/** A spiral from the centre out, as one line (for «Леденец»). */
+function spiral(cx: number, cy: number, turns: number, r0: number, r1: number): string {
+  const n = Math.round(turns * 36);
+  let d = "";
+  for (let i = 0; i <= n; i++) {
+    const t = (i / n) * turns * 2 * Math.PI;
+    const r = r0 + ((r1 - r0) * i) / n;
+    d += `${i ? " L" : "M"}${(cx + r * Math.cos(t)).toFixed(1)} ${(cy + r * Math.sin(t)).toFixed(1)}`;
+  }
+  return d;
+}
 
 export const pictures: Picture[] = [
   {
@@ -376,6 +389,77 @@ export const pictures: Picture[] = [
     ],
     fill: `<path d="M96 80 C 70 40 40 52 46 72 C 52 88 80 84 98 80 Z M114 78 C 120 36 160 34 158 58 C 156 76 130 80 116 80 Z" fill="#d8f1ff" opacity=".9"/><path d="M160 120 L182 124 L160 130 Z" fill="${INK}"/><path d="M56 120 C 56 92 80 78 108 78 C 140 78 160 96 160 120 C 160 144 140 160 108 160 C 80 160 56 148 56 120 Z" fill="#ffd54a"/><path d="M92 82 C 86 98 86 140 92 156 L106 160 C 100 140 100 98 106 78 Z M124 80 C 118 98 118 140 124 158 L138 154 C 132 140 132 100 138 84 Z" fill="${INK}"/>${eye(72, 112, 6)}${cheek(68, 132, 6)}${smile(64, 140, 80, 6, 3.5)}<path d="M64 96 L52 76 M74 90 L70 70" stroke="${INK}" stroke-width="3" stroke-linecap="round"/><circle cx="52" cy="74" r="4" fill="${INK}"/><circle cx="70" cy="68" r="4" fill="${INK}"/>`,
     alive: "flutter",
+  },
+  // --- Длинные дорожки: one long line without lifting the finger (graphomotor patterns).
+  {
+    id: "r25",
+    world: "paths",
+    title: "Волны",
+    ink: "#3a8fd4",
+    help: "less",
+    alive: "rock",
+    done: "Море волнуется — кораблик качается!",
+    strokes: ["M20 122 q15 -14 30 0 t30 0 t30 0 t30 0 t30 0", "M20 148 q15 -14 30 0 t30 0 t30 0 t30 0 t30 0", "M20 174 q15 -14 30 0 t30 0 t30 0 t30 0 t30 0"],
+    fill: `<rect x="12" y="116" width="176" height="74" rx="16" fill="#bfe3f5"/><circle cx="160" cy="40" r="16" fill="#ffd54a"/><path d="M70 104 H130 L120 118 H80 Z" fill="#e8463a"/><path d="M100 104 V58 L128 96 H100 Z" fill="#fff" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>`,
+  },
+  {
+    id: "r26",
+    world: "paths",
+    title: "Горы",
+    ink: "#5a6b7c",
+    help: "less",
+    alive: "glow",
+    done: "Высокие горы со снежными шапками!",
+    strokes: ["M14 164 L54 84 L80 124 L110 52 L146 128 L166 100 L188 164", "M14 176 H188"],
+    fill: `<path d="M14 164 L54 84 L80 124 L110 52 L146 128 L166 100 L188 164 Z" fill="#9fb3c8"/><path d="M44 104 L54 84 L64 104 L56 98 L50 106 Z M98 76 L110 52 L122 78 L114 72 L106 80 Z" fill="#fff"/><circle cx="40" cy="40" r="14" fill="#ffd54a"/><rect x="14" y="164" width="174" height="12" fill="#8fd46a"/>`,
+  },
+  {
+    id: "r27",
+    world: "paths",
+    title: "Заборчик",
+    ink: "#a0683a",
+    help: "less",
+    alive: "sway",
+    done: "Ровный заборчик, а за ним цветы!",
+    strokes: [
+      "M30 172 V96 L40 84 L50 96 V172 H70 V96 L80 84 L90 96 V172 H110 V96 L120 84 L130 96 V172 H150 V96 L160 84 L170 96 V172",
+      "M22 118 H178",
+      "M22 148 H178",
+    ],
+    fill: `<path d="M30 172 V96 L40 84 L50 96 V172 Z M70 172 V96 L80 84 L90 96 V172 Z M110 172 V96 L120 84 L130 96 V172 Z M150 172 V96 L160 84 L170 96 V172 Z" fill="#f3d9a8"/><rect x="22" y="114" width="156" height="8" fill="#e0b47a"/><rect x="22" y="144" width="156" height="8" fill="#e0b47a"/><path d="M60 60 V84 M100 52 V84 M140 62 V84" stroke="#3fae6a" stroke-width="4"/><circle cx="60" cy="56" r="9" fill="#f58fb4"/><circle cx="100" cy="48" r="9" fill="#ffc94a"/><circle cx="140" cy="58" r="9" fill="#9b6cd8"/>`,
+  },
+  {
+    id: "r28",
+    world: "paths",
+    title: "Гусеница",
+    ink: "#3fae6a",
+    help: "less",
+    alive: "crawl",
+    done: "Гусеница ползёт по листику!",
+    strokes: ["M20 150 C20 116 52 116 52 150 C52 116 84 116 84 150 C84 116 116 116 116 150 C116 116 148 116 148 150", "M20 150 H148", "M168 108 A20 20 0 1 1 167.9 108"],
+    fill: `<path d="M8 168 Q 100 150 192 168 Q 100 186 8 168 Z" fill="#8fd46a"/><path d="M20 150 C20 116 52 116 52 150 C52 116 84 116 84 150 C84 116 116 116 116 150 C116 116 148 116 148 150 Z" fill="#a6dd6e"/><circle cx="168" cy="128" r="20" fill="#a6dd6e"/>${eye(162, 124, 4)}${eye(176, 124, 4)}${smile(160, 136, 176, 5, 3)}<path d="M160 110 L154 92 M176 110 L184 92" stroke="${INK}" stroke-width="3" stroke-linecap="round"/><circle cx="154" cy="90" r="4" fill="#e8463a"/><circle cx="184" cy="90" r="4" fill="#e8463a"/>`,
+  },
+  {
+    id: "r29",
+    world: "paths",
+    title: "Леденец",
+    ink: "#e8463a",
+    help: "less",
+    alive: "glow",
+    done: "Сладкий леденец на палочке!",
+    strokes: [spiral(100, 82, 3, 4, 50), "M100 134 V188"],
+    fill: `<circle cx="100" cy="82" r="54" fill="#ffd1dc"/><path d="${spiral(100, 82, 3, 4, 50)}" fill="none" stroke="#fff" stroke-width="10" opacity=".7"/><rect x="95" y="134" width="10" height="54" rx="4" fill="#fff" stroke="${INK}" stroke-width="3"/><path d="M100 140 L84 132 L84 150 Z M100 140 L116 132 L116 150 Z" fill="#9b6cd8"/>`,
+  },
+  {
+    id: "r30",
+    world: "paths",
+    title: "Радуга",
+    ink: "#9b6cd8",
+    help: "less",
+    alive: "glow",
+    done: "Радуга после дождика!",
+    strokes: ["M28 150 A72 72 0 0 1 172 150", "M48 150 A52 52 0 0 1 152 150", "M68 150 A32 32 0 0 1 132 150", "M10 160 Q10 138 32 142 Q42 124 60 140 Q76 140 74 160 Z", "M126 160 Q124 140 142 140 Q158 124 168 142 Q190 138 190 160 Z"],
+    fill: `<path d="M28 150 A72 72 0 0 1 172 150" fill="none" stroke="#e8463a" stroke-width="16"/><path d="M38 150 A62 62 0 0 1 162 150" fill="none" stroke="#ff8a3d" stroke-width="8"/><path d="M48 150 A52 52 0 0 1 152 150" fill="none" stroke="#ffc94a" stroke-width="12"/><path d="M58 150 A42 42 0 0 1 142 150" fill="none" stroke="#5fbf4e" stroke-width="10"/><path d="M68 150 A32 32 0 0 1 132 150" fill="none" stroke="#3a8fd4" stroke-width="10"/><path d="M10 160 Q10 138 32 142 Q42 124 60 140 Q76 140 74 160 Z M126 160 Q124 140 142 140 Q158 124 168 142 Q190 138 190 160 Z" fill="#fff"/>`,
   },
 ];
 

@@ -83,7 +83,7 @@ export const games: GameEntry[] = [
   {
     id: "risovalka",
     title: "Рисовалка",
-    note: "Обведи — и рисунок оживёт. 24 картинки",
+    note: "Обведи — и рисунок оживёт. 30 картинок",
     color: "#9b6cd8",
     art: { src: svgUrl(TILE_ART.risovalka), figure: true },
     load: () => import("./risovalka"),
@@ -134,7 +134,7 @@ export const games: GameEntry[] = [
   {
     id: "formy",
     title: "Размер и форма",
-    note: "Большое и маленькое, круг и квадрат",
+    note: "Больше-меньше, фигуры, узоры, углы",
     color: "#9b6cd8",
     art: { src: svgUrl(TILE_ART.formy), figure: true },
     load: () => import("./formy"),
