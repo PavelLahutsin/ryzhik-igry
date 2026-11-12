@@ -59,16 +59,29 @@ const won = (p) => p.locator(".praise").count().then((n) => n > 0);
 // ------------------------------------------------------------ solvers
 const SOLVE = {
   async mozaika(p) {
-    // Upside-down pieces: tap to turn first. Extra pieces (no slot) stay.
-    const n = await p.locator(".mz-slot").count();
-    for (let i = 0; i < n; i++) {
+    // v12: a small tray streams the pieces (.is-waiting ones are hidden);
+    // extras go to the basket; an upside-down piece is either tapped first
+    // or dropped straight on its slot (it turns there by itself).
+    let turn = 0;
+    for (let k = 0; k < 60 && !(await won(p)); k++) {
+      const i = await p.evaluate(() => {
+        const n = document.querySelector(".mz-piece:not(.is-placed):not(.is-waiting)");
+        return n ? n.getAttribute("data-index") : null;
+      });
+      if (i == null) break;
       const sel = `.mz-piece[data-index="${i}"]`;
-      if (await p.locator(`${sel}.is-flipped`).count()) {
+      if (await p.locator(`${sel}.is-extra`).count()) {
+        await dragSel(p, sel, ".mz-basket");
+        await p.waitForTimeout(500);
+        continue;
+      }
+      if (await p.locator(`${sel}.is-flipped`).count() && turn++ % 2 === 0) {
         const m = await mid(p, sel);
         await p.mouse.click(m[0], m[1]);
         await p.waitForTimeout(450);
       }
       await dragSel(p, sel, `.mz-slot[data-index="${i}"]`);
+      await p.waitForTimeout(150);
     }
   },
   async "najdi-paru"(p) {
@@ -279,7 +292,7 @@ const SOLVE = {
 };
 
 // ------------------------------------------------------------ layout checks
-const TOUCH = ".fm-opt,.mz-piece,.tn-item,.od-item,.so-item,[data-tool],.pr-shelf__item,.pr-coin,.sk-block,.fm-tray [data-key],.np-card,.btn,.level-card,.sl-pad__btn,.kt-food,.kt-tool,.kt-picker__btn";
+const TOUCH = ".fm-opt,.mz-piece:not(.is-waiting):not(.is-placed),.tn-item,.od-item,.so-item,[data-tool],.pr-shelf__item,.pr-coin,.sk-block,.fm-tray [data-key],.np-card,.btn,.level-card,.sl-pad__btn,.kt-food,.kt-tool,.kt-picker__btn";
 async function layoutCheck(p) {
   return p.evaluate((TOUCH) => {
     const out = [];
