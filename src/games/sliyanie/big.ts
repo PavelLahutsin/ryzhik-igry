@@ -138,7 +138,7 @@ function renderPicker(root: HTMLElement): () => void {
       if (fresh) void store.remove(KEYS.game).then(() => navigateGame(GAME, "/big/play"));
       else navigateGame(GAME, "/big/play");
     };
-    info.textContent = [game ? `Начатая игра: ${game.score} очков` : "", best ? `Рекорд: ${best}` : ""].filter(Boolean).join(" · ");
+    info.textContent = [game ? `Начатая игра — очки: ${game.score}` : "", best ? `Рекорд: ${best}` : ""].filter(Boolean).join(" · ");
     actions.replaceChildren(
       game
         ? el("button", { class: "btn btn--play", attrs: { type: "button" }, on: { click: () => play(false) } }, [el("span", { text: "Продолжить" })])
