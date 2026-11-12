@@ -127,3 +127,101 @@ export function unstick(board: Board, maxTier: number, rand: () => number): Boar
 export function starsFor(helps: number): number {
   return helps === 0 ? 3 : helps === 1 ? 2 : 1;
 }
+
+// ---------- «Большая игра 2048» ----------
+// The same board, tier t is the number 2^(t+1): tier 0 = 2, tier 10 = 2048.
+
+/** Tier of the 2048 tile (the win). */
+export const WIN_TIER = 10;
+/** After the win the child may play on up to 131072. */
+export const BIG_MAX_TIER = 16;
+export const BIG_SIZE = 4;
+
+export const tileValue = (tier: number): number => 2 ** (tier + 1);
+
+export type BigGame = {
+  board: Board;
+  score: number;
+  /** 2048 was made in this game. */
+  won: boolean;
+  /** One step back (kid-friendly undo); null right after an undo. */
+  prev: { board: Board; score: number } | null;
+};
+
+export function newBigGame(rand: () => number): BigGame {
+  return { board: spawn(spawn(emptyBoard(BIG_SIZE), rand), rand), score: 0, won: false, prev: null };
+}
+
+export type BigMove = {
+  game: BigGame;
+  moved: boolean;
+  /** Tiers made in this move. */
+  mergedTiers: number[];
+  /** Points for this move: the sum of the new numbers. */
+  gained: number;
+  /** 2048 appeared in this very move. */
+  justWon: boolean;
+};
+
+/** Classic 2048 move: slide, merge once, add the numbers to the score, drop a 2 (90%) or a 4. */
+export function bigMove(game: BigGame, dir: Dir, rand: () => number): BigMove {
+  const res = move(game.board, dir, BIG_MAX_TIER);
+  if (!res.moved) return { game, moved: false, mergedTiers: [], gained: 0, justWon: false };
+  const gained = res.mergedTiers.reduce((sum, tier) => sum + tileValue(tier), 0);
+  const justWon = !game.won && res.mergedTiers.some((tier) => tier >= WIN_TIER);
+  return {
+    game: {
+      board: spawn(res.board, rand),
+      score: game.score + gained,
+      won: game.won || justWon,
+      prev: { board: game.board, score: game.score },
+    },
+    moved: true,
+    mergedTiers: res.mergedTiers,
+    gained,
+    justWon,
+  };
+}
+
+/** Back one move (once). The win stays a win. */
+export function bigUndo(game: BigGame): BigGame {
+  if (!game.prev) return game;
+  return { board: game.prev.board, score: game.prev.score, won: game.won, prev: null };
+}
+
+export function hasMoves(game: BigGame): boolean {
+  return canMove(game.board, BIG_MAX_TIER);
+}
+
+function validBoard(value: unknown, size: number): Board | null {
+  if (!value || typeof value !== "object") return null;
+  const b = value as Partial<Board>;
+  if (b.size !== size || !Array.isArray(b.tiles)) return null;
+  const seen = new Set<number>();
+  const tiles: Tile[] = [];
+  let nextId = 1;
+  for (const t of b.tiles as unknown[]) {
+    const tile = t as Partial<Tile>;
+    const ok = [tile.id, tile.tier, tile.r, tile.c].every((n) => Number.isInteger(n));
+    if (!ok) return null;
+    const { id, tier, r, c } = tile as Tile;
+    if (tier < 0 || tier > BIG_MAX_TIER || r < 0 || r >= size || c < 0 || c >= size) return null;
+    if (seen.has(r * size + c)) return null;
+    seen.add(r * size + c);
+    tiles.push({ id, tier, r, c });
+    nextId = Math.max(nextId, id + 1);
+  }
+  return { size, tiles, nextId: Math.max(nextId, Number(b.nextId) || 0) };
+}
+
+/** A saved game from storage, or null when it is missing or broken. */
+export function restoreBigGame(value: unknown): BigGame | null {
+  if (!value || typeof value !== "object") return null;
+  const g = value as Partial<BigGame>;
+  const board = validBoard(g.board, BIG_SIZE);
+  if (!board || !board.tiles.length || typeof g.score !== "number" || !(g.score >= 0)) return null;
+  const prevBoard = g.prev ? validBoard(g.prev.board, BIG_SIZE) : null;
+  const prev = prevBoard && typeof g.prev?.score === "number" ? { board: prevBoard, score: g.prev.score } : null;
+  if (prev) board.nextId = Math.max(board.nextId, prev.board.nextId);
+  return { board, score: Math.floor(g.score), won: g.won === true || bestTier(board) >= WIN_TIER, prev };
+}
