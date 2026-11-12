@@ -45,6 +45,16 @@ export type DragOptions = {
 /** Soft sound for a drop on empty space; main.ts plugs in the audio. */
 export const dragFeedback = { none: (): void => {} };
 
+/** v13: a small «got it» bounce on a right drop (only when the game runs no animation of its own). */
+export function hit(node: HTMLElement): void {
+  if (reducedMotion()) return;
+  requestAnimationFrame(() => {
+    if (!node.isConnected || getComputedStyle(node).animationName !== "none") return;
+    node.classList.add("hit");
+    setTimeout(() => node.classList.remove("hit"), 260);
+  });
+}
+
 /** Shrink, wobble and sound for «not here» (no mistake). */
 export function nope(node: HTMLElement): void {
   dragFeedback.none();
@@ -122,6 +132,7 @@ export function draggable(node: HTMLElement, options: DragOptions): () => void {
     if (result === true) {
       node.style.transition = "none";
       node.style.transform = "";
+      hit(node);
       return;
     }
     node.style.transition = reducedMotion() ? "none" : "transform 280ms cubic-bezier(.3,1.4,.5,1)";

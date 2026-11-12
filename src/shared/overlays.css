@@ -378,3 +378,15 @@
   padding: 0;
   border-radius: 50%;
 }
+
+/* v13 (all games, the ported apps too): every button answers a press (scale composes with the games' own transforms). */
+button:not(:disabled):not(.is-dragging):not(.btn--play):active,
+[role="button"]:not(.is-dragging):active {
+  scale: 0.96;
+}
+@media (prefers-reduced-motion: reduce) {
+  button:not(:disabled):active,
+  [role="button"]:active {
+    scale: none;
+  }
+}

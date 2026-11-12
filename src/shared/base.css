@@ -1653,3 +1653,12 @@ button {
   opacity: 0.85;
 }
 .world-chips ~ .worlds .world { scroll-margin-top: 64px; }
+
+/* A right drop: a short bounce. */
+.hit { animation: hit 220ms cubic-bezier(0.22, 1.4, 0.4, 1); }
+@keyframes hit {
+  40% { scale: 1.14; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hit { animation: none; }
+}
