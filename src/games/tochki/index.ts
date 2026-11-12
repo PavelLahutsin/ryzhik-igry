@@ -8,7 +8,7 @@ import { svgNode } from "../../shared/ui";
 import { centre, showDrag, showTap } from "../../shared/guide";
 import baseCss from "../../shared/base.css?inline";
 import css from "./style.css?inline";
-import { allJoined, centroid, labelAt, startDots, starsFor, touch, type Pt } from "./logic";
+import { allJoined, labelOf, labelSpots, startDots, starsFor, touch, type Pt } from "./logic";
 import { levels, worlds, type DotPicture } from "./levels";
 
 /** «По точкам»: join the numbered dots in order, and the picture appears. */
@@ -22,21 +22,42 @@ export function mount(root: HTMLElement): () => void {
       levels,
       worlds,
       thumb: (level) => svgNode(thumbArt(level), "td-thumb"),
-      caption: (level) => `${level.title} · ${level.dots.length}`,
+      caption: (level) => `${level.title} · ${range(level)}`,
       play,
     },
     root,
   );
 }
 
+/** «1–10», «10→1», «2, 4…20», «А–К». */
+function range(l: DotPicture): string {
+  const n = l.dots.length;
+  const first = labelOf(l.count, 0, n);
+  const last = labelOf(l.count, n - 1, n);
+  if (l.count === "down") return `${first}→${last}`;
+  if (typeof l.count === "number") return `${first}, ${labelOf(l.count, 1, n)}…${last}`;
+  return `${first}–${last}`;
+}
+
+/** What the child hears/reads before the first dot. */
+function startLine(l: DotPicture): string {
+  const first = `<b>${labelOf(l.count, 0, l.dots.length)}</b>`;
+  if (l.count === "down") return `Считаем назад: начни с ${first}`;
+  if (l.count === "abc") return `По алфавиту: начни с буквы ${first}`;
+  if (l.count === 2) return `Через одну: начни с ${first}`;
+  if (l.count === 5) return `Пятёрками: начни с ${first}`;
+  if (l.count === 10) return `Десятками: начни с ${first}`;
+  return `Начни с цифры ${first}`;
+}
+
 const pts = (dots: readonly Pt[]): string => dots.map((d) => `${d.x},${d.y}`).join(" ");
 
 function thumbArt(l: DotPicture): string {
-  const m = centroid(l.dots);
+  const spots = labelSpots(l.dots);
   const nums = l.dots
     .map((d, i) => {
-      const t = labelAt(d, m, 14);
-      return `<circle cx="${d.x}" cy="${d.y}" r="6" fill="#3b2e25"/><text x="${t.x}" y="${t.y}" font-size="15" font-weight="800" text-anchor="middle" dominant-baseline="central" fill="#8f7a63">${i + 1}</text>`;
+      const t = spots[i]!;
+      return `<circle cx="${d.x}" cy="${d.y}" r="6" fill="#3b2e25"/><text x="${t.x}" y="${t.y}" font-size="15" font-weight="800" text-anchor="middle" dominant-baseline="central" fill="#8f7a63">${labelOf(l.count, i, l.dots.length)}</text>`;
     })
     .join("");
   return `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><polygon points="${pts(l.dots)}" fill="${l.color}" opacity=".18"/>${nums}</svg>`;
@@ -62,13 +83,13 @@ function play(stage: HTMLElement, level: DotPicture, _index: number, api: PlayAp
   pic.append(shape, details);
   svg.append(pic, lines, rubber, dotLayer, extras);
 
-  const middle = centroid(dots);
+  const spots = labelSpots(dots);
   const dotNodes = dots.map((d, i) => {
     const g = svgEl("g", { class: "td-dot", transform: `translate(${d.x} ${d.y})` });
-    const t = labelAt(d, middle, 14);
+    const t = spots[i]!;
     g.append(svgEl("circle", { r: 13, class: "td-dot__halo" }), svgEl("circle", { r: 6.5, class: "td-dot__core" }));
     const label = svgEl("text", { x: t.x - d.x, y: t.y - d.y, class: "td-dot__num" });
-    label.textContent = String(i + 1);
+    label.textContent = labelOf(level.count, i, dots.length);
     g.append(label);
     dotLayer.append(g);
     return g;
@@ -85,7 +106,7 @@ function play(stage: HTMLElement, level: DotPicture, _index: number, api: PlayAp
       g.classList.toggle("is-next", i === state.next);
     });
     lines.setAttribute("points", pts(dots.slice(0, state.next)));
-    if (!allJoined(dots, state)) say.innerHTML = state.next === 0 ? `Начни с цифры <b>1</b>` : `Теперь <b>${state.next + 1}</b>`;
+    if (!allJoined(dots, state)) say.innerHTML = state.next === 0 ? startLine(level) : `Теперь <b>${labelOf(level.count, state.next, dots.length)}</b>`;
   }
 
   const toLocal = (e: PointerEvent): Pt => svgLocal(svg, e);
@@ -94,7 +115,9 @@ function play(stage: HTMLElement, level: DotPicture, _index: number, api: PlayAp
     const before = state.misses;
     const joined = touch(dots, state, p, tapped);
     if (joined !== null) {
-      audio.tone(NOTES[joined % NOTES.length]! * (joined >= NOTES.length ? 2 : 1), 0.18);
+      // Counting down sounds like going down the scale.
+      const step = level.count === "down" ? dots.length - 1 - joined : joined;
+      audio.tone(NOTES[step % NOTES.length]! * (step >= NOTES.length ? 2 : 1), 0.18);
       const g = dotNodes[joined]!;
       replayClass(g, "is-pop");
       paint();
@@ -103,7 +126,7 @@ function play(stage: HTMLElement, level: DotPicture, _index: number, api: PlayAp
       audio.play("miss");
       const next = dotNodes[state.next]!;
       replayClass(next, "is-call");
-      say.innerHTML = `Ищи цифру <b>${state.next + 1}</b>`;
+      say.innerHTML = `Ищи ${level.count === "abc" ? "букву" : "число"} <b>${labelOf(level.count, state.next, dots.length)}</b>`;
     }
   }
 
