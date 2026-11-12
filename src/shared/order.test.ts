@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { inWorldOrder } from "./order";
 import { levels as tochki } from "../games/tochki/levels";
 import { levels as teni } from "../games/teni/levels";
+import { difficulty as teniDifficulty } from "../games/teni/logic";
 import { levels as labirint } from "../games/labirint/levels";
 import { levels as pary, pairsOf } from "../games/najdi-paru/levels";
 import { levels as sortirovka, itemCount } from "../games/sortirovka/levels";
@@ -19,7 +20,7 @@ describe("levels keep getting harder", () => {
       expect(levels.filter((l) => l.world === last).some((l) => size(l) === top), String(last)).toBe(true);
     };
     lastWorldIsTop(tochki, (l) => l.dots.length);
-    lastWorldIsTop(teni, (l) => l.items.length);
+    lastWorldIsTop(teni, teniDifficulty);
     lastWorldIsTop(labirint, (l) => l.cols * l.rows);
     lastWorldIsTop(pary, pairsOf);
     lastWorldIsTop(sortirovka, (l) => l.baskets.length * 10 + itemCount(l));
