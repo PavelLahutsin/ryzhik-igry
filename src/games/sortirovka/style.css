@@ -223,3 +223,61 @@
     width: min(100%, 14vh, 150px);
   }
 }
+
+/* ---------------- v10: big and small things, counting baskets */
+.so-item--small .so-item__art {
+  inset: 29%;
+}
+.so-item--big .so-item__art {
+  inset: 4%;
+}
+.so-basket__thing.is-small {
+  width: min(18%, 3.6vh, 26px);
+}
+.so-basket__label.is-small {
+  width: 13px;
+  height: 13px;
+}
+.so-basket__label.is-big {
+  width: 26px;
+  height: 26px;
+}
+.so-basket__dots {
+  display: inline-grid;
+  grid-template-columns: repeat(2, 8px);
+  gap: 2px;
+  width: auto;
+  height: auto;
+}
+.so-basket__dots i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ink);
+}
+.so-basket__num {
+  font: 900 clamp(20px, 3.4vh, 30px) / 1 var(--font-ui);
+}
+.so-basket--count.is-full .so-basket__name {
+  color: #2f8f55;
+}
+.so-basket--count.is-full .so-basket__name::after {
+  content: "✓";
+  margin-left: 2px;
+}
+/* Short phones upright with four baskets (k6, n3, x1–x3 at 360×640): smaller
+   baskets and things, so the table does not run under the baskets. */
+@media (orientation: portrait) and (max-height: 720px) {
+  .so-baskets--4 .so-basket__art {
+    width: min(100%, 10.5vh, 120px);
+  }
+  .so-baskets--4 .so-basket__name {
+    font-size: 13px;
+  }
+  .so-baskets--4 ~ .so-table {
+    gap: 8px;
+  }
+  .so-baskets--4 ~ .so-table .so-item {
+    width: min(20vw, 10vh, 80px);
+  }
+}

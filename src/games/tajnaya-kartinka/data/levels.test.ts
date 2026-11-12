@@ -8,10 +8,10 @@ describe("levels.json", () => {
     expect(validateLevels()).toEqual([]);
   });
 
-  it("has three worlds of five levels", () => {
-    expect(worlds.map((w) => w.id)).toEqual(["ryzhik", "semya", "druzya"]);
+  it("has four worlds of five levels", () => {
+    expect(worlds.map((w) => w.id)).toEqual(["ryzhik", "semya", "druzya", "chudesa"]);
     for (const world of worlds) expect(world.levels.length).toBe(5);
-    expect(levels.length).toBe(15);
+    expect(levels.length).toBe(20);
     expect(levels.map((l) => l.number)).toEqual(levels.map((_, i) => i + 1));
   });
 
@@ -27,6 +27,7 @@ describe("levels.json", () => {
       if (level.puddles) things.add("puddle");
       if (level.fastBees) things.add("fast");
       if (level.ladybugs) things.add("ladybug");
+      if (level.spiders) things.add("spider");
       const fresh = [...things].filter((t) => !seen.has(t));
       expect(fresh.length, level.id).toBeLessThanOrEqual(1);
       if (fresh.length === 1) expect(level.intro, level.id).toBe(fresh[0]);
@@ -41,6 +42,8 @@ describe("levels.json", () => {
       const b = levels[i]!;
       expect(b.winPercent, b.id).toBeGreaterThanOrEqual(a.winPercent);
       expect(b.cols * b.rows, b.id).toBeGreaterThanOrEqual(a.cols * a.rows);
+      const threat = (l: typeof a): number => l.enemies + (l.fastBees ?? 0) + (l.ladybugs ?? 0) + (l.spiders ?? 0) * 1.5;
+      if (b.worldId !== a.worldId) expect(threat(b), b.id).toBeGreaterThanOrEqual(threat(a) - 1);
     }
   });
 

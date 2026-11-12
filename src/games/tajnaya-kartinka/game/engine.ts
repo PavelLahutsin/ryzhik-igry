@@ -51,6 +51,8 @@ export type GameConfig = {
   ladybugs?: number;
   /** Puddles slow Ryzhik down while he walks through them. */
   puddles?: number;
+  /** Spiders walk on the open ground and follow Ryzhik (to where he left it). */
+  spiders?: number;
   /** Which helpers may appear on this level. */
   items?: readonly ItemKind[];
   /** Pause between helpers in seconds. */
@@ -72,6 +74,10 @@ export type Enemy = {
 };
 
 export type Ladybug = {
+  /** A spider: walks the open ground like a ladybug, but heads for Ryzhik. */
+  chase?: boolean;
+  /** Seconds a spider just wanders after a bump (so an idle child is not bumped again and again). */
+  calm?: number;
   x: number;
   y: number;
   vx: number;
@@ -94,6 +100,10 @@ export type Effects = {
 };
 
 const LADYBUG_STEP = 0.42;
+/** A spider is a bit slower than a ladybug: you can always run away. */
+const SPIDER_STEP = 0.5;
+/** Seconds a spider wanders off after bumping Ryzhik. */
+export const SPIDER_CALM = 5;
 const PLAYER_STEP = 0.17;
 const PUDDLE_FACTOR = 1.9;
 const FAST_FACTOR = 0.62;
@@ -147,6 +157,7 @@ export class Game {
   private readonly enemyCount: number;
   private readonly fastCount: number;
   private readonly ladybugCount: number;
+  private readonly spiderCount: number;
   private readonly puddleCount: number;
   private readonly itemEvery: number;
   private readonly seed: number;
@@ -165,6 +176,7 @@ export class Game {
     this.enemyCount = Math.max(0, Math.min(4, config.enemies));
     this.fastCount = Math.max(0, Math.min(this.enemyCount, config.fastBees ?? 0));
     this.ladybugCount = Math.max(0, Math.min(2, config.ladybugs ?? 0));
+    this.spiderCount = Math.max(0, Math.min(2, config.spiders ?? 0));
     this.puddleCount = Math.max(0, Math.min(6, config.puddles ?? 0));
     this.itemKinds = (config.items ?? []).filter((kind) => ITEM_KINDS.includes(kind));
     this.itemEvery = Math.max(2, config.itemEvery ?? ITEM_EVERY);
@@ -279,7 +291,8 @@ export class Game {
       for (const bug of this.ladybugs) {
         if (this.done()) break;
         bug.acc += step;
-        const bugStep = LADYBUG_STEP * (this.effects.snail > 0 ? SNAIL_FACTOR : 1);
+        if (bug.calm) bug.calm = Math.max(0, bug.calm - step);
+        const bugStep = (bug.chase ? SPIDER_STEP : LADYBUG_STEP) * (this.effects.snail > 0 ? SNAIL_FACTOR : 1);
         while (bug.acc >= bugStep) {
           bug.acc -= bugStep;
           this.stepLadybug(bug);
@@ -521,6 +534,12 @@ export class Game {
       { x: this.cols - 1, y: 0, vx: -1, vy: 0, acc: 0.2 },
     ];
     for (let i = 0; i < this.ladybugCount; i++) this.ladybugs.push({ ...starts[i]! });
+    // Spiders start at the top, far from Ryzhik (he starts at the bottom).
+    const top: Ladybug[] = [
+      { chase: true, x: Math.floor(this.cols / 2), y: 0, vx: 1, vy: 0, acc: 0 },
+      { chase: true, x: 0, y: Math.floor(this.rows / 2), vx: 0, vy: 1, acc: 0.3 },
+    ];
+    for (let i = 0; i < this.spiderCount; i++) this.ladybugs.push({ ...top[i]! });
   }
 
   private onEnemy(x: number, y: number): boolean {
@@ -662,6 +681,7 @@ export class Game {
     const edge = forward.filter((d) => this.onEdge(bug.x + d.x, bug.y + d.y));
     const straight = edge.find((d) => d.x === bug.vx && d.y === bug.vy);
     const choice =
+      (bug.chase ? this.towardsRyzhik(bug, open) : undefined) ??
       straight ?? pick(this.rng, edge) ?? pick(this.rng, forward) ?? pick(this.rng, open);
     if (!choice) return;
     bug.vx = choice.x;
@@ -670,12 +690,34 @@ export class Game {
     bug.y += choice.y;
   }
 
+  /**
+   * A spider's step: the open cell closest to Ryzhik — or, while he draws in
+   * the fog, to the spot where he left the open ground (he comes back there).
+   * Ties keep going straight, so she does not jitter.
+   */
+  private towardsRyzhik(bug: Ladybug, options: readonly Point[]): Point | undefined {
+    if (bug.calm) return undefined;
+    const tx = this.drawing ? this.lastSafeX : this.playerX;
+    const ty = this.drawing ? this.lastSafeY : this.playerY;
+    let best: Point | undefined;
+    let bestD = Infinity;
+    for (const d of options) {
+      const dist = Math.abs(bug.x + d.x - tx) + Math.abs(bug.y + d.y - ty) - (d.x === bug.vx && d.y === bug.vy ? 0.5 : 0);
+      if (dist < bestD) {
+        bestD = dist;
+        best = d;
+      }
+    }
+    return best;
+  }
+
   private checkLadybugs(): void {
     if (this.ladybugCooldown > 0 || this.effects.shield > 0) return;
     for (const bug of this.ladybugs) {
       if (bug.x === this.playerX && bug.y === this.playerY) {
         bug.vx *= -1;
         bug.vy *= -1;
+        if (bug.chase) bug.calm = SPIDER_CALM;
         this.ladybugCooldown = LADYBUG_COOLDOWN;
         this.hit();
         return;

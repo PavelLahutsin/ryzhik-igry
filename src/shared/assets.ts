@@ -2,17 +2,20 @@
  * Pictures shared by several games, bundled by Vite (no network at runtime).
  *  - levels/*.webp: 16:9 scenes with Ryzhik, family and friends (1280×720),
  *    first made for «Тайная картинка».
+ *  - scenes/*.svg: drawn (vector) 16:9 scenes without characters, used by
+ *    «Тайная картинка» and «Мозаика».
  *  - characters/*.webp: transparent full-body cutouts. ryzhik.webp comes from
  *    the coloring app; the rest are cut from the master sheets by
  *    scripts/make-cutouts.py.
  */
 const levelFiles = import.meta.glob<string>("./assets/levels/*.webp", { eager: true, import: "default" });
+const sceneFiles = import.meta.glob<string>("./assets/scenes/*.svg", { eager: true, import: "default" });
 const characterFiles = import.meta.glob<string>("./assets/characters/*.webp", { eager: true, import: "default" });
 
 function byName(files: Record<string, string>): Record<string, string> {
   const out: Record<string, string> = {};
   for (const [path, url] of Object.entries(files)) {
-    const name = path.split("/").pop()!.replace(/\.webp$/, "");
+    const name = path.split("/").pop()!.replace(/\.(webp|svg)$/, "");
     out[name] = url;
   }
   return out;
@@ -20,6 +23,13 @@ function byName(files: Record<string, string>): Record<string, string> {
 
 export const pictures = byName(levelFiles);
 export const characters = byName(characterFiles);
+export const scenes = byName(sceneFiles);
+
+export function scene(id: string): string {
+  const url = scenes[id];
+  if (!url) throw new Error(`Нет картинки ${id}`);
+  return url;
+}
 
 export type PictureId = keyof typeof pictures;
 

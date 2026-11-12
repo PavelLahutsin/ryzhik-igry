@@ -215,3 +215,127 @@
     animation: none;
   }
 }
+
+/* ---------------- v10: a new way of counting — a short demo */
+.td-wrap {
+  position: relative;
+}
+.td-sayrow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px 10px;
+}
+.td-how {
+  padding: 6px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: 0 0 0 2px var(--line);
+  font: 800 15px/1 var(--font-ui);
+  color: var(--ink);
+  cursor: pointer;
+}
+.td-intro {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 12px;
+  background: rgba(59, 46, 37, 0.28);
+  border-radius: 24px;
+  cursor: pointer;
+}
+.td-intro__card {
+  width: min(100%, 380px);
+  padding: 16px 18px 18px;
+  border-radius: 26px;
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+  text-align: center;
+  cursor: default;
+}
+.td-intro__title {
+  margin: 0;
+  font: 800 24px/1.2 var(--font-ui);
+}
+.td-intro__svg {
+  display: block;
+  width: 100%;
+  max-height: 120px;
+}
+.td-intro__line {
+  stroke: #3b2e25;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+.td-intro__halo {
+  fill: #3fae6a;
+  opacity: 0;
+}
+.td-intro__core {
+  fill: #3b2e25;
+}
+.td-intro__num {
+  font: 800 24px/1 var(--font-ui);
+  text-anchor: middle;
+  dominant-baseline: central;
+  fill: #8f7a63;
+}
+.is-run .td-intro__line--1 { animation: td-intro-draw 1s 0.45s ease-in-out forwards; }
+.is-run .td-intro__line--2 { animation: td-intro-draw 1s 2.25s ease-in-out forwards; }
+.is-run .td-intro__dot--1 .td-intro__halo { animation: td-intro-on 0.4s 0.2s forwards; }
+.is-run .td-intro__dot--2 .td-intro__halo { animation: td-intro-on 0.4s 1.45s forwards; }
+.is-run .td-intro__dot--3 .td-intro__halo { animation: td-intro-on 0.4s 3.25s forwards; }
+.is-run .td-intro__dot--1 .td-intro__num { animation: td-intro-num 0.4s 0.2s forwards; }
+.is-run .td-intro__dot--2 .td-intro__num { animation: td-intro-num 0.4s 1.45s forwards; }
+.is-run .td-intro__dot--3 .td-intro__num { animation: td-intro-num 0.4s 3.25s forwards; }
+@keyframes td-intro-draw { to { stroke-dashoffset: 0; } }
+@keyframes td-intro-on { to { opacity: 0.45; } }
+@keyframes td-intro-num { to { fill: #2f8f55; } }
+.td-intro__line-text {
+  margin: 4px 0 0;
+  font: 700 18px/1.3 var(--font-ui);
+}
+.td-intro__line-text b {
+  padding: 0 8px;
+  border-radius: 999px;
+  background: #3fae6a;
+  color: #fff;
+}
+.td-intro__rule {
+  margin: 8px 0 0;
+  font: 700 14px/1.3 var(--font-ui);
+  color: #8f7a63;
+}
+.td-intro__buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+.td-intro__again {
+  padding: 12px 16px;
+  border: 0;
+  border-radius: 999px;
+  background: #fff3df;
+  box-shadow: 0 0 0 2px var(--line);
+  font: 800 16px/1 var(--font-ui);
+  color: var(--ink);
+  cursor: pointer;
+}
+@media (max-height: 500px) {
+  .td-intro__card { padding: 10px 14px 12px; }
+  .td-intro__svg { max-height: 80px; }
+  .td-intro__rule { display: none; }
+  .td-intro__buttons { margin-top: 6px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .td-intro__line { stroke-dashoffset: 0; }
+  .td-intro__halo { opacity: 0.45; }
+}

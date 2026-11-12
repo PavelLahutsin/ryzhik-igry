@@ -50,8 +50,17 @@ const won = (p) => p.locator(".praise").count().then((n) => n > 0);
 // ------------------------------------------------------------ solvers
 const SOLVE = {
   async mozaika(p) {
-    const n = await p.locator(".mz-piece").count();
-    for (let i = 0; i < n; i++) await dragSel(p, `.mz-piece[data-index="${i}"]`, `.mz-slot[data-index="${i}"]`);
+    // Upside-down pieces: tap to turn first. Extra pieces (no slot) stay.
+    const n = await p.locator(".mz-slot").count();
+    for (let i = 0; i < n; i++) {
+      const sel = `.mz-piece[data-index="${i}"]`;
+      if (await p.locator(`${sel}.is-flipped`).count()) {
+        const m = await mid(p, sel);
+        await p.mouse.click(m[0], m[1]);
+        await p.waitForTimeout(450);
+      }
+      await dragSel(p, sel, `.mz-slot[data-index="${i}"]`);
+    }
   },
   async "najdi-paru"(p) {
     await p.waitForTimeout(400);
@@ -60,22 +69,22 @@ const SOLVE = {
         const cards = [...document.querySelectorAll(".np-card")];
         const i = cards.findIndex((c) => !c.classList.contains("is-matched") && !c.classList.contains("is-open"));
         if (i < 0) return null;
-        const j = cards.findIndex((c, n) => n !== i && c.dataset.face === cards[i].dataset.face);
-        return [i, j];
+        // Cards of one group (a pair, a thing and its shadow, three alike).
+        const key = (c) => c.dataset.group ?? c.dataset.face;
+        return cards.map((c, n) => n).filter((n) => key(cards[n]) === key(cards[i]) && !cards[n].classList.contains("is-matched"));
       });
       if (!pair) {
         await p.waitForTimeout(300);
         continue;
       }
-      await p.locator(".np-card").nth(pair[0]).click();
-      await p.locator(".np-card").nth(pair[1]).click();
+      for (const n of pair) await p.locator(".np-card").nth(n).click();
       await p.waitForTimeout(700);
     }
   },
   async teni(p) {
     // Big scenes have several rounds: when a round is done the next one comes after a pause.
     for (let k = 0, idle = 0; k < 80 && idle < 12 && !(await won(p)); k++) {
-      const id = await p.evaluate(() => document.querySelector(".tn-item:not(.is-placed)")?.dataset.id ?? null);
+      const id = await p.evaluate(() => document.querySelector(".tn-item:not(.is-placed):not(.is-extra)")?.dataset.id ?? null);
       if (!id) {
         idle++;
         await p.waitForTimeout(250);
@@ -97,11 +106,14 @@ const SOLVE = {
     }
   },
   async sortirovka(p, level) {
+    // The same thing can lie twice (counting baskets): fill each basket up to its number.
+    const got = new Map();
     for (let k = 0; k < 40 && !(await won(p)); k++) {
       const id = await p.evaluate(() => document.querySelector(".so-item:not(.is-placed)")?.dataset.id ?? null);
       if (!id) break;
-      const basket = level.baskets.find((b) => b.items.includes(id)).id;
-      await dragSel(p, `.so-item[data-id="${id}"]`, `.so-basket[data-id="${basket}"]`);
+      const basket = level.baskets.find((b) => b.items.filter((x) => x === id).length > (got.get(`${b.id}|${id}`) ?? 0)).id;
+      await dragSel(p, `.so-item[data-id="${id}"]:not(.is-placed)`, `.so-basket[data-id="${basket}"]`);
+      got.set(`${basket}|${id}`, (got.get(`${basket}|${id}`) ?? 0) + 1);
       await p.waitForTimeout(150);
     }
   },
@@ -172,6 +184,9 @@ const SOLVE = {
     }
   },
   async tochki(p) {
+    // A new way of counting opens a short demo first: close it.
+    await p.waitForTimeout(300);
+    if (await p.locator(".td-intro").count()) await p.locator(".td-intro__go").click();
     const pts = await p.evaluate(() => [...document.querySelectorAll(".td-dot__core")].map((n) => { const r = n.getBoundingClientRect(); return [r.x + r.width / 2, r.y + r.height / 2]; }));
     const path = [];
     for (let i = 1; i < pts.length; i++) path.push(...line(pts[i - 1], pts[i], 6));

@@ -7,25 +7,34 @@ import { reducedMotion, useStyles } from "../../shared/style";
 import { hint, svgNode } from "../../shared/ui";
 import baseCss from "../../shared/base.css?inline";
 import css from "./style.css?inline";
-import { FACE_COLORS, face, levels, pairsOf, worlds, type ParaLevel } from "./levels";
-import { closeMiss, deal, fitGrid, flip, peekable, solved, starsFor } from "./logic";
+import { FACE_COLORS, face, groupsFor, levels, pairsOf, worlds, type ParaLevel } from "./levels";
+import { closeMiss, dealGroups, fitGrid, flip, peekable, solved, starsFor } from "./logic";
 
-/** «Найди пару»: memory cards with Ryzhik, family and friends. No clock. */
+/**
+ * «Найди пару»: memory cards with Ryzhik, family and friends. No clock.
+ * Later worlds: a number and that many things, a thing and its shadow, three alike.
+ */
 export function mount(root: HTMLElement): () => void {
   useStyles(baseCss, css);
   return mountLevelGame(
     {
       id: "najdi-paru",
       title: "Найди пару",
-      subtitle: "Открой две одинаковые карточки",
+      subtitle: "Открой две карточки, которые подходят друг к другу",
       levels,
       worlds,
-      thumb: (level) => faceNode(level.faces[0]!, "np-thumb"),
-      caption: (level) => (level.cols * level.rows === 4 ? "4 карточки" : `${level.cols * level.rows} карточек`),
+      thumb: (level) => faceNode(thumbFace(level), "np-thumb"),
+      caption: (level) => (level.cols * level.rows === 4 ? "4 карточки" : `${level.cols * level.rows} карточек`) + (level.mode === "three" ? " · по три" : ""),
       play,
     },
     root,
   );
+}
+
+function thumbFace(level: ParaLevel): string {
+  if (level.mode === "count") return `many:${level.faces[0]!}:3`;
+  if (level.mode === "shadow") return `shadow:${level.faces[0]!}`;
+  return level.faces[0]!;
 }
 
 function faceNode(key: string, className = "np-face"): HTMLElement {
@@ -34,6 +43,11 @@ function faceNode(key: string, className = "np-face"): HTMLElement {
   box.style.background = FACE_COLORS[key] ?? "#fffcf7";
   if (f.kind === "character") {
     box.append(el("img", { attrs: { src: f.src, alt: "", draggable: "false" } }));
+  } else if (f.kind === "number") {
+    box.append(el("b", { class: "np-num", text: String(f.n) }));
+  } else if (f.kind === "many") {
+    box.dataset.n = String(f.n);
+    for (let i = 0; i < f.n; i++) box.append(svgNode(f.svg));
   } else {
     box.append(svgNode(f.svg));
   }
@@ -42,7 +56,7 @@ function faceNode(key: string, className = "np-face"): HTMLElement {
 
 function play(stage: HTMLElement, level: ParaLevel, _index: number, api: PlayApi): () => void {
   const pairs = pairsOf(level);
-  const state = deal(level.faces, pairs);
+  const state = dealGroups(groupsFor(level));
   const scope = createScope();
   let peeks = 0;
   let peeking = false;
@@ -59,7 +73,7 @@ function play(stage: HTMLElement, level: ParaLevel, _index: number, api: PlayApi
       "button",
       {
         class: "np-card",
-        attrs: { type: "button", "data-face": key, "aria-label": "Карточка, закрыта" },
+        attrs: { type: "button", "data-face": key, "data-group": state.group[i]!, "aria-label": "Карточка, закрыта" },
         on: { click: () => tap(i) },
       },
       [
@@ -114,16 +128,15 @@ function play(stage: HTMLElement, level: ParaLevel, _index: number, api: PlayApi
     show(i, true);
     audio.play("pick");
     if (result === "match") {
-      const [a, b] = [...state.matched].slice(-2) as [number, number];
+      const done = [...state.matched].slice(-state.size);
       scope.later(() => {
-        cards[a]!.classList.add("is-matched");
-        cards[b]!.classList.add("is-matched");
+        for (const j of done) cards[j]!.classList.add("is-matched");
         audio.play("snap");
         if (solved(state)) api.win(starsFor(state.misses, pairs, peeks));
       }, reducedMotion() ? 0 : 320);
     }
     if (result === "miss") {
-      if (state.misses === pairs * 2) hint(stage, "Запоминай, где какая картинка!");
+      if (state.misses === pairs * 2) hint(stage, level.mode === "three" ? "Открывай по три одинаковые — запоминай, где какая!" : "Запоминай, где какая картинка!");
       scope.later(() => {
         for (const j of closeMiss(state)) show(j, false);
       }, 1000);

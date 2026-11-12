@@ -4,6 +4,29 @@ export type Pt = { x: number; y: number };
 
 /** How close (picture units, 200 × 200) a finger must come to a dot. */
 export const REACH = 17;
+/** Dots are never closer than this, so every touch zone stays big enough. */
+export const MIN_GAP = 22;
+
+/**
+ * Each dot's touch zone: REACH, or less where dots sit close together —
+ * half the way to the nearest dot, so two zones never overlap and a touch
+ * always means one dot.
+ */
+export function zones(dots: readonly Pt[]): number[] {
+  return dots.map((a, i) => {
+    let near = Infinity;
+    dots.forEach((b, j) => {
+      if (j !== i) near = Math.min(near, Math.hypot(a.x - b.x, a.y - b.y));
+    });
+    return Math.min(REACH, near / 2);
+  });
+}
+const zoneCache = new WeakMap<readonly Pt[], number[]>();
+const zonesOf = (dots: readonly Pt[]): number[] => {
+  let z = zoneCache.get(dots);
+  if (!z) zoneCache.set(dots, (z = zones(dots)));
+  return z;
+};
 
 export type DotsState = { next: number; misses: number };
 
@@ -15,18 +38,20 @@ export function startDots(): DotsState {
  * The finger is at `p`. Returns the dot index it connects (the next one in
  * order) or null. `tapped` = a fresh touch, which counts a miss when it lands
  * on a different, not yet joined dot (sliding over other dots does not).
+ * That is the only mistake: a tap on empty paper or on a joined dot is not.
  */
 export function touch(dots: readonly Pt[], state: DotsState, p: Pt, tapped: boolean): number | null {
   if (state.next >= dots.length) return null;
+  const zone = zonesOf(dots);
   const want = dots[state.next]!;
-  if (Math.hypot(want.x - p.x, want.y - p.y) <= REACH) {
+  if (Math.hypot(want.x - p.x, want.y - p.y) <= zone[state.next]!) {
     state.next++;
     return state.next - 1;
   }
   if (tapped) {
     for (let i = state.next + 1; i < dots.length; i++) {
       const d = dots[i]!;
-      if (Math.hypot(d.x - p.x, d.y - p.y) <= REACH * 0.8) {
+      if (Math.hypot(d.x - p.x, d.y - p.y) <= zone[i]! * 0.8) {
         state.misses++;
         break;
       }

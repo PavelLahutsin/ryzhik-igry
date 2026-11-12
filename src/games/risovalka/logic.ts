@@ -1,5 +1,5 @@
 import { rate, type Score } from "../../shared/stars";
-/** Tracing rules for «Рисовалка». Pure functions over sampled points. */
+/** Tracing rules for «Обводилка» (id "risovalka"). Pure functions over sampled points. */
 export type Pt = { x: number; y: number };
 
 /** Finger thickness around the dotted line, in picture units (200 × 200). */

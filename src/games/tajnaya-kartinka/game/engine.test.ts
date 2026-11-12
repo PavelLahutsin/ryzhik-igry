@@ -115,3 +115,31 @@ describe("lives", () => {
     }
   });
 });
+
+describe("spiders", () => {
+  it("walk on the open ground towards Ryzhik", () => {
+    const game = new Game({ enemies: 1, winPercent: 0.75, spiders: 1, cols: 16, rows: 9 });
+    const spider = game.ladybugs.find((b) => b.chase)!;
+    expect(spider).toBeTruthy();
+    expect(spider.y).toBe(0);
+    // Ryzhik stands in the bottom-left corner on the open border.
+    game.playerX = 0;
+    game.playerY = 8;
+    const before = Math.abs(spider.x - 0) + Math.abs(spider.y - 8);
+    for (let i = 0; i < 6; i++) game.stepLadybug(spider);
+    const after = Math.abs(spider.x - 0) + Math.abs(spider.y - 8);
+    expect(after).toBeLessThan(before);
+    expect(game.grid[spider.y]![spider.x]).toBe(game.grid[0]![0]);
+  });
+
+  it("bump Ryzhik, then wander off for a while", () => {
+    const game = new Game({ enemies: 1, winPercent: 0.75, spiders: 1, lives: 3 });
+    const spider = game.ladybugs.find((b) => b.chase)!;
+    game.enemies[0]!.acc = -100;
+    spider.x = game.playerX;
+    spider.y = game.playerY;
+    game.update(0.01);
+    expect(game.lives).toBe(2);
+    expect(spider.calm).toBeGreaterThan(0);
+  });
+});

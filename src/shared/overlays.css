@@ -339,3 +339,19 @@
     font-size: 13px;
   }
 }
+
+/* v10: the card closes on a tap anywhere — a quiet line says so. */
+.ht-anywhere {
+  margin: 6px 0 0;
+  font: 700 13px/1.2 var(--font-ui);
+  color: #8f7a63;
+  text-align: center;
+}
+.ht {
+  cursor: pointer;
+}
+@media (max-height: 500px) {
+  .ht-anywhere {
+    display: none;
+  }
+}

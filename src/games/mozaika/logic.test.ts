@@ -1,13 +1,15 @@
 import { describe, expect, it } from "vitest";
 import { createRng } from "../../shared/rng";
-import { levels } from "./levels";
-import { hintPiece, layout, makePieces, scatter, slotOf, snaps, starsFor, trayFits } from "./logic";
+import { scenes } from "../../shared/assets";
+import { difficulty, levels } from "./levels";
+import { hintPiece, layout, makePieces, pickExtra, pickFlipped, scatter, slotOf, snaps, starsFor, trayFits } from "./logic";
 
 describe("mozaika", () => {
   it("has 15 levels of 4, 6, 9, 12 and 16 pieces in growing order", () => {
-    expect(levels).toHaveLength(15);
-    expect(new Set(levels.map((l) => l.picture)).size).toBe(15);
-    const counts = levels.map((l) => l.cols * l.rows);
+    const first = levels.slice(0, 15);
+    expect(first.map((l) => l.id)).toEqual(Array.from({ length: 15 }, (_, i) => `m${i + 1}`));
+    expect(new Set(first.map((l) => l.picture)).size).toBe(15);
+    const counts = first.map((l) => l.cols * l.rows);
     expect(new Set(counts)).toEqual(new Set([4, 6, 9, 12, 16]));
     expect([...counts].sort((a, b) => a - b)).toEqual(counts);
   });
@@ -60,5 +62,44 @@ describe("mozaika", () => {
     expect(starsFor(6, 4).stars).toBe(2);
     expect(starsFor(0, 4, 1).stars).toBe(2);
     expect(starsFor(20, 4).stars).toBe(1);
+  });
+  it("v10: new worlds — upside-down and extra pieces — keep ids and get harder", () => {
+    expect(levels.map((l) => l.id)).toEqual(Array.from({ length: 22 }, (_, i) => `m${i + 1}`));
+    const order = [...new Set(levels.map((l) => l.world))];
+    const mean = (w: string): number => {
+      const ls = levels.filter((l) => l.world === w);
+      return ls.reduce((s, l) => s + difficulty(l), 0) / ls.length;
+    };
+    for (let i = 1; i < order.length; i++) expect(mean(order[i]!), order[i]).toBeGreaterThan(mean(order[i - 1]!));
+    for (const l of levels) {
+      if (l.drawn) expect(scenes[l.picture], l.picture).toBeTruthy();
+      if (l.extra) {
+        expect(scenes[l.extra.from], l.extra.from).toBeTruthy();
+        expect(l.extra.from).not.toBe(l.picture);
+      }
+      expect(l.flip ?? 0).toBeLessThan(l.cols * l.rows);
+    }
+    // Inside the new worlds the hint goes first, then the faded picture.
+    for (const w of ["flip", "extra"]) {
+      const ls = levels.filter((l) => l.world === w);
+      for (let i = 1; i < ls.length; i++) expect(difficulty(ls[i]!)).toBeGreaterThan(difficulty(ls[i - 1]!));
+    }
+  });
+  it("turns some pieces over and cuts extra pieces from another picture", () => {
+    const rnd = createRng(5);
+    const f = pickFlipped(12, 4, rnd);
+    expect(f.size).toBe(4);
+    for (const i of f) expect(i).toBeLessThan(12);
+    expect(pickFlipped(4, 9, rnd).size).toBe(3);
+    const e = pickExtra(4, 4, 3, rnd);
+    expect(new Set(e.map((p) => p.index)).size).toBe(3);
+  });
+  it("finds room for the extra pieces too, on every phone", () => {
+    for (const [w, h] of [[358, 700], [328, 500], [816, 300]] as const) {
+      for (const l of levels.filter((x) => x.extra)) {
+        const g = layout(w, h, l.cols, l.rows, 16 / 9, l.extra!.count);
+        expect(trayFits(l.cols * l.rows + l.extra!.count, g.tray, g.piece), `${l.id} ${w}x${h}`).toBe(true);
+      }
+    }
   });
 });

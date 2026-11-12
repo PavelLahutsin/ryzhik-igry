@@ -105,3 +105,21 @@
     animation: none;
   }
 }
+
+/* v10: upside-down pieces turn over smoothly; a piece that does not fit shakes. */
+.mz-piece.is-flipped {
+  box-shadow: 0 0 0 3px #fff, 0 0 0 6px #3fae6a, 0 10px 18px -8px rgba(59, 46, 37, 0.45);
+}
+.mz-piece.is-shake {
+  animation: mz-shake 420ms ease;
+}
+@keyframes mz-shake {
+  25% { translate: -6px 0; }
+  50% { translate: 6px 0; }
+  75% { translate: -3px 0; }
+}
+.mz-area.is-done .mz-piece.is-extra {
+  visibility: visible;
+  opacity: 0;
+  transition: opacity 400ms ease;
+}

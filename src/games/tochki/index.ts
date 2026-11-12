@@ -10,6 +10,7 @@ import baseCss from "../../shared/base.css?inline";
 import css from "./style.css?inline";
 import { allJoined, labelOf, labelSpots, startDots, starsFor, touch, type Pt } from "./logic";
 import { levels, worlds, type DotPicture } from "./levels";
+import { introSeen, modeOf, NEEDS_INTRO, showIntro } from "./intro";
 
 /** «По точкам»: join the numbered dots in order, and the picture appears. */
 export function mount(root: HTMLElement): () => void {
@@ -18,7 +19,7 @@ export function mount(root: HTMLElement): () => void {
     {
       id: "tochki",
       title: "По точкам",
-      subtitle: "Соедини точки по порядку — 1, 2, 3… и увидишь, что получится",
+      subtitle: "Соедини точки по порядку — и увидишь, что получится",
       levels,
       worlds,
       thumb: (level) => svgNode(thumbArt(level), "td-thumb"),
@@ -98,7 +99,30 @@ function play(stage: HTMLElement, level: DotPicture, _index: number, api: PlayAp
   const board = el("div", { class: "td-board" });
   board.append(svg);
   const say = el("p", { class: "td-say", attrs: { "aria-live": "polite" } });
-  stage.append(el("div", { class: "td-wrap" }, [board, say]));
+  const sayRow = el("div", { class: "td-sayrow" }, [say]);
+  const wrap = el("div", { class: "td-wrap" }, [board, sayRow]);
+  stage.append(wrap);
+
+  // A new way of counting: a short demo (10 → 9 → 8, А → Б → В) the first
+  // time, and «Как считать?» to see it again. Watching it costs nothing.
+  const mode = modeOf(level.count);
+  if (NEEDS_INTRO.includes(mode)) {
+    const how = el("button", {
+      class: "td-how",
+      attrs: { type: "button" },
+      text: "Как считать?",
+      on: {
+        click: () => {
+          audio.unlock();
+          showIntro(wrap, mode, scope);
+        },
+      },
+    });
+    sayRow.append(how);
+    void introSeen(mode).then((seen) => {
+      if (!seen && !scope.disposed && state.next === 0) showIntro(wrap, mode, scope);
+    });
+  }
 
   function paint(): void {
     dotNodes.forEach((g, i) => {

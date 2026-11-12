@@ -52,7 +52,13 @@ describe("risovalka", () => {
     expect(avg("first")).toBeLessThan(avg("harder"));
     expect(avg("animals")).toBeLessThan(avg("harder"));
     expect(avg("harder")).toBeLessThan(avg("master"));
-    for (const l of levels) expect(l.help === "less").toBe(l.world === "master" || l.world === "paths");
+    // Help goes away step by step: full help → only the current line (arrow
+    // kept) → only the current line, no arrow. It never comes back.
+    const rank = { full: 0, next: 1, less: 2 } as const;
+    const ranks = levels.map((l) => rank[l.help ?? "full"]);
+    for (let i = 1; i < ranks.length; i++) expect(ranks[i]!).toBeGreaterThanOrEqual(ranks[i - 1]!);
+    for (const l of levels) expect(l.help !== undefined).toBe(l.world === "master" || l.world === "paths");
+    expect(levels.filter((l) => l.help === "next").map((l) => l.id)).toEqual(["r19", "r20", "r21"]);
     // «Длинные дорожки»: the longest lines of the game, drawn without lifting the finger.
     const len = (d: string): number => d.length;
     const longest = (w: string): number => Math.max(...levels.filter((l) => l.world === w).flatMap((l) => l.strokes.map(len)));

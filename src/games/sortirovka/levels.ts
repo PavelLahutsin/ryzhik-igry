@@ -2,7 +2,22 @@ import type { LevelInfo } from "../../shared/levelgame";
 import { inWorldOrder } from "../../shared/order";
 import type { ObjectColor, ObjectId } from "../../shared/objects";
 
-/** A basket: by colour (all its things share the colour) or by kind. */
+/**
+ * A thing on the table: an object, or an object drawn big or small
+ * ("apple:big", "apple:small") for the size worlds.
+ */
+export type Item = ObjectId | `${ObjectId}:big` | `${ObjectId}:small`;
+
+export const objOf = (item: string): ObjectId => item.split(":")[0] as ObjectId;
+export const sizeOf = (item: string): "big" | "small" | null => {
+  const s = item.split(":")[1];
+  return s === "big" || s === "small" ? s : null;
+};
+
+/**
+ * A basket: by colour (all its things share the colour), by kind, by size,
+ * by two features at once, or «сколько» — exactly `need` things, any of them.
+ */
 export type Basket = {
   id: string;
   name: string;
@@ -12,7 +27,11 @@ export type Basket = {
   sorts?: ObjectColor;
   /** Kind baskets: a drawn object on the label. */
   label?: ObjectId;
-  items: ObjectId[];
+  /** Size baskets: the label object is drawn big or small. */
+  size?: "big" | "small";
+  /** «Сколько положить?»: put exactly this many things here (any of them). */
+  need?: number;
+  items: Item[];
 };
 
 export type SortLevel = LevelInfo & { ask: string; baskets: Basket[] };
@@ -26,7 +45,7 @@ export const COLORS: Record<string, { name: string; color: string }> = {
   orange: { name: "Оранжевое", color: "#f5862b" },
 };
 
-const byColor = (sorts: ObjectColor, items: ObjectId[]): Basket => ({
+const byColor = (sorts: ObjectColor, items: Item[]): Basket => ({
   id: sorts,
   name: COLORS[sorts]!.name,
   color: COLORS[sorts]!.color,
@@ -34,7 +53,7 @@ const byColor = (sorts: ObjectColor, items: ObjectId[]): Basket => ({
   items,
 });
 
-const byKind = (id: string, name: string, color: string, label: ObjectId, items: ObjectId[]): Basket => ({
+const byKind = (id: string, name: string, color: string, label: ObjectId, items: Item[]): Basket => ({
   id,
   name,
   color,
@@ -42,10 +61,30 @@ const byKind = (id: string, name: string, color: string, label: ObjectId, items:
   items,
 });
 
+const bySize = (size: "big" | "small", label: ObjectId, color: string, items: Item[], name = size === "big" ? "Большое" : "Маленькое"): Basket => ({
+  id: `${size}-${name}`,
+  name,
+  color,
+  label,
+  size,
+  items,
+});
+
+const byCount = (need: number, items: Item[], color: string): Basket => ({
+  id: `n${need}`,
+  name: String(need),
+  color,
+  need,
+  items,
+});
+
 export const worlds = [
   { id: "colors", title: "По цвету", color: "#e8463a" },
-  { id: "kinds", title: "Что куда?", color: "#3a8fd4" },
   { id: "more", title: "Ещё порядок", color: "#7cc46a" },
+  { id: "kinds", title: "Что куда?", color: "#3a8fd4" },
+  { id: "size", title: "Большое и маленькое", color: "#ffb23f" },
+  { id: "count", title: "Сколько положить?", color: "#9b8cf0" },
+  { id: "cross", title: "Два признака", color: "#f27aa0" },
 ];
 
 const COLOR_ASK = "Разложи по цвету: каждую картинку в корзинку своего цвета";
@@ -167,7 +206,7 @@ const ALL: SortLevel[] = [
   {
     id: "k9",
     world: "more",
-    title: "Собираемся в гости",
+    title: "В гости",
     ask: "Разложи: еда, игрушки и то, что в небе",
     baskets: [
       byKind("food", "Еда", "#ff9f6b", "apple", ["apple", "carrot", "banana"]),
@@ -175,11 +214,112 @@ const ALL: SortLevel[] = [
       byKind("sky", "В небе", "#7cc0e8", "sun", ["sun", "star", "balloon"]),
     ],
   },
+  // v10 «Большое и маленькое»: the same things, big and small.
+  {
+    id: "z1",
+    world: "size",
+    title: "Большие и маленькие",
+    ask: "Большое — в одну корзинку, маленькое — в другую",
+    baskets: [bySize("big", "ball", "#ffb23f", ["apple:big", "ball:big", "star:big"]), bySize("small", "ball", "#7cc0e8", ["apple:small", "ball:small", "star:small"])],
+  },
+  {
+    id: "z2",
+    world: "size",
+    title: "Большой и маленький",
+    ask: "Большое — в одну корзинку, маленькое — в другую",
+    baskets: [
+      bySize("big", "car", "#ffb23f", ["mushroom:big", "car:big", "sun:big", "fish:big"]),
+      bySize("small", "car", "#7cc0e8", ["mushroom:small", "car:small", "sun:small", "fish:small"]),
+    ],
+  },
+  {
+    id: "z3",
+    world: "size",
+    title: "Всё вперемешку",
+    ask: "Смотри внимательно: что большое, а что маленькое?",
+    baskets: [
+      bySize("big", "house", "#ffb23f", ["house:big", "cup:big", "pear:big", "boat:big", "balloon:big"]),
+      bySize("small", "house", "#7cc0e8", ["house:small", "cup:small", "pear:small", "boat:small", "balloon:small"]),
+    ],
+  },
+  // v10 «Сколько положить?»: the number on a basket says how many things go in.
+  {
+    id: "n1",
+    world: "count",
+    title: "Одно и три",
+    ask: "Положи в каждую корзинку столько яблок, сколько написано",
+    baskets: [byCount(1, ["apple"], "#ff9f6b"), byCount(3, ["apple", "apple", "apple"], "#9b8cf0")],
+  },
+  {
+    id: "n2",
+    world: "count",
+    title: "Два и четыре",
+    ask: "Положи в каждую корзинку столько грибов, сколько написано",
+    baskets: [byCount(2, ["mushroom", "mushroom"], "#ff9f6b"), byCount(4, ["mushroom", "mushroom", "mushroom", "mushroom"], "#9b8cf0")],
+  },
+  {
+    id: "n3",
+    world: "count",
+    title: "Раз, два, три, четыре",
+    ask: "Сколько написано — столько и положи",
+    baskets: [
+      byCount(1, ["star"], "#ffc94a"),
+      byCount(2, ["star", "star"], "#ff9f6b"),
+      byCount(3, ["star", "star", "star"], "#9b8cf0"),
+      byCount(4, ["star", "star", "star", "star"], "#7cc0e8"),
+    ],
+  },
+  // v10 «Два признака»: a basket asks for two things at once — kind and size, colour and size.
+  {
+    id: "x1",
+    world: "cross",
+    title: "Фрукты и игрушки",
+    ask: "Смотри на два признака: что это и какого размера",
+    baskets: [
+      bySize("big", "apple", "#ff9f6b", ["apple:big", "pear:big"], "Большие фрукты"),
+      bySize("small", "apple", "#ff9f6b", ["apple:small", "cherry:small"], "Маленькие фрукты"),
+      bySize("big", "ball", "#9b8cf0", ["ball:big", "car:big"], "Большие игрушки"),
+      bySize("small", "ball", "#9b8cf0", ["ball:small", "cube:small"], "Маленькие игрушки"),
+    ],
+  },
+  {
+    id: "x2",
+    world: "cross",
+    title: "Красное и жёлтое",
+    ask: "Смотри на два признака: какого цвета и какого размера",
+    baskets: [
+      { ...byColor("red", ["apple:big", "car:big"] as Item[]), id: "red-big", name: "Большое красное", size: "big" },
+      { ...byColor("red", ["apple:small", "cherry:small"] as Item[]), id: "red-small", name: "Маленькое красное", size: "small" },
+      { ...byColor("yellow", ["sun:big", "banana:big"] as Item[]), id: "yellow-big", name: "Большое жёлтое", size: "big" },
+      { ...byColor("yellow", ["sun:small", "star:small"] as Item[]), id: "yellow-small", name: "Маленькое жёлтое", size: "small" },
+    ],
+  },
+  {
+    id: "x3",
+    world: "cross",
+    title: "Синее и зелёное",
+    ask: "Смотри на два признака: какого цвета и какого размера",
+    baskets: [
+      { ...byColor("blue", ["boat:big", "cup:big", "drop:big"] as Item[]), id: "blue-big", name: "Большое синее", size: "big" },
+      { ...byColor("blue", ["boat:small", "drop:small"] as Item[]), id: "blue-small", name: "Маленькое синее", size: "small" },
+      { ...byColor("green", ["leaf:big", "pear:big"] as Item[]), id: "green-big", name: "Большое зелёное", size: "big" },
+      { ...byColor("green", ["cube:small", "leaf:small", "pear:small"] as Item[]), id: "green-small", name: "Маленькое зелёное", size: "small" },
+    ],
+  },
 ];
 
-/** Easier extra worlds sit where their difficulty fits, so levels keep getting harder. */
-export const levels: SortLevel[] = inWorldOrder(ALL, ["colors", "more", "kinds"]);
+/** Worlds in the order of the list; the new ones come after the old three. */
+export const levels: SortLevel[] = inWorldOrder(ALL, ["colors", "more", "kinds", "size", "count", "cross"]);
 
 export function itemCount(level: SortLevel): number {
   return level.baskets.reduce((sum, b) => sum + b.items.length, 0);
+}
+
+/**
+ * How hard a level is: 10 per basket + things, plus what the new worlds add:
+ * telling sizes apart (+5), counting (+8), two features at once (+12).
+ */
+export function difficulty(l: SortLevel): number {
+  const bonus = { size: 5, count: 8, cross: 12 }[l.world as "size" | "count" | "cross"] ?? 0;
+  return l.baskets.length * 10 + itemCount(l) + bonus;
 }

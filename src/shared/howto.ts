@@ -70,7 +70,7 @@ export function afterHowTo(fn: () => void): void {
   else fn();
 }
 
-/** Show the card for a game. Resolves when the child taps «Понятно!». */
+/** Show the card for a game. Resolves when the child taps «Понятно!» — or anywhere. */
 export function showHowTo(gameId: string): Promise<void> {
   const h = HOWTO[gameId];
   if (!h || open) return Promise.resolve();
@@ -82,6 +82,7 @@ export function showHowTo(gameId: string): Promise<void> {
       el("ol", { class: `ht-steps ht-steps--${h.steps.length}` }, h.steps.map(stepNode)),
       h.stars ? el("p", { class: "ht-stars", text: h.stars }) : null,
       ok,
+      el("p", { class: "ht-anywhere", text: "или нажми в любом месте" }),
     ]);
     const overlay = el("div", { class: `ht${reducedMotion() ? " is-still" : ""}` }, [card]);
     open = overlay;
@@ -102,9 +103,13 @@ export function showHowTo(gameId: string): Promise<void> {
       for (const fn of list) fn();
       resolve();
     };
+    // A child who cannot read taps anywhere — on the card, the pictures or
+    // the field behind — and the card goes away (not in the first half
+    // second, so a tap that opened the level does not close it at once).
+    const shownAt = performance.now();
     ok.addEventListener("click", close);
-    overlay.addEventListener("click", (e) => {
-      if (e.target === overlay) close();
+    overlay.addEventListener("click", () => {
+      if (performance.now() - shownAt > 450) close();
     });
     // Keyboard: Escape closes like «Понятно!» (Enter works on the focused button).
     const onKey = (e: KeyboardEvent): void => {

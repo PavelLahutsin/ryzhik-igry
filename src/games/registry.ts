@@ -82,8 +82,8 @@ export const games: GameEntry[] = [
   },
   {
     id: "risovalka",
-    title: "Рисовалка",
-    note: "Обведи — и рисунок оживёт. 30 картинок",
+    title: "Обводилка",
+    note: "Обведи — и рисунок оживёт. 30 картинок и свободное рисование",
     color: "#9b6cd8",
     art: { src: svgUrl(TILE_ART.risovalka), figure: true },
     load: () => import("./risovalka"),
@@ -107,7 +107,7 @@ export const games: GameEntry[] = [
   {
     id: "tochki",
     title: "По точкам",
-    note: "Соедини 1, 2, 3… — что получится?",
+    note: "Соедини точки по порядку — 31 картинка: цифры, счёт назад, буквы",
     color: "#3fae6a",
     art: { src: svgUrl(TILE_ART.tochki), figure: true },
     load: () => import("./tochki"),
@@ -162,7 +162,7 @@ export const games: GameEntry[] = [
   {
     id: "mozaika",
     title: "Мозаика",
-    note: "Собери картинку",
+    note: "Собери картинку — 22 картинки",
     color: "#6db3d4",
     art: { src: picture("piknik") },
     load: () => import("./mozaika"),
@@ -182,7 +182,7 @@ export const games: GameEntry[] = [
   {
     id: "najdi-paru",
     title: "Найди пару",
-    note: "Открывай карточки",
+    note: "Открывай карточки — пары, тени, счёт и тройки",
     color: "#f27aa0",
     art: { src: picture("vse-vmeste") },
     load: () => import("./najdi-paru"),
@@ -209,7 +209,7 @@ export const games: GameEntry[] = [
   {
     id: "sortirovka",
     title: "По корзинкам",
-    note: "Разложи по цвету и по смыслу",
+    note: "По цвету, по смыслу, по размеру и по счёту",
     color: "#ff9f6b",
     art: { src: svgUrl(TILE_ART.sortirovka), figure: true },
     load: () => import("./sortirovka"),

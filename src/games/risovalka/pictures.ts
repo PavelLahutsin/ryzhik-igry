@@ -17,8 +17,11 @@ export type Picture = LevelInfo & {
   count?: number;
   /** Digits and letters: small numbers show the order of the lines. */
   order?: boolean;
-  /** Later pictures: only the current line is shown, no arrow. */
-  help?: "less";
+  /**
+   * Less help later on, step by step: "next" — only the current line is
+   * shown, the arrow stays; "less" — only the current line, no arrow.
+   */
+  help?: "next" | "less";
   /** Where smoke puffs come out (chimney), when `alive` is "smoke" or "drive". */
   puff?: [number, number];
 };
@@ -290,7 +293,7 @@ export const pictures: Picture[] = [
     title: "Самолёт",
     ink: "#3a8fd4",
     done: "Самолёт полетел!",
-    help: "less",
+    help: "next",
     strokes: [
       "M24 108 C 24 96 40 90 60 90 H150 C 170 90 182 100 182 108 C 182 118 170 124 150 124 H60 C 40 124 24 118 24 108",
       "M88 108 L120 60 H136 L120 108",
@@ -307,7 +310,7 @@ export const pictures: Picture[] = [
     title: "Зайка",
     ink: "#8f8aa8",
     done: "Зайка скачет!",
-    help: "less",
+    help: "next",
     strokes: [
       "M84 82 C 70 60 68 20 80 16 C 92 14 96 50 94 80",
       "M106 80 C 104 50 108 14 120 16 C 132 20 130 60 116 82",
@@ -324,7 +327,7 @@ export const pictures: Picture[] = [
     title: "Сова",
     ink: "#8a5a2b",
     done: "Сова машет крыльями: у-ху!",
-    help: "less",
+    help: "next",
     strokes: [
       "M100 178 C 56 178 44 140 44 108 C 44 76 54 56 60 40 L80 58 C 92 54 108 54 120 58 L140 40 C 146 56 156 76 156 108 C 156 140 144 178 100 178",
       "M80 72 A18 18 0 1 1 79.9 72",
