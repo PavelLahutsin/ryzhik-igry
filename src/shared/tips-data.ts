@@ -8,8 +8,8 @@ export type LevelTip = { at: string; text: string };
 export const LEVEL_TIPS: Record<string, Record<string, LevelTip>> = {
   mozaika: {
     m3: { at: ".mz-area", text: "Теперь без подсказки на рамке. Смотри на картинку!" },
-    m16: { at: ".mz-piece.is-flipped", text: "Этот кусочек вверх ногами. Нажми — он перевернётся" },
-    m20: { at: ".mz-area", text: "Тут есть кусочки из другой картинки — им нет места!" },
+    m23: { at: ".mz-piece.is-flipped", text: "Этот кусочек вверх ногами. Нажми — он перевернётся" },
+    m20: { at: ".mz-basket", text: "Кусочки из другой картинки клади в корзинку!" },
   },
   "najdi-paru": {
     c1: { at: ".np-grid", text: "Пара — это цифра и столько же предметов: 3 и три яблока" },

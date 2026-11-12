@@ -46,6 +46,8 @@ export const levels: MozaikaLevel[] = [
   { id: "m14", world: "w16", title: "Рыжик стоит", picture: "ryzhik-stoit", cols: 4, rows: 4, ghost: true },
   { id: "m15", world: "w16", title: "Зарядка", picture: "ryzhik-zaryadka", cols: 4, rows: 4, ghost: false },
   // v10 «Вверх ногами»: some pieces lie upside down — tap to turn, then put in place.
+  // v12: a gentle start — a known picture, 6 pieces, only one upside down.
+  { id: "m23", world: "flip", title: "Пикник наоборот", picture: "piknik", cols: 3, rows: 2, ghost: true, flip: 1 },
   { id: "m16", world: "flip", title: "Радуга", picture: "raduga", drawn: true, cols: 4, rows: 3, ghost: true, flip: 3 },
   { id: "m17", world: "flip", title: "Ферма", picture: "ferma", drawn: true, cols: 4, rows: 3, ghost: false, flip: 4 },
   { id: "m18", world: "flip", title: "Замок", picture: "zamok", drawn: true, cols: 4, rows: 4, ghost: true, flip: 5 },
