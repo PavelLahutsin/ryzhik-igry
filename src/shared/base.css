@@ -1524,3 +1524,51 @@ button {
   .is-selected { translate: none; }
 }
 
+/* v12: level lists — a sticky strip of world chips to jump to a world. */
+.world-chips {
+  position: sticky;
+  top: -16px;
+  z-index: 5;
+  flex: none;
+  margin: -8px -16px 0;
+  padding: 8px 16px;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  background: color-mix(in srgb, var(--bg, #fff7e8) 88%, transparent);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 6px 10px -8px rgba(80, 50, 10, 0.35);
+}
+.world-chips::-webkit-scrollbar { display: none; }
+.world-chip {
+  --world: #ffb23f;
+  appearance: none;
+  border: 0;
+  flex: none;
+  min-height: 44px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: inherit;
+  font-weight: 800;
+  font-size: 16px;
+  color: var(--ink, #3b2a1a);
+  background: color-mix(in srgb, var(--world) 22%, var(--surface));
+  box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--world) 55%, transparent);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.world-chip.is-on {
+  background: var(--world);
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+.world-chip__stars {
+  font-size: 14px;
+  opacity: 0.85;
+}
+.world-chips ~ .worlds .world { scroll-margin-top: 64px; }

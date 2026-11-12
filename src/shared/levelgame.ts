@@ -11,6 +11,7 @@ import { clearTips, tipOnce } from "./tips";
 import { loadSeen, markSeen } from "./seen";
 import { newStickers, stickerArt, type Sticker } from "./stickers";
 import { isScore, type Score } from "./stars";
+import { reducedMotion } from "./style";
 
 export type LevelInfo = {
   id: string;
@@ -160,6 +161,7 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
       sections,
     ]);
     root.append(view);
+    let stopMark = (): void => {};
     void store.load().then((progress) => {
       if (stale()) return;
       score.textContent = `★ ${totalStars(progress.stars, ids)}/${ids.length * 3}`;
@@ -171,6 +173,11 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
         else groups.push({ world, items: [{ level, index }] });
       });
       let focus: HTMLElement | null = null;
+      // v12: a sticky strip of world chips to jump to a world (3+ worlds).
+      const chips: Array<{ chip: HTMLElement; section: HTMLElement }> = [];
+      const named = groups.filter((g) => g.world).length;
+      const strip = named >= 3 ? el("nav", { class: "world-chips", attrs: { "aria-label": "Миры" } }) : null;
+      if (strip) sections.before(strip);
       for (const group of groups) {
         const grid = el("div", { class: "level-grid" });
         const groupIds = group.items.map((item) => item.level.id);
@@ -196,10 +203,58 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
           grid.append(card);
         }
         sections.append(section);
+        if (strip && group.world) {
+          const w = group.world;
+          const got = totalStars(progress.stars, groupIds);
+          const chip = el(
+            "button",
+            {
+              class: "world-chip",
+              style: { "--world": w.color },
+              attrs: { type: "button", "aria-label": `${w.title}: ★ ${got} из ${groupIds.length * 3}` },
+              on: {
+                click: () => {
+                  audio.unlock();
+                  audio.play("tap");
+                  section.scrollIntoView({ block: "start", behavior: reducedMotion() ? "auto" : "smooth" });
+                },
+              },
+            },
+            [el("span", { class: "world-chip__name", text: w.title }), el("span", { class: "world-chip__stars", text: `★${got}` })],
+          );
+          strip.append(chip);
+          chips.push({ chip, section });
+        }
+      }
+      if (strip) {
+        // The chip of the world on screen lights up (and scrolls into the strip).
+        let current: HTMLElement | null = null;
+        const mark = (): void => {
+          const line = strip.getBoundingClientRect().bottom + 24;
+          let on = chips[0];
+          for (const c of chips) if (c.section.getBoundingClientRect().top <= line) on = c;
+          if (!on || on.chip === current) return;
+          current?.classList.remove("is-on");
+          current?.removeAttribute("aria-current");
+          current = on.chip;
+          current.classList.add("is-on");
+          current.setAttribute("aria-current", "true");
+          const sr = strip.getBoundingClientRect();
+          const cr = current.getBoundingClientRect();
+          if (cr.left < sr.left || cr.right > sr.right) strip.scrollTo({ left: strip.scrollLeft + cr.left - sr.left - 12, behavior: "auto" });
+        };
+        for (const c of chips) c.chip.addEventListener("click", () => c.chip.blur());
+        // The list may scroll inside the screen or as the whole page.
+        document.addEventListener("scroll", mark, { capture: true, passive: true });
+        stopMark = () => document.removeEventListener("scroll", mark, { capture: true });
+        requestAnimationFrame(mark);
       }
       (focus as HTMLElement | null)?.scrollIntoView({ block: "center" });
     });
-    return () => view.remove();
+    return () => {
+      stopMark();
+      view.remove();
+    };
   }
 
   function levelCard(level: L, index: number, progress: Progress): HTMLElement {
