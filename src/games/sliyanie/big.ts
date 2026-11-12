@@ -1,6 +1,6 @@
 /**
- * «Удвоялка»: the real 2048 inside «Вырасти сад». A skin picker
- * ("#/sliyanie/big") and the game ("#/sliyanie/big/play"). The numbers grow
+ * The main mode of «Вырасти сад»: the real 2048. A skin picker (the game's
+ * first screen, "#/sliyanie/") and the game ("#/sliyanie/big/play"). The numbers grow
  * by doubling, so the game gets harder by itself; the skin is only pictures.
  */
 import { audio, type SoundKind } from "../../shared/audio";
@@ -10,7 +10,7 @@ import { showDrag, whenIdle } from "../../shared/guide";
 import { afterHowTo } from "../../shared/howto";
 import { createScope } from "../../shared/lifecycle";
 import { platform } from "../../shared/platform";
-import { navigateGame } from "../../shared/router";
+import { goHome, navigateGame } from "../../shared/router";
 import { reducedMotion } from "../../shared/style";
 import { tipOnce } from "../../shared/tips";
 import { hint, praiseOverlay, svgNode, toolbar } from "../../shared/ui";
@@ -43,56 +43,33 @@ export function tileFace(skin: Skin, tier: number, className = ""): HTMLElement 
   return face;
 }
 
-/** The card on the level list. */
-export function bigCard(): HTMLElement {
-  const best = el("span", { class: "sb-card__best" });
-  void Promise.all([loadBest(), store.get<unknown>(KEYS.skin)]).then(([b, id]) => {
-    best.textContent = b ? `Рекорд: ${b}` : "Дойди до 2048!";
-    const skin = skinById(id);
-    preview.replaceChildren(...[0, 5, WIN_TIER].map((t) => tileFace(skin, t, "sb-card__tile")));
-  });
-  const preview = el("span", { class: "sb-card__tiles", attrs: { "aria-hidden": "true" } });
-  return el(
-    "button",
-    {
-      class: "sb-card",
-      attrs: { type: "button" },
-      on: {
-        click: () => {
-          audio.unlock();
-          audio.play("tap");
-          navigateGame(GAME, "/big");
-        },
-      },
-    },
-    [
-      preview,
-      el("span", { class: "sb-card__text" }, [
-        el("span", { class: "sb-card__title", text: "Удвоялка" }),
-        el("span", { class: "sb-card__note", text: "Соединяй пары: 2, 4, 8… до 2048!" }),
-        best,
-      ]),
-    ],
-  );
-}
-
-/** "#/sliyanie/big…": the picker or the game. */
+/**
+ * "#/sliyanie/big/play": the game. "#/sliyanie/big" (old links) goes to the
+ * first screen, which is the picker now.
+ */
 export function bigRoute(root: HTMLElement, rest: string[]): () => void {
-  return rest[0] === "play" ? renderPlay(root) : renderPicker(root);
+  if (rest[0] === "play") return renderPlay(root);
+  navigateGame(GAME, "/", { replace: true });
+  return () => {};
 }
 
-function renderPicker(root: HTMLElement): () => void {
+/**
+ * First screen of «Вырасти сад» ("#/sliyanie/"): pick the pictures and play
+ * to 2048. `below` adds the «Тренировка для малышей» card under the buttons.
+ */
+export function bigHome(root: HTMLElement, below?: () => Node): () => void {
   document.body.dataset.route = "levels";
   const cards = new Map<SkinId, HTMLElement>();
   const grid = el("div", { class: "sb-skins", attrs: { role: "radiogroup", "aria-label": "Картинки" } });
   const actions = el("div", { class: "sb-actions" });
   const info = el("p", { class: "sb-info" });
   const view = el("div", { class: `screen screen--list game--${GAME} sb-picker` }, [
-    toolbar("Удвоялка", () => navigateGame(GAME, "/")),
-    el("p", { class: "list__lead", text: "Выбери картинки — и в путь до 2048!" }),
+    toolbar("Вырасти сад", goHome),
+    el("p", { class: "list__lead", text: "Соединяй две одинаковые плитки — вырастет новая. Выбери картинки и дойди до 2048!" }),
     grid,
     info,
     actions,
+    below?.() ?? null,
   ]);
   root.append(view);
 
@@ -217,7 +194,7 @@ function renderPlay(root: HTMLElement): () => void {
   );
   const stage = el("div", { class: "stage sb-stage" }, [chain, scoreRow, el("div", { class: "sl-wrap sb-wrap" }, [grid]), pad]);
   const view = el("div", { class: `screen screen--play game--${GAME} sb-play` }, [
-    toolbar("Удвоялка", () => navigateGame(GAME, "/big")),
+    toolbar("Вырасти сад", () => navigateGame(GAME, "/")),
     stage,
   ]);
   root.append(view);
@@ -392,7 +369,7 @@ function renderPlay(root: HTMLElement): () => void {
           },
         },
         { label: "Новая игра", onClick: () => start(newBigGame(Math.random)) },
-        { label: "Картинки", onClick: () => navigateGame(GAME, "/big") },
+        { label: "Картинки", onClick: () => navigateGame(GAME, "/") },
       ],
     });
     view.append(overlay);
@@ -414,7 +391,7 @@ function renderPlay(root: HTMLElement): () => void {
             },
           }
         : null,
-      { label: "Картинки", onClick: () => navigateGame(GAME, "/big") },
+      { label: "Картинки", onClick: () => navigateGame(GAME, "/") },
     ].filter((a): a is NonNullable<typeof a> => a !== null);
     overlay = praiseOverlay({
       title: "Ходов больше нет",

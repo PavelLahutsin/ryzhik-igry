@@ -60,6 +60,13 @@ export type LevelGameDef<L extends LevelInfo> = {
   listTop?: () => Node | null;
   /** Every world starts open; levels open one by one inside it. */
   openWorlds?: boolean;
+  /**
+   * The game's own first screen at "#/<id>/" (e.g. a big mode). The level
+   * list then lives at "#/<id>/levels" as a second section.
+   */
+  home?: (root: HTMLElement) => () => void;
+  /** Title of the level list when it is not the first screen. */
+  listTitle?: string;
   /** Runs once before progress is first read (e.g. levels moved from another game). */
   migrate?: () => Promise<void>;
 };
@@ -96,6 +103,8 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
     win: (id: string, stars: number) => ready.then(() => base.win(id, stars)),
   };
   const ids = def.levels.map((level) => level.id);
+  /** Where the level list is: the first screen, or "/levels" behind `home`. */
+  const LIST = def.home ? "/levels" : "/";
   const unlocked = (id: string, completed: readonly string[]): boolean =>
     def.openWorlds ? isUnlockedInWorld(def.levels, id, completed) : isUnlocked(ids, id, completed);
   let cleanup: (() => void) | null = null;
@@ -108,6 +117,11 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
     clearTips();
     root.replaceChildren();
     const mine = ++token;
+    if (def.home && !sub[0]) {
+      cleanup = def.home(root);
+      document.body.dataset.route = "levels";
+      return;
+    }
     const route = sub[0] ? def.routes?.[sub[0]] : undefined;
     if (route) {
       cleanup = route(root, sub.slice(1));
@@ -117,13 +131,13 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
       const index = Number(sub[1]) - 1;
       const level = def.levels[index];
       if (!level) {
-        navigateGame(def.id, "/", { replace: true });
+        navigateGame(def.id, LIST, { replace: true });
         return;
       }
       void Promise.all([store.load(), loadSeen()]).then(([progress, seen]) => {
         if (mine !== token) return;
         if (!unlocked(level.id, progress.completed)) {
-          navigateGame(def.id, "/", { replace: true });
+          navigateGame(def.id, LIST, { replace: true });
           return;
         }
         // The guided start runs once per game (again after «Показать подсказки снова»).
@@ -141,7 +155,7 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
     const score = el("span", { class: "list__score" });
     const sections = el("div", { class: "worlds" });
     const view = el("div", { class: `screen screen--list game--${def.id}` }, [
-      toolbar(def.title, goHome, score),
+      toolbar(def.home ? (def.listTitle ?? def.title) : def.title, def.home ? () => navigateGame(def.id, "/") : goHome, score),
       el("p", { class: "list__lead", text: def.subtitle }),
       def.listTop?.() ?? null,
       sections,
@@ -239,7 +253,7 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
       [lampIcon()],
     );
     tool.append(hintBtn);
-    const bar = toolbar(`${index + 1}. ${level.title}`, () => navigateGame(def.id, "/"), tool);
+    const bar = toolbar(`${index + 1}. ${level.title}`, () => navigateGame(def.id, LIST), tool);
     const stage = el("div", { class: "stage" });
     const view = el("div", { class: `screen screen--play game--${def.id}` }, [bar, stage]);
     root.append(view);
@@ -285,7 +299,7 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
                 },
               },
           { label: "Ещё раз", onClick: () => navigateGame(def.id, `/play/${index + 1}`) },
-          { label: "Уровни", onClick: () => navigateGame(def.id, "/") },
+          { label: "Уровни", onClick: () => navigateGame(def.id, LIST) },
         ];
         const art = el("img", {
           class: "praise__fox",
