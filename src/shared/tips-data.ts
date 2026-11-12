@@ -42,7 +42,7 @@ export const LEVEL_TIPS: Record<string, Record<string, LevelTip>> = {
     "dom-kuhnya": { at: ".pr-scene-wrap", text: "Нажимай на всё опасное" },
   },
   stroyka: {
-    s4: { at: ".sk-model", text: "Смотри на картинку и ставь кубик в его окошко" },
+    s10: { at: ".sk-model", text: "Смотри на картинку и ставь кубик в его окошко" },
     s7: { at: ".sk-say", text: "На вагончиках цифры: 1, 2, 3…" },
   },
   formy: {

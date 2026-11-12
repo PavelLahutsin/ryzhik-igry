@@ -5,6 +5,7 @@ import { levels as teni } from "../games/teni/levels";
 import { levels as labirint } from "../games/labirint/levels";
 import { levels as pary, pairsOf } from "../games/najdi-paru/levels";
 import { levels as sortirovka, itemCount } from "../games/sortirovka/levels";
+import { levels as stroyka } from "../games/stroyka/levels";
 
 describe("levels keep getting harder", () => {
   it("orders by world, stable inside a world", () => {
@@ -29,5 +30,10 @@ describe("levels keep getting harder", () => {
       for (const l of levels) if (seen[seen.length - 1] !== l.world) seen.push(l.world!);
       expect(new Set(seen).size).toBe(seen.length);
     }
+  });
+  it("«Стройка» goes from fewer blocks to more, every level once", () => {
+    const n = stroyka.map((l) => l.pieces.length + l.extra.length);
+    for (let i = 1; i < n.length; i++) expect(n[i]!).toBeGreaterThanOrEqual(n[i - 1]!);
+    expect(new Set(stroyka.map((l) => l.id)).size).toBe(11);
   });
 });

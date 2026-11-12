@@ -17,7 +17,7 @@ export type Plan = LevelInfo & {
 
 const p = (kind: Kind, color: ColorId, x: number, y: number, w = 1, h = 1, more: Partial<Piece> = {}): Piece => ({ kind, color, x, y, w, h, ...more });
 
-export const levels: Plan[] = [
+const ALL: Plan[] = [
   {
     id: "s1",
     title: "Башенка",
@@ -230,3 +230,10 @@ export const levels: Plan[] = [
     done: "Би-бип! Грузовик везёт груз!",
   },
 ];
+
+/**
+ * Play order: from fewer blocks to more (levels added later sit where they
+ * fit). Ids stay, so stars and opened levels are kept.
+ */
+const ORDER = ["s1", "s2", "s3", "s10", "s8", "s11", "s5", "s6", "s4", "s7", "s9"];
+export const levels: Plan[] = ORDER.map((id) => ALL.find((l) => l.id === id)!);
