@@ -643,6 +643,8 @@ button {
 .game-tile__art > img.is-figure {
   object-fit: contain;
   padding: 8px 0 0;
+  /* A soft contact shadow, so light fur and clothes stand off the light tile. */
+  filter: drop-shadow(0 2px 3px rgba(59, 46, 37, 0.28));
 }
 
 .game-tile__body {
