@@ -19,6 +19,7 @@
   --radius-lg: 28px;
   --radius-xl: 40px;
   --tap: 64px;
+  --icon: 52px;
   --shadow-card: 0 26px 55px -34px rgba(59, 46, 37, 0.55);
   --shadow-btn: 0 14px 26px -14px rgba(233, 103, 26, 0.45);
   /* v13 tokens: 4 radii, 2 shadows, 1 inset outline. */
@@ -183,20 +184,25 @@ button {
   box-shadow: 0 0 0 3px var(--line);
 }
 
-.btn--back {
-  width: var(--tap);
+/* v13: the one icon button (back, «?», lamp, sound…): 52 px, 48 px on small phones. */
+.btn--back,
+.icon-btn {
+  width: var(--icon);
+  min-width: var(--icon);
+  height: var(--icon);
+  min-height: var(--icon);
   padding: 0;
-  font-size: 32px;
+  font-size: 28px;
   background: var(--surface);
-  box-shadow: 0 0 0 3px var(--line);
+  box-shadow: var(--outline);
 }
 
 .toolbar {
   display: grid;
-  grid-template-columns: var(--tap) 1fr auto;
+  grid-template-columns: var(--icon) minmax(0, 1fr) auto;
   align-items: center;
   gap: 12px;
-  min-height: var(--tap);
+  min-height: var(--icon);
 }
 
 .toolbar__title {
@@ -205,10 +211,11 @@ button {
   font-family: var(--font-display);
   font-size: clamp(22px, 5vw, 30px);
   font-weight: 700;
+  text-wrap: balance;
 }
 
 .toolbar__spacer {
-  width: var(--tap);
+  width: var(--icon);
 }
 
 
@@ -1502,23 +1509,33 @@ button {
   .toolbar {
     gap: 8px;
   }
-  .toolbar__tools .btn--howto {
-    width: 48px;
-    min-width: 48px;
-    height: 48px;
-    min-height: 48px;
-  }
-  .toolbar__tools .btn--howto span {
-    font-size: 22px;
-  }
   .toolbar__title {
-    font-size: 17px;
+    font-size: 20px;
     line-height: 1.15;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     line-clamp: 2;
     overflow: hidden;
+  }
+  .toolbar__title--long {
+    font-size: 17px;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+  }
+}
+
+@media (max-width: 380px) {
+  :root {
+    --icon: 48px;
+  }
+  .toolbar,
+  .toolbar__tools {
+    gap: 6px;
+  }
+  .toolbar .list__score {
+    padding: 0 8px;
+    font-size: 16px;
   }
 }
 

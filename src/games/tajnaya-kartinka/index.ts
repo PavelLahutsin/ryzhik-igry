@@ -5,11 +5,12 @@ import { renderGame } from "./screens/game";
 import { renderLevels } from "./screens/levels";
 import { renderStart } from "./screens/start";
 import { renderWin } from "./screens/win";
+import baseCss from "../../shared/base.css?inline";
 import css from "./style.css?inline";
 
 /** «Тайная картинка»: the Xonix-like game, ported as is from its own site. */
 export function mount(root: HTMLElement): () => void {
-  useStyles(css);
+  useStyles(baseCss, css);
   let cleanup: (() => void) | null = null;
 
   function render(route: Route): void {

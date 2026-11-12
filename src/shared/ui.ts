@@ -14,7 +14,8 @@ export function toolbar(title: string, onBack: () => void, extra?: HTMLElement |
       },
       [el("span", { attrs: { "aria-hidden": "true" }, text: "←" })],
     ),
-    el("h1", { class: "toolbar__title", text: title }),
+    // v13: long titles (level names) get a smaller size and a third line on phones, never cut.
+    el("h1", { class: `toolbar__title${title.length > 20 ? " toolbar__title--long" : ""}`, text: title }),
     extra ?? el("span", { class: "toolbar__spacer" }),
   ]);
 }

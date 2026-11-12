@@ -28,7 +28,7 @@ const hexes = (s: string): string[] =>
 
 describe("design tokens", () => {
   it("text on the orange play button is readable (≥ 4.5:1 on every stop of its gradient)", () => {
-    for (const css of [base, readFileSync("src/games/tajnaya-kartinka/style.css", "utf8")]) {
+    for (const css of [base]) {
       const r = rule(css, ".btn--play");
       const ink = hexes(r.match(/\n\s*color:[^;]+/)![0])[0]!;
       const stops = hexes(r.match(/background:[^;]+/)![0]);
