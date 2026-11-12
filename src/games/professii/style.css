@@ -335,7 +335,8 @@
 }
 
 .pr-tool__name {
-  font: 800 11px/1.1 var(--font-ui);
+  /* v13: 13 px (was 11) — the tools are 64 px wide on phones; the picture carries the meaning. */
+  font: 800 13px/1.1 var(--font-ui);
   color: var(--ink-soft, #6b5a4c);
   text-align: center;
 }
@@ -390,7 +391,7 @@
     gap: 6px;
   }
   .pr-guide__text {
-    font-size: 14px;
+    font-size: 15px;
   }
 }
 
@@ -416,7 +417,7 @@
     height: 70px;
   }
   .pr-tool__name {
-    font-size: 13px;
+    font-size: 15px;
   }
   .pr-layout .pr-tray {
     grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));

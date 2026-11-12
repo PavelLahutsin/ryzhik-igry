@@ -70,7 +70,7 @@
 
 @media (max-height: 500px) {
   .sk-say__text {
-    font-size: 14px;
+    font-size: 15px;
   }
 }
 
@@ -426,8 +426,8 @@
 }
 
 .sk-sample__box figcaption {
-  font: 800 11px/1 var(--font-ui);
-  color: #8f7a63;
+  font: 800 13px/1 var(--font-ui);
+  color: #7a6450;
 }
 
 .sk-sample.sk-thumb {

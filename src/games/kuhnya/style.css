@@ -288,7 +288,7 @@
 }
 
 .kt-tool__name {
-  font: 800 13px/1.1 var(--font-ui);
+  font: 800 15px/1.1 var(--font-ui);
   color: var(--ink-soft);
 }
 
@@ -437,7 +437,7 @@
 
 @media (max-aspect-ratio: 5/4) and (max-width: 600px) {
   .kt-tool { min-height: 80px; }
-  .kt-tool__name { font-size: 11px; }
+  .kt-tool__name { font-size: 13px; } /* v13: was 11; «Сковородка» must fit a 64 px tool */
   .kt-bin { width: 44px; }
 }
 
