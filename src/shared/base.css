@@ -554,28 +554,40 @@ button {
   padding-bottom: 28px;
 }
 
+/* v13: a grid — the hero, the title over the full middle, the tools in a column.
+   The title gets ≥ 2/3 of a phone width (was 102 px, four lines). */
 .home__head {
-  display: flex;
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr) auto;
+  grid-template-areas: "hero text tools";
   align-items: center;
   gap: 12px;
 }
 
 .home__hero {
-  width: 92px;
+  grid-area: hero;
+  width: 72px;
   height: auto;
-  flex: 0 0 auto;
   filter: drop-shadow(0 10px 14px rgba(59, 46, 37, 0.18));
   pointer-events: none;
 }
 
 .home__text {
-  flex: 1;
+  grid-area: text;
   min-width: 0;
 }
 
 .home__head .title {
-  font-size: clamp(30px, 8vw, 46px);
+  font-size: clamp(26px, 7vw, 34px);
+  line-height: 1.1;
+  text-wrap: balance;
   margin: 0;
+}
+
+@media (min-width: 600px) {
+  .home__head { grid-template-columns: 92px minmax(0, 1fr) auto; }
+  .home__hero { width: 92px; }
+  .home__head .title { font-size: clamp(34px, 5vw, 46px); }
 }
 
 .home__head .eyebrow {
@@ -661,11 +673,23 @@ button {
   filter: drop-shadow(0 2px 3px rgba(59, 46, 37, 0.28));
 }
 
+/* v13: tiles keep one rhythm — the name and the note take at most two lines
+   each, and the progress bar sits at the bottom of every tile. */
 .game-tile__body {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 2px;
   padding: 10px 14px 14px;
+}
+
+.game-tile__name,
+.game-tile__note {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
 }
 
 .game-tile__name {
@@ -673,12 +697,21 @@ button {
   font-weight: 700;
   font-size: 21px;
   line-height: 1.1;
+  min-height: 2.2em;
+  text-wrap: balance;
 }
 
 .game-tile__note {
   font-size: 15px;
   color: var(--ink-soft);
   line-height: 1.25;
+  min-height: 2.5em;
+}
+
+/* The wide tile has room: one-line texts stay one line. */
+.game-tile--wide .game-tile__name,
+.game-tile--wide .game-tile__note {
+  min-height: 0;
 }
 
 .game-tile__stars {
@@ -1024,7 +1057,8 @@ button {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-top: 6px;
+  margin-top: auto;
+  padding-top: 6px;
 }
 
 .game-tile__bar {
@@ -1065,10 +1099,23 @@ button {
 }
 
 .home__tools {
+  grid-area: tools;
   display: flex;
   flex-direction: column;
   gap: 8px;
   align-items: flex-end;
+}
+
+.home__tools .btn {
+  width: 52px;
+  min-width: 52px;
+  height: 52px;
+  min-height: 52px;
+  padding: 0;
+}
+
+@media (orientation: landscape) and (max-height: 560px) {
+  .home__tools { flex-direction: row; }
 }
 
 .btn--parent {

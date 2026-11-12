@@ -44,8 +44,7 @@ export function renderHome(root: HTMLElement): () => void {
         el("h1", { class: "title", text: "Игры с Рыжиком" }),
         total,
       ]),
-      gift,
-      soundBtn,
+      el("div", { class: "home__tools" }, [gift, soundBtn]),
     ]),
     el("main", { class: "home__grid" }, games.map((game) => tile(game))),
     el("footer", { class: "home__foot" }, [
