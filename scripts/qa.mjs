@@ -106,11 +106,14 @@ const SOLVE = {
     }
   },
   async sortirovka(p, level) {
+    // The same thing can lie twice (counting baskets): fill each basket up to its number.
+    const got = new Map();
     for (let k = 0; k < 40 && !(await won(p)); k++) {
       const id = await p.evaluate(() => document.querySelector(".so-item:not(.is-placed)")?.dataset.id ?? null);
       if (!id) break;
-      const basket = level.baskets.find((b) => b.items.includes(id)).id;
-      await dragSel(p, `.so-item[data-id="${id}"]`, `.so-basket[data-id="${basket}"]`);
+      const basket = level.baskets.find((b) => b.items.filter((x) => x === id).length > (got.get(`${b.id}|${id}`) ?? 0)).id;
+      await dragSel(p, `.so-item[data-id="${id}"]:not(.is-placed)`, `.so-basket[data-id="${basket}"]`);
+      got.set(`${basket}|${id}`, (got.get(`${basket}|${id}`) ?? 0) + 1);
       await p.waitForTimeout(150);
     }
   },

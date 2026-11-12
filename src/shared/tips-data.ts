@@ -30,6 +30,9 @@ export const LEVEL_TIPS: Record<string, Record<string, LevelTip>> = {
   },
   sortirovka: {
     k1: { at: ".so-basket", text: "Теперь не по цвету, а по виду: что куда?" },
+    z1: { at: ".so-basket", text: "Большое — сюда, маленькое — в другую корзинку" },
+    n1: { at: ".so-basket", text: "Число на корзинке — сколько положить" },
+    x1: { at: ".so-basket", text: "Два признака сразу: что это и какого размера" },
   },
   labirint: {
     l6: { at: ".lb-count", text: "Собери по дороге яблоко!" },

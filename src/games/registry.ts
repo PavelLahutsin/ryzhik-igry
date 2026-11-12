@@ -209,7 +209,7 @@ export const games: GameEntry[] = [
   {
     id: "sortirovka",
     title: "По корзинкам",
-    note: "Разложи по цвету и по смыслу",
+    note: "По цвету, по смыслу, по размеру и по счёту",
     color: "#ff9f6b",
     art: { src: svgUrl(TILE_ART.sortirovka), figure: true },
     load: () => import("./sortirovka"),
