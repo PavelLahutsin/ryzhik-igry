@@ -9,6 +9,7 @@ describe("registry storage keys", () => {
       domik: ["ryzhik-igry:domik:found"],
       kuhnya: ["ryzhik-igry:kuhnya:found"],
       risovalka: ["ryzhik-igry:risovalka:progress"],
+      bukvy: ["ryzhik-igry:bukvy:progress"],
       tochki: ["ryzhik-igry:tochki:progress"],
       professii: ["ryzhik-igry:professii:progress"],
       stroyka: ["ryzhik-igry:stroyka:progress"],
@@ -25,7 +26,7 @@ describe("registry storage keys", () => {
     });
   });
 
-  it("has 16 games with unique ids", () => {
-    expect(new Set(games.map((g) => g.id)).size).toBe(16);
+  it("has 17 games with unique ids", () => {
+    expect(new Set(games.map((g) => g.id)).size).toBe(17);
   });
 });

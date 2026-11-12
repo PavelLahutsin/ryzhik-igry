@@ -86,6 +86,8 @@ export const HOWTO_VOICE: Record<string, string> = {
   domik: "v24",
   kuhnya: "v25",
   risovalka: "v28",
+  // No own line yet (the prompt list stays v01–v37): «Смотри, я покажу!».
+  bukvy: "v07",
   tochki: "v29",
   professii: "v30",
   stroyka: "v34",
@@ -110,6 +112,7 @@ export const MUSIC_FILES: Record<string, string> = {
   professii: "m09",
   stroyka: "m10",
   risovalka: "m11",
+  bukvy: "m11",
   tochki: "m11",
 };
 export const WIN_JINGLE = "m12";

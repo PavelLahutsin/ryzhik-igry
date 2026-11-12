@@ -64,7 +64,7 @@ export function starsFor(slips: number, hints: number): Score {
   return rate(slips, hints, { free: 2, more: 4 });
 }
 
-const WORDS = ["", "Один", "Два", "Три", "Четыре", "Пять", "Шесть", "Семь", "Восемь", "Девять"];
+const WORDS = ["Ноль", "Один", "Два", "Три", "Четыре", "Пять", "Шесть", "Семь", "Восемь", "Девять"];
 export function numberWord(n: number): string {
   return WORDS[n] ?? String(n);
 }

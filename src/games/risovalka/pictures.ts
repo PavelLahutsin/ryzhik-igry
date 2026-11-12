@@ -15,6 +15,8 @@ export type Picture = LevelInfo & {
   done: string;
   /** Digits: how many things to count after tracing. */
   count?: number;
+  /** Digits and letters: small numbers show the order of the lines. */
+  order?: boolean;
   /** Later pictures: only the current line is shown, no arrow. */
   help?: "less";
   /** Where smoke puffs come out (chimney), when `alive` is "smoke" or "drive". */

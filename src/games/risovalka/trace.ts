@@ -9,6 +9,10 @@ import { reducedMotion } from "../../shared/style";
 import { svgNode } from "../../shared/ui";
 import { advance, numberWord, offTrack, starsFor, strokeDone, TOLERANCE, type Pt } from "./logic";
 import type { Picture } from "./pictures";
+import type { ObjectId } from "../../shared/objects";
+
+/** A letter level also shows its word (and a picture when there is one). */
+type Traceable = Picture & { word?: string; obj?: ObjectId; letter?: string };
 
 /**
  * Tracing a picture, a digit or a letter: shared by «Рисовалка» and
@@ -33,7 +37,7 @@ function sample(d: string, step = 3): Pt[] {
   return out;
 }
 
-export function play(stage: HTMLElement, level: Picture, _index: number, api: PlayApi): () => void {
+export function play(stage: HTMLElement, level: Traceable, _index: number, api: PlayApi): () => void {
   const scope = createScope();
   const { later } = scope;
   const strokes = level.strokes.map((d) => ({ d, samples: sample(d) }));
@@ -62,6 +66,24 @@ export function play(stage: HTMLElement, level: Picture, _index: number, api: Pl
   svg.append(pic, extras, marker, finger);
 
   for (const s of strokes) guides.append(svgEl("path", { d: s.d, class: "rv-guide" }));
+  // Digits and letters: little numbers show which line comes first.
+  const order = svgEl("g", { class: "rv-order", "aria-hidden": "true" });
+  if (level.order && strokes.length > 1)
+    strokes.forEach((s, i) => {
+      const a = s.samples[0]!;
+      const b = s.samples[Math.min(s.samples.length - 1, 6)]!;
+      // Put the number beside the start, away from where the line goes.
+      const len = Math.hypot(b.x - a.x, b.y - a.y) || 1;
+      const x = Math.min(188, Math.max(12, a.x - ((b.x - a.x) / len) * 18 - ((b.y - a.y) / len) * 8));
+      const y = Math.min(188, Math.max(12, a.y - ((b.y - a.y) / len) * 18 + ((b.x - a.x) / len) * 8));
+      const g = svgEl("g", { class: "rv-order__n", transform: `translate(${x.toFixed(1)} ${y.toFixed(1)})` });
+      g.append(svgEl("circle", { r: 9 }));
+      const t = svgEl("text", { y: 4.5, "text-anchor": "middle" });
+      t.textContent = String(i + 1);
+      g.append(t);
+      order.append(g);
+    });
+  svg.insertBefore(order, marker);
 
   const box = el("div", { class: "rv-board" });
   box.append(svg);
@@ -73,6 +95,10 @@ export function play(stage: HTMLElement, level: Picture, _index: number, api: Pl
       g.classList.toggle("is-now", i === current);
       g.classList.toggle("is-done", i < current);
       g.classList.toggle("is-later", i > current);
+    });
+    order.querySelectorAll(".rv-order__n").forEach((g, i) => {
+      g.classList.toggle("is-now", !finished && i === current);
+      g.classList.toggle("is-done", finished || i < current);
     });
     if (finished) {
       marker.style.display = "none";
@@ -185,8 +211,12 @@ export function play(stage: HTMLElement, level: Picture, _index: number, api: Pl
     api.setHint(null);
     svg.classList.add("is-finished");
     audio.play("magic");
-    if (level.count) {
+    if (level.count !== undefined) {
       countUp(level.count);
+      return;
+    }
+    if (level.word) {
+      showWord();
       return;
     }
     if (!reducedMotion()) svg.classList.add("is-alive");
@@ -194,7 +224,31 @@ export function play(stage: HTMLElement, level: Picture, _index: number, api: Pl
     later(() => api.win(starsFor(slips, hints), level.done), 1600);
   }
 
+  function showWord(): void {
+    const card = el("div", { class: "rv-word" }, [
+      level.obj ? svgNode(OBJECTS[level.obj].svg, "rv-word__pic") : null,
+      el("span", { class: "rv-word__text" }, [el("b", { text: level.letter ?? "" }), ` — ${level.word ?? ""}`]),
+    ]);
+    later(() => {
+      box.append(card);
+      say.textContent = level.done;
+      svg.classList.add("is-alive");
+      audio.play("sparkle");
+    }, 500);
+    later(() => api.win(starsFor(slips, hints), level.done), 1900);
+  }
+
   function countUp(n: number): void {
+    if (n === 0) {
+      // Zero: an empty plate — nothing to count.
+      later(() => {
+        box.append(el("div", { class: "rv-count rv-count--zero" }, [el("span", { class: "rv-count__plate", text: "Пусто!" })]));
+        say.textContent = "Ноль — ничего нет!";
+        svg.classList.add("is-alive");
+      }, 400);
+      later(() => api.win(starsFor(slips, hints), "Ноль — ничего нет!"), 1800);
+      return;
+    }
     // Show n apples around the digit, one by one, and say the number.
     const ids = ["apple", "star", "ball", "flower", "pear", "cherry", "sun", "fish", "car"] as const;
     const art = OBJECTS[ids[(n - 1) % ids.length]!].svg;
