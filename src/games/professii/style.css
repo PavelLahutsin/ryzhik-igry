@@ -762,3 +762,32 @@
     gap: 4px;
   }
 }
+
+/* A tool that has done its job shrinks away from the tray. */
+.pr-tool.is-used {
+  pointer-events: none;
+  animation: pr-used 450ms ease forwards;
+}
+@keyframes pr-used {
+  40% { transform: scale(1.12); }
+  to { transform: scale(0.2); opacity: 0; }
+}
+
+/* Shop: a thing already bought in full is greyed out with a tick. */
+.pr-shelf__item.is-taken {
+  position: relative;
+  opacity: 0.38;
+  filter: grayscale(0.7);
+  pointer-events: none;
+}
+.pr-shelf__item.is-taken::after {
+  content: "✓";
+  position: absolute;
+  right: 4px;
+  top: 2px;
+  font: 800 20px var(--font-ui, sans-serif);
+  color: #2f8a3e;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pr-tool.is-used { animation: none; opacity: 0; }
+}

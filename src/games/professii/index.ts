@@ -41,6 +41,7 @@ import {
   tapThing,
   type Cart,
   sceneFit,
+  usedUp,
 } from "./logic";
 
 /** «Профессии»: doctor, firefighter, shop and a safe home — step by step, with Ryzhik's help. */
@@ -254,6 +255,15 @@ function playSteps(ctx: Ctx, level: GuidedLevel): void {
     const step = level.steps[g.step - 1]!;
     applyStep(step);
     tray.querySelectorAll(".pr-tool").forEach((t) => t.classList.remove("is-needed", "is-busy"));
+    // A tool whose work is done leaves the tray (it is in the scene now).
+    for (const id of usedUp(level.steps, g)) {
+      const t = tray.querySelector<HTMLElement>(`[data-tool="${id}"]`);
+      if (t && !t.classList.contains("is-used")) {
+        t.classList.add("is-used");
+        t.setAttribute("aria-hidden", "true");
+        later(() => (t.hidden = true), reducedMotion() ? 0 : 450);
+      }
+    }
     if (g.step >= level.steps.length) {
       finished = true;
       api.setHint(null);
@@ -418,6 +428,9 @@ function playShop(ctx: Ctx, level: ShopLevel): void {
     if (res === "line-done") {
       row.classList.add("is-done");
       audio.play("ding");
+      // Enough of this one: the shelf shows it is taken.
+      from.classList.add("is-taken");
+      from.setAttribute("aria-disabled", "true");
     }
     replayClass(row, "is-bump");
     guide.dots(bought(), need);
@@ -444,7 +457,7 @@ function playShop(ctx: Ctx, level: ShopLevel): void {
           if (Math.hypot(p.x - start.x, p.y - start.y) > 14) moved = true;
         },
         onDrop: (p) => {
-          if (cartComplete(level.list, cart)) return false;
+          if (cartComplete(level.list, cart) || item.classList.contains("is-taken")) return false;
           if (!moved || inside(p, basket)) take(id, item);
           return false;
         },

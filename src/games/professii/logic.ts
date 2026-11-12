@@ -70,6 +70,18 @@ export function rubTool(steps: readonly Step[], g: Guided, tool: string, zones: 
   return "rubbing";
 }
 
+/**
+ * Tools that have done all their jobs: used in a finished step and not
+ * needed by any step still ahead. They leave the tray (the thermometer is
+ * not offered again once the temperature is taken). Tools that were never
+ * needed (the extra choices) stay.
+ */
+export function usedUp(steps: readonly Step[], g: Guided): string[] {
+  const done = new Set(steps.slice(0, g.step).map((s) => s.tool));
+  const ahead = new Set(steps.slice(g.step).map((s) => s.tool));
+  return [...done].filter((t) => !ahead.has(t));
+}
+
 /** 0 … 1: how far the current rub step is. */
 export function rubProgress(steps: readonly Step[], g: Guided): number {
   const cur = currentStep(steps, g);

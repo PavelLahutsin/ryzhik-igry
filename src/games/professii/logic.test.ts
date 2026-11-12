@@ -18,6 +18,7 @@ import {
   tapThing,
   type Step,
   sceneFit,
+  usedUp,
 } from "./logic";
 
 const steps: Step[] = [
@@ -156,5 +157,36 @@ describe("sceneFit", () => {
     const f = sceneFit(360, 576); // 1000 × 1600 in scene units
     expect(f).toMatchObject({ width: 360, height: 576 });
     expect(f.viewBox).toBe("0 -480.0 1000 1600.0");
+  });
+});
+
+describe("tools get used up", () => {
+  const steps: Step[] = [
+    { tool: "thermo", zone: "mouth", kind: "use", say: "" },
+    { tool: "water", zone: "a", kind: "use", say: "" },
+    { tool: "water", zone: "b", kind: "use", say: "" },
+  ];
+  it("a tool leaves the tray after its last job, extra tools stay", () => {
+    const g = startGuided();
+    expect(usedUp(steps, g)).toEqual([]);
+    g.step = 1;
+    expect(usedUp(steps, g)).toEqual(["thermo"]);
+    g.step = 2;
+    expect(usedUp(steps, g)).toEqual(["thermo"]);
+    g.step = 3;
+    expect(usedUp(steps, g).sort()).toEqual(["thermo", "water"]);
+  });
+  it("in every scene all needed tools are used up at the end, the extra choices stay", () => {
+    for (const l of levels) {
+      if (l.kind !== "steps") continue;
+      const g = startGuided();
+      g.step = l.steps.length;
+      const needed = new Set(l.steps.map((s) => s.tool));
+      expect(new Set(usedUp(l.steps, g)), l.id).toEqual(needed);
+      // There is always at least one extra tool to choose from, and the order makes sense:
+      // every step's tool is in the tray.
+      expect(l.tools.some((t) => !needed.has(t)), l.id).toBe(true);
+      for (const t of needed) expect(l.tools, l.id).toContain(t);
+    }
   });
 });
