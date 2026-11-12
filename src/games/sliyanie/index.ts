@@ -10,7 +10,9 @@ import baseCss from "../../shared/base.css?inline";
 import css from "./style.css?inline";
 import { CHAIN_ART, GARDEN_BACK, WINTER_ART, WINTER_BACK } from "./art";
 import { CHAINS, levels, worlds, type ChainId, type SliyanieLevel } from "./levels";
-import { bigCard, bigRoute } from "./big";
+import { bigHome, bigRoute } from "./big";
+import { navigateGame } from "../../shared/router";
+import { starSummary } from "../../shared/levelgame";
 import { bestTier, canMove, emptyBoard, move, spawn, starsFor, unstick, type Board, type Dir } from "./logic";
 
 const MAX = CHAINS.sad.length - 1;
@@ -19,23 +21,60 @@ const ART: Record<ChainId, { steps: string[]; back: string }> = {
   zima: { steps: WINTER_ART, back: WINTER_BACK },
 };
 
-/** «Вырасти сад»: 2048 without numbers. */
+/**
+ * «Вырасти сад»: one game. The first screen is the 2048 mode with a picture
+ * picker (big.ts); the short picture levels are a second section,
+ * «Тренировка для малышей» ("#/sliyanie/levels").
+ */
 export function mount(root: HTMLElement): () => void {
   useStyles(baseCss, css);
   return mountLevelGame(
     {
       id: "sliyanie",
       title: "Вырасти сад",
-      subtitle: "Соединяй две одинаковые картинки — вырастет новая",
+      subtitle: "Короткие уровни с картинками: семечко → росток → цветок…",
       levels,
       worlds,
       thumb: (level) => stepArt(level.chain, level.goal, "sl-thumb"),
       caption: (level) => CHAINS[level.chain][level.goal]!.name,
       play,
       routes: { big: bigRoute },
-      listTop: bigCard,
+      home: (root) => bigHome(root, trainingCard),
+      listTitle: "Тренировка",
     },
     root,
+  );
+}
+
+const TRAINING = "Тренировка для малышей";
+
+/** Under the 2048 picker: the way to the short levels. */
+function trainingCard(): HTMLElement {
+  const stars = el("span", { class: "sb-card__best" });
+  void starSummary("sliyanie", levels.map((l) => l.id)).then((s) => {
+    stars.textContent = `★ ${s.got} из ${s.max}`;
+  });
+  return el(
+    "button",
+    {
+      class: "sb-card sl-train",
+      attrs: { type: "button" },
+      on: {
+        click: () => {
+          audio.unlock();
+          audio.play("tap");
+          navigateGame("sliyanie", "/levels");
+        },
+      },
+    },
+    [
+      el("span", { class: "sb-card__tiles", attrs: { "aria-hidden": "true" } }, [0, 2, 4].map((t) => stepArt("sad", t, "sb-card__tile"))),
+      el("span", { class: "sb-card__text" }, [
+        el("span", { class: "sb-card__title", text: TRAINING }),
+        el("span", { class: "sb-card__note", text: `${levels.length} коротких уровней: вырасти цветок, яблоню, снеговика` }),
+        stars,
+      ]),
+    ],
   );
 }
 

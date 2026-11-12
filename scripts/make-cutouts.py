@@ -27,6 +27,14 @@ CROPS = {
 }
 
 
+def cloth(c):
+    """Light clothes that are close to the studio grey but not grey: bluish
+    denim (Мишка's rolled-up cuffs) and lilac (Мама's lit dress hem). The
+    studio grey and the floor are neutral or warm, so these never are."""
+    r, g, b = c
+    return b - r > 3 or (r - g > 6 and b - g > 6)
+
+
 def cut(name, file, box, tol, erase=None):
     im = Image.open(MASTERS / file).convert("RGB")
     scale = im.width / 1000
@@ -60,8 +68,9 @@ def cut(name, file, box, tol, erase=None):
         c = px[x, y]
         # Compare with the studio colour and with the neighbour we came from,
         # so the soft gradient and floor shadow are followed but fur is not.
-        floor = y > h * 0.85 and max(c) - min(c) < 30 and 3 * 100 < sum(c) < 3 * 215
-        if not (floor or near(c, bg) or near(c, ref) and sum(c) > 3 * 150 and max(c) - min(c) < 30):
+        warm = not cloth(c)
+        floor = warm and y > h * 0.85 and max(c) - min(c) < 30 and 3 * 100 < sum(c) < 3 * 215
+        if not (floor or near(c, bg) or warm and near(c, ref) and sum(c) > 3 * 150 and max(c) - min(c) < 30):
             continue
         seen[i] = 1
         for nx, ny in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):
@@ -81,8 +90,10 @@ def cut(name, file, box, tol, erase=None):
         if y > feet:
             # Light floor and contact shadow between and under the feet;
             # paws and fur stay because they are darker or orange-brown.
-            return 6 < r - b < 48 and spread < 50 and sum(c) > 3 * 140
-        return r - b < 6 and spread < 24 and sum(c) > 3 * 120
+            return not cloth(c) and 6 < r - b < 48 and spread < 50 and sum(c) > 3 * 140
+        # Neutral only: bluish light grey is denim (Мишка's rolled-up cuffs),
+        # not the warm studio grey.
+        return not cloth(c) and r - b < 6 and spread < 24 and sum(c) > 3 * 120
 
     q = deque(i for i in range(w * h) if seen[i])
     while q:
@@ -101,7 +112,7 @@ def cut(name, file, box, tol, erase=None):
         for x in range(w):
             c = px[x, y]
             # Neutral grey, not the bluish denim of the overalls.
-            if max(c) - min(c) < 24 and c[2] - c[0] < 8 and sum(c) > 3 * 125:
+            if not cloth(c) and max(c) - min(c) < 24 and c[2] - c[0] < 8 and sum(c) > 3 * 125:
                 seen[y * w + x] = 1
     # Keep only the biggest figure: drops slivers of neighbours in the lineup.
     comp = [0] * (w * h)
@@ -111,12 +122,14 @@ def cut(name, file, box, tol, erase=None):
         if seen[start] or comp[start]:
             continue
         label += 1
-        size, stack, top_y = 0, [start], start // w
+        size, stack, top_y, colour = 0, [start], start // w, 0
         comp[start] = label
         while stack:
             i = stack.pop()
             size += 1
             x, y = i % w, i // w
+            c = px[x, y]
+            colour += max(c) - min(c)
             top_y = min(top_y, y)
             for nx, ny in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):
                 if 0 <= nx < w and 0 <= ny < h:
@@ -124,12 +137,13 @@ def cut(name, file, box, tol, erase=None):
                     if not seen[j] and not comp[j]:
                         comp[j] = label
                         stack.append(j)
-        parts[label] = (size, top_y)
+        parts[label] = (size, top_y, colour / size)
         if size > best_size:
             best, best_size = label, size
     # Feet that the floor passes cut off from the body stay too: small parts
     # that start low in the figure (neighbours in the lineup are tall).
-    keep = {best} | {k for k, (size, top_y) in parts.items() if size > best_size * 0.004 and top_y > gap}
+    # A grey floor shadow is not a foot: feet are brown or orange.
+    keep = {best} | {k for k, (size, top_y, sat) in parts.items() if size > best_size * 0.004 and top_y > gap and sat > 30}
     mask = Image.new("L", (w, h), 0)
     mp = mask.load()
     for y in range(h):

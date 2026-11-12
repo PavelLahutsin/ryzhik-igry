@@ -175,7 +175,7 @@ export const games: GameEntry[] = [
     art: { src: picture("sad") },
     load: () => import("./sliyanie"),
     ...levelStars("sliyanie", () => import("./sliyanie/levels")),
-    // Levels plus the record and the started «Удвоялка» (the chosen pictures stay).
+    // Levels plus the record and the started 2048 game (the chosen pictures stay).
     resetKeys: [`${SHELL_PREFIX}sliyanie:progress`, `${SHELL_PREFIX}sliyanie:best`, `${SHELL_PREFIX}sliyanie:big`],
   },
   {

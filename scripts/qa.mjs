@@ -73,9 +73,15 @@ const SOLVE = {
     }
   },
   async teni(p) {
-    for (let k = 0; k < 30 && !(await won(p)); k++) {
+    // Big scenes have several rounds: when a round is done the next one comes after a pause.
+    for (let k = 0, idle = 0; k < 80 && idle < 12 && !(await won(p)); k++) {
       const id = await p.evaluate(() => document.querySelector(".tn-item:not(.is-placed)")?.dataset.id ?? null);
-      if (!id) break;
+      if (!id) {
+        idle++;
+        await p.waitForTimeout(250);
+        continue;
+      }
+      idle = 0;
       await dragSel(p, `.tn-item[data-id="${id}"]`, `.tn-shadow[data-id="${id}"]`);
       await p.waitForTimeout(150);
     }
@@ -309,6 +315,11 @@ async function playGame(game, vpTag) {
     note(game, vpTag, "howto", "no «Как играть» card on first launch");
   }
   if (!(await p.locator(".btn--howto").count())) note(game, vpTag, "howto", "no «?» button");
+  // «Вырасти сад» opens on the 2048 picker; the levels are «Тренировка для малышей».
+  if (game === "sliyanie") {
+    if (!(await p.locator(".sb-skin").count())) note(game, vpTag, "list", "first screen is not the 2048 picker");
+    await p.click(".sl-train");
+  }
   // Start from the list: the first card must be open, the second locked.
   await p.waitForSelector(".level-card");
   const locked = await p.locator(".level-card.is-locked").count();
@@ -355,7 +366,7 @@ async function playGame(game, vpTag) {
     }
   }
   // Progress saved: back on the list every card is done with the stars shown.
-  await p.goto(`${BASE}#/${game}/`);
+  await p.goto(`${BASE}#/${game}/${game === "sliyanie" ? "levels" : ""}`);
   await p.reload();
   await p.waitForSelector(".level-card");
   const doneCards = await p.locator(".level-card.is-done").count();

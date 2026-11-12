@@ -130,7 +130,7 @@ export function starsFor(helps: number): Score {
   return rate(0, helps);
 }
 
-// ---------- «Удвоялка» ----------
+// ---------- 2048 mode (the main screen) ----------
 // The same board, tier t is the number 2^(t+1): tier 0 = 2, tier 10 = 2048.
 
 /** Tier of the 2048 tile (the win). */

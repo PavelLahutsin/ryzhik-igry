@@ -9,10 +9,9 @@ import { reducedMotion } from "../../shared/style";
 import { svgNode } from "../../shared/ui";
 import { advance, numberWord, offTrack, starsFor, strokeDone, TOLERANCE, type Pt } from "./logic";
 import type { Picture } from "./pictures";
-import type { ObjectId } from "../../shared/objects";
 
 /** A letter level also shows its word (and a picture when there is one). */
-type Traceable = Picture & { word?: string; obj?: ObjectId; letter?: string };
+type Traceable = Picture & { word?: string; art?: string; letter?: string };
 
 /**
  * Tracing a picture, a digit or a letter: shared by «Рисовалка» and
@@ -226,7 +225,7 @@ export function play(stage: HTMLElement, level: Traceable, _index: number, api: 
 
   function showWord(): void {
     const card = el("div", { class: "rv-word" }, [
-      level.obj ? svgNode(OBJECTS[level.obj].svg, "rv-word__pic") : null,
+      level.art ? svgNode(level.art, "rv-word__pic") : null,
       el("span", { class: "rv-word__text" }, [el("b", { text: level.letter ?? "" }), ` — ${level.word ?? ""}`]),
     ]);
     later(() => {
@@ -235,7 +234,7 @@ export function play(stage: HTMLElement, level: Traceable, _index: number, api: 
       svg.classList.add("is-alive");
       audio.play("sparkle");
     }, 500);
-    later(() => api.win(starsFor(slips, hints), level.done), 1900);
+    later(() => api.win(starsFor(slips, hints), level.done, level.art ? svgNode(level.art, "praise__word") : undefined), 1900);
   }
 
   function countUp(n: number): void {

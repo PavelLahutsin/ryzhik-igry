@@ -22,3 +22,26 @@ describe("«Цифры и буквы»", () => {
     }
   });
 });
+
+describe("letter pictures", () => {
+  it("every one of the 33 letters has its word and a whole vector picture", async () => {
+    const { WORDS } = await import("./words");
+    const letters = levels.filter((l) => l.letter);
+    expect(letters).toHaveLength(33);
+    expect(Object.keys(WORDS).join("")).toBe("АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ");
+    const seen = new Set<string>();
+    for (const l of letters) {
+      expect(l.art, l.letter).toBeTruthy();
+      expect(l.art!.startsWith('<svg viewBox="0 0 100 100"'), l.letter).toBe(true);
+      expect(l.art!.endsWith("</svg>"), l.letter).toBe(true);
+      expect(l.art).not.toMatch(/NaN|undefined|https?:\/\/(?!www\.w3\.org)/);
+      expect(seen.has(l.art!), `${l.letter}: same picture as another letter`).toBe(false);
+      seen.add(l.art!);
+      expect(l.word, l.letter).toBe(WORDS[l.letter!]!.word);
+      // The word starts with its letter; Ъ, Ы, Ь have it inside.
+      if (l.inside) expect(l.word!.includes(l.letter!), l.letter).toBe(true);
+      else expect(l.word![0], l.letter).toBe(l.letter);
+      expect(l.done).toContain(l.word!);
+    }
+  });
+});
