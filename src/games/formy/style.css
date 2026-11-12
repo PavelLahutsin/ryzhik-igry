@@ -19,32 +19,26 @@
     grid-column: 1;
     grid-row: 1 / span 2;
   }
-  .fm-tray {
+  .fm-tray,
+  .fm-opts {
     grid-column: 2;
     grid-row: 2;
     align-content: start;
+  }
+  .fm-opts .fm-choice {
+    align-items: center;
   }
 }
 
 /* ---------------- guide */
 .fm-say {
   display: flex;
-  align-items: flex-end;
-  gap: 6px;
-}
-
-.fm-say__fig {
-  height: 70px;
-  width: auto;
-  flex: none;
-  pointer-events: none;
 }
 
 .fm-say__bubble {
   flex: 1;
   min-width: 0;
   padding: 8px 12px;
-  margin-bottom: 6px;
   border-radius: 18px;
   background: var(--surface);
   box-shadow: 0 0 0 3px var(--line), var(--shadow-card);
@@ -61,12 +55,31 @@
 }
 
 @media (max-height: 500px) {
-  .fm-say__fig {
-    display: none;
-  }
   .fm-say__text {
     font-size: 14px;
   }
+}
+
+.fm-say__dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 5px;
+}
+
+.fm-say__dots:empty {
+  display: none;
+}
+
+.fm-say__dots i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--line);
+}
+
+.fm-say__dots i.is-on {
+  background: #3fae6a;
 }
 
 /* ---------------- tray */
@@ -134,21 +147,49 @@
   animation: fm-wobble 420ms ease;
 }
 
-/* ---------------- family */
+/* ---------------- family at the table */
 .fm-family {
+  --tbl: 27cqh;
+  position: relative;
   min-height: 0;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 4%;
-  padding: 12px 10px 8px;
+  overflow: hidden;
   border-radius: 24px;
-  background: linear-gradient(#fff5e6 0 76%, #e2cfb2 76%);
+  background:
+    radial-gradient(circle at 82% 18%, #fff 0 7%, transparent 7.5%),
+    linear-gradient(#fff2df, #fbe3c4);
   box-shadow: 0 0 0 4px var(--surface), 0 0 0 7px var(--line), var(--shadow-card);
   container-type: size;
 }
 
+.fm-family__people {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 2cqw;
+  padding: 0 3cqw;
+}
+
+/* The table is drawn over the lower half of everyone (they sit behind it). */
+.fm-table {
+  position: absolute;
+  left: -2%;
+  right: -2%;
+  bottom: 0;
+  height: var(--tbl);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.fm-table svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 .fm-member {
+  --h: 72cqh;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -156,51 +197,34 @@
   justify-content: flex-end;
   height: 100%;
   min-width: 0;
-  flex: 0 1 auto;
-  padding: 0 1cqw;
-  border-radius: 18px;
+  flex: 1 1 0;
+  max-width: 36cqw;
+  padding-bottom: calc(var(--tbl) - 3.4cqw);
+  border-radius: 18px 18px 0 0;
   transition: background 150ms ease;
 }
 
 .fm-member.is-over {
-  background: rgba(255, 178, 63, 0.18);
+  background: rgba(255, 178, 63, 0.2);
 }
 
 .fm-member__fig {
+  position: relative;
+  z-index: 1;
+  height: var(--h);
+  width: auto;
+  max-width: none;
   min-height: 0;
-  max-width: 100%;
+  margin-bottom: calc(var(--h) * -0.4);
   object-fit: contain;
   object-position: 50% 100%;
   pointer-events: none;
   transform-origin: 50% 100%;
 }
 
-.fm-member__fig {
-  width: auto;
-  max-width: none;
-}
-
-.fm-member.fm-size--big .fm-member__fig { height: min(74cqh, 70cqw); }
-.fm-member.fm-size--mid .fm-member__fig { height: min(59cqh, 56cqw); }
-.fm-member.fm-size--small .fm-member__fig { height: min(41cqh, 39cqw); }
-
-/* Narrow screen: the family stands close together (tails may overlap) so
-   everyone can be big. */
-@media (max-aspect-ratio: 5/4) {
-  .fm-family {
-    gap: 0;
-    padding-inline: 2px;
-  }
-  .fm-member {
-    margin-inline: -5cqw;
-  }
-  .fm-member.fm-size--big .fm-member__fig { height: min(76cqh, 84cqw); }
-  .fm-member.fm-size--mid .fm-member__fig { height: min(61cqh, 67cqw); }
-  .fm-member.fm-size--small .fm-member__fig { height: min(42cqh, 47cqw); }
-  .fm-plate {
-    width: clamp(70px, 26cqw, 150px);
-  }
-}
+.fm-member.fm-size--big { --h: min(80cqh, 92cqw); }
+.fm-member.fm-size--mid { --h: min(66cqh, 76cqw); }
+.fm-member.fm-size--small { --h: min(48cqh, 56cqw); }
 
 .fm-member.is-happy .fm-member__fig {
   animation: fm-hop 520ms cubic-bezier(0.3, 1.4, 0.5, 1);
@@ -208,9 +232,9 @@
 
 .fm-plate {
   position: relative;
-  width: clamp(70px, 22cqw, 150px);
+  z-index: 3;
+  width: clamp(64px, 26cqw, 150px);
   aspect-ratio: 200 / 48;
-  margin-top: -4%;
 }
 
 .fm-plate__art {
@@ -246,9 +270,14 @@
 }
 
 .fm-member__name {
+  position: absolute;
+  z-index: 3;
+  bottom: calc(var(--tbl) * 0.28);
+  padding: 1px 10px;
+  border-radius: 999px;
+  background: rgba(255, 248, 236, 0.92);
   font: 800 14px var(--font-ui);
-  color: var(--ink-soft, #6b5a4c);
-  margin-top: 2px;
+  color: var(--ink);
 }
 
 /* ---------------- pyramid */
@@ -523,4 +552,464 @@
 /* The shape bins are only as tall as they need to be. */
 .fm-layout--things .fm-shelves {
   align-self: center;
+}
+
+/* ---------------- order on a shelf */
+.fm-order {
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  border-radius: 24px;
+  background: #fff8ec;
+  box-shadow: 0 0 0 4px var(--surface), 0 0 0 7px var(--line), var(--shadow-card);
+  container-type: size;
+}
+
+.fm-shelf {
+  width: 100%;
+  border-radius: 16px;
+  transition: background 150ms ease;
+}
+
+.fm-shelf.is-over {
+  background: rgba(255, 178, 63, 0.16);
+}
+
+.fm-shelf__row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 2cqw;
+  height: min(62cqh, 260px);
+  padding: 0 2cqw;
+}
+
+.fm-shelf--length .fm-shelf__row {
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-end;
+  height: auto;
+  max-height: 86cqh;
+}
+
+.fm-shelf__board {
+  display: block;
+  height: 14px;
+  margin: 0 1cqw;
+  border-radius: 6px;
+  background: #c98a50;
+  box-shadow: 0 0 0 3px var(--ink);
+}
+
+.fm-slot {
+  position: relative;
+  flex: 1 1 0;
+  max-width: 26cqw;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  border-radius: 12px 12px 0 0;
+  background: repeating-linear-gradient(-45deg, rgba(201, 184, 166, 0.18) 0 8px, transparent 8px 16px);
+  box-shadow: inset 0 0 0 3px rgba(201, 184, 166, 0.55);
+}
+
+.fm-shelf--length .fm-slot {
+  flex: none;
+  max-width: none;
+  height: min(13cqh, 46px);
+  justify-content: flex-start;
+  align-items: center;
+  padding-left: 28px;
+  border-radius: 10px;
+}
+
+.fm-slot.is-full {
+  background: none;
+  box-shadow: none;
+}
+
+.fm-slot__n {
+  position: absolute;
+  left: 50%;
+  top: 6px;
+  transform: translateX(-50%);
+  font: 900 15px var(--font-ui);
+  color: #b9a48f;
+}
+
+.fm-shelf--length .fm-slot__n {
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.fm-slot__thing {
+  display: block;
+  width: 100%;
+  height: 100%;
+  animation: fm-pop 360ms cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+
+.fm-slot__thing svg,
+.fm-item__art svg,
+.fm-opt__art svg,
+.fm-thumb__m svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Measured things keep their real proportions (sizes compare). */
+.fm-m--size svg {
+  width: calc(100% * var(--k, 1));
+  height: calc(100% * var(--k, 1));
+  margin: auto auto 0;
+}
+
+.fm-m--size {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.fm-item--m {
+  width: calc(var(--cell) * 1.05);
+  height: calc(var(--cell) * 1.25);
+}
+
+.fm-item--length {
+  width: calc(var(--cell) * 2.2);
+  height: calc(var(--cell) * 0.5);
+}
+
+.fm-item--length .fm-item__art svg,
+.fm-slot__thing.fm-m--length svg {
+  width: auto;
+  height: 100%;
+}
+
+.fm-slot__thing.fm-m--length {
+  height: 100%;
+  width: auto;
+}
+
+/* ---------------- one-tap questions */
+.fm-q {
+  position: relative;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 24px;
+  background: #fff8ec;
+  box-shadow: 0 0 0 4px var(--surface), 0 0 0 7px var(--line), var(--shadow-card);
+  container-type: size;
+}
+
+.fm-q.is-new > * {
+  animation: fm-pop 320ms cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+
+.fm-q.is-done {
+  animation: fm-hop 600ms ease 2;
+}
+
+.fm-sample {
+  width: min(52cqh, 60cqw);
+  aspect-ratio: 1;
+  padding: 4%;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 0 0 3px var(--line);
+}
+
+.fm-sample.is-got {
+  box-shadow: 0 0 0 4px #3fae6a;
+}
+
+.fm-sample__art,
+.fm-holebox__art,
+.fm-cornerbox__art,
+.fm-holebox__in {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.fm-sample__art svg,
+.fm-holebox__art svg,
+.fm-cornerbox__art svg,
+.fm-holebox__in svg,
+.fm-row__i svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.fm-holebox {
+  position: relative;
+  width: min(60cqh, 66cqw);
+  aspect-ratio: 1;
+  border-radius: 22px;
+  background: linear-gradient(#ffb23f, #ff9d2a);
+  box-shadow: 0 0 0 4px var(--ink), 0 8px 0 #d9662a, 0 8px 0 4px var(--ink);
+}
+
+.fm-holebox__in {
+  position: absolute;
+  inset: 0;
+  animation: fm-drop 600ms ease-in forwards;
+}
+
+.fm-cornerbox {
+  width: min(70cqh, 74cqw);
+  aspect-ratio: 1;
+}
+
+.fm-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  width: 100%;
+  padding: 10px 4px;
+  border-radius: 999px;
+  background: repeating-linear-gradient(90deg, transparent 0 10px, rgba(201, 184, 166, 0.25) 10px 12px);
+}
+
+.fm-row__i,
+.fm-row__gap {
+  width: min(calc((100cqw - 30px) / var(--n, 7) - 6px), 72px, 30cqh);
+  aspect-ratio: 1;
+  flex: none;
+}
+
+.fm-row__gap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  border: 3px dashed #c9b8a6;
+  box-sizing: border-box;
+  font: 900 26px var(--font-ui);
+  color: #b9a48f;
+  animation: fm-gap 1.2s ease-in-out infinite;
+}
+
+.fm-row__i--new {
+  animation: fm-pop 360ms cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+
+.fm-opts {
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: 0 0 0 3px var(--line);
+}
+
+.fm-choice {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+}
+
+/* Answer buttons under the question share one row. */
+.fm-opts .fm-choice .fm-opt {
+  flex: 0 1 auto;
+  width: min(84px, calc((100% - 10px * (var(--n) - 1)) / var(--n)));
+  height: auto;
+  aspect-ratio: 1;
+}
+
+.fm-opt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 78px;
+  height: 78px;
+  padding: 6px;
+  border: 0;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 0 0 3px var(--line), 0 4px 0 var(--line);
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 120ms ease, opacity 200ms ease;
+}
+
+.fm-opt:active {
+  transform: translateY(2px);
+}
+
+.fm-opt__art {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.fm-opt.is-off {
+  opacity: 0.3;
+  filter: grayscale(0.6);
+  cursor: default;
+}
+
+.fm-opt.is-right {
+  box-shadow: 0 0 0 4px #3fae6a, 0 4px 0 #3fae6a;
+  animation: fm-hop 420ms ease;
+}
+
+/* Odd one out: the figures are big cards in the panel. */
+.fm-choice--odd {
+  flex-wrap: wrap;
+  align-items: center;
+  align-content: center;
+  height: 100%;
+}
+
+.fm-choice--odd .fm-opt {
+  width: min(calc((100cqw - 50px) / 2), 40cqh, 150px);
+  height: auto;
+  aspect-ratio: 1;
+}
+
+.fm-choice--odd[style*="--n: 3"] .fm-opt {
+  width: min(calc((100cqw - 50px) / 3), 40cqh, 150px);
+}
+
+.fm-choice--odd[style*="--n: 5"] .fm-opt {
+  width: min(calc((100cqw - 50px) / 3), 30cqh, 130px);
+}
+
+/* Compare: the things stand side by side on one line (or pencils one under another). */
+.fm-choice--compare {
+  height: 100%;
+  flex-wrap: nowrap;
+}
+
+.fm-choice--compare {
+  align-items: center;
+}
+
+.fm-choice--compare .fm-opt {
+  flex: 1 1 0;
+  height: min(78cqh, 300px);
+  max-width: 34cqw;
+  align-items: flex-end;
+  background: #fff;
+}
+
+.fm-choice--compare.fm-choice--size .fm-opt {
+  height: auto;
+  aspect-ratio: 1;
+  max-width: min(44cqw, 60cqh, 200px);
+}
+
+.fm-choice--compare.fm-choice--size .fm-opt__art {
+  width: 100%;
+  height: 100%;
+}
+
+.fm-choice--compare.fm-choice--length {
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+}
+
+.fm-choice--compare.fm-choice--length .fm-opt {
+  flex: none;
+  width: 100%;
+  max-width: none;
+  height: min(calc(70cqh / var(--n)), 76px);
+  justify-content: flex-start;
+  padding: 8px 10px;
+}
+
+.fm-opt.is-hint,
+.fm-opt.is-hint {
+  animation: fm-hint 0.55s ease 4;
+}
+
+/* ---------------- sort by colour and shape */
+.fm-shelves--4,
+.fm-shelves--6 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  align-content: center;
+}
+
+.fm-shelves--6 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.fm-bin--fig {
+  justify-content: flex-start;
+  padding: 8px 6px;
+  min-height: 0;
+}
+
+.fm-bin--fig .fm-bin__label {
+  width: 52px;
+  height: 52px;
+  flex: none;
+}
+
+.fm-bin--fig .fm-bin__in {
+  min-height: 40px;
+  align-content: center;
+}
+
+.fm-bin--fig .fm-bin__thing {
+  width: 34px;
+  height: 34px;
+}
+
+@media (max-aspect-ratio: 5/4) {
+  .fm-shelves--6 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ---------------- thumbs (new kinds) */
+.fm-thumb__m {
+  width: 26%;
+  height: 80%;
+}
+
+.fm-thumb__m.fm-m--length {
+  width: 90%;
+  height: 22%;
+}
+
+.fm-thumb:has(.fm-m--length) {
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.fm-thumb__big {
+  width: 70%;
+}
+
+@keyframes fm-drop { from { transform: translateY(-30%) scale(1.05); } 60% { transform: none; opacity: 1; } to { transform: scale(0.8); opacity: 0; } }
+@keyframes fm-gap { 50% { border-color: #ff8a3d; color: #ff8a3d; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .fm-row__gap,
+  .fm-q.is-new > *,
+  .fm-holebox__in {
+    animation: none;
+  }
 }
