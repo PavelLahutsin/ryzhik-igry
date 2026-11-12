@@ -106,7 +106,6 @@ function guideBar(text: string): { node: HTMLElement; say: (t: string) => void; 
   const bubble = el("p", { class: "pr-guide__text", attrs: { "aria-live": "polite" }, text });
   const dotRow = el("div", { class: "pr-guide__dots" });
   const node = el("div", { class: "pr-guide" }, [
-    el("img", { class: "pr-guide__fig", attrs: { src: character("ryzhik"), alt: "", draggable: "false" } }),
     el("div", { class: "pr-guide__bubble" }, [bubble, dotRow]),
   ]);
   return {

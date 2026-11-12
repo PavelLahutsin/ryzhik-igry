@@ -225,17 +225,28 @@ const SOLVE = {
     }
   },
   async formy(p, level) {
+    if (level.mode === "pick") {
+      for (let k = 0; k < level.rounds + 2 && !(await won(p)); k++) {
+        await p.waitForSelector(".fm-opt[data-ok]:not(.is-right)", { timeout: 4000 }).catch(() => null);
+        const ok = p.locator(".fm-opt[data-ok]:not(.is-right)").first();
+        if (!(await ok.count())) break;
+        await ok.click();
+        await p.waitForTimeout(1700);
+      }
+      return;
+    }
     for (let k = 0; k < 40 && !(await won(p)); k++) {
-      const pair = await p.evaluate((pyr) => {
+      const pair = await p.evaluate(([pyr, order]) => {
         let items = [...document.querySelectorAll(".fm-tray [data-key]:not(.is-placed)")];
         if (!items.length) return null;
-        if (pyr) items = items.sort((a, b) => Number(b.dataset.key) - Number(a.dataset.key));
+        if (pyr || order === "down") items = items.sort((a, b) => Number(b.dataset.key) - Number(a.dataset.key));
+        else if (order === "up") items = items.sort((a, b) => Number(a.dataset.key) - Number(b.dataset.key));
         const it = items[0];
-        const tg = document.querySelector(".fm-pole") ?? document.querySelector(`.fm-layout > :nth-child(2) [data-key="${it.dataset.key}"]`);
+        const tg = document.querySelector(".fm-pole") ?? document.querySelector(".fm-shelf") ?? document.querySelector(`.fm-layout > :nth-child(2) [data-key="${it.dataset.key}"]`);
         const r1 = it.getBoundingClientRect();
         const r2 = tg.getBoundingClientRect();
         return [[r1.x + r1.width / 2, r1.y + r1.height / 2], [r2.x + r2.width / 2, r2.y + r2.height / 2]];
-      }, level.mode === "pyramid");
+      }, [level.mode === "pyramid", level.mode === "order" ? level.dir : ""]);
       if (!pair) break;
       await trace(p, line(pair[0], pair[1]));
       await p.waitForTimeout(250);
@@ -244,7 +255,7 @@ const SOLVE = {
 };
 
 // ------------------------------------------------------------ layout checks
-const TOUCH = ".mz-piece,.tn-item,.od-item,.so-item,[data-tool],.pr-shelf__item,.pr-coin,.sk-block,.fm-tray [data-key],.np-card,.btn,.level-card,.sl-pad__btn,.kt-food,.kt-tool,.kt-picker__btn";
+const TOUCH = ".fm-opt,.mz-piece,.tn-item,.od-item,.so-item,[data-tool],.pr-shelf__item,.pr-coin,.sk-block,.fm-tray [data-key],.np-card,.btn,.level-card,.sl-pad__btn,.kt-food,.kt-tool,.kt-picker__btn";
 async function layoutCheck(p) {
   return p.evaluate((TOUCH) => {
     const out = [];
@@ -323,8 +334,8 @@ async function playGame(game, vpTag) {
   // Start from the list: the first card must be open, the second locked.
   await p.waitForSelector(".level-card");
   const locked = await p.locator(".level-card.is-locked").count();
-  // «Цифры и буквы»: each of its three worlds starts open.
-  const open = game === "bukvy" ? 3 : 1;
+  // «Цифры и буквы» (3) and «Размер и форма» (5): each world starts open.
+  const open = game === "bukvy" ? 3 : game === "formy" ? 5 : 1;
   if (locked !== levels.length - open) note(game, vpTag, "list", `fresh list: ${locked} locked of ${levels.length}`);
   (await layoutCheck(p)).forEach((m) => note(game, vpTag, "list", m));
   await p.locator(".level-card.is-next").first().click({ force: true });
@@ -339,7 +350,16 @@ async function playGame(game, vpTag) {
       await p.screenshot({ path: `${OUT}/${game}--${vpTag}--${String(i + 1).padStart(2, "0")}.png` });
       const t0 = Date.now();
       await SOLVE[game](p, level);
+      // QA_DONESHOTS=1: the finished scene (before the card) and the card of every level.
+      if (process.env.QA_DONESHOTS) {
+        await p.waitForTimeout(1100);
+        await p.screenshot({ path: `${OUT}/${game}--${vpTag}--${String(i + 1).padStart(2, "0")}-done.png` });
+      }
       await p.waitForSelector(".praise", { timeout: 20000 });
+      if (process.env.QA_DONESHOTS) {
+        await p.waitForTimeout(700);
+        await p.screenshot({ path: `${OUT}/${game}--${vpTag}--${String(i + 1).padStart(2, "0")}-win.png` });
+      }
       const got = await p.locator(".praise .star.is-on").count();
       stars[level.id] = got;
       if (got < 3 && game !== "labirint") note(game, vpTag, where, `only ${got} stars on a perfect play`);

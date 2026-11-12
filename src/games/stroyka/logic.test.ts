@@ -57,3 +57,23 @@ describe("stroyka plans", () => {
     expect(nums.map((p) => p.n)).toEqual([1, 2, 3, 4, 5]);
   });
 });
+
+describe("stroyka guests", () => {
+  it("stand on the model or the ground, inside the board, only where the story needs them", async () => {
+    const { levels } = await import("./levels");
+    for (const plan of levels) {
+      const g = plan.guest;
+      if (!g) continue;
+      expect(g.x).toBeGreaterThan(0);
+      expect(g.x).toBeLessThan(plan.cols);
+      expect(g.y).toBeLessThanOrEqual(plan.rows);
+      expect(g.y - g.h).toBeGreaterThan(-0.5);
+      if (g.ground) expect(g.y).toBe(plan.rows);
+      else {
+        // Feet on top of a block of the model.
+        const under = plan.pieces.some((p) => p.y === g.y && g.x >= p.x && g.x <= p.x + p.w);
+        expect(under, plan.id).toBe(true);
+      }
+    }
+  });
+});

@@ -10,7 +10,12 @@ export type Plan = LevelInfo & {
   /** Extra blocks in the tray that are not needed (a real choice). */
   extra: Pick<Piece, "kind" | "color" | "w" | "h">[];
   alive: Alive;
-  guest: string;
+  /**
+   * Someone who belongs in the finished model (climbs it, walks over it,
+   * sails on it, comes to the door). Feet at (x, y) in grid cells, `h` rows
+   * tall; `walk` = goes across to `x2`; `ground` = stands outside the model.
+   */
+  guest?: { id: string; x: number; y: number; h: number; x2?: number; ground?: boolean };
   intro: string;
   done: string;
 };
@@ -26,9 +31,8 @@ const ALL: Plan[] = [
     pieces: [p("brick", "red", 1, 5, 2), p("brick", "blue", 1, 4, 2), p("brick", "yellow", 1, 3, 2), p("cone", "green", 1, 1, 2, 2)],
     extra: [{ kind: "brick", color: "green", w: 2, h: 1 }],
     alive: "tower",
-    guest: "belka",
     intro: "Построим башенку! Ставь кубики по цветам.",
-    done: "Высокая башня! Белочка машет сверху!",
+    done: "Высокая башня — до самых облаков!",
   },
   {
     id: "s2",
@@ -38,7 +42,6 @@ const ALL: Plan[] = [
     pieces: [p("brick", "red", 1, 2, 4), p("brick", "blue", 2, 1, 2), p("wheel", "black", 1, 3), p("wheel", "black", 4, 3)],
     extra: [{ kind: "brick", color: "yellow", w: 2, h: 1 }],
     alive: "drive",
-    guest: "ryzhik",
     intro: "Соберём машинку! Не забудь колёса — сколько их нужно?",
     done: "Би-би! Машинка поехала!",
   },
@@ -57,9 +60,9 @@ const ALL: Plan[] = [
     ],
     extra: [{ kind: "brick", color: "white", w: 2, h: 1 }],
     alive: "tower",
-    guest: "ezhik",
+    guest: { id: "ezhik", x: 3, y: 1, h: 1.15 },
     intro: "Внизу три кубика, выше два, наверху один. Считаем!",
-    done: "Шесть кубиков — пирамидка готова!",
+    done: "Шесть кубиков — пирамидка готова! Ёжик залез на самый верх!",
   },
   {
     id: "s4",
@@ -79,7 +82,6 @@ const ALL: Plan[] = [
     ],
     extra: [{ kind: "wheel", color: "black", w: 1, h: 1 }],
     alive: "train",
-    guest: "mishka",
     intro: "Собери паровозик и вагончик. Посчитай колёса!",
     done: "Ту-ту! Четыре колеса крутятся — поехали!",
   },
@@ -100,9 +102,9 @@ const ALL: Plan[] = [
     ],
     extra: [{ kind: "window", color: "blue", w: 1, h: 1 }],
     alive: "house",
-    guest: "mama",
+    guest: { id: "mama", x: 0.55, y: 6, h: 2.9, ground: true },
     intro: "Строим домик: стены, дверь, окошко и крыша.",
-    done: "Какой уютный домик! Мама уже в гостях!",
+    done: "Какой уютный домик! Мама пришла в гости!",
   },
   {
     id: "s6",
@@ -121,7 +123,6 @@ const ALL: Plan[] = [
     ],
     extra: [{ kind: "brick", color: "red", w: 2, h: 1 }],
     alive: "rocket",
-    guest: "ryzhik",
     intro: "Построим ракету! Сначала низ, потом верх.",
     done: "Три, два, один — пуск! Ракета летит к звёздам!",
   },
@@ -141,7 +142,6 @@ const ALL: Plan[] = [
     ],
     extra: [],
     alive: "train",
-    guest: "papa",
     intro: "Прицепи вагончики по порядку: 1, 2, 3, 4, 5!",
     done: "Пять вагончиков по порядку! Ту-ту!",
   },
@@ -160,9 +160,9 @@ const ALL: Plan[] = [
     ],
     extra: [{ kind: "brick", color: "yellow", w: 4, h: 1 }],
     alive: "boat",
-    guest: "ezhik",
+    guest: { id: "ezhik", x: 2.5, y: 3, h: 1.25 },
     intro: "Соберём кораблик! Корпус, палуба, окошки и труба.",
-    done: "Ту-у-у! Кораблик поплыл по волнам!",
+    done: "Ту-у-у! Ёжик плывёт на кораблике!",
   },
   {
     id: "s9",
@@ -187,7 +187,6 @@ const ALL: Plan[] = [
     ],
     extra: [{ kind: "brick", color: "purple", w: 1, h: 1 }],
     alive: "train",
-    guest: "belka",
     intro: "Большой поезд: паровоз и два вагона. Сколько всего колёс?",
     done: "Шесть колёс, два вагона — едем в гости!",
   },
@@ -206,7 +205,7 @@ const ALL: Plan[] = [
     ],
     extra: [{ kind: "brick", color: "red", w: 1, h: 1 }],
     alive: "tower",
-    guest: "mishka",
+    guest: { id: "mishka", x: 0.7, y: 1, h: 1.45, x2: 5.3 },
     intro: "Построим мостик: два столбика, а сверху дорожка.",
     done: "По мостику идёт Мишка!",
   },
@@ -225,7 +224,6 @@ const ALL: Plan[] = [
     ],
     extra: [{ kind: "wheel", color: "black", w: 1, h: 1 }, { kind: "brick", color: "green", w: 2, h: 1 }],
     alive: "drive",
-    guest: "papa",
     intro: "Соберём грузовик и повезём кубик. Сколько колёс?",
     done: "Би-бип! Грузовик везёт груз!",
   },

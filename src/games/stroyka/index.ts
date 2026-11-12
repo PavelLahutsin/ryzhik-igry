@@ -68,7 +68,6 @@ function play(stage: HTMLElement, plan: Plan, _index: number, api: PlayApi): () 
   const sayText = el("p", { class: "sk-say__text", attrs: { "aria-live": "polite" }, text: plan.intro });
   const counter = el("b", { class: "sk-say__count", text: `0 / ${total}` });
   const guide = el("div", { class: "sk-say" }, [
-    el("img", { class: "sk-say__fig", attrs: { src: character("ryzhik"), alt: "", draggable: "false" } }),
     el("div", { class: "sk-say__bubble" }, [sayText, counter]),
   ]);
   const say = (t: string): void => {
@@ -80,8 +79,23 @@ function play(stage: HTMLElement, plan: Plan, _index: number, api: PlayApi): () 
   const model = el("div", { class: "sk-model" });
   const ghosts = el("div", { class: "sk-ghosts" });
   const board = el("div", { class: `sk-board sk-board--${plan.alive}`, style: { aspectRatio: `${plan.cols} / ${plan.rows}`, "--ratio": String(plan.cols / plan.rows), "--cols": String(plan.cols), "--rows": String(plan.rows) } }, [ghosts, model]);
-  const guest = el("img", { class: "sk-guest", attrs: { src: character(plan.guest), alt: "", draggable: "false" } });
-  const site = el("div", { class: `sk-site sk-site--${plan.alive}`, style: { "--ratio": String(plan.cols / plan.rows) } as Record<string, string> }, [el("div", { class: "sk-site__in" }, [board, guest])]);
+  // The guest stands in the model (on top, on the deck, on the bridge) and
+  // moves with it, or outside at the door — at the scale of the blocks.
+  const g = plan.guest;
+  if (g) {
+    const guest = el("span", {
+      class: `sk-guest${g.x2 !== undefined ? " sk-guest--walk" : ""}`,
+      style: {
+        left: `${(g.x / plan.cols) * 100}%`,
+        top: `${((g.y - g.h) / plan.rows) * 100}%`,
+        height: `${(g.h / plan.rows) * 100}%`,
+        "--from": `${(g.x / plan.cols) * 100}%`,
+        "--to": `${((g.x2 ?? g.x) / plan.cols) * 100}%`,
+      } as Record<string, string>,
+    }, [el("img", { attrs: { src: character(g.id), alt: "", draggable: "false" } })]);
+    (g.ground ? board : model).append(guest);
+  }
+  const site = el("div", { class: `sk-site sk-site--${plan.alive}`, style: { "--ratio": String(plan.cols / plan.rows) } as Record<string, string> }, [el("div", { class: "sk-site__in" }, [board])]);
   const slotNodes = slots.map((s) => {
     const g = svgNode(pieceSvg(s, true), `sk-ghost sk-piece--${s.kind}`);
     place(g, plan, s);

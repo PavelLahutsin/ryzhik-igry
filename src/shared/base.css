@@ -957,13 +957,6 @@ button {
   opacity: 0.85;
 }
 
-.praise__fox {
-  width: 96px;
-  height: auto;
-  margin-top: -70px;
-  filter: drop-shadow(0 10px 12px rgba(59, 46, 37, 0.2));
-  animation: fox-hop 900ms ease-in-out 2;
-}
 
 /* A level's own picture instead of Рыжик (a letter's word in «Цифры и буквы»). */
 .praise__word {
@@ -981,6 +974,22 @@ button {
   display: block;
   width: 100%;
   height: 100%;
+}
+/* The level card picture on the win card. */
+.praise__thumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.praise__thumb > * {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+}
+.praise__thumb img {
+  object-fit: contain;
 }
 
 @keyframes fox-hop {
@@ -1161,7 +1170,6 @@ button {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .praise__fox,
   .praise__word,
   .btn--hint.is-used svg {
     animation: none;
@@ -1465,10 +1473,6 @@ button {
     overflow: auto;
     gap: 4px;
     padding: 10px 16px 12px;
-  }
-  .praise__fox {
-    width: 56px;
-    margin-top: 0;
   }
   .praise__word {
     width: 60px;

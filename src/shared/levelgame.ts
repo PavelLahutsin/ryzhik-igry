@@ -1,5 +1,4 @@
 import { audio } from "./audio";
-import { character } from "./assets";
 import { el, svgEl, replayClass } from "./dom";
 import { gameProgress, isUnlocked, isUnlockedInWorld, totalStars, type Progress } from "./progress";
 import { goHome, listenGame, navigateGame } from "./router";
@@ -301,13 +300,9 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
           { label: "Ещё раз", onClick: () => navigateGame(def.id, `/play/${index + 1}`) },
           { label: "Уровни", onClick: () => navigateGame(def.id, LIST) },
         ];
-        // The level's own picture (e.g. a letter's word) or Рыжик.
-        const art =
-          picture ??
-          el("img", {
-            class: "praise__fox",
-            attrs: { src: character("ryzhik"), alt: "", draggable: "false" },
-          });
+        // The level's own picture (e.g. a letter's word) or its card picture —
+        // what was just made or solved, not the same Рыжик on every card.
+        const art = picture ?? el("span", { class: "praise__word praise__thumb", attrs: { "aria-hidden": "true" } }, [def.thumb(level, index)]);
         // Let the finishing animation be seen before the card.
         scope.later(() => {
           if (!view.isConnected) return;

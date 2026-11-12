@@ -79,13 +79,19 @@ export const CHAIN_ART: string[] = [
   ),
 ];
 
-/** Garden backdrop behind the Ryzhik picture for the last step. */
+const inner = (art: string): string => art.replace(/<\/?svg[^>]*>/g, "");
+
+/** The last garden step, «Целый сад»: apple trees, a bush and flowers behind a fence. */
 export const GARDEN_BACK = svg(
   `<rect width="100" height="100" fill="#cfeefc"/>` +
-    `<circle cx="84" cy="16" r="10" fill="#ffd54a"/>` +
-    `<path d="M0 70 Q 30 58 60 66 T 100 62 V 100 H 0 Z" fill="#8fd46a"/>` +
-    `<g transform="translate(-18 6) scale(.62)">${CHAIN_ART[5]!.replace(/<\/?svg[^>]*>/g, "")}</g>` +
-    `<g transform="translate(70 30) scale(.4)">${CHAIN_ART[3]!.replace(/<\/?svg[^>]*>/g, "")}</g>`,
+    `<circle cx="84" cy="14" r="9" fill="#ffd54a"/>` +
+    `<path d="M0 66 Q 30 56 60 63 T 100 60 V 100 H 0 Z" fill="#8fd46a"/>` +
+    `<g transform="translate(-14 2) scale(.6)">${inner(CHAIN_ART[5]!)}</g>` +
+    `<g transform="translate(40 -4) scale(.66)">${inner(CHAIN_ART[5]!)}</g>` +
+    `<g transform="translate(26 40) scale(.36)">${inner(CHAIN_ART[3]!)}</g>` +
+    `<g transform="translate(70 52) scale(.3)">${inner(CHAIN_ART[2]!)}</g>` +
+    `<path d="M2 92 H98 M2 84 H98" stroke="#c48a4a" stroke-width="3"/>` +
+    [6, 20, 34, 48, 62, 76, 90].map((x) => `<path d="M${x} 96 V80 L${x + 3} 76 L${x + 6} 80 V96 Z" fill="#f3d9a8" stroke="#3b2e25" stroke-width="1.6" stroke-linejoin="round"/>`).join(""),
 );
 
 // ---------- Winter chain ----------
@@ -141,10 +147,11 @@ export const WINTER_ART: string[] = [
   svg(SNOWY + bigMan(true)),
 ];
 
-/** Winter backdrop behind Ryzhik for the last winter step. */
+/** The last winter step, «Снежный двор»: a snowman in a hat and a little one beside him. */
 export const WINTER_BACK = svg(
   `<rect width="100" height="100" fill="#dcefff"/>` +
     `<circle cx="14" cy="14" r="2" fill="#fff"/><circle cx="34" cy="8" r="1.6" fill="#fff"/><circle cx="60" cy="18" r="2" fill="#fff"/><circle cx="88" cy="10" r="1.8" fill="#fff"/>` +
     `<path d="M0 70 Q 30 60 60 68 T 100 64 V 100 H 0 Z" fill="#ffffff"/>` +
-    `<g transform="translate(-14 10) scale(.62)">${WINTER_ART[5]!.replace(/<\/?svg[^>]*>/g, "")}</g>`,
+    `<g transform="translate(-8 8) scale(.8)">${inner(WINTER_ART[5]!)}</g>` +
+    `<g transform="translate(58 40) scale(.5)">${inner(WINTER_ART[3]!)}</g>`,
 );

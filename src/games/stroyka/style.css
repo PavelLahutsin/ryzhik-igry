@@ -34,12 +34,6 @@
   gap: 6px;
 }
 
-.sk-say__fig {
-  height: 70px;
-  width: auto;
-  flex: none;
-  pointer-events: none;
-}
 
 .sk-say__bubble {
   flex: 1;
@@ -75,9 +69,6 @@
 }
 
 @media (max-height: 500px) {
-  .sk-say__fig {
-    display: none;
-  }
   .sk-say__text {
     font-size: 14px;
   }
@@ -160,19 +151,51 @@
 
 .sk-guest {
   position: absolute;
-  right: 1%;
-  bottom: 22px;
-  height: 34%;
-  width: auto;
+  z-index: 2;
+  display: block;
   pointer-events: none;
-  transform: scale(0);
+  transform: translateX(-50%) scale(0);
   transform-origin: 50% 100%;
-  transition: transform 500ms cubic-bezier(0.3, 1.5, 0.5, 1) 300ms;
+  transition: transform 450ms cubic-bezier(0.3, 1.5, 0.5, 1) 250ms;
+}
+
+.sk-guest img {
+  display: block;
+  height: 100%;
+  width: auto;
+  max-width: none;
+}
+
+/* Feet on the block: a small contact shadow. */
+.sk-guest::after {
+  content: "";
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  bottom: -4%;
+  height: 8%;
+  border-radius: 50%;
+  background: rgba(59, 46, 37, 0.28);
+  z-index: -1;
 }
 
 .is-alive .sk-guest {
-  transform: none;
-  animation: sk-hop 0.8s ease-in-out 1.2s infinite;
+  transform: translateX(-50%);
+}
+
+.is-alive .sk-guest--walk {
+  animation: sk-walk 4.5s ease-in-out 0.8s infinite alternate;
+}
+
+@keyframes sk-walk {
+  0%,
+  8% {
+    left: var(--from);
+  }
+  92%,
+  100% {
+    left: var(--to);
+  }
 }
 
 /* ---------------- tray */
@@ -361,10 +384,6 @@
 }
 
 /* A tall, narrow model (rocket): the guest stands small at the side. */
-.sk-site--rocket .sk-guest {
-  height: min(30%, 26cqw);
-  right: 0;
-}
 
 /* QA v4: landscape phone — the tray is wider and tighter so a big model's
    blocks all fit without scrolling. */
@@ -372,9 +391,6 @@
   .sk-layout {
     grid-template-columns: minmax(0, 1fr) minmax(200px, 42%);
     gap: 8px;
-  }
-  .sk-say__fig {
-    height: 52px;
   }
   .sk-say__text {
     font-size: 15px;

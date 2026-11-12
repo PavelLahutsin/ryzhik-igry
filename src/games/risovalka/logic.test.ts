@@ -35,9 +35,9 @@ describe("risovalka", () => {
     expect(starsFor(3, 3).stars).toBe(1);
     expect(numberWord(3)).toBe("Три");
   });
-  it("has 24 pictures, old ids first so progress keeps working", () => {
-    expect(levels).toHaveLength(24);
-    expect(levels.map((l) => l.id)).toEqual(Array.from({ length: 24 }, (_, i) => `r${i + 1}`));
+  it("has 30 pictures, old ids first so progress keeps working", () => {
+    expect(levels).toHaveLength(30);
+    expect(levels.map((l) => l.id)).toEqual(Array.from({ length: 30 }, (_, i) => `r${i + 1}`));
     for (const l of levels) {
       expect(l.strokes.length).toBeGreaterThan(0);
       for (const d of l.strokes) expect(d).toMatch(/^M[\d. ]+/);
@@ -52,7 +52,11 @@ describe("risovalka", () => {
     expect(avg("first")).toBeLessThan(avg("harder"));
     expect(avg("animals")).toBeLessThan(avg("harder"));
     expect(avg("harder")).toBeLessThan(avg("master"));
-    for (const l of levels) expect(l.help === "less").toBe(l.world === "master");
+    for (const l of levels) expect(l.help === "less").toBe(l.world === "master" || l.world === "paths");
+    // «Длинные дорожки»: the longest lines of the game, drawn without lifting the finger.
+    const len = (d: string): number => d.length;
+    const longest = (w: string): number => Math.max(...levels.filter((l) => l.world === w).flatMap((l) => l.strokes.map(len)));
+    expect(longest("paths")).toBeGreaterThan(longest("first"));
     for (const l of levels.filter((x) => x.world === "master")) expect(l.strokes.length).toBeGreaterThanOrEqual(5);
   });
 });

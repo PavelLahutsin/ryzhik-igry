@@ -4,7 +4,6 @@
  * by doubling, so the game gets harder by itself; the skin is only pictures.
  */
 import { audio, type SoundKind } from "../../shared/audio";
-import { character } from "../../shared/assets";
 import { el, replayClass } from "../../shared/dom";
 import { showDrag, whenIdle } from "../../shared/guide";
 import { afterHowTo } from "../../shared/howto";
@@ -350,7 +349,6 @@ function renderPlay(root: HTMLElement): () => void {
     const top = skinTier(skin, WIN_TIER);
     const art = el("span", { class: "sb-win__art" }, [
       tileFace(skin, WIN_TIER, "sb-win__tile"),
-      el("img", { class: "sb-win__fox", attrs: { src: character("ryzhik"), alt: "", draggable: "false" } }),
     ]);
     overlay = praiseOverlay({
       title: "2048!",
