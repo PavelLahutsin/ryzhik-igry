@@ -27,7 +27,7 @@ export type PlayApi = {
    * Call once when the level is solved: a `rate()` score (stars and why,
    * shown on the card) or plain stars 1–3.
    */
-  win: (score: Score | number, text?: string) => void;
+  win: (score: Score | number, text?: string, art?: Node) => void;
   /** Put game-specific controls in the top bar (right side). */
   setTool: (node: HTMLElement | null) => void;
   /**
@@ -273,7 +273,7 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
       onHint();
     });
     const api: PlayApi = {
-      win: (score, text) => {
+      win: (score, text, picture) => {
         if (won) return;
         const stars = isScore(score) ? score.stars : score;
         const why = isScore(score) ? score.why : undefined;
@@ -301,10 +301,13 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
           { label: "Ещё раз", onClick: () => navigateGame(def.id, `/play/${index + 1}`) },
           { label: "Уровни", onClick: () => navigateGame(def.id, LIST) },
         ];
-        const art = el("img", {
-          class: "praise__fox",
-          attrs: { src: character("ryzhik"), alt: "", draggable: "false" },
-        });
+        // The level's own picture (e.g. a letter's word) or Рыжик.
+        const art =
+          picture ??
+          el("img", {
+            class: "praise__fox",
+            attrs: { src: character("ryzhik"), alt: "", draggable: "false" },
+          });
         // Let the finishing animation be seen before the card.
         scope.later(() => {
           if (!view.isConnected) return;

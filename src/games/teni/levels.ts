@@ -77,12 +77,12 @@ export const levels: TeniLevel[] = [
   { id: "t22", world: "turn", title: "В другую сторону", items: [flip("dog"), flip("duck"), flip("snail"), flip("giraffe"), flip("whale")], decoys: ["turtle"] },
   { id: "t23", world: "turn", title: "Вверх ногами", items: [turn("umbrella", 180), turn("mushroom", 180), turn("icecream", 180), turn("fir", 180), turn("bell", 180)], decoys: ["lamp"] },
   { id: "t24", world: "turn", title: "Кувырок", items: [turn("plane", 90), turn("rocket", -45), flip("giraffe"), turn("teddy", 30), flip("train")], decoys: ["helicopter", flip("boot")] },
-  { id: "t26", world: "turn", title: "Перепутанные", items: [flip("cat"), "cat2", turn("rabbit", 90), "rabbit2", flip("key2")], decoys: ["key", "bird"] },
+  { id: "t26", world: "turn", title: "Путаница", items: [flip("cat"), "cat2", turn("rabbit", 90), "rabbit2", flip("key2")], decoys: ["key", "bird"] },
   // Прятки: part of a shadow is behind a bush, a cloud or a box.
   { id: "t27", world: "hide", title: "В кустах", items: [hide("elephant"), hide("cat"), hide("teapot"), hide("snowman"), hide("giraffe")], decoys: ["cat2", "clock"] },
   { id: "t28", world: "hide", title: "Кто за тучкой?", items: [hide("owl", "cloud"), hide("aerostat", "cloud"), hide("plane", "cloud"), hide("hen", "cloud"), hide("bird", "cloud")], decoys: [hide("moon", "cloud"), "bird2"] },
   { id: "t29", world: "hide", title: "Прятки с друзьями", items: [hide("char:ryzhik", "box"), hide("char:mama"), hide("char:papa", "box"), hide("char:belka"), "teddy@s"], decoys: ["char:ezhik", "char:mishka"] },
-  { id: "t30", world: "hide", title: "Прятки-перевёртыши", items: [{ id: "dog", hide: "bush", flip: true }, hide("bird2", "cloud"), hide("key", "box"), turn("glass", 180), hide("cake1"), "chair"], decoys: ["cake3", "bird"] },
+  { id: "t30", world: "hide", title: "Хитрые прятки", items: [{ id: "dog", hide: "bush", flip: true }, hide("bird2", "cloud"), hide("key", "box"), turn("glass", 180), hide("cake1"), "chair"], decoys: ["cake3", "bird"] },
   // Большие сцены: two or three rounds in one level, everything together.
   {
     id: "t31",

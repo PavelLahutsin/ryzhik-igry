@@ -965,6 +965,24 @@ button {
   animation: fox-hop 900ms ease-in-out 2;
 }
 
+/* A level's own picture instead of Рыжик (a letter's word in «Цифры и буквы»). */
+.praise__word {
+  display: block;
+  width: 104px;
+  height: 104px;
+  margin-top: -74px;
+  padding: 10px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 4px var(--yellow-tint, #fff3c4), 0 10px 18px rgba(59, 46, 37, 0.2);
+  animation: fox-hop 900ms ease-in-out 2;
+}
+.praise__word svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 @keyframes fox-hop {
   0%,
   100% {
@@ -1144,6 +1162,7 @@ button {
 
 @media (prefers-reduced-motion: reduce) {
   .praise__fox,
+  .praise__word,
   .btn--hint.is-used svg {
     animation: none;
   }
@@ -1450,6 +1469,12 @@ button {
   .praise__fox {
     width: 56px;
     margin-top: 0;
+  }
+  .praise__word {
+    width: 60px;
+    height: 60px;
+    margin-top: 0;
+    padding: 6px;
   }
   .praise__title {
     font-size: 30px;
