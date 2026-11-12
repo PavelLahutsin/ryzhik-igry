@@ -157,13 +157,6 @@
   inset: 0;
 }
 
-.sl-final__fox {
-  position: absolute;
-  left: 50%;
-  bottom: 2%;
-  height: 86%;
-  transform: translateX(-38%);
-}
 
 .sl-thumb {
   width: 100%;
@@ -620,12 +613,6 @@
   top: 0;
 }
 
-.sb-win__fox {
-  position: absolute;
-  right: -18px;
-  bottom: -8px;
-  height: 100px;
-}
 
 @media (prefers-reduced-motion: reduce) {
   .sb-tile.is-fresh .sl-tile__art {
@@ -660,9 +647,5 @@
     width: 84px;
     height: 84px;
     border-radius: 18px;
-  }
-  .sb-win__fox {
-    height: 70px;
-    right: -14px;
   }
 }

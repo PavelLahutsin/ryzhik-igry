@@ -1,6 +1,5 @@
 import { audio } from "../../shared/audio";
 import { showDrag } from "../../shared/guide";
-import { character } from "../../shared/assets";
 import { el, replayClass } from "../../shared/dom";
 import { createScope } from "../../shared/lifecycle";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
@@ -85,11 +84,9 @@ export function stepArt(chain: ChainId, tier: number, className = ""): HTMLEleme
     node.style.background = CHAINS[chain][tier]!.color;
     return node;
   }
+  // The whole garden (or the snowy yard) drawn as one picture.
   const wrap = el("span", { class: `sl-final ${className}`.trim(), attrs: { "aria-hidden": "true" } });
-  wrap.append(
-    svgNode(ART[chain].back, "sl-final__back"),
-    el("img", { class: "sl-final__fox", attrs: { src: character("ryzhik"), alt: "", draggable: "false" } }),
-  );
+  wrap.append(svgNode(ART[chain].back, "sl-final__back"));
   return wrap;
 }
 

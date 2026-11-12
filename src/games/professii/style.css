@@ -44,15 +44,6 @@
   min-height: 0;
 }
 
-.pr-guide__fig {
-  flex: none;
-  height: 76px;
-  width: auto;
-  user-select: none;
-  pointer-events: none;
-  animation: pr-breathe 3s ease-in-out infinite;
-  transform-origin: 50% 100%;
-}
 
 .pr-guide__bubble {
   position: relative;
@@ -113,11 +104,6 @@
   .pr-guide {
     flex-direction: column;
     align-items: stretch;
-  }
-  .pr-guide__fig {
-    align-self: center;
-    height: clamp(56px, 16vh, 120px);
-    order: 2;
   }
   .pr-guide__bubble {
     margin: 0 0 4px;
@@ -405,9 +391,6 @@
   }
   .pr-guide__text {
     font-size: 14px;
-  }
-  .pr-guide__fig {
-    display: none;
   }
 }
 
@@ -747,11 +730,6 @@
 @keyframes pr-drops { to { background-position: 0 10px; } }
 @keyframes pr-hint { 50% { fill: rgba(255, 178, 63, 0.45); } }
 
-@media (prefers-reduced-motion: reduce) {
-  .pr-guide__fig {
-    animation: none;
-  }
-}
 
 @media (max-height: 500px) {
   .pr-coin {

@@ -202,3 +202,16 @@
     animation: none;
   }
 }
+
+/* Feet on the path: a soft contact shadow under Рыжик and the friend. */
+.lb-fox::before,
+.lb-friend::before {
+  content: "";
+  position: absolute;
+  left: 22%;
+  right: 22%;
+  bottom: 4%;
+  height: 12%;
+  border-radius: 50%;
+  background: rgba(59, 46, 37, 0.22);
+}

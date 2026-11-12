@@ -10,7 +10,7 @@ export const CHAIN: ChainStep[] = [
   { name: "Кустик", color: "#d5efc7" },
   { name: "Яблонька", color: "#c9e8b8" },
   { name: "Яблоня с яблоками", color: "#ffe1c9" },
-  { name: "Рыжик в саду", color: "#fff1b8" },
+  { name: "Целый сад", color: "#fff1b8" },
 ];
 
 /** Winter chain: snowflakes grow into a snowman. */
@@ -21,7 +21,7 @@ export const WINTER: ChainStep[] = [
   { name: "Маленький снеговик", color: "#e6f0ff" },
   { name: "Снеговик", color: "#dff0fb" },
   { name: "Снеговик в шапке", color: "#ffe6e3" },
-  { name: "Рыжик и снеговик", color: "#fff1b8" },
+  { name: "Снежный двор", color: "#fff1b8" },
 ];
 
 export type ChainId = "sad" | "zima";
@@ -50,12 +50,12 @@ export const levels: SliyanieLevel[] = [
   { id: "s2", world: "sad", chain: "sad", title: "Вырасти кустик", size: 3, goal: 3, done: "Вырос кустик!" },
   { id: "s3", world: "sad", chain: "sad", title: "Вырасти яблоньку", size: 4, goal: 4, done: "Выросла яблонька!" },
   { id: "s4", world: "sad", chain: "sad", title: "Вырасти яблоки", size: 4, goal: 5, done: "Выросли яблоки!" },
-  { id: "s5", world: "sad", chain: "sad", title: "Сад для Рыжика", size: 5, goal: 6, done: "Рыжик гуляет в своём саду!" },
+  { id: "s5", world: "sad", chain: "sad", title: "Целый сад", size: 5, goal: 6, done: "Вырос целый сад — яблони, кусты и цветы!" },
   { id: "s6", world: "sad", chain: "sad", title: "Сад на полянке", size: 4, goal: 6, done: "Целый сад на маленькой полянке!" },
   { id: "z1", world: "zima", chain: "zima", title: "Слепи ком", size: 3, goal: 2, done: "Получился снежный ком!" },
   { id: "z2", world: "zima", chain: "zima", title: "Маленький снеговик", size: 3, goal: 3, done: "Вот и маленький снеговик!" },
   { id: "z3", world: "zima", chain: "zima", title: "Слепи снеговика", size: 4, goal: 4, done: "Какой большой снеговик!" },
   { id: "z4", world: "zima", chain: "zima", title: "Шапка для снеговика", size: 4, goal: 5, done: "Снеговику тепло в шапке!" },
-  { id: "z5", world: "zima", chain: "zima", title: "Рыжик и снеговик", size: 5, goal: 6, done: "Рыжик дружит со снеговиком!" },
+  { id: "z5", world: "zima", chain: "zima", title: "Снежный двор", size: 5, goal: 6, done: "Во дворе целая снежная семья!" },
   { id: "z6", world: "zima", chain: "zima", title: "Снеговик во дворе", size: 4, goal: 6, done: "Самый лучший снеговик во дворе!" },
 ];

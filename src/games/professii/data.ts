@@ -40,7 +40,7 @@ export const levels: Scenario[] = [
     id: "vrach-kotik",
     world: "doctor",
     kind: "steps",
-    title: "Котёнок поцарапал лапку",
+    title: "Лапка у котёнка",
     icon: "bandage",
     scene: "kotik",
     start: ["scratch"],

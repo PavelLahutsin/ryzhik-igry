@@ -339,7 +339,16 @@ async function playGame(game, vpTag) {
       await p.screenshot({ path: `${OUT}/${game}--${vpTag}--${String(i + 1).padStart(2, "0")}.png` });
       const t0 = Date.now();
       await SOLVE[game](p, level);
+      // QA_DONESHOTS=1: the finished scene (before the card) and the card of every level.
+      if (process.env.QA_DONESHOTS) {
+        await p.waitForTimeout(1100);
+        await p.screenshot({ path: `${OUT}/${game}--${vpTag}--${String(i + 1).padStart(2, "0")}-done.png` });
+      }
       await p.waitForSelector(".praise", { timeout: 20000 });
+      if (process.env.QA_DONESHOTS) {
+        await p.waitForTimeout(700);
+        await p.screenshot({ path: `${OUT}/${game}--${vpTag}--${String(i + 1).padStart(2, "0")}-win.png` });
+      }
       const got = await p.locator(".praise .star.is-on").count();
       stars[level.id] = got;
       if (got < 3 && game !== "labirint") note(game, vpTag, where, `only ${got} stars on a perfect play`);
