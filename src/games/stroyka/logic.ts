@@ -1,3 +1,4 @@
+import { rate, type Score } from "../../shared/stars";
 /** Rules for «Стройка»: big blocks snap into a picture plan. Pure functions. */
 
 export type Kind = "brick" | "roof" | "wheel" | "window" | "door" | "chimney" | "cone" | "fin-l" | "fin-r" | "hull" | "num" | "loco";
@@ -74,11 +75,8 @@ export function overlaps(slots: readonly Piece[]): boolean {
   return false;
 }
 
-export function starsFor(misses: number, hints: number): number {
-  const n = misses + hints * 2;
-  if (n <= 1) return 3;
-  if (n <= 4) return 2;
-  return 1;
+export function starsFor(misses: number, hints: number): Score {
+  return rate(misses, hints, { free: 1, more: 3 });
 }
 
 const WORDS = ["", "Один", "Два", "Три", "Четыре", "Пять", "Шесть", "Семь", "Восемь", "Девять", "Десять", "Одиннадцать", "Двенадцать", "Тринадцать", "Четырнадцать", "Пятнадцать"];

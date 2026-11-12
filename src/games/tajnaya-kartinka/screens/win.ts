@@ -5,10 +5,11 @@ import { el } from "../ui/dom";
 import { starRow } from "../ui/icons";
 import { toolbar } from "./levels";
 
+/** Why this many stars: bees and ladybugs that caught Ryzhik. */
 const PRAISE: Record<number, string> = {
-  3: "Ни одного укуса!",
-  2: "Отлично!",
-  1: "Молодец!",
+  3: "3 звезды — ни одного укуса!",
+  2: "2 звезды — был один укус. Без укусов будет 3!",
+  1: "1 звезда — было несколько укусов. Попробуй ещё раз!",
 };
 
 export function renderWin(root: HTMLElement, levelId: string): () => void {

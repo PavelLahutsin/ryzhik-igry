@@ -30,18 +30,29 @@ describe("risovalka", () => {
     expect(offTrack(line, 10, { x: 30, y: 4 })).toBe(false);
   });
   it("is kind with stars and knows number words", () => {
-    expect(starsFor(0, 0)).toBe(3);
-    expect(starsFor(5, 0)).toBe(2);
-    expect(starsFor(3, 3)).toBe(1);
+    expect(starsFor(0, 0).stars).toBe(3);
+    expect(starsFor(5, 0).stars).toBe(2);
+    expect(starsFor(3, 3).stars).toBe(1);
     expect(numberWord(3)).toBe("Три");
   });
-  it("has 12 pictures and 9 digits with strokes", () => {
-    expect(levels).toHaveLength(21);
-    expect(new Set(levels.map((l) => l.id)).size).toBe(21);
+  it("has 24 pictures, old ids first so progress keeps working", () => {
+    expect(levels).toHaveLength(24);
+    expect(levels.map((l) => l.id)).toEqual(Array.from({ length: 24 }, (_, i) => `r${i + 1}`));
     for (const l of levels) {
       expect(l.strokes.length).toBeGreaterThan(0);
       for (const d of l.strokes) expect(d).toMatch(/^M[\d. ]+/);
       expect(worlds.some((w) => w.id === l.world)).toBe(true);
     }
+  });
+  it("gets harder: more lines in later worlds, less help at the end", () => {
+    const avg = (w: string): number => {
+      const list = levels.filter((l) => l.world === w);
+      return list.reduce((n, l) => n + l.strokes.length, 0) / list.length;
+    };
+    expect(avg("first")).toBeLessThan(avg("harder"));
+    expect(avg("animals")).toBeLessThan(avg("harder"));
+    expect(avg("harder")).toBeLessThan(avg("master"));
+    for (const l of levels) expect(l.help === "less").toBe(l.world === "master");
+    for (const l of levels.filter((x) => x.world === "master")) expect(l.strokes.length).toBeGreaterThanOrEqual(5);
   });
 });

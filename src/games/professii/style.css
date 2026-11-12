@@ -470,7 +470,8 @@
   min-height: 0;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
-  align-content: center;
+  /* "center" alone hid the top row when the shelf scrolls (small phones). */
+  align-content: start;
   gap: 10px 8px;
   padding: 12px;
   border-radius: 22px;
@@ -760,5 +761,70 @@
   .pr-pay {
     padding: 6px;
     gap: 4px;
+  }
+}
+
+/* A tool that has done its job shrinks away from the tray. */
+.pr-tool.is-used {
+  pointer-events: none;
+  animation: pr-used 450ms ease forwards;
+}
+@keyframes pr-used {
+  40% { transform: scale(1.12); }
+  to { transform: scale(0.2); opacity: 0; }
+}
+
+/* Shop: a thing already bought in full is greyed out with a tick. */
+.pr-shelf__item.is-taken {
+  position: relative;
+  opacity: 0.38;
+  filter: grayscale(0.7);
+  pointer-events: none;
+}
+.pr-shelf__item.is-taken::after {
+  content: "✓";
+  position: absolute;
+  right: 4px;
+  top: 2px;
+  font: 800 20px var(--font-ui, sans-serif);
+  color: #2f8a3e;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pr-tool.is-used { animation: none; opacity: 0; }
+}
+
+@supports (align-content: safe center) {
+  .pr-shelf {
+    align-content: safe center;
+  }
+}
+
+/* Small phones: a smaller basket and shelf tiles, so the whole shelf fits. */
+@media (max-height: 720px) and (max-aspect-ratio: 5/4) {
+  .pr-basket {
+    width: min(100%, 170px);
+  }
+  .pr-shelf {
+    grid-template-columns: repeat(auto-fill, minmax(54px, 1fr));
+    gap: 8px 6px;
+    padding: 8px;
+  }
+  .pr-shelf__item {
+    max-height: 64px;
+  }
+}
+
+/* Phone on its side: the same — the shelf gets the room, the basket is smaller. */
+@media (max-height: 500px) and (min-aspect-ratio: 5/4) {
+  .pr-basket {
+    width: min(100%, 150px);
+  }
+  .pr-shelf {
+    grid-template-columns: repeat(auto-fill, minmax(58px, 1fr));
+    gap: 6px;
+    padding: 8px;
+  }
+  .pr-shelf__item {
+    max-height: 62px;
   }
 }

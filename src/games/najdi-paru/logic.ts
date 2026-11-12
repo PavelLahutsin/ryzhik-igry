@@ -1,3 +1,4 @@
+import { rate, type Score } from "../../shared/stars";
 import { shuffle } from "../../shared/rng";
 
 /** Memory cards: pure state, no DOM. */
@@ -58,8 +59,7 @@ export function fitGrid(cols: number, rows: number, landscape: boolean): { cols:
 }
 
 /** No clock. Stars only look at extra tries, and generously. */
-export function starsFor(misses: number, pairs: number): number {
-  if (misses <= pairs) return 3;
-  if (misses <= pairs * 2) return 2;
-  return 1;
+/** Memory: an open pair that does not match is normal, so one per pair is free. */
+export function starsFor(misses: number, pairs: number, peeks = 0): Score {
+  return rate(misses, peeks, { free: pairs, more: pairs });
 }

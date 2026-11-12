@@ -44,6 +44,7 @@ function play(stage: HTMLElement, level: TeniLevel, _index: number, api: PlayApi
   const things = level.items.map(thing);
   const filled = new Set<string>();
   let misses = 0;
+  let hints = 0;
 
   // Silhouettes: the same art rendered black and see-through (CSS filter).
   const board = el("div", { class: "tn-board" });
@@ -91,7 +92,7 @@ function play(stage: HTMLElement, level: TeniLevel, _index: number, api: PlayApi
             audio.play("snap");
             if (filled.size === things.length) {
               board.classList.add("is-done");
-              api.win(starsFor(misses));
+              api.win(starsFor(misses, hints));
             }
             return true;
           }
@@ -129,7 +130,7 @@ function play(stage: HTMLElement, level: TeniLevel, _index: number, api: PlayApi
       filled,
     );
     if (!id) return;
-    misses++;
+    hints++;
     const pair = [shadows.get(id)!, tray.querySelector<HTMLElement>(`.tn-item[data-id="${id}"]`)];
     for (const node of pair) {
       if (!node) continue;

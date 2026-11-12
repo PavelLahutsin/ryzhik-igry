@@ -23,10 +23,10 @@ describe("formy rules", () => {
   });
 
   it("gives stars by slips for the level size", () => {
-    expect(starsFor(0, 0, 6)).toBe(3);
-    expect(starsFor(1, 0, 6)).toBe(3);
-    expect(starsFor(3, 0, 6)).toBe(2);
-    expect(starsFor(2, 2, 6)).toBe(1);
+    expect(starsFor(0, 0, 6).stars).toBe(3);
+    expect(starsFor(1, 0, 6).stars).toBe(3);
+    expect(starsFor(3, 0, 6).stars).toBe(2);
+    expect(starsFor(2, 2, 6).stars).toBe(1);
   });
 
   it("draws every shape as a closed path", () => {

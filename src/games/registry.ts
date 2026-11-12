@@ -4,6 +4,9 @@ import coloringArt from "./raskraska/assets/pictures/ryzhik_sharik.png";
 import { starSummary } from "../shared/levelgame";
 import { SHELL_PREFIX } from "../shared/platform/web";
 
+/** Home tile of «Цифры и буквы»: three letter blocks, drawn here (no file to load). */
+const BUKVY_ART = "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20200%20200%22%3E%3Crect%20x%3D%2214%22%20y%3D%2222%22%20width%3D%2280%22%20height%3D%2280%22%20rx%3D%2218%22%20fill%3D%22%23ffd54a%22%20stroke%3D%22%233b2e25%22%20stroke-width%3D%225%22/%3E%3Cpath%20d%3D%22M42%2082%20L54%2042%20L66%2082%20M47%2068%20H61%22%20fill%3D%22none%22%20stroke%3D%22%233b2e25%22%20stroke-width%3D%228%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3Crect%20x%3D%22106%22%20y%3D%2222%22%20width%3D%2280%22%20height%3D%2280%22%20rx%3D%2218%22%20fill%3D%22%236db3d4%22%20stroke%3D%22%233b2e25%22%20stroke-width%3D%225%22/%3E%3Cpath%20d%3D%22M134%2052%20L148%2040%20V84%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%229%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3Crect%20x%3D%2260%22%20y%3D%22108%22%20width%3D%2280%22%20height%3D%2280%22%20rx%3D%2218%22%20fill%3D%22%23f27aa0%22%20stroke%3D%22%233b2e25%22%20stroke-width%3D%225%22/%3E%3Cpath%20d%3D%22M86%20128%20V168%20H106%20C%20124%20168%20124%20146%20106%20146%20H86%20M86%20128%20H116%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%228%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E";
+
 export type GameModule = { mount: (root: HTMLElement) => () => void };
 
 /** What the home tile shows: stars (or finished pictures) out of the maximum. */
@@ -79,11 +82,26 @@ export const games: GameEntry[] = [
   {
     id: "risovalka",
     title: "Рисовалка",
-    note: "Обведи — и рисунок оживёт",
+    note: "Обведи — и рисунок оживёт. 24 картинки",
     color: "#9b6cd8",
     art: { src: character("belka"), figure: true },
     load: () => import("./risovalka"),
     ...levelStars("risovalka", () => import("./risovalka/pictures")),
+  },
+  {
+    id: "bukvy",
+    title: "Цифры и буквы",
+    note: "Пиши пальчиком 1, 2, 3 и А, Б, В",
+    color: "#f27aa0",
+    art: { src: BUKVY_ART, figure: true },
+    load: () => import("./bukvy"),
+    summary: async () => {
+      const [{ levels, MOVED_DIGITS }, { adoptLevels }] = await Promise.all([import("./bukvy/letters"), import("../shared/progress")]);
+      await adoptLevels("risovalka", "bukvy", MOVED_DIGITS);
+      const s = await starSummary("bukvy", levels.map((l) => l.id));
+      return { got: s.got, max: s.max, unit: "stars" };
+    },
+    resetKeys: [`${SHELL_PREFIX}bukvy:progress`],
   },
   {
     id: "tochki",
@@ -157,7 +175,7 @@ export const games: GameEntry[] = [
     art: { src: picture("sad") },
     load: () => import("./sliyanie"),
     ...levelStars("sliyanie", () => import("./sliyanie/levels")),
-    // Levels plus the record and the started «Большая игра 2048» (the chosen pictures stay).
+    // Levels plus the record and the started «Удвоялка» (the chosen pictures stay).
     resetKeys: [`${SHELL_PREFIX}sliyanie:progress`, `${SHELL_PREFIX}sliyanie:best`, `${SHELL_PREFIX}sliyanie:big`],
   },
   {

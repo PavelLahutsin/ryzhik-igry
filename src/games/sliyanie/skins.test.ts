@@ -3,7 +3,7 @@ import { Resvg } from "@resvg/resvg-js";
 import { DEFAULT_SKIN, SKINS, skinById, skinTier } from "./skins";
 import { WIN_TIER } from "./logic";
 
-describe("skins of «Большая игра 2048»", () => {
+describe("skins of «Удвоялка»", () => {
   it("has Цифры, Сад, Зима, Лес and one more", () => {
     const ids = SKINS.map((s) => s.id);
     expect(ids).toEqual(expect.arrayContaining(["cifry", "sad", "zima", "les"]));

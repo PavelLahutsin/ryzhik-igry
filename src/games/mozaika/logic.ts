@@ -1,3 +1,4 @@
+import { rate, type Score } from "../../shared/stars";
 import { shuffle } from "../../shared/rng";
 
 export type Rect = { x: number; y: number; w: number; h: number };
@@ -107,10 +108,10 @@ export function snaps(center: { x: number; y: number }, home: { x: number; y: nu
 }
 
 /** Stars are generous: a few wrong drops still give three. */
-export function starsFor(misses: number, pieces: number): number {
-  if (misses <= pieces) return 3;
-  if (misses <= pieces * 2) return 2;
-  return 1;
+/** Pieces dropped in a wrong place; half the piece count is free. */
+export function starsFor(misses: number, pieces: number, hints = 0): Score {
+  const free = Math.max(1, Math.ceil(pieces / 2));
+  return rate(misses, hints, { free, more: pieces });
 }
 
 /** A loose piece for the hint button to fly home, or -1 when all are placed. */

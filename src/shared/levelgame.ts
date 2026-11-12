@@ -1,7 +1,7 @@
 import { audio } from "./audio";
 import { character } from "./assets";
 import { el, svgEl, replayClass } from "./dom";
-import { gameProgress, isUnlocked, totalStars, type Progress } from "./progress";
+import { gameProgress, isUnlocked, isUnlockedInWorld, totalStars, type Progress } from "./progress";
 import { goHome, listenGame, navigateGame } from "./router";
 import { praiseOverlay, starRow, toolbar } from "./ui";
 import { whenIdle } from "./guide";
@@ -11,6 +11,7 @@ import { LEVEL_TIPS } from "./tips-data";
 import { clearTips, tipOnce } from "./tips";
 import { loadSeen, markSeen } from "./seen";
 import { newStickers, stickerArt, type Sticker } from "./stickers";
+import { isScore, type Score } from "./stars";
 
 export type LevelInfo = {
   id: string;
@@ -22,8 +23,11 @@ export type LevelInfo = {
 export type World = { id: string; title: string; color: string };
 
 export type PlayApi = {
-  /** Call once when the level is solved; stars 1–3. */
-  win: (stars: number, text?: string) => void;
+  /**
+   * Call once when the level is solved: a `rate()` score (stars and why,
+   * shown on the card) or plain stars 1–3.
+   */
+  win: (score: Score | number, text?: string) => void;
   /** Put game-specific controls in the top bar (right side). */
   setTool: (node: HTMLElement | null) => void;
   /**
@@ -54,6 +58,10 @@ export type LevelGameDef<L extends LevelInfo> = {
   routes?: Record<string, (root: HTMLElement, rest: string[]) => () => void>;
   /** Shown above the worlds on the level list (e.g. a big mode card). */
   listTop?: () => Node | null;
+  /** Every world starts open; levels open one by one inside it. */
+  openWorlds?: boolean;
+  /** Runs once before progress is first read (e.g. levels moved from another game). */
+  migrate?: () => Promise<void>;
 };
 
 /** Ids of a game's levels and its stored stars, for the home menu. */
@@ -81,8 +89,15 @@ function lampIcon(): SVGSVGElement {
  * Routes inside the game: "#/<id>/" list, "#/<id>/play/<n>" level n (1-based).
  */
 export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: HTMLElement): () => void {
-  const store = gameProgress(def.id);
+  const base = gameProgress(def.id);
+  const ready = def.migrate ? def.migrate().catch(() => undefined) : Promise.resolve();
+  const store = {
+    load: () => ready.then(() => base.load()),
+    win: (id: string, stars: number) => ready.then(() => base.win(id, stars)),
+  };
   const ids = def.levels.map((level) => level.id);
+  const unlocked = (id: string, completed: readonly string[]): boolean =>
+    def.openWorlds ? isUnlockedInWorld(def.levels, id, completed) : isUnlocked(ids, id, completed);
   let cleanup: (() => void) | null = null;
   let token = 0;
 
@@ -107,7 +122,7 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
       }
       void Promise.all([store.load(), loadSeen()]).then(([progress, seen]) => {
         if (mine !== token) return;
-        if (!isUnlocked(ids, level.id, progress.completed)) {
+        if (!unlocked(level.id, progress.completed)) {
           navigateGame(def.id, "/", { replace: true });
           return;
         }
@@ -175,7 +190,7 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
   }
 
   function levelCard(level: L, index: number, progress: Progress): HTMLElement {
-    const open = isUnlocked(ids, level.id, progress.completed);
+    const open = unlocked(level.id, progress.completed);
     const done = progress.completed.includes(level.id);
     const stars = progress.stars[level.id] ?? 0;
     const state = done ? " is-done" : open ? " is-next" : " is-locked";
@@ -244,8 +259,10 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
       onHint();
     });
     const api: PlayApi = {
-      win: (stars, text) => {
+      win: (score, text) => {
         if (won) return;
+        const stars = isScore(score) ? score.stars : score;
+        const why = isScore(score) ? score.why : undefined;
         won = true;
         document.body.classList.remove("is-tutorial");
         clearTips();
@@ -279,6 +296,7 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
           if (!view.isConnected) return;
           const card = praiseOverlay({
             stars,
+            why,
             text: next ? text : `${text ? `${text} ` : ""}Ты прошёл все уровни!`,
             art,
             actions,

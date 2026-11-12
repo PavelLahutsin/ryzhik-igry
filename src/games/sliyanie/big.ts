@@ -1,5 +1,5 @@
 /**
- * «Большая игра 2048»: the real 2048 inside «Вырасти сад». A skin picker
+ * «Удвоялка»: the real 2048 inside «Вырасти сад». A skin picker
  * ("#/sliyanie/big") and the game ("#/sliyanie/big/play"). The numbers grow
  * by doubling, so the game gets harder by itself; the skin is only pictures.
  */
@@ -47,7 +47,7 @@ export function tileFace(skin: Skin, tier: number, className = ""): HTMLElement 
 export function bigCard(): HTMLElement {
   const best = el("span", { class: "sb-card__best" });
   void Promise.all([loadBest(), store.get<unknown>(KEYS.skin)]).then(([b, id]) => {
-    best.textContent = b ? `Рекорд: ${b}` : "Настоящая 2048";
+    best.textContent = b ? `Рекорд: ${b}` : "Дойди до 2048!";
     const skin = skinById(id);
     preview.replaceChildren(...[0, 5, WIN_TIER].map((t) => tileFace(skin, t, "sb-card__tile")));
   });
@@ -68,7 +68,7 @@ export function bigCard(): HTMLElement {
     [
       preview,
       el("span", { class: "sb-card__text" }, [
-        el("span", { class: "sb-card__title", text: "Большая игра 2048" }),
+        el("span", { class: "sb-card__title", text: "Удвоялка" }),
         el("span", { class: "sb-card__note", text: "Соединяй пары: 2, 4, 8… до 2048!" }),
         best,
       ]),
@@ -88,7 +88,7 @@ function renderPicker(root: HTMLElement): () => void {
   const actions = el("div", { class: "sb-actions" });
   const info = el("p", { class: "sb-info" });
   const view = el("div", { class: `screen screen--list game--${GAME} sb-picker` }, [
-    toolbar("Большая игра 2048", () => navigateGame(GAME, "/")),
+    toolbar("Удвоялка", () => navigateGame(GAME, "/")),
     el("p", { class: "list__lead", text: "Выбери картинки — и в путь до 2048!" }),
     grid,
     info,
@@ -217,7 +217,7 @@ function renderPlay(root: HTMLElement): () => void {
   );
   const stage = el("div", { class: "stage sb-stage" }, [chain, scoreRow, el("div", { class: "sl-wrap sb-wrap" }, [grid]), pad]);
   const view = el("div", { class: `screen screen--play game--${GAME} sb-play` }, [
-    toolbar("Большая игра 2048", () => navigateGame(GAME, "/big")),
+    toolbar("Удвоялка", () => navigateGame(GAME, "/big")),
     stage,
   ]);
   root.append(view);

@@ -1,3 +1,4 @@
+import { rate, type Score } from "../../shared/stars";
 /**
  * 2048 without numbers: tiles are steps of a picture chain (tier 0, 1, 2…).
  * Two equal tiles that meet merge into the next step. Pure functions only.
@@ -124,11 +125,12 @@ export function unstick(board: Board, maxTier: number, rand: () => number): Boar
   return { ...board, tiles: sorted.slice(2).map(clean) };
 }
 
-export function starsFor(helps: number): number {
-  return helps === 0 ? 3 : helps === 1 ? 2 : 1;
+/** «Перемешаем!» and a step back count as hints; there are no mistakes here. */
+export function starsFor(helps: number): Score {
+  return rate(0, helps);
 }
 
-// ---------- «Большая игра 2048» ----------
+// ---------- «Удвоялка» ----------
 // The same board, tier t is the number 2^(t+1): tier 0 = 2, tier 10 = 2048.
 
 /** Tier of the 2048 tile (the win). */

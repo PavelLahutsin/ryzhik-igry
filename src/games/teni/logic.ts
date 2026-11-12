@@ -1,3 +1,4 @@
+import { rate, type Score } from "../../shared/stars";
 /** Shadow matching rules, no DOM. */
 export type DropResult = "placed" | "wrong" | "none";
 
@@ -10,10 +11,8 @@ export function judge(itemId: string, target: string | null, filled: ReadonlySet
   return target === itemId ? "placed" : "wrong";
 }
 
-export function starsFor(misses: number): number {
-  if (misses <= 1) return 3;
-  if (misses <= 3) return 2;
-  return 1;
+export function starsFor(misses: number, hints = 0): Score {
+  return rate(misses, hints, { free: 1, more: 2 });
 }
 
 /** Silhouette rows: up to 3 per row, so 5 becomes 3 + 2 and 6 is 3 + 3. */

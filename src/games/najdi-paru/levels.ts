@@ -1,4 +1,5 @@
 import { CHARACTER_NAMES, characters } from "../../shared/assets";
+import { inWorldOrder } from "../../shared/order";
 import { OBJECTS, type ObjectId } from "../../shared/objects";
 import type { LevelInfo } from "../../shared/levelgame";
 
@@ -28,7 +29,7 @@ const HOME = ["obj:house", "obj:cup", "obj:umbrella", "obj:carrot"];
  * 4 → 20 cards. Ids p1–p6 are the first version's levels, kept so saved
  * stars stay. Levels with more faces than pairs pick a random set each time.
  */
-export const levels: ParaLevel[] = [
+const ALL: ParaLevel[] = [
   { id: "p1", world: "family", title: "Рыжик и мама", cols: 2, rows: 2, faces: ["ryzhik", "mama"] },
   { id: "p2", world: "family", title: "Семья", cols: 2, rows: 3, faces: FAMILY },
   { id: "p3", world: "family", title: "Друзья", cols: 2, rows: 3, faces: FRIENDS },
@@ -45,6 +46,9 @@ export const levels: ParaLevel[] = [
   { id: "p14", world: "fun", title: "Что в небе?", cols: 3, rows: 4, faces: ["obj:sun", "obj:star", "obj:balloon", "obj:kite", "obj:drop", "obj:leaf"] },
   { id: "p15", world: "fun", title: "Лесные друзья", cols: 3, rows: 4, faces: [...FRIENDS, "obj:mushroom", "obj:leaf", "obj:flower"] },
 ];
+
+/** Easier extra worlds sit where their difficulty fits, so levels keep getting harder. */
+export const levels: ParaLevel[] = inWorldOrder(ALL, ["family", "things", "fun", "big"]);
 
 export function pairsOf(level: ParaLevel): number {
   return (level.cols * level.rows) / 2;

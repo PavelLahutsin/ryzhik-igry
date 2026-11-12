@@ -772,6 +772,18 @@ button {
   color: var(--ink-soft);
 }
 
+/* Why this many stars: small, friendly, under the stars. */
+.praise__why {
+  margin: -2px 0 0;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: #fff4dc;
+  font-size: 15px;
+  font-weight: 700;
+  color: #8a5a10;
+  max-width: 300px;
+}
+
 .praise__actions {
   display: flex;
   flex-direction: column;
@@ -1442,6 +1454,10 @@ button {
   }
   .praise__text {
     font-size: 17px;
+  }
+  .praise__why {
+    font-size: 13px;
+    max-width: 480px;
   }
   .praise__actions {
     flex-direction: row;

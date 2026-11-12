@@ -26,10 +26,14 @@ export const LEVEL_TIPS: Record<string, Record<string, LevelTip>> = {
     z1: { at: ".sl-chain", text: "Зима! Из снежинок лепим снеговика" },
   },
   risovalka: {
-    d1: { at: ".rv-board", text: "Цифры! Веди пальчиком от точки" },
+    r13: { at: ".rv-board", text: "Теперь линий больше — веди по очереди" },
+    r19: { at: ".rv-board", text: "Мастер! Видна только одна линия — следующая появится потом" },
+  },
+  bukvy: {
+    b1: { at: ".rv-board", text: "Цифры на линиях: какую вести первой, какую второй" },
   },
   tochki: {
-    t8: { at: ".td-board", text: "Теперь точек больше десяти!" },
+    t13: { at: ".td-board", text: "Теперь точек больше десяти!" },
   },
   professii: {
     "vrach-kotik": { at: '[data-tool="cotton"]', text: "Ватку надо потереть по лапке туда-сюда" },
@@ -38,7 +42,7 @@ export const LEVEL_TIPS: Record<string, Record<string, LevelTip>> = {
     "dom-kuhnya": { at: ".pr-scene-wrap", text: "Нажимай на всё опасное" },
   },
   stroyka: {
-    s4: { at: ".sk-model", text: "Смотри на картинку и ставь кубик в его окошко" },
+    s10: { at: ".sk-model", text: "Смотри на картинку и ставь кубик в его окошко" },
     s7: { at: ".sk-say", text: "На вагончиках цифры: 1, 2, 3…" },
   },
   formy: {

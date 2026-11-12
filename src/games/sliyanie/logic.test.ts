@@ -76,7 +76,7 @@ describe("sliyanie", () => {
     }
   });
   it("gives fewer stars only for help", () => {
-    expect([starsFor(0), starsFor(1), starsFor(4)]).toEqual([3, 2, 1]);
+    expect([starsFor(0).stars, starsFor(1).stars, starsFor(4).stars]).toEqual([3, 2, 1]);
   });
   it("has two equal chains with art for every step but the last", () => {
     expect(WINTER).toHaveLength(CHAIN.length);

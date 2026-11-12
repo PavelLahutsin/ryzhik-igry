@@ -1,4 +1,5 @@
 import { CHARACTER_NAMES, characters } from "../../shared/assets";
+import { inWorldOrder } from "../../shared/order";
 import { OBJECTS, type ObjectId } from "../../shared/objects";
 import type { LevelInfo } from "../../shared/levelgame";
 
@@ -17,7 +18,7 @@ export const worlds = [
 ];
 
 /** Ids t1–t6 are the first version's levels, kept so saved stars stay. */
-export const levels: TeniLevel[] = [
+const ALL: TeniLevel[] = [
   { id: "t1", world: "easy", title: "Яблоко и звёздочка", items: ["apple", "star", "house"] },
   { id: "t2", world: "easy", title: "Шарик и рыбка", items: ["balloon", "fish", "car"] },
   { id: "t3", world: "easy", title: "Грибок и зонтик", items: ["mushroom", "kite", "sun", "umbrella"] },
@@ -34,6 +35,9 @@ export const levels: TeniLevel[] = [
   { id: "t14", world: "more", title: "В саду", items: ["flower", "leaf", "mushroom", "drop"], decoys: ["sun"] },
   { id: "t15", world: "more", title: "Все-все тени", items: ["char:papa", "char:mishka", "kite", "boat", "cup"], decoys: ["ball"] },
 ];
+
+/** Easier extra worlds sit where their difficulty fits, so levels keep getting harder. */
+export const levels: TeniLevel[] = inWorldOrder(ALL, ["easy", "friends", "more", "tricky"]);
 
 export function shadowCount(level: TeniLevel): number {
   return level.items.length + (level.decoys?.length ?? 0);

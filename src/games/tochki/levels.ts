@@ -1,4 +1,5 @@
 import type { LevelInfo } from "../../shared/levelgame";
+import { inWorldOrder } from "../../shared/order";
 import { curve, type Pt } from "./logic";
 
 export type Alive = "glow" | "spin" | "bounce" | "swim" | "flutter" | "drive" | "smoke" | "sway" | "rock" | "launch" | "beat";
@@ -31,7 +32,7 @@ export const worlds = [
   { id: "fun", title: "Весёлые картинки", color: "#6db3d4" },
 ];
 
-export const levels: DotPicture[] = [
+const ALL: DotPicture[] = [
   {
     id: "t1",
     title: "Кристаллик",
@@ -173,3 +174,6 @@ export const levels: DotPicture[] = [
     done: "Теперь дождик не страшен!",
   },
 ];
+
+/** Easier extra worlds sit where their difficulty fits, so levels keep getting harder. */
+export const levels: DotPicture[] = inWorldOrder(ALL, ["ten", "fun", "more"]);

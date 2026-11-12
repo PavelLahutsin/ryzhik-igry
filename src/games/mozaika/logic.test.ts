@@ -55,9 +55,10 @@ describe("mozaika", () => {
     expect(hintPiece([0, 1], new Set([0, 1]), () => 0)).toBe(-1);
   });
   it("gives stars kindly", () => {
-    expect(starsFor(0, 4)).toBe(3);
-    expect(starsFor(4, 4)).toBe(3);
-    expect(starsFor(7, 4)).toBe(2);
-    expect(starsFor(20, 4)).toBe(1);
+    expect(starsFor(0, 4).stars).toBe(3);
+    expect(starsFor(2, 4).stars).toBe(3);
+    expect(starsFor(6, 4).stars).toBe(2);
+    expect(starsFor(0, 4, 1).stars).toBe(2);
+    expect(starsFor(20, 4).stars).toBe(1);
   });
 });

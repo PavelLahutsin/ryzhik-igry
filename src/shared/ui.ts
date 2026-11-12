@@ -76,6 +76,8 @@ export function praiseOverlay(options: {
   title?: string;
   text?: string;
   stars?: number;
+  /** Why this many stars, under the stars (e.g. «3 звезды — без подсказок!»). */
+  why?: string;
   art?: Node | null;
   /** Extra line under the text (e.g. a new sticker). */
   extra?: Node | null;
@@ -107,6 +109,7 @@ export function praiseOverlay(options: {
     options.art ?? null,
     el("p", { class: "praise__title", text: options.title ?? praiseWord() }),
     options.stars ? starRow(options.stars, "stars stars--big") : null,
+    options.why ? el("p", { class: "praise__why", text: options.why }) : null,
     options.text ? el("p", { class: "praise__text", text: options.text }) : null,
     options.extra ?? null,
     el("div", { class: "praise__actions" }, buttons),
