@@ -18,7 +18,7 @@ await mkdir(OUT, { recursive: true });
 const MODULES = {
   mozaika: "levels", "najdi-paru": "levels", teni: "levels", odezhda: "levels", sortirovka: "levels",
   labirint: "levels", sliyanie: "levels", risovalka: "pictures", tochki: "levels", professii: "data",
-  stroyka: "levels", formy: "levels",
+  stroyka: "levels", formy: "levels", bukvy: "letters",
 };
 
 // ------------------------------------------------------------ input helpers
@@ -312,7 +312,9 @@ async function playGame(game, vpTag) {
   // Start from the list: the first card must be open, the second locked.
   await p.waitForSelector(".level-card");
   const locked = await p.locator(".level-card.is-locked").count();
-  if (locked !== levels.length - 1) note(game, vpTag, "list", `fresh list: ${locked} locked of ${levels.length}`);
+  // «Цифры и буквы»: each of its three worlds starts open.
+  const open = game === "bukvy" ? 3 : 1;
+  if (locked !== levels.length - open) note(game, vpTag, "list", `fresh list: ${locked} locked of ${levels.length}`);
   (await layoutCheck(p)).forEach((m) => note(game, vpTag, "list", m));
   await p.locator(".level-card.is-next").first().click({ force: true });
   const stars = {};
@@ -363,6 +365,7 @@ async function playGame(game, vpTag) {
   await ctx.close();
 }
 
+SOLVE.bukvy = SOLVE.risovalka;
 const games = ONLY.length ? ONLY : Object.keys(SOLVE);
 await Promise.all(
   VIEWPORTS.map(async (vp) => {
