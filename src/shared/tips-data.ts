@@ -45,7 +45,7 @@ export const LEVEL_TIPS: Record<string, Record<string, LevelTip>> = {
   risovalka: {
     r13: { at: ".rv-board", text: "Теперь линий больше — веди по очереди" },
     r19: { at: ".rv-board", text: "Мастер! Видна только одна линия — следующая появится потом" },
-    r22: { at: ".rv-board", text: "Теперь и стрелки нет — куда вести, угадай сам" },
+    r22: { at: ".rv-board", text: "Теперь и стрелки нет — куда вести, подскажет рисунок" },
   },
   bukvy: {
     b1: { at: ".rv-board", text: "Цифры на линиях: какую вести первой, какую второй" },

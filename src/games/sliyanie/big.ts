@@ -352,7 +352,7 @@ function renderPlay(root: HTMLElement): () => void {
     ]);
     overlay = praiseOverlay({
       title: "2048!",
-      text: `${top.art ? `${top.name}! ` : ""}Ты дошёл до 2048. Очки: ${game.score}.`,
+      text: `${top.art ? `${top.name}! ` : ""}Есть 2048! Очки: ${game.score}.`,
       art,
       voice: "v09",
       actions: [
@@ -393,7 +393,7 @@ function renderPlay(root: HTMLElement): () => void {
     ].filter((a): a is NonNullable<typeof a> => a !== null);
     overlay = praiseOverlay({
       title: "Ходов больше нет",
-      text: `${record ? "Новый рекорд! " : ""}Ты собрал ${t.art ? `«${t.name}» — ` : ""}${tileValue(top)}. Очки: ${game.score}.`,
+      text: `${record ? "Новый рекорд! " : ""}Собрано: ${t.art ? `«${t.name}» — ` : ""}${tileValue(top)}. Очки: ${game.score}.`,
       art: tileFace(skin, top, "sb-win__tile"),
       actions,
     });

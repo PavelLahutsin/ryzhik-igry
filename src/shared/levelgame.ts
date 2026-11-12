@@ -309,7 +309,7 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
           const card = praiseOverlay({
             stars,
             why,
-            text: next ? text : `${text ? `${text} ` : ""}Ты прошёл все уровни!`,
+            text: next ? text : `${text ? `${text} ` : ""}Все уровни пройдены!`,
             art,
             actions,
             voice: next ? undefined : "v09",

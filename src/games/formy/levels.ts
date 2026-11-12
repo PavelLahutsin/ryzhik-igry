@@ -187,7 +187,7 @@ const ADDED: FormLevel[] = [
     spec: { kind: "compare", dims: ["length", "height", "thick"], count: 3, want: "mix" },
     rounds: 6,
     ask: "Слушай внимательно: самый длинный? самая низкая?",
-    done: "Ты нашёл самых-самых!",
+    done: "Самые-самые найдены!",
   },
   { id: "m5", world: "measure", mode: "order", title: "Карандаши", dim: "length", count: 4, dir: "up", ask: "Разложи карандаши: от короткого к длинному.", done: "Карандаши лесенкой!" },
   { id: "m6", world: "measure", mode: "order", title: "Ёлочки", dim: "height", count: 5, dir: "up", ask: "Посади ёлочки: от низкой к высокой.", done: "Ёлочки растут лесенкой!" },
@@ -228,7 +228,7 @@ const ADDED: FormLevel[] = [
   { id: "d2", world: "logic", mode: "pick", title: "Не того цвета", spec: { kind: "odd", options: 4, shapes: SIX, by: "tint" }, rounds: 5, ask: "Какая фигура другого цвета?", done: "Глазки зоркие!" },
   { id: "q2", world: "logic", mode: "pick", title: "Цветные бусы", spec: { kind: "pattern", shown: 5, unit: "AAB", attr: "tint", options: 3, shapes: SIX }, rounds: 5, ask: "Какая бусинка будет следующей?", done: "Красивые бусы!" },
   { id: "d3", world: "logic", mode: "pick", title: "Другой размер", spec: { kind: "odd", options: 4, shapes: SIX, by: "size" }, rounds: 5, ask: "Какая фигура не такого размера?", done: "Размер не обманет!" },
-  { id: "q3", world: "logic", mode: "pick", title: "Три фигуры", spec: { kind: "pattern", shown: 5, unit: "ABC", attr: "shape", options: 3, shapes: SIX }, rounds: 5, ask: "Три фигуры по очереди. Что дальше?", done: "Ты понял узор!" },
+  { id: "q3", world: "logic", mode: "pick", title: "Три фигуры", spec: { kind: "pattern", shown: 5, unit: "ABC", attr: "shape", options: 3, shapes: SIX }, rounds: 5, ask: "Три фигуры по очереди. Что дальше?", done: "Узор разгадан!" },
   { id: "d4", world: "logic", mode: "pick", title: "Найди лишнее", spec: { kind: "odd", options: 5, shapes: ALL, by: "mix" }, rounds: 6, ask: "Что лишнее: форма, цвет или размер?", done: "Ты настоящий сыщик!" },
   { id: "q4", world: "logic", mode: "pick", title: "Хитрый узор", spec: { kind: "pattern", shown: 5, unit: "ABB", attr: "both", options: 4, shapes: ALL }, rounds: 6, ask: "Узор хитрый: смотри и на форму, и на цвет.", done: "Хитрый узор разгадан!" },
   // --- colour + shape, holes, corners
