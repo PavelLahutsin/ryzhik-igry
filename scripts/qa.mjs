@@ -50,8 +50,17 @@ const won = (p) => p.locator(".praise").count().then((n) => n > 0);
 // ------------------------------------------------------------ solvers
 const SOLVE = {
   async mozaika(p) {
-    const n = await p.locator(".mz-piece").count();
-    for (let i = 0; i < n; i++) await dragSel(p, `.mz-piece[data-index="${i}"]`, `.mz-slot[data-index="${i}"]`);
+    // Upside-down pieces: tap to turn first. Extra pieces (no slot) stay.
+    const n = await p.locator(".mz-slot").count();
+    for (let i = 0; i < n; i++) {
+      const sel = `.mz-piece[data-index="${i}"]`;
+      if (await p.locator(`${sel}.is-flipped`).count()) {
+        const m = await mid(p, sel);
+        await p.mouse.click(m[0], m[1]);
+        await p.waitForTimeout(450);
+      }
+      await dragSel(p, sel, `.mz-slot[data-index="${i}"]`);
+    }
   },
   async "najdi-paru"(p) {
     await p.waitForTimeout(400);

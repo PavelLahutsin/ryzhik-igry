@@ -6,14 +6,14 @@ const images = import.meta.glob<string>("../../../shared/assets/levels/*.webp", 
   eager: true,
   import: "default",
 });
-/** Drawn (vector) pictures of the later worlds. */
-const drawn = import.meta.glob<string>("../assets/pictures/*.svg", {
+/** Drawn (vector) scenes of the later worlds, shared with «Мозаика». */
+const drawn = import.meta.glob<string>("../../../shared/assets/scenes/*.svg", {
   eager: true,
   import: "default",
 });
 
 function imageFor(file: string): string {
-  return images[`../../../shared/assets/levels/${file}`] ?? drawn[`../assets/pictures/${file}`] ?? "";
+  return images[`../../../shared/assets/levels/${file}`] ?? drawn[`../../../shared/assets/scenes/${file}`] ?? "";
 }
 
 /** New thing a level teaches, shown on a small card before the level starts. */

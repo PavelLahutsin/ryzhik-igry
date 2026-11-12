@@ -23,14 +23,14 @@ export type Layout = {
  * Board for a 16:9 picture plus a tray for the loose pieces. Portrait puts
  * the tray under the board, landscape puts it on the right.
  */
-export function layout(width: number, height: number, cols: number, rows: number, aspect = 16 / 9): Layout {
+export function layout(width: number, height: number, cols: number, rows: number, aspect = 16 / 9, extra = 0): Layout {
   // The biggest board whose loose pieces still lie side by side in the tray
   // (a landscape phone has little room next to the board).
   let first: Layout | null = null; // nothing fits: keep the full-size board
   for (let scale = 1; scale >= 0.5; scale -= 0.05) {
     const l = layoutAt(width, height, cols, rows, aspect, scale);
     first ??= l;
-    if (trayFits(cols * rows, l.tray, l.piece)) return l;
+    if (trayFits(cols * rows + extra, l.tray, l.piece)) return l;
   }
   return first!;
 }
@@ -120,3 +120,17 @@ export function hintPiece(indices: readonly number[], placed: ReadonlySet<number
   if (loose.length === 0) return -1;
   return loose[Math.floor(rand() * loose.length)]!;
 }
+
+/** Which pieces start upside down: `n` different ones, never all of them. */
+export function pickFlipped(count: number, n: number, rand: () => number): Set<number> {
+  const k = Math.max(0, Math.min(n, count - 1));
+  return new Set(shuffle(Array.from({ length: count }, (_, i) => i), rand).slice(0, k));
+}
+
+/** Cells of the other picture to cut the extra pieces from. */
+export function pickExtra(cols: number, rows: number, n: number, rand: () => number): Piece[] {
+  return shuffle(makePieces(cols, rows), rand).slice(0, Math.min(n, cols * rows));
+}
+
+/** Below this many pixels a release is a tap (turns an upside-down piece). */
+export const TAP_PX = 10;

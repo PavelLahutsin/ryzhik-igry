@@ -162,7 +162,7 @@ export const games: GameEntry[] = [
   {
     id: "mozaika",
     title: "Мозаика",
-    note: "Собери картинку",
+    note: "Собери картинку — 22 картинки",
     color: "#6db3d4",
     art: { src: picture("piknik") },
     load: () => import("./mozaika"),
