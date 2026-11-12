@@ -41,6 +41,20 @@
         {"id": "ezhik", "title": "Ёжик", "file": "ezhik.webp", "enemies": 3, "fastBees": 1, "beeStep": 0.34, "winPercent": 0.77, "ladybugs": 1, "puddles": 2, "items": ["heart", "snail", "honey", "shield", "star"]},
         {"id": "vse-vmeste", "title": "Все вместе", "file": "vse-vmeste.webp", "enemies": 3, "fastBees": 1, "beeStep": 0.32, "winPercent": 0.78, "ladybugs": 2, "puddles": 2, "items": ["heart", "snail", "honey", "shield", "star"]}
       ]
+    },
+    {
+      "id": "chudesa",
+      "title": "Чудеса",
+      "color": "#6db3d4",
+      "cols": 22,
+      "rows": 12,
+      "levels": [
+        {"id": "podvodny", "title": "Под водой", "file": "podvodny.svg", "enemies": 3, "fastBees": 1, "beeStep": 0.34, "winPercent": 0.78, "spiders": 1, "items": ["heart", "snail", "star"], "intro": "spider"},
+        {"id": "kosmos", "title": "Космос", "file": "kosmos.svg", "enemies": 3, "fastBees": 1, "beeStep": 0.33, "winPercent": 0.78, "spiders": 1, "ladybugs": 1, "items": ["heart", "honey", "shield", "star"]},
+        {"id": "zima", "title": "Зимний лес", "file": "zima.svg", "enemies": 3, "fastBees": 1, "beeStep": 0.32, "winPercent": 0.79, "spiders": 1, "puddles": 3, "items": ["heart", "snail", "shield", "star"]},
+        {"id": "raduga", "title": "Радуга", "file": "raduga.svg", "enemies": 4, "fastBees": 1, "beeStep": 0.32, "winPercent": 0.8, "spiders": 1, "ladybugs": 1, "items": ["heart", "snail", "honey", "shield", "star"]},
+        {"id": "zamok", "title": "Замок", "file": "zamok.svg", "enemies": 4, "fastBees": 2, "beeStep": 0.31, "winPercent": 0.8, "spiders": 2, "ladybugs": 1, "puddles": 2, "items": ["heart", "snail", "honey", "shield", "star"]}
+      ]
     }
   ]
 }

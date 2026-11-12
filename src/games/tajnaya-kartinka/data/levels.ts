@@ -6,13 +6,18 @@ const images = import.meta.glob<string>("../../../shared/assets/levels/*.webp", 
   eager: true,
   import: "default",
 });
+/** Drawn (vector) pictures of the later worlds. */
+const drawn = import.meta.glob<string>("../assets/pictures/*.svg", {
+  eager: true,
+  import: "default",
+});
 
 function imageFor(file: string): string {
-  return images[`../../../shared/assets/levels/${file}`] ?? "";
+  return images[`../../../shared/assets/levels/${file}`] ?? drawn[`../assets/pictures/${file}`] ?? "";
 }
 
 /** New thing a level teaches, shown on a small card before the level starts. */
-export type IntroKey = "howto" | "heart" | "snail" | "star" | "puddle" | "honey" | "fast" | "ladybug" | "shield";
+export type IntroKey = "howto" | "heart" | "snail" | "star" | "puddle" | "honey" | "fast" | "ladybug" | "shield" | "spider";
 
 export const INTROS: Record<IntroKey, { title: string; text: string }> = {
   howto: {
@@ -30,6 +35,10 @@ export const INTROS: Record<IntroKey, { title: string; text: string }> = {
     text: "Коровка гуляет по открытой земле. Обходи её!",
   },
   shield: { title: "Пузырь", text: "В пузыре Рыжику не страшны пчёлки." },
+  spider: {
+    title: "Паучок",
+    text: "Паучок ходит по открытой земле и идёт за Рыжиком. Не стой на месте — убегай в туман!",
+  },
 };
 
 export type LevelDef = {
@@ -42,6 +51,7 @@ export type LevelDef = {
   beeStep?: number;
   fastBees?: number;
   ladybugs?: number;
+  spiders?: number;
   puddles?: number;
   items?: ItemKind[];
   intro?: IntroKey;
@@ -132,6 +142,7 @@ export function gameConfig(level: Level, portrait = false): GameConfig {
     beeStep: level.beeStep,
     fastBees: level.fastBees,
     ladybugs: level.ladybugs,
+    spiders: level.spiders,
     puddles: level.puddles,
     items: level.items,
     seed: level.number * 7919,

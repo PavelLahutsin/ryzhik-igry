@@ -161,7 +161,8 @@ export function drawGame(
   }
 
   for (const bug of game.ladybugs) {
-    drawLadybug(ctx, (bug.x + 0.5) * cell, (bug.y + 0.5) * cell, cell, now, bug.vx, bug.vy);
+    if (bug.chase) drawSpider(ctx, (bug.x + 0.5) * cell, (bug.y + 0.5) * cell, cell, now);
+    else drawLadybug(ctx, (bug.x + 0.5) * cell, (bug.y + 0.5) * cell, cell, now, bug.vx, bug.vy);
   }
 
   const asleep = game.effects.honey > 0;
@@ -236,7 +237,7 @@ function starPath(ctx: CanvasRenderingContext2D, x: number, y: number, outer: nu
   ctx.closePath();
 }
 
-export type IconKind = ItemKind | "puddle" | "fast" | "ladybug";
+export type IconKind = ItemKind | "puddle" | "fast" | "ladybug" | "spider";
 
 /** Helper and hazard icons, drawn with plain shapes so no emoji font is needed. */
 export function drawIcon(
@@ -352,7 +353,54 @@ export function drawIcon(
       drawLadybug(ctx, x, y, size / 0.9, now, 1, 0);
       return;
     }
+    case "spider": {
+      ctx.restore();
+      drawSpider(ctx, x, y, size / 0.9, now);
+      return;
+    }
   }
+  ctx.restore();
+}
+
+/** A friendly round spider with eight bent legs that wiggle as she walks. */
+function drawSpider(ctx: CanvasRenderingContext2D, x: number, y: number, cell: number, now: number): void {
+  const r = Math.max(8, cell * 0.44);
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.strokeStyle = "#3b2e25";
+  ctx.lineCap = "round";
+  ctx.lineWidth = Math.max(1.6, r * 0.16);
+  for (let side = -1; side <= 1; side += 2) {
+    for (let i = 0; i < 4; i++) {
+      const wiggle = Math.sin(now * 0.018 + i * 1.3 + side) * r * 0.12;
+      const a = (-0.75 + i * 0.5) * side;
+      const kx = side * r * 1.05;
+      const ky = (i - 1.5) * r * 0.42;
+      ctx.beginPath();
+      ctx.moveTo(side * r * 0.4, (i - 1.5) * r * 0.22);
+      ctx.quadraticCurveTo(kx, ky - r * 0.5 + wiggle, side * r * 1.35, ky + r * 0.35 + a * 0.1 * r);
+      ctx.stroke();
+    }
+  }
+  ctx.fillStyle = "#6a4c9c";
+  ctx.beginPath();
+  ctx.arc(0, r * 0.1, r * 0.72, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = "#8f6cc8";
+  ctx.beginPath();
+  ctx.arc(-r * 0.22, -r * 0.12, r * 0.22, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#fff";
+  ctx.beginPath();
+  ctx.arc(-r * 0.24, r * 0.02, r * 0.2, 0, Math.PI * 2);
+  ctx.arc(r * 0.24, r * 0.02, r * 0.2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#3b2e25";
+  ctx.beginPath();
+  ctx.arc(-r * 0.2, r * 0.06, r * 0.1, 0, Math.PI * 2);
+  ctx.arc(r * 0.28, r * 0.06, r * 0.1, 0, Math.PI * 2);
+  ctx.fill();
   ctx.restore();
 }
 
