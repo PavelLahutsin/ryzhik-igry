@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { levels } from "./levels";
+import { difficulty, levels, worlds } from "./levels";
 import { countWord, doneAll, findSlot, fits, overlaps, starsFor, toPlace, type Piece } from "./logic";
 
 const slots: Piece[] = [
@@ -48,6 +48,7 @@ describe("stroyka plans", () => {
       }
       expect(toPlace(l.pieces)).toBeGreaterThanOrEqual(3);
       expect(toPlace(l.pieces)).toBeLessThanOrEqual(15);
+      expect(worlds.some((w) => w.id === l.world), l.id).toBe(true);
     }
   });
 
@@ -75,5 +76,54 @@ describe("stroyka guests", () => {
         expect(under, plan.id).toBe(true);
       }
     }
+  });
+});
+
+describe("stroyka v10 worlds", () => {
+  const key = (p: Piece): string => `${p.kind}-${p.w}x${p.h}-${p.n ?? 0}`;
+  it("keep the 11 old plans and add new ones", () => {
+    const ids = new Set(levels.map((l) => l.id));
+    for (let i = 1; i <= 11; i++) expect(ids.has(`s${i}`)).toBe(true);
+    expect(levels.length).toBeGreaterThanOrEqual(22);
+  });
+
+  it("«Дострой половинку»: every grey place mirrors a built one (same shape and colour)", () => {
+    for (const l of levels.filter((l) => l.look === "half")) {
+      const built = l.pieces.filter((s) => s.fixed);
+      for (const s of l.pieces.filter((s) => !s.fixed)) {
+        const kind = s.kind === "fin-r" ? "fin-l" : s.kind === "fin-l" ? "fin-r" : s.kind;
+        const twin = built.find((b) => b.kind === kind && b.color === s.color && b.w === s.w && b.h === s.h && b.y === s.y && b.x === l.cols - s.x - s.w);
+        expect(twin, `${l.id} ${s.kind} ${s.x},${s.y}`).toBeTruthy();
+      }
+    }
+  });
+
+  it("«По образцу»: the spare blocks look like needed ones but have a wrong colour (a real choice)", () => {
+    for (const l of levels.filter((l) => l.look === "copy")) {
+      const tricky = l.extra.filter((e) => l.pieces.some((s) => !s.fixed && key(s) === key({ ...e, x: 0, y: 0 } as Piece) && s.color !== e.color));
+      expect(tricky.length, l.id).toBeGreaterThanOrEqual(1);
+    }
+  });
+
+  it("every needed block is in the tray once the spares are added, so the plan can be finished", () => {
+    for (const l of levels) {
+      const tray = [...l.pieces.filter((s) => !s.fixed), ...l.extra.map((e) => ({ ...e, x: 0, y: 0 }) as Piece)];
+      const filled = l.pieces.map(() => false);
+      for (const b of tray) {
+        const i = l.pieces.findIndex((s, k) => !filled[k] && !s.fixed && fits(b, s) === "ok");
+        if (i >= 0) filled[i] = true;
+      }
+      expect(doneAll(l.pieces, filled), l.id).toBe(true);
+    }
+  });
+
+  it("get harder world by world", () => {
+    const order = [...new Set(levels.map((l) => l.world))];
+    expect(order).toEqual(worlds.map((w) => w.id));
+    const mean = (w: string): number => {
+      const ls = levels.filter((l) => l.world === w);
+      return ls.reduce((s, l) => s + difficulty(l), 0) / ls.length;
+    };
+    for (let i = 1; i < order.length; i++) expect(mean(order[i]!), order[i]).toBeGreaterThan(mean(order[i - 1]!));
   });
 });

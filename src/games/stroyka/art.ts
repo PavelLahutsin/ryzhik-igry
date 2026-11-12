@@ -26,11 +26,14 @@ function studs(w: number, color: string, top = 8): string {
 }
 
 /** SVG for one block; `ghost` draws the dashed place in the plan instead. */
-export function pieceSvg(piece: Pick<Piece, "kind" | "color" | "w" | "h" | "n">, ghost = false): string {
+export function pieceSvg(piece: Pick<Piece, "kind" | "color" | "w" | "h" | "n">, mode: boolean | "plain" = false): string {
+  const ghost = mode !== false;
   const W = piece.w * 100;
   const H = piece.h * 100;
-  const [c, d] = FILL[piece.color];
-  const body = ghost ? `fill="${c}" fill-opacity=".16" stroke="${d}" stroke-opacity=".7" stroke-width="5" stroke-dasharray="14 10"` : `fill="${c}" ${S}`;
+  // A plain (grey) place shows only the shape: the colour is on the sample
+  // picture or on the built half.
+  const [c, d] = mode === "plain" ? ["#8f7a63", "#8f7a63"] : FILL[piece.color];
+  const body = ghost ? `fill="${c}" fill-opacity="${mode === "plain" ? ".08" : ".16"}" stroke="${d}" stroke-opacity=".7" stroke-width="5" stroke-dasharray="14 10"` : `fill="${c}" ${S}`;
   let art = "";
   switch (piece.kind) {
     case "brick":

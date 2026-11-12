@@ -11,7 +11,7 @@ import { centre, showDrag } from "../../shared/guide";
 import baseCss from "../../shared/base.css?inline";
 import css from "./style.css?inline";
 import { pieceSvg } from "./art";
-import { levels, type Plan } from "./levels";
+import { levels, worlds, type Plan } from "./levels";
 import { COLOR_NAME, countWord, doneAll, findSlot, starsFor, toPlace, type Piece } from "./logic";
 
 /** «Стройка»: snap big blocks into the plan — and the model comes alive. */
@@ -23,6 +23,7 @@ export function mount(root: HTMLElement): () => void {
       title: "Стройка",
       subtitle: "Ставь большие кубики по плану — и постройка оживёт",
       levels,
+      worlds,
       thumb: (level) => thumb(level),
       caption: (level) => `${level.title} · ${toPlace(level.pieces)}`,
       play,
@@ -40,7 +41,7 @@ function place(node: HTMLElement, plan: Plan, s: Pick<Piece, "x" | "y" | "w" | "
 
 function thumb(plan: Plan): HTMLElement {
   const box = el("div", { class: "sk-thumb" });
-  const inner = el("div", { class: "sk-thumb__in", style: { aspectRatio: `${plan.cols} / ${plan.rows}` } });
+  const inner = el("div", { class: "sk-thumb__in", style: { aspectRatio: `${plan.cols} / ${plan.rows}`, "--r": String(plan.cols / plan.rows) } as Record<string, string> });
   for (const s of plan.pieces) {
     const n = svgNode(pieceSvg(s), `sk-piece sk-piece--${s.kind}`);
     place(n, plan, s);
@@ -67,9 +68,24 @@ function play(stage: HTMLElement, plan: Plan, _index: number, api: PlayApi): () 
   // Guide bubble.
   const sayText = el("p", { class: "sk-say__text", attrs: { "aria-live": "polite" }, text: plan.intro });
   const counter = el("b", { class: "sk-say__count", text: `0 / ${total}` });
-  const guide = el("div", { class: "sk-say" }, [
-    el("div", { class: "sk-say__bubble" }, [sayText, counter]),
-  ]);
+  // «По образцу»: the coloured sample sits in the bubble, the plan is grey.
+  const look = plan.look ?? "plan";
+  const bubble = el("div", { class: "sk-say__bubble" }, [sayText, counter]);
+  if (look === "copy") {
+    const sample = thumb(plan);
+    sample.classList.add("sk-sample");
+    sample.setAttribute("aria-label", "Образец");
+    const box = el("figure", { class: "sk-sample__box", attrs: { role: "button", tabindex: "0", title: "Показать образец крупно" } }, [sample, el("figcaption", { text: "Образец" })]);
+    // Tap the sample to see it big (tap again — back).
+    const toggle = (): void => {
+      box.classList.toggle("is-open");
+      audio.play("pick");
+    };
+    box.addEventListener("click", toggle);
+    scope.add(() => box.removeEventListener("click", toggle));
+    bubble.prepend(box);
+  }
+  const guide = el("div", { class: "sk-say" }, [bubble]);
   const say = (t: string): void => {
     sayText.textContent = t;
     replayClass(sayText, "is-new");
@@ -95,11 +111,13 @@ function play(stage: HTMLElement, plan: Plan, _index: number, api: PlayApi): () 
     }, [el("img", { attrs: { src: character(g.id), alt: "", draggable: "false" } })]);
     (g.ground ? board : model).append(guest);
   }
+  if (look === "half") board.append(el("i", { class: "sk-axis" }));
   const site = el("div", { class: `sk-site sk-site--${plan.alive}`, style: { "--ratio": String(plan.cols / plan.rows) } as Record<string, string> }, [el("div", { class: "sk-site__in" }, [board])]);
   const slotNodes = slots.map((s) => {
-    const g = svgNode(pieceSvg(s, true), `sk-ghost sk-piece--${s.kind}`);
+    const g = svgNode(pieceSvg(s, look === "plan" || s.fixed ? true : "plain"), `sk-ghost sk-piece--${s.kind}`);
     place(g, plan, s);
     g.dataset.key = keyOf(s);
+    if (s.fixed) g.classList.add("is-fixed");
     ghosts.append(g);
     if (s.fixed) {
       const n = svgNode(pieceSvg(s), `sk-piece sk-piece--${s.kind}`);
@@ -110,24 +128,52 @@ function play(stage: HTMLElement, plan: Plan, _index: number, api: PlayApi): () 
   });
 
   // Tray with the blocks (one for each place + a few extra), shuffled.
+  // The same blocks lie in one pile with a number (×3), so a big model
+  // still fits the tray on a small phone.
   const tray = el("div", { class: "sk-tray" });
   const blocks = shuffle([...slots.filter((s) => !s.fixed), ...plan.extra.map((e) => ({ ...e, x: 0, y: 0 }) as Piece)]);
-  const blockNodes: { node: HTMLElement; block: Piece }[] = [];
-  for (const block of blocks) {
+  const piles = new Map<string, { block: Piece; left: number }>();
+  for (const b of blocks) {
+    const pile = piles.get(keyOf(b));
+    if (pile) pile.left++;
+    else piles.set(keyOf(b), { block: b, left: 1 });
+  }
+  const blockNodes: { node: HTMLElement; block: Piece; left: number; badge: HTMLElement }[] = [];
+  for (const pile of piles.values()) {
+    const block = pile.block;
+    const badge = el("b", { class: "sk-block__n" });
     const node = el("div", { class: `sk-block sk-piece--${block.kind}`, style: { "--w": String(block.w), "--h": String(block.h) } as Record<string, string> }, [
       svgNode(pieceSvg(block), "sk-block__art"),
+      badge,
     ]);
     node.dataset.key = keyOf(block);
-    node.setAttribute("aria-label", `${COLOR_NAME[block.color]} ${block.kind === "wheel" ? "колесо" : "кубик"}`);
+    const entry = { node, block, left: pile.left, badge };
+    const label = (): void => {
+      badge.textContent = entry.left > 1 ? `×${entry.left}` : "";
+      node.classList.toggle("is-pile", entry.left > 1);
+      node.setAttribute("aria-label", `${COLOR_NAME[block.color]} ${block.kind === "wheel" ? "колесо" : "кубик"}${entry.left > 1 ? `, ${entry.left} штуки` : ""}`);
+    };
+    label();
     tray.append(node);
-    blockNodes.push({ node, block });
+    blockNodes.push(entry);
     scope.add(
       draggable(node, {
         onStart: () => {
           audio.unlock();
           audio.play("pick");
         },
-        onDrop: (c) => drop(node, block, c),
+        onDrop: (c) => {
+          const ok = drop(block, c);
+          if (ok) {
+            entry.left--;
+            label();
+            if (entry.left <= 0) {
+              node.classList.add("is-placed");
+              node.style.visibility = "hidden";
+            }
+          }
+          return ok;
+        },
       }),
     );
   }
@@ -138,6 +184,7 @@ function play(stage: HTMLElement, plan: Plan, _index: number, api: PlayApi): () 
   // tray is on screen (the CSS size stays when everything fits).
   const fitTray = (): void => {
     tray.style.removeProperty("--cell");
+    site.style.removeProperty("height");
     // Measure a block still in the tray (placed ones live on the board).
     const first = blockNodes.find((b) => b.node.parentElement === tray);
     if (!first || first.node.offsetHeight === 0) return;
@@ -149,13 +196,20 @@ function play(stage: HTMLElement, plan: Plan, _index: number, api: PlayApi): () 
       cell = Math.max(32, cell - 2);
       tray.style.setProperty("--cell", `${cell}px`);
     }
+    // Still too many blocks: the building site (a tall model) gives up a
+    // little height, but stays at least a third of the screen.
+    let h = site.getBoundingClientRect().height;
+    while (spills() && h > window.innerHeight * 0.3 && window.innerWidth < window.innerHeight * 1.25) {
+      h -= 8;
+      site.style.height = `${h}px`;
+    }
   };
   // Watch the stage (the screen), not the tray, whose size this changes.
   const trayObserver = new ResizeObserver(() => fitTray());
   trayObserver.observe(stage);
   scope.add(() => trayObserver.disconnect());
 
-  function drop(node: HTMLElement, block: Piece, c: Point): boolean {
+  function drop(block: Piece, c: Point): boolean {
     if (finished) return false;
     const r = board.getBoundingClientRect();
     if (c.x < r.left - 40 || c.x > r.right + 40 || c.y < r.top - 40 || c.y > r.bottom + 40) return false;
@@ -170,14 +224,13 @@ function play(stage: HTMLElement, plan: Plan, _index: number, api: PlayApi): () 
       misses++;
       audio.play("boing");
       if (s.color === "blue") audio.say("v35");
-      say(`Сюда нужен ${COLOR_NAME[s.color]}! А этот — ${COLOR_NAME[block.color]}.`);
+      const where = look === "copy" ? "Посмотри на образец: сюда" : look === "half" ? "Посмотри на другую половинку: сюда" : "Сюда";
+      say(`${where} нужен ${COLOR_NAME[s.color]}! А этот — ${COLOR_NAME[block.color]}.`);
       replayClass(slotNodes[found.index]!, "is-call");
       return false;
     }
     filled[found.index] = true;
     placed++;
-    node.classList.add("is-placed");
-    node.style.visibility = "hidden";
     const piece = svgNode(pieceSvg(s), `sk-piece sk-piece--${s.kind} is-new`);
     place(piece, plan, s);
     model.append(piece);

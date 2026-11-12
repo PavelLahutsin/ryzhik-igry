@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { allJoined, centroid, closestPair, labelAt, REACH, startDots, starsFor, touch } from "./logic";
+import { allJoined, centroid, closestPair, difficulty, labelAt, labelOf, labelSpots, REACH, startDots, starsFor, touch } from "./logic";
 import { levels, worlds } from "./levels";
 
 const dots = [
@@ -48,7 +48,7 @@ describe("tochki levels", () => {
     for (const l of levels) {
       expect(worlds.some((w) => w.id === l.world)).toBe(true);
       expect(l.dots.length).toBeGreaterThanOrEqual(5);
-      expect(l.dots.length).toBeLessThanOrEqual(20);
+      expect(l.dots.length).toBeLessThanOrEqual(24);
       expect(closestPair(l.dots), l.title).toBeGreaterThan(REACH * 0.9);
       for (const d of l.dots) {
         expect(d.x).toBeGreaterThanOrEqual(8);
@@ -62,5 +62,43 @@ describe("tochki levels", () => {
   it("count up to 10 first, then further", () => {
     for (const l of levels.filter((l) => l.world === "ten")) expect(l.dots.length).toBeLessThanOrEqual(10);
     expect(levels.filter((l) => l.world === "more").every((l) => l.dots.length > 10)).toBe(true);
+  });
+
+  it("keep the old ids (progress is stored by id)", () => {
+    const ids = new Set(levels.map((l) => l.id));
+    for (let i = 1; i <= 14; i++) expect(ids.has(`t${i}`)).toBe(true);
+  });
+
+  it("label dots in a real counting order", () => {
+    expect([0, 1, 2].map((i) => labelOf("down", i, 10))).toEqual(["10", "9", "8"]);
+    expect([0, 1, 9].map((i) => labelOf(2, i, 10))).toEqual(["2", "4", "20"]);
+    expect([0, 1].map((i) => labelOf(5, i, 12))).toEqual(["5", "10"]);
+    expect([0, 9].map((i) => labelOf(10, i, 10))).toEqual(["10", "100"]);
+    expect([0, 5, 6, 10].map((i) => labelOf("abc", i, 16))).toEqual(["А", "Е", "Ё", "Й"]);
+    for (const l of levels) {
+      const labels = l.dots.map((_, i) => labelOf(l.count, i, l.dots.length));
+      expect(new Set(labels).size, l.title).toBe(labels.length);
+      expect(labels.every((t) => t !== "?"), l.title).toBe(true);
+    }
+  });
+
+  it("get harder world by world", () => {
+    const order = [...new Set(levels.map((l) => l.world))];
+    const mean = (w: string): number => {
+      const ls = levels.filter((l) => l.world === w);
+      return ls.reduce((s, l) => s + difficulty(l.dots.length, l.count), 0) / ls.length;
+    };
+    for (let i = 1; i < order.length; i++) expect(mean(order[i]!), order[i]).toBeGreaterThan(mean(order[i - 1]!));
+    expect(levels.length).toBeGreaterThanOrEqual(29);
+  });
+
+  it("put every label clear of the other dots", () => {
+    for (const l of levels) {
+      const spots = labelSpots(l.dots);
+      spots.forEach((t, i) => {
+        const near = Math.min(...l.dots.filter((_, j) => j !== i).map((d) => Math.hypot(d.x - t.x, d.y - t.y)));
+        expect(near, `${l.title} ${i + 1}`).toBeGreaterThanOrEqual(10);
+      });
+    }
   });
 });

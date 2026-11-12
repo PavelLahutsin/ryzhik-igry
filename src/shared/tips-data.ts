@@ -40,6 +40,12 @@ export const LEVEL_TIPS: Record<string, Record<string, LevelTip>> = {
   },
   tochki: {
     t13: { at: ".td-board", text: "Теперь точек больше десяти!" },
+    d2: { at: ".td-board", text: "Считаем назад: 10, 9, 8… до единицы" },
+    k1: { at: ".td-board", text: "Через одну: 2, 4, 6, 8…" },
+    k3: { at: ".td-board", text: "Пятёрками: 5, 10, 15, 20…" },
+    k4: { at: ".td-board", text: "Десятками: 10, 20, 30… до ста!" },
+    a1: { at: ".td-board", text: "Вместо цифр — буквы: А, Б, В, Г…" },
+    g1: { at: ".td-board", text: "Много точек — больше двадцати! Следующая светится зелёным" },
   },
   professii: {
     "vrach-kotik": { at: '[data-tool="cotton"]', text: "Ватку надо потереть по лапке туда-сюда" },
@@ -50,6 +56,9 @@ export const LEVEL_TIPS: Record<string, Record<string, LevelTip>> = {
   stroyka: {
     s10: { at: ".sk-model", text: "Смотри на картинку и ставь кубик в его окошко" },
     s7: { at: ".sk-say", text: "На вагончиках цифры: 1, 2, 3…" },
+    h1: { at: ".sk-board", text: "Половинка уже есть. Вторую строй такой же — как в зеркале!" },
+    c1: { at: ".sk-sample__box", text: "Места серые. Цвет смотри на образце!" },
+    b1: { at: ".sk-sample__box", text: "Большая стройка — много кубиков, смотри на образец" },
   },
   formy: {
     r3: { at: ".fm-pole", text: "Самое большое колечко — первым!" },

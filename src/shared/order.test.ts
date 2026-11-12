@@ -32,9 +32,10 @@ describe("levels keep getting harder", () => {
       expect(new Set(seen).size).toBe(seen.length);
     }
   });
-  it("«Стройка» goes from fewer blocks to more, every level once", () => {
-    const n = stroyka.map((l) => l.pieces.length + l.extra.length);
+  it("«Стройка» goes from fewer blocks to more on the colour plan, every level once", () => {
+    const n = stroyka.filter((l) => l.world === "plan").map((l) => l.pieces.length + l.extra.length);
     for (let i = 1; i < n.length; i++) expect(n[i]!).toBeGreaterThanOrEqual(n[i - 1]!);
-    expect(new Set(stroyka.map((l) => l.id)).size).toBe(11);
+    expect(n.length).toBe(11);
+    expect(new Set(stroyka.map((l) => l.id)).size).toBe(stroyka.length);
   });
 });

@@ -71,3 +71,79 @@ export function curve(n: number, f: (t: number) => Pt): Pt[] {
     return { x: Math.round(p.x), y: Math.round(p.y) };
   });
 }
+
+export const ALPHABET = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
+
+/** How dots are labelled (see levels.ts `Count`). */
+export type CountRule = "up" | "down" | 2 | 5 | 10 | "abc";
+
+/** The label on dot `i` of `n`: 1, 2, 3… / N … 1 / 2, 4, 6… / 5, 10… / А, Б, В… */
+export function labelOf(rule: CountRule | undefined, i: number, n: number): string {
+  if (rule === "down") return String(n - i);
+  if (rule === "abc") return ALPHABET[i] ?? "?";
+  if (typeof rule === "number") return String((i + 1) * rule);
+  return String(i + 1);
+}
+
+/**
+ * How hard a picture is: more dots, and a harder way of counting
+ * (backwards < by twos < letters < by fives < by tens).
+ */
+export function difficulty(dots: number, rule: CountRule | undefined): number {
+  const extra = rule === "down" ? 3 : rule === 2 ? 5 : rule === "abc" ? 6 : rule === 5 ? 7 : rule === 10 ? 8 : 0;
+  return dots + extra;
+}
+
+/**
+ * Where to put every dot's label: outside the outline (along the vertex's
+ * outward normal, so dents get it right too), turned a little if that spot
+ * is too close to another dot or label.
+ */
+export function labelSpots(dots: readonly Pt[], gap = 14): Pt[] {
+  const n = dots.length;
+  let area = 0;
+  for (let i = 0; i < n; i++) {
+    const a = dots[i]!;
+    const b = dots[(i + 1) % n]!;
+    area += a.x * b.y - b.x * a.y;
+  }
+  const turn = area > 0 ? 1 : -1;
+  const out: Pt[] = [];
+  const free = (p: Pt, own: number): number => {
+    let d = Infinity;
+    dots.forEach((q, j) => {
+      if (j !== own) d = Math.min(d, Math.hypot(q.x - p.x, q.y - p.y));
+    });
+    for (const q of out) d = Math.min(d, Math.hypot(q.x - p.x, q.y - p.y) - 5);
+    return d;
+  };
+  dots.forEach((d, i) => {
+    const prev = dots[(i - 1 + n) % n]!;
+    const next = dots[(i + 1) % n]!;
+    // Outward normal of the edge prev → next (screen y grows downwards).
+    let nx = (next.y - prev.y) * turn;
+    let ny = -(next.x - prev.x) * turn;
+    const len = Math.hypot(nx, ny) || 1;
+    nx /= len;
+    ny /= len;
+    const base = Math.atan2(ny, nx);
+    let best: Pt = { x: d.x + nx * gap, y: d.y + ny * gap };
+    let bestFree = -1;
+    for (const k of [0, 1, -1, 2, -2, 3, -3, 4, -4]) {
+      const a = base + (k * Math.PI) / 8;
+      const p = { x: d.x + Math.cos(a) * gap, y: d.y + Math.sin(a) * gap };
+      const f = free(p, i);
+      if (f >= 13) {
+        best = p;
+        bestFree = f;
+        break;
+      }
+      if (f > bestFree) {
+        best = p;
+        bestFree = f;
+      }
+    }
+    out.push({ x: Math.round(best.x), y: Math.round(best.y) });
+  });
+  return out;
+}
