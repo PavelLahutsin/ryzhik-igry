@@ -101,7 +101,11 @@ const R: Record<SoundKind, Recipe> = {
     noise(c, o, t, 0.04, { freq: 2500, q: 3, vol: 0.07 });
     seq(c, o, t + 0.01, [[784, 0.07], [1046, 0.1]], { vol: 0.1 });
   },
-  miss: (c, o, t) => tone(c, o, t, 330, 0.16, { to: 260, vol: 0.08, type: "triangle" }),
+  // v12: a soft rubbery «boing» — a miss should not sound like a scolding.
+  miss: (c, o, t) => {
+    tone(c, o, t, 210, 0.12, { to: 290, vol: 0.055, type: "sine", vibrato: 11 });
+    tone(c, o, t + 0.1, 290, 0.16, { to: 200, vol: 0.045, type: "sine" });
+  },
   boing: (c, o, t) => tone(c, o, t, 200, 0.32, { to: 420, vol: 0.09, type: "triangle", vibrato: 14 }),
   merge: (c, o, t) => seq(c, o, t, [[659, 0.06], [880, 0.07], [1175, 0.1]], { vol: 0.09 }),
   win: (c, o, t) => seq(c, o, t, [[523, 0.12], [659, 0.12], [784, 0.12], [1046, 0.24]], { type: "triangle" }),
