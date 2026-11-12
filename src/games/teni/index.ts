@@ -88,6 +88,8 @@ function play(stage: HTMLElement, level: TeniLevel, _index: number, api: PlayApi
     roundScope = createScope();
     stage.replaceChildren();
     things = round.items.map((s) => thing(specOf(s).id));
+    // Pictures with no shadow (they stay in the tray).
+    const extras = (round.extra ?? []).map((s) => thing(specOf(s).id));
     filled = new Set();
     shadows = new Map();
     const specs = [...round.items, ...(round.decoys ?? [])].map(specOf);
@@ -119,9 +121,11 @@ function play(stage: HTMLElement, level: TeniLevel, _index: number, api: PlayApi
     }
 
     tray = el("div", { class: "tn-tray" });
-    tray.style.setProperty("--per", String(things.length <= 3 ? things.length : Math.ceil(things.length / 2)));
-    for (const t of shuffle(things)) {
-      const item = el("div", { class: "tn-item", attrs: { "data-id": t.id, role: "img", "aria-label": t.name } }, [
+    const inTray = things.length + extras.length;
+    tray.style.setProperty("--per", String(inTray <= 3 ? inTray : Math.ceil(inTray / 2)));
+    for (const t of shuffle([...things, ...extras])) {
+      const isExtra = extras.includes(t);
+      const item = el("div", { class: `tn-item${isExtra ? " is-extra" : ""}`, attrs: { "data-id": t.id, role: "img", "aria-label": t.name } }, [
         art(t, "tn-item__art"),
       ]);
       tray.append(item);
@@ -156,7 +160,7 @@ function play(stage: HTMLElement, level: TeniLevel, _index: number, api: PlayApi
               audio.play("miss");
               const shadow = target ? shadows.get(target) : undefined;
               if (shadow) replayClass(shadow, "is-wrong");
-              hint(stage, `Это не тень: ${t.name.toLowerCase()}. Попробуй другую!`);
+              hint(stage, isExtra ? `У этой картинки здесь нет тени — оставь её!` : `Это не тень: ${t.name.toLowerCase()}. Попробуй другую!`);
             }
             return false;
           },

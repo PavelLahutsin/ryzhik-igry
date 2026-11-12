@@ -19,6 +19,8 @@ export type Round = {
   items: Spec[];
   /** Extra shadows with no picture. */
   decoys?: Spec[];
+  /** Extra pictures with no shadow: they stay in the tray. */
+  extra?: Spec[];
 };
 
 export type TeniLevel = LevelInfo & Round & {
@@ -33,6 +35,7 @@ export const worlds = [
   { id: "tricky", title: "Похожие тени", color: "#9b8cf0" },
   { id: "turn", title: "Перевёртыши", color: "#f2a65a" },
   { id: "hide", title: "Прятки", color: "#5bb89a" },
+  { id: "odd", title: "Лишние картинки", color: "#c98a3e" },
   { id: "scene", title: "Большие сцены", color: "#e0656f" },
 ];
 
@@ -83,6 +86,31 @@ export const levels: TeniLevel[] = [
   { id: "t28", world: "hide", title: "Кто за тучкой?", items: [hide("owl", "cloud"), hide("aerostat", "cloud"), hide("plane", "cloud"), hide("hen", "cloud"), hide("bird", "cloud")], decoys: [hide("moon", "cloud"), "bird2"] },
   { id: "t29", world: "hide", title: "Прятки с друзьями", items: [hide("char:ryzhik", "box"), hide("char:mama"), hide("char:papa", "box"), hide("char:belka"), "teddy@s"], decoys: ["char:ezhik", "char:mishka"] },
   { id: "t30", world: "hide", title: "Хитрые прятки", items: [{ id: "dog", hide: "bush", flip: true }, hide("bird2", "cloud"), hide("key", "box"), turn("glass", 180), hide("cake1"), "chair"], decoys: ["cake3", "bird"] },
+  // v10 Лишние картинки: some pictures have no shadow — check each one, leave the extra ones.
+  {
+    id: "t34",
+    world: "odd",
+    title: "Кому нет тени?",
+    items: [hide("elephant"), "giraffe", flip("whale"), "pear", hide("owl", "cloud"), turn("snail", 180)],
+    extra: ["frog", "apple"],
+    decoys: [hide("hen", "cloud")],
+  },
+  {
+    id: "t35",
+    world: "odd",
+    title: "Лишние двойняшки",
+    items: [hide("cat"), flip("dog"), turn("key", 180), hide("bird", "cloud"), "mitten", "lamp"],
+    extra: ["cat2", "bird2"],
+    decoys: ["clock"],
+  },
+  {
+    id: "t36",
+    world: "odd",
+    title: "Проверь каждую",
+    items: [hide("rabbit"), flip("truck"), turn("fir", 180), hide("cup", "box"), "icecream", "teapot"],
+    extra: ["rabbit2"],
+    decoys: ["bus", "glass"],
+  },
   // Большие сцены: two or three rounds in one level, everything together.
   {
     id: "t31",
@@ -115,7 +143,7 @@ export const levels: TeniLevel[] = [
 
 /** All rounds of a level, the first one included. */
 export function roundsOf(level: TeniLevel): Round[] {
-  return [{ items: level.items, decoys: level.decoys }, ...(level.more ?? [])];
+  return [{ items: level.items, decoys: level.decoys, extra: level.extra }, ...(level.more ?? [])];
 }
 
 export function specOf(spec: Spec): { id: string; turn: number; flip: boolean; hide: Hide | null } {

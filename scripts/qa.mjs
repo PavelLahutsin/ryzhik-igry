@@ -84,7 +84,7 @@ const SOLVE = {
   async teni(p) {
     // Big scenes have several rounds: when a round is done the next one comes after a pause.
     for (let k = 0, idle = 0; k < 80 && idle < 12 && !(await won(p)); k++) {
-      const id = await p.evaluate(() => document.querySelector(".tn-item:not(.is-placed)")?.dataset.id ?? null);
+      const id = await p.evaluate(() => document.querySelector(".tn-item:not(.is-placed):not(.is-extra)")?.dataset.id ?? null);
       if (!id) {
         idle++;
         await p.waitForTimeout(250);

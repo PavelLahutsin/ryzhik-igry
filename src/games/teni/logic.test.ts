@@ -7,8 +7,8 @@ import { OBJECTS } from "../../shared/objects";
 const OLD_IDS = Array.from({ length: 15 }, (_, i) => `t${i + 1}`);
 
 describe("teni levels", () => {
-  it("has 33 levels with unique ids, the 15 old ids kept", () => {
-    expect(levels).toHaveLength(33);
+  it("has 36 levels with unique ids, the 15 old ids kept", () => {
+    expect(levels).toHaveLength(36);
     const ids = levels.map((l) => l.id);
     expect(new Set(ids).size).toBe(ids.length);
     for (const id of OLD_IDS) expect(ids).toContain(id);
@@ -21,6 +21,14 @@ describe("teni levels", () => {
         const items = round.items.map((s) => specOf(s).id);
         const all = [...items, ...(round.decoys ?? []).map((s) => specOf(s).id)];
         expect(new Set(all).size, level.id).toBe(all.length);
+        // Extra pictures have no shadow on the board, so they fit nowhere.
+        const extra = (round.extra ?? []).map((s) => specOf(s).id);
+        for (const id of extra) {
+          expect(all, `${level.id} ${id}`).not.toContain(id);
+          expect(() => thing(id), id).not.toThrow();
+          for (const sh of all) expect(judge(id, sh, new Set())).toBe("wrong");
+        }
+        expect(items.length + extra.length, level.id).toBeLessThanOrEqual(8);
         expect(items.length, level.id).toBeGreaterThanOrEqual(2);
         expect(items.length, level.id).toBeLessThanOrEqual(6);
         expect(roundShadows(round), level.id).toBeLessThanOrEqual(8);
@@ -66,6 +74,7 @@ describe("teni levels", () => {
     expect(first((f) => f.decoys)).toBe("friends");
     expect(first((f) => f.small + f.turned)).toBe("turn");
     expect(first((f) => f.hidden)).toBe("hide");
+    expect(first((f) => f.extras)).toBe("odd");
     expect(levels.find((l) => roundsOf(l).length > 1)?.world).toBe("scene");
     expect(levels.filter((l) => l.world === "tricky").every((l) => roundFeatures(l).twins >= 2)).toBe(true);
   });

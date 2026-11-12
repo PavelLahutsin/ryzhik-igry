@@ -251,3 +251,9 @@
     width: min(calc(40vw / var(--per, 3) - 12px), calc((100dvh - 150px) / 2), 110px);
   }
 }
+
+/* v10 «Лишние картинки»: when the round is done the pictures with no shadow fade. */
+.tn-board.is-done ~ .tn-tray .tn-item.is-extra {
+  opacity: 0.35;
+  transition: opacity 400ms ease;
+}

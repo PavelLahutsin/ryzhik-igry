@@ -42,11 +42,14 @@ export function roundFeatures(round: Round): {
   turned: number;
   hidden: number;
   small: number;
+  /** Pictures with no shadow in the tray. */
+  extras: number;
 } {
   const all = [...round.items, ...(round.decoys ?? [])].map(specOf);
-  const ids = new Set(all.map((s) => base(s.id)));
+  const pics = [...all, ...(round.extra ?? []).map(specOf)];
+  const ids = new Set(pics.map((s) => base(s.id)));
   let twins = TWINS.filter(([a, b]) => ids.has(a) && ids.has(b)).length;
-  const bases = all.map((s) => base(s.id));
+  const bases = pics.map((s) => base(s.id));
   twins += bases.length - new Set(bases).size;
   return {
     items: round.items.length,
@@ -55,12 +58,14 @@ export function roundFeatures(round: Round): {
     turned: all.filter((s) => s.flip || s.turn !== 0).length,
     hidden: all.filter((s) => s.hide).length,
     small: all.filter((s) => s.id.endsWith("@s")).length,
+    extras: round.extra?.length ?? 0,
   };
 }
 
 /**
  * One number for how hard a level is: each picture 1, an extra shadow 1.5,
  * a pair of look-alikes 1, a turned or hidden shadow 1, a small copy 0.5,
+ * an extra picture with no shadow 2 (every picture has to be checked),
  * and 1 for every round after the first.
  */
 export function difficulty(level: TeniLevel): number {
@@ -68,7 +73,7 @@ export function difficulty(level: TeniLevel): number {
   let sum = rounds.length - 1;
   for (const r of rounds) {
     const f = roundFeatures(r);
-    sum += f.items + 1.5 * f.decoys + f.twins + f.turned + f.hidden + 0.5 * f.small;
+    sum += f.items + 1.5 * f.decoys + f.twins + f.turned + f.hidden + 0.5 * f.small + 2 * f.extras;
   }
   return sum;
 }
@@ -79,7 +84,8 @@ const EXTRA = ["", "Одна тень лишняя!", "Две тени лишн�
 export function noteFor(round: Round): string {
   const f = roundFeatures(round);
   const parts = ["Перетащи картинку на её тень."];
-  if (f.hidden) parts.push("Тени прячутся — узнай по кусочку!");
+  if (f.extras) parts.push(f.extras === 1 ? "Одной картинке тени нет — оставь её!" : "Некоторым картинкам тени нет — оставь их!");
+  else if (f.hidden) parts.push("Тени прячутся — узнай по кусочку!");
   else if (f.turned) parts.push("Некоторые тени перевернулись!");
   else if (f.small) parts.push("Смотри на размер!");
   else if (f.twins >= 2) parts.push("Тени похожи — смотри на мелочи!");

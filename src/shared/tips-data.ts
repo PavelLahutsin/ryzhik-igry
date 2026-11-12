@@ -23,6 +23,7 @@ export const LEVEL_TIPS: Record<string, Record<string, LevelTip>> = {
     t22: { at: ".tn-board", text: "Тени смотрят в другую сторону — всё равно узнай!" },
     t23: { at: ".tn-board", text: "Тени вверх ногами! Переверни картинку в уме" },
     t27: { at: ".tn-board", text: "Тень спряталась в кустах — узнай по кусочку" },
+    t34: { at: ".tn-tray", text: "Не у всех картинок есть тень — лишние оставь!" },
     t31: { at: ".tn-round", text: "Тут две части: после первых теней будут новые" },
   },
   odezhda: {
