@@ -327,6 +327,7 @@
   text-align: center;
   line-height: 1.35;
 }
+.ht-stars span { display: block; }
 
 @media (max-height: 480px) {
   .ht .ht-card .ht-ok {
