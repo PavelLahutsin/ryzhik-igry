@@ -575,6 +575,7 @@ function playPick(stage: HTMLElement, level: PickLevel, _index: number, api: Pla
     const row = el("div", { class: `fm-choice fm-choice--${round.kind}${round.kind === "compare" ? ` fm-choice--${round.dim}` : ""}`, style: { "--n": String(count) } as Record<string, string> });
     buttons = Array.from({ length: count }, (_, i) => {
       const b = el("button", { class: "fm-opt", attrs: { type: "button", "data-i": String(i) }, on: { click: () => choose(i) } }, [optionArt(round, i)]);
+      if (i === round.answer) b.dataset.ok = ""; // for the play-through QA
       row.append(b);
       return b;
     });
