@@ -1504,3 +1504,23 @@ button {
     height: 40px;
   }
 }
+
+/* v12 tap-tap: a picked piece lifts and glows until the next tap drops it. */
+.is-selected {
+  translate: 0 -8px;
+  filter: drop-shadow(0 0 3px #fff) drop-shadow(0 0 10px #ffb92e);
+  z-index: 30;
+  transition: translate 160ms ease;
+}
+/* «Not here» — a drop on empty space: a soft wobble, never a mistake. */
+.is-nope { animation: drag-nope 420ms ease; }
+@keyframes drag-nope {
+  0%, 100% { translate: 0 0; }
+  25% { translate: -7px 0; }
+  50% { translate: 6px 0; }
+  75% { translate: -3px 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .is-selected { translate: none; }
+}
+

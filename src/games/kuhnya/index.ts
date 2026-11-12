@@ -206,9 +206,12 @@ export function mount(root: HTMLElement): () => void {
       scope.add(
         draggable(node, {
           onStart: () => audio.play("pick"),
+          // While the tool still works, a tap on the dish is a tap on the tool (chop, blend).
+          onTap: () => !t.done,
           onDrop: (at) => {
             const target = targetAt(at);
-            if (!target || (target.kind === "tool" && target.tool === t)) return false;
+            if (!target) return "none";
+            if (target.kind === "tool" && target.tool === t) return false;
             if (target.kind === "bin") {
               t.contents.splice(i, 1);
               t.done = false;
@@ -349,7 +352,8 @@ export function mount(root: HTMLElement): () => void {
           guestBox.classList.remove("is-over");
           const target = targetAt(at);
           const dish: Dish = { parts: [id], ops: [] };
-          if (!target || target.kind === "bin") return false;
+          if (!target) return "none";
+          if (target.kind === "bin") return false;
           if (target.kind === "guest") {
             if (busyEating) return false;
             feed(dish);

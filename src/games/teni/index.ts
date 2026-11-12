@@ -1,7 +1,7 @@
 import { audio } from "../../shared/audio";
 import { centre, showDrag } from "../../shared/guide";
 import { el, replayClass } from "../../shared/dom";
-import { centerOf, draggable, nearestWithin } from "../../shared/drag";
+import { draggable, dropHits } from "../../shared/drag";
 import { createScope } from "../../shared/lifecycle";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
 import { shuffle } from "../../shared/rng";
@@ -137,9 +137,12 @@ function play(stage: HTMLElement, level: TeniLevel, _index: number, api: PlayApi
           },
           onDrop: (center) => {
             const open = [...shadows.entries()].filter(([id]) => !filled.has(id));
-            const reach = Math.max(60, (open[0]?.[1].getBoundingClientRect().width ?? 100) * 0.7);
-            const hit = nearestWithin(center, open.map(([, node]) => centerOf(node)), reach);
-            const target = hit >= 0 ? open[hit]![0] : null;
+            // Its own shadow takes it anywhere on the tile; a wrong shadow counts
+            // only on the tile itself (0.45 of its size) — beside it is no mistake.
+            const hit = dropHits(center, open.map(([, node]) => node.getBoundingClientRect()));
+            const own = hit.box >= 0 && open[hit.box]![0] === t.id;
+            const target = own ? t.id : hit.zone >= 0 ? open[hit.zone]![0] : null;
+            if (!target) return "none";
             const result = judge(t.id, target, filled);
             if (result === "placed") {
               filled.add(t.id);

@@ -455,9 +455,15 @@ function playShop(ctx: Ctx, level: ShopLevel): void {
         onMove: (p) => {
           if (Math.hypot(p.x - start.x, p.y - start.y) > 14) moved = true;
         },
+        // A tap on a thing on the shelf takes it straight into the basket.
+        onTap: () => {
+          if (!cartComplete(level.list, cart) && !item.classList.contains("is-taken")) take(id, item);
+          return true;
+        },
         onDrop: (p) => {
           if (cartComplete(level.list, cart) || item.classList.contains("is-taken")) return false;
           if (!moved || inside(p, basket)) take(id, item);
+          else return "none";
           return false;
         },
       }),
@@ -481,7 +487,8 @@ function playShop(ctx: Ctx, level: ShopLevel): void {
         draggable(coin, {
           onStart: () => audio.play("pick"),
           onDrop: (p) => {
-            if (paid >= need || !inside(p, till)) return false;
+            if (paid >= need) return false;
+            if (!inside(p, till)) return "none";
             paid++;
             coin.classList.add("is-placed");
             coin.style.visibility = "hidden";

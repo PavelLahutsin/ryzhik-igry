@@ -37,10 +37,19 @@ async function mid(p, sel) {
     return [r.x + r.width / 2, r.y + r.height / 2];
   }, sel);
 }
+// QA_TAPTAP=1: every drag becomes tap on the piece, tap on the target (v12 tap-tap).
+const TAPTAP = !!process.env.QA_TAPTAP;
 async function dragSel(p, from, to) {
   const a = await mid(p, from);
   const b = await mid(p, to);
   if (!a || !b) return false;
+  if (TAPTAP) {
+    await p.mouse.click(a[0], a[1]);
+    await p.waitForTimeout(80);
+    await p.mouse.click(b[0], b[1]);
+    await p.waitForTimeout(120);
+    return true;
+  }
   await trace(p, line(a, b));
   await p.waitForTimeout(120);
   return true;
@@ -292,6 +301,16 @@ async function layoutCheck(p) {
       if (document.body.dataset.route === "play" && !n.closest(".praise") && !n.classList.contains("level-card") && (r.right > W + 2 || r.bottom > H + 2 || r.left < -2 || r.top < -2)) out.push(`off-screen: ${key} (${Math.round(r.left)},${Math.round(r.top)} ${Math.round(r.width)}×${Math.round(r.height)})`);
     }
     for (const [k, v] of small) out.push(`small touch target: ${k} ${v}px`);
+    // v12: drop targets — their 0.45 zones (ellipses inside the boxes) must not overlap.
+    const zones = [...document.querySelectorAll(".tn-shadow, .so-basket, .fm-member, .fm-hole, .fm-bin")].map((n) => n.getBoundingClientRect()).filter((r) => r.width && r.height);
+    const inZ = (x, y, r) => Math.hypot((x - r.left - r.width / 2) / (r.width * 0.45), (y - r.top - r.height / 2) / (r.height * 0.45)) <= 1;
+    for (let i = 0; i < zones.length; i++)
+      for (let j = i + 1; j < zones.length; j++) {
+        const a = zones[i], b = zones[j];
+        let hit = false;
+        for (let u = 0; u <= 20 && !hit; u++) for (let v = 0; v <= 20 && !hit; v++) { const x = a.left + (a.width * u) / 20, y = a.top + (a.height * v) / 20; hit = inZ(x, y, a) && inZ(x, y, b); }
+        if (hit) out.push(`drop zones overlap (${Math.round(a.left)},${Math.round(a.top)}) / (${Math.round(b.left)},${Math.round(b.top)})`);
+      }
     for (const n of document.querySelectorAll(".screen *")) {
       if (!n.childNodes.length || ![...n.childNodes].some((c) => c.nodeType === 3 && c.textContent.trim())) continue;
       const cs = getComputedStyle(n);

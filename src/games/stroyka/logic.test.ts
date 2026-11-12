@@ -22,7 +22,10 @@ describe("stroyka rules", () => {
     expect(findSlot(slots, filled, { kind: "brick", color: "green", w: 2, h: 1 }, { x: 1, y: 2.5 })).toEqual({ index: 0, fit: "color" });
     expect(findSlot(slots, filled, { kind: "wheel", color: "black", w: 1, h: 1 }, { x: 0.5, y: 0 })).toBeNull();
     filled[1] = true;
-    expect(findSlot(slots, filled, { kind: "brick", color: "blue", w: 2, h: 1 }, { x: 1, y: 1.5 })?.fit).toBe("color");
+    expect(findSlot(slots, filled, { kind: "brick", color: "blue", w: 2, h: 1 }, { x: 1, y: 2.5 })?.fit).toBe("color");
+    // v12: between two slots, or beside one, a wrong colour is no mistake.
+    expect(findSlot(slots, filled, { kind: "brick", color: "blue", w: 2, h: 1 }, { x: 1, y: 2.03 })).toBeNull();
+    expect(findSlot(slots, filled, { kind: "brick", color: "blue", w: 2, h: 1 }, { x: 2.1, y: 2.5 })).toBeNull();
   });
 
   it("knows when the model is finished", () => {
@@ -126,5 +129,19 @@ describe("stroyka v10 worlds", () => {
       return ls.reduce((s, l) => s + difficulty(l), 0) / ls.length;
     };
     for (let i = 1; i < order.length; i++) expect(mean(order[i]!), order[i]).toBeGreaterThan(mean(order[i - 1]!));
+  });
+});
+
+import { levels as plans } from "./levels";
+import { zonesOverlap } from "../../shared/drag";
+
+describe("v12: mistake zones of the places never overlap", () => {
+  it("every plan", () => {
+    for (const plan of plans) {
+      const box = (s: Piece) => ({ left: s.x, top: s.y, width: s.w, height: s.h });
+      const open = plan.pieces.filter((s) => !s.fixed);
+      for (let i = 0; i < open.length; i++)
+        for (let j = i + 1; j < open.length; j++) expect(zonesOverlap(box(open[i]!), box(open[j]!)), `${plan.id} ${i}/${j}`).toBe(false);
+    }
   });
 });

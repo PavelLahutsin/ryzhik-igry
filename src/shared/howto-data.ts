@@ -200,4 +200,10 @@ for (const [id, spec] of Object.entries(STARS)) {
   const h = HOWTO[id];
   if (h) h.stars = starLine(spec);
 }
+/** v12: every drag-and-drop game can be played with two taps, and a drop on empty space is no mistake. */
+export const TAP_TAP = "Можно и без перетаскивания: нажми на картинку (она подпрыгнет и засветится), потом нажми, куда её положить; нажми на неё ещё раз — передумали. Мимо цели — не ошибка: картинка просто вернётся.";
+for (const id of ["teni", "sortirovka", "odezhda", "stroyka", "mozaika", "formy", "professii", "kuhnya"]) {
+  const h = HOWTO[id];
+  if (h) h.rules = `${h.rules} ${TAP_TAP}`;
+}
 if (HOWTO["tajnaya-kartinka"]) HOWTO["tajnaya-kartinka"].stars = "★★★ — ни одного укуса · ★★ — один укус · ★ — больше";

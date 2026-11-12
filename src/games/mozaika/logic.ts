@@ -1,3 +1,4 @@
+import { DROP_RATIO } from "../../shared/drag";
 import { rateBy, STARS, type Score } from "../../shared/stars";
 import { shuffle } from "../../shared/rng";
 
@@ -104,7 +105,15 @@ export function scatter(count: number, tray: Rect, size: { w: number; h: number 
 export function snaps(center: { x: number; y: number }, home: { x: number; y: number }, size: { w: number; h: number }): boolean {
   const cx = home.x + size.w / 2;
   const cy = home.y + size.h / 2;
-  return Math.hypot(center.x - cx, center.y - cy) <= Math.max(size.w, size.h) * 0.45;
+  return Math.hypot((center.x - cx) / (size.w * DROP_RATIO), (center.y - cy) / (size.h * DROP_RATIO)) <= 1;
+}
+
+/** The point is in the 0.45 zone of some place on the board (not on a seam), so a wrong drop there may count. */
+export function onCell(p: { x: number; y: number }, board: { x: number; y: number; w: number; h: number }, size: { w: number; h: number }): boolean {
+  const col = Math.floor((p.x - board.x) / size.w);
+  const row = Math.floor((p.y - board.y) / size.h);
+  if (col < 0 || row < 0 || p.x > board.x + board.w || p.y > board.y + board.h) return false;
+  return snaps(p, { x: board.x + col * size.w, y: board.y + row * size.h }, size);
 }
 
 /** Stars are generous: a few wrong drops still give three. */

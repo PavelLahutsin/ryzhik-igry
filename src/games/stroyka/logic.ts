@@ -1,3 +1,4 @@
+import { DROP_RATIO } from "../../shared/drag";
 import { rateBy, STARS, type Score } from "../../shared/stars";
 /** Rules for «Стройка»: big blocks snap into a picture plan. Pure functions. */
 
@@ -45,7 +46,9 @@ export function findSlot(slots: readonly Piece[], filled: readonly boolean[], bl
     if (f === "ok" && d < bestD) {
       best = { index: i, fit: "ok" };
       bestD = d;
-    } else if (f === "color" && d < nearD) {
+    } else if (f === "color" && d < nearD && Math.hypot((s.x + s.w / 2 - at.x) / (s.w * DROP_RATIO), (s.y + s.h / 2 - at.y) / (s.h * DROP_RATIO)) <= 1) {
+      // A wrong colour counts only when dropped on the slot itself (0.45 of
+      // its size): beside it, or between two slots, is no mistake.
       near = { index: i, fit: "color" };
       nearD = d;
     }

@@ -104,3 +104,16 @@ describe("mozaika", () => {
     }
   });
 });
+
+import { onCell } from "./logic";
+describe("v12: drops between places", () => {
+  it("a seam between two places is no place (no mistake)", () => {
+    const board = { x: 0, y: 0, w: 300, h: 200 };
+    const size = { w: 100, h: 100 };
+    expect(onCell({ x: 50, y: 50 }, board, size)).toBe(true);
+    expect(onCell({ x: 99, y: 50 }, board, size)).toBe(false);
+    expect(onCell({ x: 250, y: 150 }, board, size)).toBe(true);
+    expect(onCell({ x: 350, y: 150 }, board, size)).toBe(false);
+    expect(snaps({ x: 140, y: 50 }, { x: 100, y: 0 }, { w: 100, h: 50 })).toBe(false);
+  });
+});

@@ -164,6 +164,7 @@ function play(stage: HTMLElement, plan: Plan, _index: number, api: PlayApi): () 
         },
         onDrop: (c) => {
           const ok = drop(block, c);
+          if (ok === "none") return "none";
           if (ok) {
             entry.left--;
             label();
@@ -209,16 +210,14 @@ function play(stage: HTMLElement, plan: Plan, _index: number, api: PlayApi): () 
   trayObserver.observe(stage);
   scope.add(() => trayObserver.disconnect());
 
-  function drop(block: Piece, c: Point): boolean {
+  function drop(block: Piece, c: Point): boolean | "none" {
     if (finished) return false;
     const r = board.getBoundingClientRect();
-    if (c.x < r.left - 40 || c.x > r.right + 40 || c.y < r.top - 40 || c.y > r.bottom + 40) return false;
+    // Off the board or where nothing fits: no mistake, the block wobbles back.
+    if (c.x < r.left - 40 || c.x > r.right + 40 || c.y < r.top - 40 || c.y > r.bottom + 40) return "none";
     const at = { x: ((c.x - r.left) / r.width) * plan.cols, y: ((c.y - r.top) / r.height) * plan.rows };
     const found = findSlot(slots, filled, block, at);
-    if (!found) {
-      audio.play("miss");
-      return false;
-    }
+    if (!found) return "none";
     const s = slots[found.index]!;
     if (found.fit === "color") {
       misses++;

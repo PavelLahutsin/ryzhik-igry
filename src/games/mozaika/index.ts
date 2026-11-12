@@ -10,7 +10,7 @@ import baseCss from "../../shared/base.css?inline";
 import css from "./style.css?inline";
 import { levels, pictureUrl, pieceWord, worlds, type MozaikaLevel } from "./levels";
 import { scene } from "../../shared/assets";
-import { hintPiece, layout, makePieces, pickExtra, pickFlipped, scatter, slotOf, snaps, starsFor, TAP_PX, type Layout } from "./logic";
+import { hintPiece, layout, makePieces, onCell, pickExtra, pickFlipped, scatter, slotOf, snaps, starsFor, type Layout } from "./logic";
 
 /**
  * «Мозаика»: a picture cut into big rectangles; drag each one home. Later
@@ -74,27 +74,29 @@ function play(stage: HTMLElement, level: MozaikaLevel, _index: number, api: Play
     });
     node.style.backgroundImage = `url("${extra ? extraUrl : url}")`;
     area.append(node);
-    let start = { x: 0, y: 0 };
     scope.add(
       draggable(node, {
         onStart: () => {
           audio.unlock();
           audio.play("pick");
           node.style.zIndex = "20";
-          start = centre(node);
+        },
+        // A tap: an upside-down piece turns over; any other piece is picked for tap-tap.
+        onTap: () => {
+          node.style.zIndex = "";
+          if (!flipped.has(index)) return false;
+          turn(index);
+          return true;
         },
         onDrop: (center) => {
           node.style.zIndex = "";
           if (!geo) return false;
-          // A tap (no drag): an upside-down piece turns over.
-          if (Math.hypot(center.x - start.x, center.y - start.y) < TAP_PX) {
-            if (flipped.has(index)) turn(index);
-            return false;
-          }
           const areaBox = area.getBoundingClientRect();
           const local = { x: center.x - areaBox.left, y: center.y - areaBox.top };
           const b = geo.board;
           const onBoard = local.x > b.x && local.x < b.x + b.w && local.y > b.y && local.y < b.y + b.h;
+          // Off the board, or on a seam between two places: no mistake.
+          if (!onBoard || !onCell(local, geo.board, geo.piece)) return "none";
           if (extra) {
             if (onBoard) {
               misses++;

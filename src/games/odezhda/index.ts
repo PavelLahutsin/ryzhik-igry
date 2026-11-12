@@ -94,7 +94,7 @@ function play(stage: HTMLElement, level: OdezhdaLevel, _index: number, api: Play
           const r = figure.getBoundingClientRect();
           const pad = 30;
           const onFox = center.x > r.left - pad && center.x < r.right + pad && center.y > r.top - pad && center.y < r.bottom + pad;
-          if (!onFox) return false;
+          if (!onFox) return "none";
           const result = tryWear(id, level.weather, worn);
           if (result === "wear") {
             worn.push(id);
@@ -116,8 +116,9 @@ function play(stage: HTMLElement, level: OdezhdaLevel, _index: number, api: Play
             audio.play("miss");
             replayClass(node, "is-wrong");
             hint(stage, `${item.why} Сегодня ${WEATHER[level.weather].name.toLowerCase()}!`, 2400);
+            return false;
           }
-          return false;
+          return "none";
         },
       }),
     );
