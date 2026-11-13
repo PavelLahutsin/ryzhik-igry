@@ -12,7 +12,8 @@ import { hint, svgNode } from "../../shared/ui";
 import baseCss from "../../shared/base.css?inline";
 import css from "./style.css?inline";
 import { levels, worlds, type LabLevel } from "./levels";
-import { E, S, canStep, fitMaze, makeMaze, placeApples, solve, walkToward, type Cell, type Maze } from "./maze";
+import { E, S, canStep, fitMaze, pickMaze, placeApples, sizeWord, solve, tapPath, walkToward, type Cell, type Maze } from "./maze";
+import { createRng } from "../../shared/rng";
 
 /** «Лабиринт»: lead Ryzhik through the maze, picking up apples on the way. */
 export function mount(root: HTMLElement): () => void {
@@ -29,12 +30,16 @@ export function mount(root: HTMLElement): () => void {
           el("img", { attrs: { src: character(level.goal), alt: "", draggable: "false" } }),
           ...(level.apples ? [svgNode(OBJECTS.apple.svg, "lb-thumb__apple")] : []),
         ]),
-      caption: (level) => `${level.cols}×${level.rows}${level.apples ? ` · яблок: ${level.apples}` : ""}`,
+      // v13: the maze takes the screen's shape, so the list names its size in a word, not cols×rows.
+      caption: (level) => `${sizeWord(level.cols, level.rows)}${level.apples ? ` · яблок: ${level.apples}` : ""}`,
       play,
     },
     root,
   );
 }
+
+/** v13: a long pause shows the way by itself. */
+export const IDLE_WAY_MS = 18_000;
 
 const same = (a: Cell, b: Cell): boolean => a.c === b.c && a.r === b.r;
 
@@ -56,11 +61,14 @@ function play(stage: HTMLElement, level: LabLevel, _index: number, api: PlayApi)
   const scope = createScope();
   // Lie the maze the long way along the screen.
   const box = stage.getBoundingClientRect();
-  const { cols, rows } = fitMaze(level.cols, level.rows, box.width, box.height - 40);
-  const maze = makeMaze(cols, rows, Math.random);
+  // v13: on phones a cell is at least 56 px, so a finger can hit it.
+  const { cols, rows } = fitMaze(level.cols, level.rows, box.width, box.height - 40, Math.min(box.width, box.height) < 700 ? 56 : 0);
+  // v13: the first world has the same maze every time; others are new but never overly long.
+  const rand = level.world === "home" ? createRng([...level.id].reduce((h, ch) => h * 31 + ch.charCodeAt(0), 7)) : Math.random;
+  const maze = pickMaze(cols, rows, rand);
   const start: Cell = { c: 0, r: 0 };
   const goal: Cell = { c: cols - 1, r: rows - 1 };
-  const apples = placeApples(maze, level.apples, start, goal, Math.random);
+  const apples = placeApples(maze, level.apples, start, goal, rand);
   const got = new Set<number>();
   let at = start;
   let hints = 0;
@@ -174,11 +182,17 @@ function play(stage: HTMLElement, level: LabLevel, _index: number, api: PlayApi)
     pointerTrack(board, {
       down: (event) => {
         audio.unlock();
+        idle();
         const cell = cellAt(event);
         if (cell && !same(cell, at)) {
-          const before = at;
-          walk(cell);
-          if (same(before, at) && Math.abs(cell.c - at.c) + Math.abs(cell.r - at.r) === 1) bump();
+          // v13: a tap a few steps away walks the way; a far tap shakes Ryzhik softly.
+          const way = tapPath(maze, at, cell);
+          for (const c of way) stepTo(c);
+          if (way.length === 0) {
+            bump();
+            replayClass(fox, "is-wait");
+            hint(stage, "Веди Рыжика пальцем по дорожке", 1600);
+          }
         }
       },
       move: (event) => {
@@ -192,6 +206,7 @@ function play(stage: HTMLElement, level: LabLevel, _index: number, api: PlayApi)
   const key = (event: KeyboardEvent): void => {
     const d = keys[event.key];
     if (!d) return;
+    idle();
     event.preventDefault();
     const next = { c: at.c + d[0], r: at.r + d[1] };
     if (canStep(maze, at, next)) stepTo(next);
@@ -232,6 +247,46 @@ function play(stage: HTMLElement, level: LabLevel, _index: number, api: PlayApi)
     hintTimer = window.setTimeout(() => hintLine.classList.remove("is-on"), 2200);
   });
 
+  // v13: after a long pause (18 s) the way shows by itself — a free hint, no star is lost.
+  let idleTimer = 0;
+  function showWay(): void {
+    if (done) return;
+    const targets = apples.filter((_, i) => !got.has(i));
+    hintLine.setAttribute("points", pts(solve(maze, at, targets[0] ?? goal)));
+    replayClass(hintLine, "is-on");
+    clearTimeout(hintTimer);
+    hintTimer = window.setTimeout(() => hintLine.classList.remove("is-on"), 2200);
+  }
+  function idle(): void {
+    clearTimeout(idleTimer);
+    idleTimer = window.setTimeout(() => {
+      showWay();
+      idle();
+    }, IDLE_WAY_MS);
+  }
+  idle();
+
+  // v13: the first level with apples shows it once: the hand leads toward the apple.
+  if (apples.length && levels.find((l) => l.apples > 0)?.id === level.id) {
+    scope.later(() => {
+      if (done || got.size) return;
+      appleNodes.forEach((n) => replayClass(n, "is-call"));
+      const way = solve(maze, at, apples[0]!);
+      const m = svg.getScreenCTM();
+      const to = way[Math.min(3, way.length - 1)];
+      if (!m || !to) return;
+      const pt = (cell: Cell): { x: number; y: number } => {
+        const p = svg.createSVGPoint();
+        p.x = cell.c * 10 + 5;
+        p.y = cell.r * 10 + 5;
+        const q = p.matrixTransform(m);
+        return { x: q.x, y: q.y };
+      };
+      showDrag(pt(at), pt(to));
+    }, 1400);
+  }
+
   scope.add(() => clearTimeout(hintTimer));
+  scope.add(() => clearTimeout(idleTimer));
   return scope.dispose;
 }

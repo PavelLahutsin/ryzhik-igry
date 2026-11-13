@@ -1774,3 +1774,8 @@ button {
 
 /* v13: the «Потрогай» break offer on the win card. */
 .praise__break { min-height: 48px; font-size: 16px; }
+
+/* v13: world chips — a fade (and a small arrow) where more chips hide off the edge. */
+.world-chips.has-more { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 44px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 44px), transparent); }
+.world-chips.has-less { -webkit-mask-image: linear-gradient(90deg, transparent, #000 36px); mask-image: linear-gradient(90deg, transparent, #000 36px); }
+.world-chips.has-more.has-less { -webkit-mask-image: linear-gradient(90deg, transparent, #000 36px, #000 calc(100% - 44px), transparent); mask-image: linear-gradient(90deg, transparent, #000 36px, #000 calc(100% - 44px), transparent); }

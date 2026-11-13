@@ -251,7 +251,14 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
       if (strip) {
         // The chip of the world on screen lights up (and scrolls into the strip).
         let current: HTMLElement | null = null;
+        // v13: a soft fade on the side where more chips hide, so the strip shows it scrolls.
+        const edges = (): void => {
+          const max = strip.scrollWidth - strip.clientWidth;
+          strip.classList.toggle("has-more", max > 2 && strip.scrollLeft < max - 2);
+          strip.classList.toggle("has-less", strip.scrollLeft > 2);
+        };
         const mark = (): void => {
+          edges();
           const line = strip.getBoundingClientRect().bottom + 24;
           let on = chips[0];
           for (const c of chips) if (c.section.getBoundingClientRect().top <= line) on = c;
