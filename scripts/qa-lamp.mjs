@@ -2,9 +2,9 @@
 //   node scripts/qa-lamp.mjs [base] [games,comma] [viewports]   — prints one line per game; "ok":false is a bug.
 // During the very first guided start of level 1 the lamp is hidden on purpose (visibility) until two moves.
 import { chromium } from "playwright";
-const base = process.argv[2] ?? "http://127.0.0.1:5173/";
-const games = (process.argv[3] ?? "risovalka,bukvy,tochki,professii,stroyka,formy,mozaika,najdi-paru,teni,odezhda,sortirovka,labirint").split(",");
-const vps = (process.argv[4] ?? "390x844").split(",");
+const base = process.argv[2] || "http://127.0.0.1:5173/";
+const games = (process.argv[3] || "risovalka,bukvy,tochki,professii,stroyka,formy,mozaika,najdi-paru,teni,odezhda,sortirovka,labirint").split(",");
+const vps = (process.argv[4] || "390x844").split(",");
 const b = await chromium.launch();
 for (const vp of vps) for (const g of games) {
   const [w, h] = vp.split("x").map(Number);
