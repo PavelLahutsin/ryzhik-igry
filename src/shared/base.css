@@ -1582,6 +1582,16 @@ button {
   .praise__actions .btn--ghost {
     min-width: 0;
   }
+  /* v13: all three buttons in one row, «Уровни» no longer drops under the edge. */
+  .praise__actions .btn {
+    min-height: 52px;
+    padding: 0 20px;
+    font-size: 20px;
+  }
+  .praise__actions .btn--play {
+    min-width: 170px;
+    font-size: 24px;
+  }
   .praise__sticker .sticker__art {
     width: 40px;
     height: 40px;
