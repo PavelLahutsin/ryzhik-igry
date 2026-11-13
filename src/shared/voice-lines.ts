@@ -8,7 +8,7 @@ export const VOICE_LINES: Record<string, string> = {
   v01: "Привет! Давай играть!",
   v02: "Молодец!",
   v03: "Ура, получилось!",
-  v04: "Здорово! Ты умничка!",
+  v04: "Отлично получается!",
   v05: "Попробуй ещё разок!",
   v06: "Не получилось? Ничего, давай вместе!",
   v07: "Смотри, я покажу!",
@@ -17,10 +17,10 @@ export const VOICE_LINES: Record<string, string> = {
   v10: "Держи звёздочку!",
   v11: "Выбирай игру!",
   v12: "Пока-пока! Приходи ещё!",
-  v13: "Отрезай кусочки поля, и картинка откроется!",
+  v13: "Веди Рыжика и обводи кусочки поля — откроется картинка!",
   v14: "Осторожно, пчёлка!",
   v15: "Собери картинку из кусочков!",
-  v16: "Соединяй одинаковые, и вырастет сад!",
+  v16: "Соединяй одинаковые картинки — вырастет сад!",
   v17: "Давай перемешаем!",
   v18: "Найди две одинаковые картинки!",
   v19: "Чья это тень? Найди!",
@@ -43,11 +43,11 @@ export const VOICE_LINES: Record<string, string> = {
   v36: "Где большой, а где маленький?",
   v37: "Какой формы этот предмет?",
   // v12 «Тени»: slots — drop the recordings into public/audio/voice/ later.
-  v38: "Перетащи картинку на её тень!",
+  v38: "Найди подходящую тень и положи на неё картинку!",
   v39: "У этой картинки нет тени — оставь её!",
   v40: "Тень спряталась — узнай по кусочку!",
   v41: "Тени похожи — смотри на мелочи!",
-  v42: "Молодец!",
+  v42: "А теперь — новые тени!",
   // v13: the game's name when it opens (slots; silent until the mp3 is there).
   v43: "Домик Рыжика!",
   v44: "Кухня Рыжика!",
@@ -154,8 +154,12 @@ export const TITLE_VOICE: Record<string, string> = {
 
 export const PRAISE_LINES = ["v02", "v03", "v04", "v10"];
 
-export function praiseLine(rand: () => number = Math.random): string {
-  return PRAISE_LINES[Math.floor(rand() * PRAISE_LINES.length)]!;
+export function praiseLine(rand: () => number = Math.random, avoid = ""): string {
+  // v13: never say the same word the card shows («Ура!» on screen → not «Ура, получилось!»).
+  const word = avoid.replace(/[!.,]/g, "").trim().toLowerCase();
+  const ok = word ? PRAISE_LINES.filter((id) => !VOICE_LINES[id]!.toLowerCase().includes(word)) : PRAISE_LINES;
+  const list = ok.length ? ok : PRAISE_LINES;
+  return list[Math.floor(rand() * list.length)]!;
 }
 
 /** «Как играть» card of each game: Ryzhik explains. */

@@ -98,6 +98,10 @@ describe("voice and music files", () => {
     for (const id of [...PRAISE_LINES, ...Object.values(HOWTO_VOICE), ...Object.keys(VOICE_WHEN)]) expect(VOICE_LINES[id], id).toBeTruthy();
     for (const g of games) if (g.id !== "raskraska") expect(HOWTO_VOICE[g.id], g.id).toBeTruthy();
     for (let i = 0; i < 20; i++) expect(PRAISE_LINES).toContain(praiseLine());
+    // v13: the voice never repeats the word on the card.
+    for (const word of ["Ура!", "Получилось!", "Отлично!", "Молодец!", "Здорово!"])
+      for (let i = 0; i < 10; i++) expect(VOICE_LINES[praiseLine(() => i / 10, word)]!.toLowerCase()).not.toContain(word.replace("!", "").toLowerCase());
+    for (const id of PRAISE_LINES) expect(VOICE_LINES[id]).not.toMatch(/умни|молодчин/i);
     expect(MUSIC_FILES.raskraska).toBeUndefined();
   });
 });

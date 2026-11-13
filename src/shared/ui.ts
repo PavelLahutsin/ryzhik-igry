@@ -44,7 +44,7 @@ export function svgNode(markup: string, className = ""): HTMLElement {
   return wrap;
 }
 
-const PRAISE = ["Молодец!", "Ура!", "Здорово!", "Умница!", "Отлично!", "Получилось!"];
+const PRAISE = ["Молодец!", "Ура!", "Здорово!", "Красота!", "Отлично!", "Получилось!"];
 
 export function praiseWord(index = Math.floor(Math.random() * PRAISE.length)): string {
   return PRAISE[index % PRAISE.length]!;
@@ -87,6 +87,7 @@ export function praiseOverlay(options: {
   actions: PraiseAction[];
 }): HTMLElement {
   let chosen = false;
+  const title = options.title ?? praiseWord();
   const buttons = options.actions.map((action) =>
     el(
       "button",
@@ -108,7 +109,7 @@ export function praiseOverlay(options: {
   );
   const card = el("div", { class: "praise__card", attrs: { role: "dialog", "aria-live": "polite" } }, [
     options.art ?? null,
-    el("p", { class: "praise__title", text: options.title ?? praiseWord() }),
+    el("p", { class: "praise__title", text: title }),
     options.stars ? starRow(options.stars, "stars stars--big") : null,
     options.why ? el("p", { class: "praise__why", text: options.why }) : null,
     options.text ? el("p", { class: "praise__text", text: options.text }) : null,
@@ -118,7 +119,7 @@ export function praiseOverlay(options: {
   const overlay = el("div", { class: "praise" }, [confetti(), card]);
   requestAnimationFrame(() => overlay.classList.add("is-open"));
   // Ryzhik's voice, once recorded (see voice-lines.ts); silent until then.
-  setTimeout(() => overlay.isConnected && audio.say(options.voice ?? praiseLine()), 250);
+  setTimeout(() => overlay.isConnected && audio.say(options.voice ?? praiseLine(Math.random, title)), 250);
   for (let i = 0; i < (options.stars ?? 0); i++) setTimeout(() => overlay.isConnected && audio.star(i), 350 + i * 260);
   setTimeout(() => (buttons[0] as HTMLButtonElement | undefined)?.focus({ preventScroll: true }), 50);
   return overlay;

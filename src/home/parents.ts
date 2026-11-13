@@ -110,7 +110,7 @@ function settings(view: HTMLElement): void {
       const h = HOWTO[game.id]!;
       return el("details", { class: "rules" }, [
         el("summary", { text: game.title }),
-        el("p", { text: h.rules }),
+        ...h.rules.split("\n").map((t) => el("p", { text: t })),
         h.stars ? el("p", { class: "rules__dev" }, [el("b", { text: "Звёзды: " }), h.stars.replace(/ · /g, "; ")]) : null,
         el("p", { class: "rules__dev" }, [el("b", { text: "Развивает: " }), h.develops]),
       ]);
