@@ -7,7 +7,7 @@ import type { PlayApi } from "../../shared/levelgame";
 import { OBJECTS } from "../../shared/objects";
 import { reducedMotion } from "../../shared/style";
 import { svgNode } from "../../shared/ui";
-import { advance, countedSlips, numberWord, offTrack, starsFor, strokeDone, TOLERANCE, type Pt } from "./logic";
+import { advance, countedSlips, numberWord, offTrack, splitSubpaths, starsFor, strokeDone, TOLERANCE, type Pt } from "./logic";
 import type { Picture } from "./pictures";
 
 /** A letter level also shows its word (and a picture when there is one). */
@@ -39,7 +39,7 @@ function sample(d: string, step = 3): Pt[] {
 export function play(stage: HTMLElement, level: Traceable, _index: number, api: PlayApi): () => void {
   const scope = createScope();
   const { later } = scope;
-  const strokes = level.strokes.map((d) => ({ d, samples: sample(d) }));
+  const strokes = level.strokes.flatMap(splitSubpaths).map((d) => ({ d, samples: sample(d) }));
   let current = 0;
   let index = 0;
   let slips = 0;

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { PlatformStorage } from "./platform";
-import { adoptLevels, emptyProgress, gameProgress, isUnlocked, isUnlockedInWorld, normalizeProgress, recordWin, totalStars } from "./progress";
+import { adoptLevels, emptyProgress, gameProgress, isUnlocked, isUnlockedInWorld, levelOpen, normalizeProgress, recordWin, totalStars } from "./progress";
 
 function memory(): PlatformStorage {
   const data = new Map<string, unknown>();
@@ -66,5 +66,31 @@ describe("levels moving to another game", () => {
     expect(isUnlockedInWorld(levels, "a", [])).toBe(true);
     expect(isUnlockedInWorld(levels, "b", [])).toBe(false);
     expect(isUnlockedInWorld(levels, "d2", ["d1"])).toBe(true);
+  });
+});
+
+describe("v14 levelOpen: a winter level won early does not skip the one before it", () => {
+  const L = Array.from({ length: 16 }, (_, i) => ({ id: `r${i + 1}`, world: i < 12 ? "a" : "b" }));
+  const upTo = (n: number): string[] => L.slice(0, n).map((l) => l.id);
+  const season = (id: string): boolean => id === "r14";
+  it("12 → 14 (winter) does not open 15 while 13 is not won", () => {
+    const done = [...upTo(12), "r14"];
+    expect(levelOpen(L, "r13", done, { season })).toBe(true);
+    expect(levelOpen(L, "r14", done, { season })).toBe(true);
+    expect(levelOpen(L, "r15", done, { season })).toBe(false);
+    expect(levelOpen(L, "r15", [...done, "r13"], { season })).toBe(true);
+    expect(levelOpen(L, "r14", upTo(1), { season })).toBe(true);
+  });
+  it("same as before without a season: one by one, def.after, worlds, won levels stay open", () => {
+    expect(levelOpen(L, "r1", [])).toBe(true);
+    expect(levelOpen(L, "r2", [])).toBe(false);
+    expect(levelOpen(L, "r15", upTo(14))).toBe(true);
+    expect(levelOpen(L, "r16", ["r16"])).toBe(true);
+    expect(levelOpen(L, "r13", [], { openWorlds: true })).toBe(true);
+    expect(levelOpen(L, "r14", ["r13"], { openWorlds: true })).toBe(true);
+    expect(levelOpen(L, "r13", [], { after: { r13: "r5" } })).toBe(false);
+    expect(levelOpen(L, "r13", ["r5"], { after: { r13: "r5" } })).toBe(true);
+    for (let n = 0; n < L.length; n++)
+      for (const l of L) expect(levelOpen(L, l.id, upTo(n), { season })).toBe(L.indexOf(l) <= n || season(l.id));
   });
 });

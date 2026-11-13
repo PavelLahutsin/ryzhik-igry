@@ -3,7 +3,7 @@ import { el, svgEl, replayClass } from "./dom";
 import { markOpened, wasOpened } from "./played";
 import { seasonOpen } from "./season";
 import { countWin, showBreak } from "./toys";
-import { gameProgress, isUnlocked, isUnlockedInWorld, totalStars, type Progress } from "./progress";
+import { gameProgress, levelOpen, totalStars, type Progress } from "./progress";
 import { goHome, listenGame, navigateGame } from "./router";
 import { praiseOverlay, starRow, toolbar } from "./ui";
 import { whenIdle } from "./guide";
@@ -114,10 +114,7 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
   /** Where the level list is: the first screen, or "/levels" behind `home`. */
   const LIST = def.home ? "/levels" : "/";
   const unlocked = (id: string, completed: readonly string[]): boolean => {
-    if (seasonOpen(def.id, id)) return true;
-    const after = def.after?.[id];
-    if (after) return completed.includes(after) || completed.includes(id);
-    return def.openWorlds ? isUnlockedInWorld(def.levels, id, completed) : isUnlocked(ids, id, completed);
+    return levelOpen(def.levels, id, completed, { after: def.after, openWorlds: def.openWorlds, season: (lid) => seasonOpen(def.id, lid) });
   };
   let cleanup: (() => void) | null = null;
   let token = 0;
@@ -370,10 +367,24 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
           .then(() => newStickers())
           .catch(() => [] as Sticker[]);
         const rest = countWin();
+        // «Дальше»: the next level; after a winter level won out of order
+        // (its next one still closed), the first open level not yet won.
+        const goNext = (): void => {
+          void store.load().then((p) => {
+            if (!view.isConnected) return;
+            const done = p.completed.includes(level.id) ? p.completed : [...p.completed, level.id];
+            const order = def.levels.map((l, i) => ({ l, i }));
+            const pick =
+              index + 1 < def.levels.length && unlocked(def.levels[index + 1]!.id, done)
+                ? index + 1
+                : (order.find(({ l }) => !done.includes(l.id) && unlocked(l.id, done))?.i ?? index + 1);
+            navigateGame(def.id, `/play/${pick + 1}`);
+          });
+        };
         const next = def.levels[index + 1];
         const actions = [
           next
-            ? { label: "Дальше", primary: true, onClick: () => navigateGame(def.id, `/play/${index + 2}`) }
+            ? { label: "Дальше", primary: true, onClick: () => void fresh.then(goNext, goNext) }
             : {
                 label: "Все игры",
                 primary: true,

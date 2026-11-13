@@ -73,3 +73,17 @@ const WORDS = ["Ноль", "Один", "Два", "Три", "Четыре", "Пя
 export function numberWord(n: number): string {
   return WORDS[n] ?? String(n);
 }
+
+/**
+ * v14: one line to trace per subpath. A stroke like "M… M…" (both wings of
+ * «Сова») used to be one line with a jump in it: after the first part the
+ * finger had to leap to the second, which a real finger can't — it was a
+ * slip, and the second part could not be drawn. Only absolute "M" splits
+ * (a relative "m" depends on where the previous part ended).
+ */
+export function splitSubpaths(d: string): string[] {
+  return d
+    .split(/(?=M)/)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+}

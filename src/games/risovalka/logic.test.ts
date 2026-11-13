@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { advance, countedSlips, numberWord, offTrack, resample, starsFor, strokeDone } from "./logic";
+import { advance, countedSlips, numberWord, offTrack, resample, splitSubpaths, starsFor, strokeDone } from "./logic";
+import { levels as letters } from "../bukvy/letters";
 import { levels, worlds } from "./pictures";
 
 const line = resample([
@@ -70,5 +71,18 @@ describe("risovalka", () => {
     expect(starsFor(countedSlips("first", 9), 0).stars).toBe(3);
     expect(starsFor(countedSlips("animals", 9), 0).stars).toBeLessThan(3);
     expect(countedSlips(undefined, 4)).toBe(4);
+  });
+  it("v14: every line to trace is one subpath (both wings of «Сова» are two lines)", () => {
+    expect(splitSubpaths("M1 2 L3 4 M5 6 L7 8")).toEqual(["M1 2 L3 4", "M5 6 L7 8"]);
+    expect(splitSubpaths("M1 2 L3 4")).toEqual(["M1 2 L3 4"]);
+    for (const l of [...levels, ...letters])
+      for (const d of l.strokes.flatMap(splitSubpaths)) {
+        expect(d.startsWith("M"), `${l.id}: ${d}`).toBe(true);
+        expect(/[Mm]/.test(d.slice(1)), `${l.id}: ${d}`).toBe(false);
+      }
+    const owl = levels.find((l) => l.title === "Сова")!;
+    const lines = owl.strokes.flatMap(splitSubpaths);
+    expect(lines).toHaveLength(7);
+    expect(lines.slice(-2)).toEqual(["M44 120 C 30 130 32 150 48 156", "M156 120 C 170 130 168 150 152 156"]);
   });
 });
