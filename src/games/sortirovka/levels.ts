@@ -355,6 +355,9 @@ const ALL: SortLevel[] = [
 /** Worlds in the order of the list; the new ones come after the old three. */
 export const levels: SortLevel[] = inWorldOrder(ALL, ["colors", "more", "kinds", "trip", "size", "count", "cross"]);
 
+/** v13: «Собираемся» sits after «Что куда?», and «Большое и маленькое» still opens after k6 as before. */
+export const AFTER: Record<string, string> = { z1: "k6" };
+
 export function itemCount(level: SortLevel): number {
   return level.baskets.reduce((sum, b) => sum + b.items.length, 0);
 }

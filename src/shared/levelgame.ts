@@ -62,6 +62,11 @@ export type LevelGameDef<L extends LevelInfo> = {
   /** Every world starts open; levels open one by one inside it. */
   openWorlds?: boolean;
   /**
+   * Level → the level that opens it, when not the one before it in the list
+   * (a world added in the middle: the old next world still opens as before).
+   */
+  after?: Record<string, string>;
+  /**
    * The game's own first screen at "#/<id>/" (e.g. a big mode). The level
    * list then lives at "#/<id>/levels" as a second section.
    */
@@ -106,8 +111,11 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
   const ids = def.levels.map((level) => level.id);
   /** Where the level list is: the first screen, or "/levels" behind `home`. */
   const LIST = def.home ? "/levels" : "/";
-  const unlocked = (id: string, completed: readonly string[]): boolean =>
-    def.openWorlds ? isUnlockedInWorld(def.levels, id, completed) : isUnlocked(ids, id, completed);
+  const unlocked = (id: string, completed: readonly string[]): boolean => {
+    const after = def.after?.[id];
+    if (after) return completed.includes(after) || completed.includes(id);
+    return def.openWorlds ? isUnlockedInWorld(def.levels, id, completed) : isUnlocked(ids, id, completed);
+  };
   let cleanup: (() => void) | null = null;
   let token = 0;
 

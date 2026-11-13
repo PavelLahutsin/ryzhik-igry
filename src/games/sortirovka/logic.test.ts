@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { OBJECTS } from "../../shared/objects";
 import { thingArt } from "./things";
-import { difficulty, itemCount, levels, objOf, sizeOf } from "./levels";
+import { AFTER, difficulty, itemCount, levels, objOf, sizeOf } from "./levels";
 import { basketOf, hintFor, judge, starsFor, targetFor } from "./logic";
 
 describe("sortirovka", () => {
@@ -91,6 +91,8 @@ describe("sortirovka", () => {
       }
     }
     for (let i = 1; i < trip.length; i++) expect(difficulty(trip[i]!)).toBeGreaterThanOrEqual(difficulty(trip[i - 1]!));
+    expect(AFTER.z1).toBe("k6");
+    expect(levels[levels.findIndex((l) => l.id === "z1") - 1]!.id).toBe("p4");
     const ws = levels.map((l) => l.world);
     expect(ws.indexOf("trip")).toBeGreaterThan(ws.lastIndexOf("kinds"));
   });

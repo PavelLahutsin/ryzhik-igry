@@ -12,7 +12,7 @@ import { hint, svgNode } from "../../shared/ui";
 import baseCss from "../../shared/base.css?inline";
 import css from "./style.css?inline";
 import { basketSvg } from "./art";
-import { itemCount, levels, objOf, sizeOf, worlds, type Basket, type SortLevel } from "./levels";
+import { AFTER, itemCount, levels, objOf, sizeOf, worlds, type Basket, type SortLevel } from "./levels";
 import { hintFor, judge, starsFor, targetFor } from "./logic";
 
 /**
@@ -28,6 +28,7 @@ export function mount(root: HTMLElement): () => void {
       subtitle: "Разложи картинки по корзинкам",
       levels,
       worlds,
+      after: AFTER,
       thumb: (level) => {
         const box = el("span", { class: "so-thumb" });
         for (const basket of level.baskets.slice(0, 4)) box.append(svgNode(basketSvg(basket.color), "so-thumb__basket"));
