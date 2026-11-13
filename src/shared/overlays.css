@@ -429,3 +429,81 @@ button:not(:disabled):not(.is-dragging):not(.btn--play):active,
   30% { opacity: 1; }
   100% { opacity: 0; transform: rotate(var(--a)) translate(70px) scale(1); }
 }
+
+/* v13 «Потрогай»: touch toys (Тапни и послушай, the break between levels). */
+.toy {
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 0;
+  position: relative;
+  cursor: pointer;
+  width: min(26vw, 120px);
+  height: min(26vw, 120px);
+  -webkit-tap-highlight-color: transparent;
+}
+.toy--big { width: min(28vw, 22vh, 150px); height: min(28vw, 22vh, 150px); }
+.toy__art, .toy__art svg { width: 100%; height: 100%; display: block; pointer-events: none; }
+.toy__word {
+  position: absolute;
+  left: 50%;
+  top: -6px;
+  transform: translate(-50%, 0);
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #fffaf0;
+  box-shadow: 0 0 0 2px #ffb23f;
+  font: 800 15px/1.1 var(--font-ui, sans-serif);
+  color: #3b2e25;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+}
+.toy__word.is-on { animation: toy-word 1.2s ease-out; }
+.toy.is-on.toy--bounce .toy__art { animation: toy-bounce 0.7s cubic-bezier(0.3, 1.6, 0.5, 1); }
+.toy.is-on.toy--hop .toy__art { animation: toy-hop 0.6s ease-out; }
+.toy.is-on.toy--wobble .toy__art { animation: toy-wobble 0.8s ease-in-out; }
+.toy.is-on.toy--spin .toy__art { animation: toy-spin 0.8s ease-in-out; }
+.toy.is-on.toy--squash .toy__art { animation: toy-squash 0.5s ease-out; }
+.toy.is-on.toy--float .toy__art { animation: toy-float 1.2s ease-in-out; }
+.toy.is-on.toy--swing .toy__art { animation: toy-swing 0.9s ease-in-out; transform-origin: 50% 10%; }
+.toy.is-on.toy--shake .toy__art { animation: toy-shake 0.5s linear; }
+@keyframes toy-word { 0% { opacity: 0; transform: translate(-50%, 8px) scale(0.8); } 20% { opacity: 1; transform: translate(-50%, -10px) scale(1); } 80% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -22px); } }
+@keyframes toy-bounce { 30% { transform: translateY(-24%) scale(0.95, 1.05); } 55% { transform: translateY(0) scale(1.1, 0.9); } 75% { transform: translateY(-8%); } }
+@keyframes toy-hop { 40% { transform: translateY(-20%); } 70% { transform: translateY(0) scale(1.06, 0.94); } }
+@keyframes toy-wobble { 20% { transform: rotate(-10deg); } 40% { transform: rotate(8deg); } 60% { transform: rotate(-5deg); } 80% { transform: rotate(3deg); } }
+@keyframes toy-spin { to { transform: rotate(360deg); } }
+@keyframes toy-squash { 35% { transform: scale(1.18, 0.82); } 70% { transform: scale(0.94, 1.06); } }
+@keyframes toy-float { 50% { transform: translateY(-18%) rotate(4deg); } }
+@keyframes toy-swing { 25% { transform: rotate(12deg); } 50% { transform: rotate(-9deg); } 75% { transform: rotate(5deg); } }
+@keyframes toy-shake { 20%, 60% { transform: translateX(-6%); } 40%, 80% { transform: translateX(6%); } }
+@media (prefers-reduced-motion: reduce) {
+  .toy.is-on .toy__art { animation: toy-squash 0.3s ease-out !important; }
+}
+.toy-break {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(59, 46, 37, 0.35);
+}
+.toy-break__card {
+  width: min(560px, 100%);
+  max-height: 100%;
+  overflow: auto;
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+  padding: 18px 14px;
+  border-radius: 28px;
+  background: #fffaf0;
+  box-shadow: 0 0 0 4px #ffd27a;
+}
+.toy-break__title { margin: 0; font: 800 22px/1.2 var(--font-ui, sans-serif); text-align: center; color: #3b2e25; }
+.toy-break__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px 10px; justify-items: center; padding-top: 14px; }
+@media (max-height: 500px) and (min-aspect-ratio: 3/2) {
+  .toy-break__grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .toy-break .toy { width: min(13vw, 30vh, 110px); height: min(13vw, 30vh, 110px); }
+}

@@ -1,0 +1,64 @@
+/* «Картинка из наклеек» */
+.sk-stage { padding: 0; gap: 10px; }
+.sk-tools { display: flex; gap: 8px; }
+.sk-tool { min-height: 48px; padding: 0 12px; font-size: 15px; }
+.sk-tool:disabled { opacity: 0.5; }
+.sk-scene {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 3px var(--line);
+  touch-action: none;
+}
+.sk-bg--lug { background: linear-gradient(#cfeaf7 0 55%, #a9d98a 55% 100%); }
+.sk-bg--zima { background: radial-gradient(circle at 20% 20%, #fff 0 2px, transparent 3px) 0 0 / 46px 46px, linear-gradient(#bcd9f0 0 55%, #f4f8ff 55% 100%); }
+.sk-bg--komnata { background: linear-gradient(#f7e1c4 0 66%, #c8915a 66% 70%, #e2b47f 70% 100%); }
+.sk-on {
+  position: absolute;
+  width: min(20vw, 16vh, 120px);
+  height: min(20vw, 16vh, 120px);
+  margin: calc(min(20vw, 16vh, 120px) / -2) 0 0 calc(min(20vw, 16vh, 120px) / -2);
+  cursor: grab;
+}
+.sk-on.is-dragging { z-index: 5; filter: drop-shadow(0 8px 6px rgba(59, 46, 37, 0.3)); }
+.sk-on.is-wobble .sk-art { animation: toy-wobble 0.7s ease-in-out; }
+.sk-on.is-new .sk-art { animation: toy-squash 0.45s ease-out; }
+.sk-art, .sk-art svg { width: 100%; height: 100%; display: block; object-fit: contain; pointer-events: none; }
+.sk-side { display: grid; gap: 4px; }
+.sk-tray {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 6px 4px 8px;
+  scrollbar-width: thin;
+}
+.sk-pick {
+  flex: 0 0 auto;
+  appearance: none;
+  border: 0;
+  width: 72px;
+  height: 72px;
+  padding: 8px;
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: 0 0 0 3px var(--line);
+  cursor: pointer;
+}
+/* The row still scrolls along itself; a move across it takes the sticker. */
+.sk-pick { touch-action: pan-x !important; }
+.sk-pick.is-chosen { background: var(--yellow-tint); box-shadow: 0 0 0 4px var(--orange); }
+.sk-pick.is-dragging { z-index: 10; position: relative; }
+.sk-note { margin: 0; min-height: 1.3em; font: 700 15px/1.3 var(--font-ui); text-align: center; color: var(--ink-soft); }
+@media (max-width: 420px) {
+  .game--stikery .toolbar__title { font-size: 1.15rem; }
+  .sk-tool { padding: 0 8px; font-size: 14px; }
+}
+@media (max-height: 500px) and (min-aspect-ratio: 3/2) {
+  .sk-stage { flex-direction: row; }
+  .sk-side { width: 196px; grid-template-rows: minmax(0, 1fr) auto; min-height: 0; }
+  .sk-tray { flex-wrap: wrap; overflow-x: hidden; overflow-y: auto; align-content: flex-start; }
+  .sk-pick { width: 56px; height: 56px; padding: 6px; touch-action: pan-y !important; }
+  .sk-on { width: min(12vw, 22vh, 100px); height: min(12vw, 22vh, 100px); margin: calc(min(12vw, 22vh, 100px) / -2) 0 0 calc(min(12vw, 22vh, 100px) / -2); }
+}

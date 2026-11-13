@@ -202,5 +202,8 @@ export const MUSIC_FILES: Record<string, string> = {
   risovalka: "m11",
   bukvy: "m11",
   tochki: "m11",
+  tapni: "m06",
+  stikery: "m03",
+  zima: "m01",
 };
 export const WIN_JINGLE = "m12";

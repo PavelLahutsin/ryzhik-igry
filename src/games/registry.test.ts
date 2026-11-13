@@ -23,10 +23,13 @@ describe("registry storage keys", () => {
       sortirovka: ["ryzhik-igry:sortirovka:progress"],
       labirint: ["ryzhik-igry:labirint:progress"],
       raskraska: [],
+      zima: [],
+      tapni: ["ryzhik-igry:tapni:found"],
+      stikery: ["ryzhik-igry:stikery:picture"],
     });
   });
 
-  it("has 17 games with unique ids", () => {
-    expect(new Set(games.map((g) => g.id)).size).toBe(17);
+  it("has 20 games with unique ids", () => {
+    expect(new Set(games.map((g) => g.id)).size).toBe(20);
   });
 });

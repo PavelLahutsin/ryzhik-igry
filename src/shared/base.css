@@ -1771,3 +1771,6 @@ button {
 @media (prefers-reduced-motion: reduce) {
   .world.is-fresh { animation: none; }
 }
+
+/* v13: the «Потрогай» break offer on the win card. */
+.praise__break { min-height: 48px; font-size: 16px; }

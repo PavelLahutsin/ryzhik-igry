@@ -14,6 +14,8 @@ let greeted = false;
 /** Home menu: one big tile per game with its progress. No ads, no store, no timers. */
 export function renderHome(root: HTMLElement): () => void {
   let gone = false;
+  // v13: a seasonal entry («Зима») shows only in its season.
+  const shown = games.filter((g) => !g.season || g.season());
   const soundIcon = el("span", { attrs: { "aria-hidden": "true" }, text: audio.enabled ? "🔊" : "🔈" });
   const soundBtn = el(
     "button",
@@ -52,7 +54,7 @@ export function renderHome(root: HTMLElement): () => void {
     ]),
     today,
     recentRow,
-    el("main", { class: "home__grid" }, games.map((game) => tile(game))),
+    el("main", { class: "home__grid" }, shown.map((game) => tile(game))),
     el("footer", { class: "home__foot" }, [
       el("span", { text: "Без рекламы и интернета. Прогресс хранится только на этом устройстве." }),
       el(
@@ -80,20 +82,20 @@ export function renderHome(root: HTMLElement): () => void {
   void playedP.then((played) => {
     if (gone) return;
     fillRecent(recentRow, played);
-    for (const game of games) {
+    for (const game of shown) {
       const key = freshKey(game);
       if (key && !played.opened.includes(key)) {
         view.querySelector(`[data-game="${game.id}"] .game-tile__art`)?.append(el("span", { class: "game-tile__new", text: game.fresh!.text }));
       }
     }
   });
-  const sumP = games.map((game) => game.summary());
-  const summaries = games.map((game, i) => sumP[i]!.then((s) => void sums.set(game.id, s)).catch(() => undefined));
+  const sumP = shown.map((game) => game.summary());
+  const summaries = shown.map((game, i) => sumP[i]!.then((s) => void sums.set(game.id, s)).catch(() => undefined));
   void Promise.all([playedP, ...summaries]).then(([played]) => {
     if (gone) return;
-    const list = games.filter((g) => sums.has(g.id)).map((g) => ({ id: g.id, got: sums.get(g.id)!.got, max: sums.get(g.id)!.max }));
+    const list = shown.filter((g) => sums.has(g.id)).map((g) => ({ id: g.id, got: sums.get(g.id)!.got, max: sums.get(g.id)!.max }));
     const pick = pickToday(list, played as Played, Math.floor(Date.now() / 86_400_000));
-    const game = pick && games.find((g) => g.id === pick.id);
+    const game = pick && shown.find((g) => g.id === pick.id);
     if (!game || !pick) return;
     const s = sums.get(game.id)!;
     today.replaceChildren(
@@ -109,7 +111,7 @@ export function renderHome(root: HTMLElement): () => void {
     );
     today.hidden = false;
   });
-  for (const [i, game] of games.entries()) {
+  for (const [i, game] of shown.entries()) {
     void sumP[i]!
       .then((summary) => {
         if (gone) return;
@@ -131,6 +133,10 @@ export function renderHome(root: HTMLElement): () => void {
 }
 
 function fillProgress(node: HTMLElement, summary: Summary): void {
+  if (summary.unit === "free") {
+    node.replaceChildren();
+    return;
+  }
   const share = summary.max > 0 ? Math.round((summary.got / summary.max) * 100) : 0;
   node.replaceChildren(
     el("span", { class: "game-tile__bar" }, [el("i", { style: { width: `${share}%` } })]),

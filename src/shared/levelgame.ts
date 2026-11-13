@@ -1,6 +1,8 @@
 import { audio } from "./audio";
 import { el, svgEl, replayClass } from "./dom";
 import { markOpened, wasOpened } from "./played";
+import { seasonOpen } from "./season";
+import { countWin, showBreak } from "./toys";
 import { gameProgress, isUnlocked, isUnlockedInWorld, totalStars, type Progress } from "./progress";
 import { goHome, listenGame, navigateGame } from "./router";
 import { praiseOverlay, starRow, toolbar } from "./ui";
@@ -112,6 +114,7 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
   /** Where the level list is: the first screen, or "/levels" behind `home`. */
   const LIST = def.home ? "/levels" : "/";
   const unlocked = (id: string, completed: readonly string[]): boolean => {
+    if (seasonOpen(def.id, id)) return true;
     const after = def.after?.[id];
     if (after) return completed.includes(after) || completed.includes(id);
     return def.openWorlds ? isUnlockedInWorld(def.levels, id, completed) : isUnlocked(ids, id, completed);
@@ -359,6 +362,7 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
           .win(level.id, stars)
           .then(() => newStickers())
           .catch(() => [] as Sticker[]);
+        const rest = countWin();
         const next = def.levels[index + 1];
         const actions = [
           next
@@ -389,6 +393,14 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
             voice: next ? undefined : "v09",
           });
           view.append(card);
+          // v13: after several levels in a row, a short «Потрогай» break is offered (never forced).
+          if (rest) {
+            card.querySelector(".praise__actions")?.before(
+              el("button", { class: "btn btn--ghost praise__break", attrs: { type: "button" }, on: { click: () => showBreak(view) } }, [
+                el("span", { text: "Передохнуть: потрогай игрушки" }),
+              ]),
+            );
+          }
           // A new sticker for the album, if the stars opened one.
           void fresh.then((list) => {
             const s = list[list.length - 1];
