@@ -2017,3 +2017,17 @@ body[data-route="lullabies"] {
     font-size: 15px;
   }
 }
+
+/* v13: phones — back, «Родителям» and «?» share the row with the title; the
+   small fox gives way so «Раскраска с Рыжиком» is not covered. */
+@media (max-width: 420px) {
+  .menu__head .brand__fox {
+    display: none;
+  }
+  .menu__head .brand__text {
+    min-width: 0;
+  }
+  .menu__head .brand__title {
+    font-size: 1.3rem;
+  }
+}
