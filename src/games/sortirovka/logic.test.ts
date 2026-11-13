@@ -1,11 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { OBJECTS } from "../../shared/objects";
+import { thingArt } from "./things";
 import { difficulty, itemCount, levels, objOf, sizeOf } from "./levels";
 import { basketOf, hintFor, judge, starsFor, targetFor } from "./logic";
 
 describe("sortirovka", () => {
-  it("has 24 levels, each thing in exactly one basket (counting baskets: any)", () => {
-    expect(levels).toHaveLength(24);
+  it("has 28 levels, each thing in exactly one basket (counting baskets: any)", () => {
+    expect(levels).toHaveLength(28);
     for (const level of levels) {
       const all = level.baskets.flatMap((b) => b.items);
       if (level.world !== "count") expect(new Set(all).size, level.id).toBe(all.length);
@@ -13,7 +14,7 @@ describe("sortirovka", () => {
       expect(level.baskets.length).toBeGreaterThanOrEqual(2);
       expect(level.baskets.length).toBeLessThanOrEqual(4);
       expect(itemCount(level)).toBeLessThanOrEqual(10);
-      for (const id of all) expect(OBJECTS[objOf(id)], id).toBeDefined();
+      for (const id of all) expect(thingArt(objOf(id)), id).toBeDefined();
       expect(new Set(level.baskets.map((b) => b.id)).size, level.id).toBe(level.baskets.length);
     }
   });
@@ -77,5 +78,20 @@ describe("sortirovka", () => {
   });
   it("gives stars kindly", () => {
     expect([starsFor(0, 4).stars, starsFor(1, 4).stars, starsFor(3, 4).stars, starsFor(5, 4).stars, starsFor(4, 4, 2).stars]).toEqual([3, 3, 2, 2, 1]);
+  });
+  it("v13 «Собираемся»: packing by meaning, 2 baskets with a picture, every thing drawn, a level a little longer than the last", () => {
+    const trip = levels.filter((l) => l.world === "trip");
+    expect(trip.map((l) => l.id)).toEqual(["p1", "p2", "p3", "p4"]);
+    for (const l of trip) {
+      expect(l.baskets).toHaveLength(2);
+      for (const b of l.baskets) {
+        expect(b.label, b.id).toBeTruthy();
+        expect(thingArt(b.label!).svg).toContain("<svg");
+        for (const id of b.items) expect(thingArt(id).name, id).toBeTruthy();
+      }
+    }
+    for (let i = 1; i < trip.length; i++) expect(difficulty(trip[i]!)).toBeGreaterThanOrEqual(difficulty(trip[i - 1]!));
+    const ws = levels.map((l) => l.world);
+    expect(ws.indexOf("trip")).toBeGreaterThan(ws.lastIndexOf("kinds"));
   });
 });

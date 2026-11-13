@@ -35,6 +35,7 @@ export const LEVEL_TIPS: Record<string, Record<string, LevelTip>> = {
     z1: { at: ".so-basket", text: "Большое — сюда, маленькое — в другую корзинку" },
     n1: { at: ".so-basket", text: "Число на корзинке — сколько положить" },
     x1: { at: ".so-basket", text: "Два признака сразу: что это и какого размера" },
+    p1: { at: ".so-basket", text: "Собираемся в дорогу: что нужно взять с собой?" },
   },
   labirint: {
     l6: { at: ".lb-count", text: "Собери по дороге яблоко!" },

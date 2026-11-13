@@ -4,7 +4,7 @@ import { el, replayClass } from "../../shared/dom";
 import { draggable, dropHits } from "../../shared/drag";
 import { createScope } from "../../shared/lifecycle";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
-import { OBJECTS } from "../../shared/objects";
+import { thingArt } from "./things";
 import { shuffle } from "../../shared/rng";
 import { useStyles } from "../../shared/style";
 import { plural } from "../../shared/words";
@@ -46,7 +46,7 @@ function basketNode(basket: Basket): HTMLElement {
     basket.need !== undefined
       ? el("span", { class: "so-basket__label so-basket__dots", attrs: { "aria-hidden": "true" } }, Array.from({ length: basket.need }, () => el("i")))
       : basket.label
-        ? svgNode(OBJECTS[basket.label].svg, `so-basket__label${size}`)
+        ? svgNode(thingArt(basket.label).svg, `so-basket__label${size}`)
         : el("span", { class: `so-basket__label so-basket__swatch${size}`, style: { background: basket.color } });
   const name = basket.need !== undefined ? el("b", { class: "so-basket__num", text: basket.name }) : el("span", { text: basket.name });
   return el("div", { class: `so-basket${basket.need !== undefined ? " so-basket--count" : ""}`, attrs: { "data-id": basket.id, role: "group", "aria-label": `Корзинка: ${basket.name}` } }, [
@@ -76,7 +76,7 @@ function play(stage: HTMLElement, level: SortLevel, _index: number, api: PlayApi
   const table = el("div", { class: "so-table" });
   const scope = createScope();
   const items = order.map((key, n) => {
-    const obj = OBJECTS[objOf(key)];
+    const obj = thingArt(objOf(key));
     const size = sizeOf(key);
     const label = size ? `${obj.name}, ${size === "big" ? "большое" : "маленькое"}` : obj.name;
     const node = el("div", { class: `so-item${size ? ` so-item--${size}` : ""}`, attrs: { "data-id": key, "data-n": n, role: "img", "aria-label": label } }, [svgNode(obj.svg, "so-item__art")]);

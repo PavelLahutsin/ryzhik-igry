@@ -6,7 +6,9 @@ import type { ObjectColor, ObjectId } from "../../shared/objects";
  * A thing on the table: an object, or an object drawn big or small
  * ("apple:big", "apple:small") for the size worlds.
  */
-export type Item = ObjectId | `${ObjectId}:big` | `${ObjectId}:small`;
+export type Item = ObjectId | `${ObjectId}:big` | `${ObjectId}:small` | Thing;
+/** v13 «Собираемся»: pictures from «Тени» and things.ts (see thingArt). */
+export type Thing = "hat" | "mitten" | "boot" | "teddy" | "chair" | "lamp" | "teapot" | "clock" | "bucket" | "icecream" | "watermelon" | "towel" | "soap" | "broom" | "suitcase" | "toothbrush";
 
 export const objOf = (item: string): ObjectId => item.split(":")[0] as ObjectId;
 export const sizeOf = (item: string): "big" | "small" | null => {
@@ -26,7 +28,7 @@ export type Basket = {
   /** Colour baskets: the object colour that belongs here. */
   sorts?: ObjectColor;
   /** Kind baskets: a drawn object on the label. */
-  label?: ObjectId;
+  label?: ObjectId | Thing;
   /** Size baskets: the label object is drawn big or small. */
   size?: "big" | "small";
   /** «Сколько положить?»: put exactly this many things here (any of them). */
@@ -53,7 +55,7 @@ const byColor = (sorts: ObjectColor, items: Item[]): Basket => ({
   items,
 });
 
-const byKind = (id: string, name: string, color: string, label: ObjectId, items: Item[]): Basket => ({
+const byKind = (id: string, name: string, color: string, label: ObjectId | Thing, items: Item[]): Basket => ({
   id,
   name,
   color,
@@ -82,6 +84,7 @@ export const worlds = [
   { id: "colors", title: "По цвету", color: "#e8463a" },
   { id: "more", title: "Ещё порядок", color: "#7cc46a" },
   { id: "kinds", title: "Что куда?", color: "#3a8fd4" },
+  { id: "trip", title: "Собираемся", color: "#e89a3a" },
   { id: "size", title: "Большое и маленькое", color: "#ffb23f" },
   { id: "count", title: "Сколько положить?", color: "#9b8cf0" },
   { id: "cross", title: "Два признака", color: "#f27aa0" },
@@ -306,10 +309,51 @@ const ALL: SortLevel[] = [
       { ...byColor("green", ["cube:small", "leaf:small", "pear:small"] as Item[]), id: "green-small", name: "Маленькое зелёное", size: "small" },
     ],
   },
+  // v13 «Собираемся»: sorting by meaning — what is needed for the trip.
+  {
+    id: "p1",
+    world: "trip",
+    title: "Собери вещи в поездку",
+    ask: "Что берём с собой в чемодан, а что остаётся дома?",
+    baskets: [
+      byKind("bag", "В чемодан", "#e89a3a", "suitcase", ["teddy", "toothbrush", "hat"]),
+      byKind("home", "Остаётся дома", "#a7a29a", "house", ["chair", "lamp", "teapot"]),
+    ],
+  },
+  {
+    id: "p2",
+    world: "trip",
+    title: "Собери в баню",
+    ask: "Что пригодится в бане? Остальное — для игры",
+    baskets: [
+      byKind("banya", "В баню", "#7cc4e8", "bucket", ["towel", "soap", "broom"]),
+      byKind("play", "Для игры", "#e8463a", "ball", ["kite", "car", "balloon"]),
+    ],
+  },
+  {
+    id: "p3",
+    world: "trip",
+    title: "На зимнюю прогулку",
+    ask: "Что надеть зимой? А что пригодится летом?",
+    baskets: [
+      byKind("winter", "Зимой", "#3a8fd4", "mitten", ["hat", "boot", "mitten"]),
+      byKind("summer", "Летом", "#f5c330", "sun", ["icecream", "watermelon", "umbrella"]),
+    ],
+  },
+  {
+    id: "p4",
+    world: "trip",
+    title: "Соберёмся в гости",
+    ask: "В гости берём подарок и угощение. Что берём, а что остаётся?",
+    baskets: [
+      byKind("gift", "Взять в гости", "#f7a8c8", "balloon", ["teddy", "cherry", "flower", "apple"]),
+      byKind("stay", "Остаётся дома", "#a7a29a", "house", ["clock", "chair", "broom"]),
+    ],
+  },
 ];
 
 /** Worlds in the order of the list; the new ones come after the old three. */
-export const levels: SortLevel[] = inWorldOrder(ALL, ["colors", "more", "kinds", "size", "count", "cross"]);
+export const levels: SortLevel[] = inWorldOrder(ALL, ["colors", "more", "kinds", "trip", "size", "count", "cross"]);
 
 export function itemCount(level: SortLevel): number {
   return level.baskets.reduce((sum, b) => sum + b.items.length, 0);

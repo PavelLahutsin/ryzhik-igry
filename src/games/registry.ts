@@ -217,6 +217,7 @@ export const games: GameEntry[] = [
     note: "По цвету, смыслу, размеру и счёту",
     color: "#ff9f6b",
     art: { src: svgUrl(TILE_ART.sortirovka), figure: true },
+    fresh: { since: "v13", text: "Новые уровни" },
     load: () => import("./sortirovka"),
     ...levelStars("sortirovka", () => import("./sortirovka/levels")),
   },
