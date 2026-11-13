@@ -86,3 +86,35 @@ export function isUnlockedInWorld(levels: ReadonlyArray<{ id: string; world?: st
   const same = levels.filter((l) => l.world === level.world).map((l) => l.id);
   return isUnlocked(same, id, completed);
 }
+
+/**
+ * v14: is a level of a level game open? A winter level opens early (the
+ * «Зима» pack), but winning it out of order must not open the level after it:
+ * «Ёлочка» (14) won before «Грибок» (13) used to open 15, and the child went
+ * 12 → 14 → 15…, never seeing 13. Now the level after a season-opened one
+ * opens only when that one was also reached in order. Won levels stay open.
+ */
+export function levelOpen(
+  levels: ReadonlyArray<{ id: string; world?: string }>,
+  id: string,
+  completed: readonly string[],
+  opts: { after?: Record<string, string>; openWorlds?: boolean; season?: (id: string) => boolean } = {},
+): boolean {
+  const season = (lid: string): boolean => opts.season?.(lid) === true;
+  const prevOf = (lid: string): string | undefined => {
+    const after = opts.after?.[lid];
+    if (after) return after;
+    const level = levels.find((l) => l.id === lid);
+    const list = opts.openWorlds && level ? levels.filter((l) => l.world === level.world) : levels;
+    const i = list.findIndex((l) => l.id === lid);
+    return i > 0 ? list[i - 1]!.id : undefined;
+  };
+  // Reached in order: its previous level was won and was itself reached in order.
+  const byOrder = (lid: string, depth: number): boolean => {
+    const prev = prevOf(lid);
+    if (prev === undefined) return levels.some((l) => l.id === lid);
+    if (!completed.includes(prev)) return false;
+    return !season(prev) || depth > levels.length || byOrder(prev, depth + 1);
+  };
+  return season(id) || completed.includes(id) || byOrder(id, 0);
+}
