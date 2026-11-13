@@ -459,3 +459,13 @@
     box-shadow: 0 0 0 4px var(--surface), 0 0 0 8px #ff8a3d, var(--shadow-card);
   }
 }
+
+/* v13: a slip — the next piece of line glows, «Попробуй ещё раз» on it. */
+.rv-retry { opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+.rv-retry.is-on { opacity: 1; }
+.rv-retry__line { fill: none; stroke: #ffb23f; stroke-width: 14; stroke-linecap: round; stroke-linejoin: round; opacity: 0.55; }
+.rv-retry.is-on .rv-retry__line { animation: rv-retry-glow 1.2s ease-in-out 2; }
+.rv-retry__tag rect { fill: #fffaf0; stroke: #ffb23f; stroke-width: 2; }
+.rv-retry__tag text { font: 700 10px/1 var(--font-body, sans-serif); fill: #5a3a1a; }
+@keyframes rv-retry-glow { 50% { opacity: 0.95; } }
+@media (prefers-reduced-motion: reduce) { .rv-retry.is-on .rv-retry__line { animation: none; } }

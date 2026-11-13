@@ -7,7 +7,7 @@ import type { PlayApi } from "../../shared/levelgame";
 import { OBJECTS } from "../../shared/objects";
 import { reducedMotion } from "../../shared/style";
 import { svgNode } from "../../shared/ui";
-import { advance, numberWord, offTrack, starsFor, strokeDone, TOLERANCE, type Pt } from "./logic";
+import { advance, countedSlips, numberWord, offTrack, starsFor, strokeDone, TOLERANCE, type Pt } from "./logic";
 import type { Picture } from "./pictures";
 
 /** A letter level also shows its word (and a picture when there is one). */
@@ -62,7 +62,10 @@ export function play(stage: HTMLElement, level: Traceable, _index: number, api: 
   marker.append(arrow);
   const finger = svgEl("circle", { r: 9, class: "rv-finger" });
   pic.append(fill, guides, ink, live);
-  svg.append(pic, extras, marker, finger);
+  const retry = svgEl("g", { class: "rv-retry", "aria-hidden": "true" });
+  svg.append(pic, extras, retry, marker, finger);
+  // v13: the youngest pictures («Первые рисунки») never lose a star for a slip.
+  const gentle = level.world === "first";
 
   for (const s of strokes) guides.append(svgEl("path", { d: s.d, class: "rv-guide" }));
   // Digits and letters: little numbers show which line comes first.
@@ -138,9 +141,23 @@ export function play(stage: HTMLElement, level: Traceable, _index: number, api: 
       replayClass(marker, "is-wobble");
       replayClass(marker, "is-call");
       replayClass(box, "is-slip");
-      audio.play("miss");
-      say.textContent = "Ой! Вернись к зелёной точке";
+      audio.play("boing");
+      say.textContent = gentle ? "Попробуй ещё раз — от зелёной точки" : "Ой! Вернись к зелёной точке";
       const back = s.samples[index]!;
+      // v13: the piece of line just ahead glows with «Попробуй ещё раз» on it.
+      retry.replaceChildren();
+      const ahead = s.samples.slice(index, Math.min(s.samples.length, index + 18));
+      if (ahead.length > 1) {
+        retry.append(svgEl("polyline", { class: "rv-retry__line", points: ahead.map((q) => `${q.x.toFixed(1)},${q.y.toFixed(1)}`).join(" ") }));
+        const tx = Math.min(150, Math.max(50, back.x));
+        const ty = back.y > 40 ? back.y - 22 : back.y + 30;
+        const tag = svgEl("g", { class: "rv-retry__tag", transform: `translate(${tx.toFixed(1)} ${ty.toFixed(1)})` });
+        const t = svgEl("text", { "text-anchor": "middle", y: 4 });
+        t.textContent = "Попробуй ещё раз";
+        tag.append(svgEl("rect", { x: -50, y: -10, width: 100, height: 20, rx: 10 }), t);
+        retry.append(tag);
+      }
+      replayClass(retry, "is-on");
       later(() => showDrag(toScreen(p), toScreen(back)), 250);
       return;
     }
@@ -171,6 +188,7 @@ export function play(stage: HTMLElement, level: Traceable, _index: number, api: 
       return false;
     }
     say.textContent = "";
+    retry.classList.remove("is-on");
     drawing = true;
     slipped = false;
     step(p);
@@ -238,7 +256,7 @@ export function play(stage: HTMLElement, level: Traceable, _index: number, api: 
     }
     if (!reducedMotion()) svg.classList.add("is-alive");
     addExtras();
-    later(() => api.win(starsFor(slips, hints), level.done), 1600);
+    later(() => api.win(starsFor(countedSlips(level.world, slips), hints), level.done), 1600);
   }
 
   function showWord(): void {
@@ -252,7 +270,7 @@ export function play(stage: HTMLElement, level: Traceable, _index: number, api: 
       svg.classList.add("is-alive");
       audio.play("sparkle");
     }, 500);
-    later(() => api.win(starsFor(slips, hints), level.done, level.art ? svgNode(level.art, "praise__word") : undefined), 1900);
+    later(() => api.win(starsFor(countedSlips(level.world, slips), hints), level.done, level.art ? svgNode(level.art, "praise__word") : undefined), 1900);
   }
 
   function countUp(n: number): void {
@@ -263,7 +281,7 @@ export function play(stage: HTMLElement, level: Traceable, _index: number, api: 
         say.textContent = "Ноль — ничего нет!";
         svg.classList.add("is-alive");
       }, 400);
-      later(() => api.win(starsFor(slips, hints), "Ноль — ничего нет!"), 1800);
+      later(() => api.win(starsFor(countedSlips(level.world, slips), hints), "Ноль — ничего нет!"), 1800);
       return;
     }
     // Show n apples around the digit, one by one, and say the number.
@@ -282,7 +300,7 @@ export function play(stage: HTMLElement, level: Traceable, _index: number, api: 
     later(() => {
       say.textContent = `${numberWord(n)}!`;
       svg.classList.add("is-alive");
-      api.win(starsFor(slips, hints), `${numberWord(n)}!`);
+      api.win(starsFor(countedSlips(level.world, slips), hints), `${numberWord(n)}!`);
     }, 600 + n * 320);
   }
 

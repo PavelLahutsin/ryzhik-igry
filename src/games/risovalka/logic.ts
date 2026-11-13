@@ -64,6 +64,11 @@ export function starsFor(slips: number, hints: number): Score {
   return rateBy(STARS.risovalka, slips, hints);
 }
 
+/** v13: in «Первые рисунки» a slip is only «Попробуй ещё раз» — it never costs a star. */
+export function countedSlips(world: string | undefined, slips: number): number {
+  return world === "first" ? 0 : slips;
+}
+
 const WORDS = ["Ноль", "Один", "Два", "Три", "Четыре", "Пять", "Шесть", "Семь", "Восемь", "Девять"];
 export function numberWord(n: number): string {
   return WORDS[n] ?? String(n);
