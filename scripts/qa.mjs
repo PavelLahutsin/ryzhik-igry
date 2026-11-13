@@ -382,7 +382,13 @@ async function playGame(game, vpTag) {
   await p.waitForSelector(".level-card");
   const locked = await p.locator(".level-card.is-locked").count();
   // «Цифры и буквы» (3) and «Размер и форма» (5): each world starts open.
-  const open = game === "bukvy" ? 3 : game === "formy" ? 5 : 1;
+  // v13: in winter the «Зима» pack opens its levels too (src/shared/season.ts).
+  const seasonal = await p.evaluate(async (g) => {
+    const m = await import("/src/shared/season.ts");
+    return m.isWinter() ? m.WINTER.filter((w) => w.game === g).length : 0;
+  }, game);
+  const first = game === "bukvy" ? 3 : game === "formy" ? 5 : 1;
+  const open = first + seasonal;
   if (locked !== levels.length - open) note(game, vpTag, "list", `fresh list: ${locked} locked of ${levels.length}`);
   (await layoutCheck(p)).forEach((m) => note(game, vpTag, "list", m));
   await p.locator(".level-card.is-next").first().click({ force: true });
