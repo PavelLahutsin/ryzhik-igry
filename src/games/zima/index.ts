@@ -4,7 +4,8 @@ import { gameProgress } from "../../shared/progress";
 import { goHome, navigate } from "../../shared/router";
 import { WINTER } from "../../shared/season";
 import { useStyles } from "../../shared/style";
-import { starRow, toolbar } from "../../shared/ui";
+import { starRow, svgNode, toolbar } from "../../shared/ui";
+import { SHAPES } from "../teni/shapes";
 import baseCss from "../../shared/base.css?inline";
 import { games } from "../registry";
 import css from "./style.css?inline";
@@ -31,7 +32,7 @@ export function mount(root: HTMLElement): () => void {
   ]);
   root.append(view);
 
-  const card = (opts: { game: string; title: string; path: string; stars?: number }): HTMLElement => {
+  const card = (opts: { game: string; title: string; path: string; icon: string; stars?: number }): HTMLElement => {
     const g = games.find((x) => x.id === opts.game);
     return el(
       "button",
@@ -47,7 +48,7 @@ export function mount(root: HTMLElement): () => void {
         },
       },
       [
-        el("span", { class: "zm-card__art", style: { background: g?.color ?? "#6db3d4" } }, g ? [el("img", { attrs: { src: g.art.src, alt: "", draggable: "false" } })] : []),
+        el("span", { class: "zm-card__art" }, [svgNode(SHAPES[opts.icon]?.svg ?? SHAPES.snowman!.svg, "zm-card__icon")]),
         el("span", { class: "zm-card__title", text: opts.title }),
         el("span", { class: "zm-card__game", text: g?.title ?? "" }),
         opts.stars !== undefined ? starRow(opts.stars, "stars zm-card__stars") : el("span", { class: "zm-card__free", text: "Без звёзд, просто играть" }),
@@ -63,10 +64,10 @@ export function mount(root: HTMLElement): () => void {
       const [{ levels }, progress] = await Promise.all([load(), gameProgress(w.game).load()]);
       const index = levels.findIndex((l) => l.id === w.level);
       if (index < 0) continue;
-      cards.push(card({ game: w.game, title: levels[index]!.title, path: `/${w.game}/play/${index + 1}`, stars: progress.stars[w.level] ?? 0 }));
+      cards.push(card({ game: w.game, title: levels[index]!.title, path: `/${w.game}/play/${index + 1}`, icon: w.icon, stars: progress.stars[w.level] ?? 0 }));
     }
-    cards.push(card({ game: "stikery", title: "Зимняя картинка", path: "/stikery/zima" }));
-    cards.push(card({ game: "raskraska", title: "Рыжик лепит снеговика", path: "/raskraska" }));
+    cards.push(card({ game: "stikery", title: "Зимняя картинка", path: "/stikery/zima", icon: "mitten" }));
+    cards.push(card({ game: "raskraska", title: "Рыжик лепит снеговика", path: "/raskraska", icon: "snowman" }));
     if (view.isConnected) grid.replaceChildren(...cards);
   })();
 

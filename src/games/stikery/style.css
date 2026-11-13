@@ -1,8 +1,10 @@
 /* «Картинка из наклеек» */
 .sk-stage { padding: 0; gap: 10px; }
 .sk-tools { display: flex; gap: 8px; }
-.sk-tool { min-height: 48px; padding: 0 12px; font-size: 15px; }
-.sk-tool:disabled { opacity: 0.5; }
+.sk-tool:disabled { opacity: 0.45; }
+.sk-tool.is-undo { box-shadow: 0 0 0 4px var(--orange); }
+.sk-tool__icon, .sk-tool__icon svg { width: 30px; height: 30px; display: block; }
+.sk-swatch { width: 30px; height: 30px; border-radius: 50%; display: block; box-shadow: 0 0 0 2.5px #3b2e25; }
 .sk-scene {
   position: relative;
   flex: 1;
@@ -51,10 +53,6 @@
 .sk-pick.is-chosen { background: var(--yellow-tint); box-shadow: 0 0 0 4px var(--orange); }
 .sk-pick.is-dragging { z-index: 10; position: relative; }
 .sk-note { margin: 0; min-height: 1.3em; font: 700 15px/1.3 var(--font-ui); text-align: center; color: var(--ink-soft); }
-@media (max-width: 420px) {
-  .game--stikery .toolbar__title { font-size: 1.15rem; }
-  .sk-tool { padding: 0 8px; font-size: 14px; }
-}
 @media (max-height: 500px) and (min-aspect-ratio: 3/2) {
   .sk-stage { flex-direction: row; }
   .sk-side { width: 196px; grid-template-rows: minmax(0, 1fr) auto; min-height: 0; }

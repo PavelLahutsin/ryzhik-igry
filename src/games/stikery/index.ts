@@ -18,6 +18,9 @@ const DECOR = ["cloud", "tree", "fir", "snowman", "moon", "bird", "butterfly"] a
 /** Album stickers everyone has from the start. */
 const STARTER = ["sun", "flower", "house"];
 
+const CLEAR_ICON = `<svg viewBox="0 0 40 40"><path d="M12 30 L26 10 L33 15 L20 33 H13 Z" fill="#f7a8c8" stroke="#3b2e25" stroke-width="2.5" stroke-linejoin="round"/><path d="M19 20 L26 25" stroke="#3b2e25" stroke-width="2.5"/><path d="M8 34 H32" stroke="#3b2e25" stroke-width="2.5" stroke-linecap="round"/></svg>`;
+const UNDO_ICON = `<svg viewBox="0 0 40 40"><path d="M14 12 H24 C30 12 33 16 33 21 C33 26 30 30 24 30 H12" fill="none" stroke="#3b2e25" stroke-width="3.5" stroke-linecap="round"/><path d="M19 6 L12 12 L19 18" fill="none" stroke="#3b2e25" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
 type Item = { id: string; name: string; art: () => Element };
 const decorItem = (id: string): Item => ({ id: `d:${id}`, name: SHAPES[id]!.name, art: () => svgNode(SHAPES[id]!.svg, "sk-art") });
 const albumItem = (s: Sticker): Item => ({ id: s.id, name: s.name, art: () => stickerArt(s, "sk-art") });
@@ -37,13 +40,13 @@ export function mount(root: HTMLElement): () => void {
   let chosen: string | null = null;
   const wanted = subSegments(window.location.hash, "stikery")[0];
 
-  const bgBtn = el("button", { class: "btn btn--ghost sk-tool", attrs: { type: "button" } });
-  const clearBtn = el("button", { class: "btn btn--ghost sk-tool", attrs: { type: "button" } });
+  const bgBtn = el("button", { class: "btn btn--back sk-tool", attrs: { type: "button" } });
+  const clearBtn = el("button", { class: "btn btn--back sk-tool", attrs: { type: "button" } });
   const tools = el("span", { class: "toolbar__tools sk-tools" }, [bgBtn, clearBtn]);
   const scene = el("div", { class: "sk-scene", attrs: { role: "group", "aria-label": "Картинка" } });
   const tray = el("div", { class: "sk-tray", attrs: { role: "list", "aria-label": "Наклейки" } });
   const note = el("p", { class: "sk-note", text: "" });
-  const view = el("div", { class: "screen screen--play game--stikery" }, [toolbar("Картинка из наклеек", goHome, tools), el("div", { class: "stage sk-stage" }, [scene, el("div", { class: "sk-side" }, [tray, note])])]);
+  const view = el("div", { class: "screen screen--play game--stikery" }, [toolbar("Картинка", goHome, tools), el("div", { class: "stage sk-stage" }, [scene, el("div", { class: "sk-side" }, [tray, note])])]);
   root.append(view);
 
   const save = (): void => void platform.storage.set(KEY, pic);
@@ -51,9 +54,11 @@ export function mount(root: HTMLElement): () => void {
 
   function paintTools(): void {
     const bg = BACKGROUNDS.find((b) => b.id === pic.bg)!;
-    bgBtn.replaceChildren(el("span", { text: `Фон: ${bg.name}` }));
+    bgBtn.replaceChildren(el("span", { class: `sk-swatch sk-bg--${pic.bg}`, attrs: { "aria-hidden": "true" } }));
     bgBtn.setAttribute("aria-label", `Сменить фон, сейчас ${bg.name}`);
-    clearBtn.replaceChildren(el("span", { text: undo ? "Вернуть" : "Очистить" }));
+    clearBtn.replaceChildren(svgNode(undo ? UNDO_ICON : CLEAR_ICON, "sk-tool__icon"));
+    clearBtn.setAttribute("aria-label", undo ? "Вернуть наклейки" : "Очистить картинку");
+    clearBtn.classList.toggle("is-undo", !!undo);
     clearBtn.disabled = !undo && pic.items.length === 0;
     scene.className = `sk-scene sk-bg--${pic.bg}`;
   }

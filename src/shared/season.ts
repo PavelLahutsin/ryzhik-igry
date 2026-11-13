@@ -3,19 +3,20 @@
  * levels that already exist in other games; while it is winter they are
  * open from the pack (and in their own lists), with no locks.
  */
-export type PackItem = { game: string; level: string };
+/** `icon`: a «Тени» picture for the card (the winter thing of that level). */
+export type PackItem = { game: string; level: string; icon: string };
 
 export const WINTER: PackItem[] = [
-  { game: "sliyanie", level: "z1" },
-  { game: "sliyanie", level: "z3" },
-  { game: "odezhda", level: "o3" },
-  { game: "odezhda", level: "o9" },
-  { game: "sortirovka", level: "p3" },
-  { game: "tochki", level: "t10" },
-  { game: "tochki", level: "d3" },
-  { game: "risovalka", level: "r14" },
-  { game: "mozaika", level: "m20" },
-  { game: "formy", level: "m6" },
+  { game: "sliyanie", level: "z1", icon: "snowman" },
+  { game: "sliyanie", level: "z3", icon: "snowman" },
+  { game: "odezhda", level: "o3", icon: "mitten" },
+  { game: "odezhda", level: "o9", icon: "hat" },
+  { game: "sortirovka", level: "p3", icon: "boot" },
+  { game: "tochki", level: "t10", icon: "fir" },
+  { game: "tochki", level: "d3", icon: "snowman" },
+  { game: "risovalka", level: "r14", icon: "fir" },
+  { game: "mozaika", level: "m20", icon: "snowman" },
+  { game: "formy", level: "m6", icon: "fir" },
 ];
 
 /** Winter for the pack: 1 November – end of February. */
