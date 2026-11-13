@@ -10,7 +10,12 @@ const S = `stroke="${INK}" stroke-width="5" stroke-linejoin="round" stroke-linec
 const sw = (w: number): string => `stroke="${INK}" stroke-width="${w}" stroke-linejoin="round" stroke-linecap="round"`;
 const s3 = `stroke="${INK}" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"`;
 
-const svg = (body: string): string => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">${body}</svg>`;
+/**
+ * v13: the tiles are 4:3, so the frame is 4:3 too — the 200×200 scene sits in
+ * the middle of a 266.67×200 viewBox, nothing is cropped (ground and tops stay).
+ */
+export const TILE_VIEWBOX = "-33.33 0 266.67 200";
+const svg = (body: string): string => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${TILE_VIEWBOX}">${body}</svg>`;
 /** A data URL usable as <img src>. */
 export const svgUrl = (markup: string): string => `data:image/svg+xml,${encodeURIComponent(markup)}`;
 
