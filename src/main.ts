@@ -9,6 +9,7 @@ import "@fontsource/nunito/latin-800.css";
 
 import { findGame, freshKey, type GameEntry } from "./games/registry";
 import { markOpened } from "./shared/played";
+import { TITLE_VOICE } from "./shared/voice-lines";
 import { firstOpenGift } from "./shared/gift";
 import { renderHome } from "./home/home";
 import { renderParents } from "./home/parents";
@@ -101,7 +102,10 @@ function onHash(): void {
       };
       // First time in this game: show «Как играть».
       void howToSeen(game.id).then((seen) => {
-        if (!seen && mine === token) void showHowTo(game.id);
+        if (mine !== token) return;
+        if (!seen) void showHowTo(game.id);
+        // v13: Ryzhik says the game's name (when recorded) unless «Как играть» speaks.
+        else if (TITLE_VOICE[game.id]) audio.say(TITLE_VOICE[game.id]!);
       });
     })
     .catch(() => {
