@@ -97,7 +97,7 @@ const FIRST: FormLevel[] = [
     ask: "Разложи вещи по формам.",
     done: "Всё по полочкам!",
   },
-  { id: "f6", world: "shape", mode: "sorter", title: "Шесть фигур", shapes: ["circle", "square", "triangle", "star", "heart", "rhombus"], perShape: 1, ask: "Шесть окошек — шесть фигур. Ромб похож на воздушного змея!", done: "Ты мастер фигур!" },
+  { id: "f6", world: "shape", mode: "sorter", title: "Шесть фигур", shapes: ["circle", "square", "triangle", "star", "heart", "rhombus"], perShape: 1, ask: "Шесть окошек — шесть фигур. Ромб похож на воздушного змея!", done: "Все шесть фигур на месте!" },
   {
     id: "r6",
     world: "mix",
@@ -229,7 +229,7 @@ const ADDED: FormLevel[] = [
   { id: "q2", world: "logic", mode: "pick", title: "Цветные бусы", spec: { kind: "pattern", shown: 5, unit: "AAB", attr: "tint", options: 3, shapes: SIX }, rounds: 5, ask: "Какая бусинка будет следующей?", done: "Красивые бусы!" },
   { id: "d3", world: "logic", mode: "pick", title: "Другой размер", spec: { kind: "odd", options: 4, shapes: SIX, by: "size" }, rounds: 5, ask: "Какая фигура не такого размера?", done: "Размер не обманет!" },
   { id: "q3", world: "logic", mode: "pick", title: "Три фигуры", spec: { kind: "pattern", shown: 5, unit: "ABC", attr: "shape", options: 3, shapes: SIX }, rounds: 5, ask: "Три фигуры по очереди. Что дальше?", done: "Узор разгадан!" },
-  { id: "d4", world: "logic", mode: "pick", title: "Найди лишнее", spec: { kind: "odd", options: 5, shapes: ALL, by: "mix" }, rounds: 6, ask: "Что лишнее: форма, цвет или размер?", done: "Ты настоящий сыщик!" },
+  { id: "d4", world: "logic", mode: "pick", title: "Найди лишнее", spec: { kind: "odd", options: 5, shapes: ALL, by: "mix" }, rounds: 6, ask: "Что лишнее: форма, цвет или размер?", done: "Зоркий глаз! Всё лишнее найдено!" },
   { id: "q4", world: "logic", mode: "pick", title: "Хитрый узор", spec: { kind: "pattern", shown: 5, unit: "ABB", attr: "both", options: 4, shapes: ALL }, rounds: 6, ask: "Узор хитрый: смотри и на форму, и на цвет.", done: "Хитрый узор разгадан!" },
   // --- colour + shape, holes, corners
   { id: "h1", world: "mix", mode: "pick", title: "В окошко", spec: { kind: "fit", options: 3, shapes: SIX, sizes: false }, rounds: 4, ask: "Какая фигурка пролезет в окошко?", done: "Все фигурки пролезли!" },

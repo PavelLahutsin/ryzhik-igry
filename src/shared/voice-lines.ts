@@ -8,7 +8,7 @@ export const VOICE_LINES: Record<string, string> = {
   v01: "Привет! Давай играть!",
   v02: "Молодец!",
   v03: "Ура, получилось!",
-  v04: "Здорово! Ты умничка!",
+  v04: "Отлично получается!",
   v05: "Попробуй ещё разок!",
   v06: "Не получилось? Ничего, давай вместе!",
   v07: "Смотри, я покажу!",
@@ -17,10 +17,10 @@ export const VOICE_LINES: Record<string, string> = {
   v10: "Держи звёздочку!",
   v11: "Выбирай игру!",
   v12: "Пока-пока! Приходи ещё!",
-  v13: "Отрезай кусочки поля, и картинка откроется!",
+  v13: "Веди Рыжика и обводи кусочки поля — откроется картинка!",
   v14: "Осторожно, пчёлка!",
   v15: "Собери картинку из кусочков!",
-  v16: "Соединяй одинаковые, и вырастет сад!",
+  v16: "Соединяй одинаковые картинки — вырастет сад!",
   v17: "Давай перемешаем!",
   v18: "Найди две одинаковые картинки!",
   v19: "Чья это тень? Найди!",
@@ -43,11 +43,37 @@ export const VOICE_LINES: Record<string, string> = {
   v36: "Где большой, а где маленький?",
   v37: "Какой формы этот предмет?",
   // v12 «Тени»: slots — drop the recordings into public/audio/voice/ later.
-  v38: "Перетащи картинку на её тень!",
+  v38: "Найди подходящую тень и положи на неё картинку!",
   v39: "У этой картинки нет тени — оставь её!",
   v40: "Тень спряталась — узнай по кусочку!",
   v41: "Тени похожи — смотри на мелочи!",
-  v42: "Молодец!",
+  v42: "А теперь — новые тени!",
+  // v13: the game's name when it opens (slots; silent until the mp3 is there).
+  v43: "Домик Рыжика!",
+  v44: "Кухня Рыжика!",
+  v45: "Обводилка!",
+  v46: "Цифры и буквы!",
+  v47: "По точкам!",
+  v48: "Профессии!",
+  v49: "Стройка!",
+  v50: "Размер и форма!",
+  v51: "Тайная картинка!",
+  v52: "Мозаика!",
+  v53: "Вырасти сад!",
+  v54: "Найди пару!",
+  v55: "Тени!",
+  v56: "Одень Рыжика!",
+  v57: "По корзинкам!",
+  v58: "Лабиринт!",
+  v59: "Раскраска!",
+  v60: "Тапни и послушай!",
+  v61: "Картинка из наклеек!",
+  v62: "Зима!",
+  // v13: the new games and the break.
+  v63: "Нажимай на всё и слушай!",
+  v64: "Клей наклейки куда хочешь!",
+  v65: "Зимние игры — выбирай!",
+  v66: "Давай немножко отдохнём!",
 };
 
 /** When each line plays (also the list for NEEDED_ASSETS.json). */
@@ -76,12 +102,64 @@ export const VOICE_WHEN: Record<string, string> = {
   v40: "Тени: начало уровня, где тени прячутся (мир «Прятки»)",
   v41: "Тени: начало уровня с похожими тенями (мир «Похожие тени»)",
   v42: "Тени: часть большой сцены готова, дальше новые тени",
+  v43: "название игры при входе: Домик Рыжика",
+  v44: "название игры при входе: Кухня Рыжика",
+  v45: "название игры при входе: Обводилка",
+  v46: "название игры при входе: Цифры и буквы",
+  v47: "название игры при входе: По точкам",
+  v48: "название игры при входе: Профессии",
+  v49: "название игры при входе: Стройка",
+  v50: "название игры при входе: Размер и форма",
+  v51: "название игры при входе: Тайная картинка",
+  v52: "название игры при входе: Мозаика",
+  v53: "название игры при входе: Вырасти сад",
+  v54: "название игры при входе: Найди пару",
+  v55: "название игры при входе: Тени",
+  v56: "название игры при входе: Одень Рыжика",
+  v57: "название игры при входе: По корзинкам",
+  v58: "название игры при входе: Лабиринт",
+  v59: "название игры при входе: Раскраска",
+  v60: "название игры при входе: Тапни и послушай",
+  v61: "название игры при входе: Картинка из наклеек",
+  v62: "название игры при входе: Зима",
+  v63: "Тапни и послушай: «Как играть»",
+  v64: "Картинка из наклеек: «Как играть»",
+  v65: "Зима: «Как играть»",
+  v66: "перерыв «Потрогай» после нескольких уровней подряд",
+};
+
+/** v13: the game's name, said when it opens (when its «Как играть» is not shown). */
+export const TITLE_VOICE: Record<string, string> = {
+  "domik": "v43",
+  "kuhnya": "v44",
+  "risovalka": "v45",
+  "bukvy": "v46",
+  "tochki": "v47",
+  "professii": "v48",
+  "stroyka": "v49",
+  "formy": "v50",
+  "tajnaya-kartinka": "v51",
+  "mozaika": "v52",
+  "sliyanie": "v53",
+  "najdi-paru": "v54",
+  "teni": "v55",
+  "odezhda": "v56",
+  "sortirovka": "v57",
+  "labirint": "v58",
+  "raskraska": "v59",
+  "tapni": "v60",
+  "stikery": "v61",
+  "zima": "v62",
 };
 
 export const PRAISE_LINES = ["v02", "v03", "v04", "v10"];
 
-export function praiseLine(rand: () => number = Math.random): string {
-  return PRAISE_LINES[Math.floor(rand() * PRAISE_LINES.length)]!;
+export function praiseLine(rand: () => number = Math.random, avoid = ""): string {
+  // v13: never say the same word the card shows («Ура!» on screen → not «Ура, получилось!»).
+  const word = avoid.replace(/[!.,]/g, "").trim().toLowerCase();
+  const ok = word ? PRAISE_LINES.filter((id) => !VOICE_LINES[id]!.toLowerCase().includes(word)) : PRAISE_LINES;
+  const list = ok.length ? ok : PRAISE_LINES;
+  return list[Math.floor(rand() * list.length)]!;
 }
 
 /** «Как играть» card of each game: Ryzhik explains. */
@@ -103,6 +181,9 @@ export const HOWTO_VOICE: Record<string, string> = {
   professii: "v30",
   stroyka: "v34",
   formy: "v36",
+  tapni: "v63",
+  stikery: "v64",
+  zima: "v65",
 };
 
 /** Background music per game (m12 is the win jingle). The coloring book keeps its own sounds. */
@@ -125,5 +206,8 @@ export const MUSIC_FILES: Record<string, string> = {
   risovalka: "m11",
   bukvy: "m11",
   tochki: "m11",
+  tapni: "m06",
+  stikery: "m03",
+  zima: "m01",
 };
 export const WIN_JINGLE = "m12";

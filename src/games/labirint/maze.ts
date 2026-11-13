@@ -128,10 +128,56 @@ export function placeApples(maze: Maze, count: number, start: Cell, goal: Cell, 
  * Maze size for the stage: about the level's number of cells, shaped like
  * the stage (portrait phones get tall mazes, landscape wide ones).
  */
-export function fitMaze(cols: number, rows: number, width: number, height: number): { cols: number; rows: number } {
+export function fitMaze(cols: number, rows: number, width: number, height: number, minCell = 0): { cols: number; rows: number } {
   const cells = cols * rows;
   const aspect = Math.min(1.6, Math.max(1 / 1.6, height / Math.max(1, width)));
-  const r = Math.max(3, Math.round(Math.sqrt(cells * aspect)));
-  const c = Math.max(3, Math.round(cells / r));
+  let r = Math.max(3, Math.round(Math.sqrt(cells * aspect)));
+  let c = Math.max(3, Math.round(cells / r));
+  // v13: cells stay big enough for a finger (a big level gets a little smaller instead).
+  if (minCell > 0) {
+    c = Math.max(3, Math.min(c, Math.floor(width / minCell)));
+    r = Math.max(3, Math.min(Math.max(r, Math.round(cells / c)), Math.floor(height / minCell)));
+  }
   return { cols: c, rows: r };
+}
+
+/** Longest way to the friend we accept: a little over the straight walk. */
+export const maxWay = (cols: number, rows: number): number => Math.round((cols + rows - 1) * 1.7);
+
+/**
+ * v13: a maze whose way from the corner to the corner is not overly long
+ * (best of a few tries). With a seeded `rand` it is the same every time.
+ */
+export function pickMaze(cols: number, rows: number, rand: () => number, tries = 12): Maze {
+  const cap = maxWay(cols, rows);
+  let best: Maze | null = null;
+  let bestLen = Infinity;
+  for (let i = 0; i < tries; i++) {
+    const m = makeMaze(cols, rows, rand);
+    const len = solve(m, { c: 0, r: 0 }, { c: cols - 1, r: rows - 1 }).length;
+    if (len <= cap) return m;
+    if (len < bestLen) {
+      best = m;
+      bestLen = len;
+    }
+  }
+  return best!;
+}
+
+/**
+ * v13: where a tap takes Ryzhik: along a straight open corridor, or by the
+ * shortest way when the cell is close (a few steps); far taps do nothing.
+ */
+export function tapPath(maze: Maze, from: Cell, to: Cell, near = 4): Cell[] {
+  const straight = walkToward(maze, from, to);
+  const last = straight[straight.length - 1];
+  if (last && last.c === to.c && last.r === to.r) return straight;
+  const way = solve(maze, from, to).slice(1);
+  return way.length > 0 && way.length <= near ? way : straight;
+}
+
+/** A word for the list instead of an exact size (the maze takes the screen's shape). */
+export function sizeWord(cols: number, rows: number): string {
+  const n = cols * rows;
+  return n <= 16 ? "маленький" : n <= 36 ? "средний" : "большой";
 }

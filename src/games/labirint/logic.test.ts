@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { createRng } from "../../shared/rng";
 import { characters } from "../../shared/assets";
 import { levels } from "./levels";
-import { E, N, S, W, canStep, fitMaze, makeMaze, placeApples, solve, walkToward } from "./maze";
+import { E, N, S, W, canStep, fitMaze, makeMaze, maxWay, pickMaze, placeApples, sizeWord, solve, tapPath, walkToward } from "./maze";
 
 function opens(v: number): number {
   return [N, E, S, W].filter((b) => v & b).length;
@@ -63,5 +63,29 @@ describe("labirint", () => {
     expect(wide.cols).toBeGreaterThan(wide.rows);
     expect(Math.abs(tall.cols * tall.rows - 56)).toBeLessThanOrEqual(6);
     expect(fitMaze(3, 3, 390, 700)).toEqual({ cols: 3, rows: 4 });
+  });
+  it("v13: keeps cells finger-sized on phones", () => {
+    for (const l of levels) {
+      const m = fitMaze(l.cols, l.rows, 360, 620, 56);
+      expect(360 / m.cols, l.id).toBeGreaterThanOrEqual(56);
+      expect(620 / m.rows, l.id).toBeGreaterThanOrEqual(56);
+      expect(m.cols * m.rows, l.id).toBeGreaterThanOrEqual(Math.min(l.cols * l.rows, 9));
+    }
+  });
+  it("v13: the same seed gives the same maze, and the way is never overly long", () => {
+    expect(pickMaze(4, 5, createRng(11)).open).toEqual(pickMaze(4, 5, createRng(11)).open);
+    for (let seed = 1; seed < 40; seed++) {
+      const m = pickMaze(6, 7, createRng(seed));
+      expect(solve(m, { c: 0, r: 0 }, { c: 5, r: 6 }).length).toBeLessThanOrEqual(maxWay(6, 7));
+    }
+  });
+  it("v13: a tap a few steps away walks the way; a far tap does nothing", () => {
+    const m = makeMaze(6, 6, createRng(9));
+    const far = { c: 5, r: 5 };
+    const way = solve(m, { c: 0, r: 0 }, far);
+    expect(tapPath(m, { c: 0, r: 0 }, way[3]!)).toEqual(way.slice(1, 4));
+    if (way.length > 6 && walkToward(m, { c: 0, r: 0 }, far).length === 0) expect(tapPath(m, { c: 0, r: 0 }, far)).toEqual([]);
+    expect(sizeWord(3, 3)).toBe("маленький");
+    expect(sizeWord(8, 9)).toBe("большой");
   });
 });

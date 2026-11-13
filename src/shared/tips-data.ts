@@ -7,7 +7,7 @@ export type LevelTip = { at: string; text: string };
 
 export const LEVEL_TIPS: Record<string, Record<string, LevelTip>> = {
   mozaika: {
-    m3: { at: ".mz-area", text: "Теперь без подсказки на рамке. Смотри на картинку!" },
+    m3: { at: ".mz-area", text: "Подсказки на рамке больше нет. Смотри на картинку!" },
     m23: { at: ".mz-piece.is-flipped", text: "Этот кусочек вверх ногами. Нажми — он перевернётся" },
     m20: { at: ".mz-basket", text: "Кусочки из другой картинки клади в корзинку!" },
   },
@@ -21,7 +21,7 @@ export const LEVEL_TIPS: Record<string, Record<string, LevelTip>> = {
     t10: { at: ".tn-board", text: "Тени похожи — смотри на мелочи!" },
     t25: { at: ".tn-board", text: "Большой — к большой тени, маленький — к маленькой" },
     t22: { at: ".tn-board", text: "Тени смотрят в другую сторону — всё равно узнай!" },
-    t23: { at: ".tn-board", text: "Тени вверх ногами! Переверни картинку в уме" },
+    t23: { at: ".tn-board", text: "Тени перевёрнуты. Узнай, чья это тень!" },
     t27: { at: ".tn-board", text: "Тень спряталась в кустах — узнай по кусочку" },
     t37: { at: ".tn-board", text: "Картинок три, а теней шесть — найди нужные!" },
     t34: { at: ".tn-tray", text: "Не у всех картинок есть тень — лишние оставь!" },
@@ -35,6 +35,7 @@ export const LEVEL_TIPS: Record<string, Record<string, LevelTip>> = {
     z1: { at: ".so-basket", text: "Большое — сюда, маленькое — в другую корзинку" },
     n1: { at: ".so-basket", text: "Число на корзинке — сколько положить" },
     x1: { at: ".so-basket", text: "Два признака сразу: что это и какого размера" },
+    p1: { at: ".so-basket", text: "Собираемся в дорогу: что нужно взять с собой?" },
   },
   labirint: {
     l6: { at: ".lb-count", text: "Собери по дороге яблоко!" },

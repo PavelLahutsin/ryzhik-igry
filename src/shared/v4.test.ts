@@ -85,10 +85,11 @@ import { HOWTO_VOICE, MUSIC_FILES, PRAISE_LINES, VOICE_LINES, VOICE_WHEN, WIN_JI
 describe("voice and music files", () => {
   it("has v01–v37 and m01–m12 as in the prompts, and the v12 slots v38–v42", () => {
     const ids = Object.keys(VOICE_LINES);
-    expect(ids).toHaveLength(42);
+    expect(ids).toHaveLength(66);
     expect(ids[0]).toBe("v01");
     expect(ids[36]).toBe("v37");
-    expect(ids.slice(37)).toEqual(["v38", "v39", "v40", "v41", "v42"]);
+    expect(ids.slice(37, 42)).toEqual(["v38", "v39", "v40", "v41", "v42"]);
+    expect(ids.slice(42)).toEqual(Array.from({ length: 24 }, (_, i) => `v${43 + i}`));
     for (const id of ids.slice(37)) expect(VOICE_WHEN[id], id).toBeTruthy();
     const music = new Set([...Object.values(MUSIC_FILES), WIN_JINGLE]);
     for (let i = 1; i <= 12; i++) expect(music.has(`m${String(i).padStart(2, "0")}`), `m${i}`).toBe(true);
@@ -97,6 +98,10 @@ describe("voice and music files", () => {
     for (const id of [...PRAISE_LINES, ...Object.values(HOWTO_VOICE), ...Object.keys(VOICE_WHEN)]) expect(VOICE_LINES[id], id).toBeTruthy();
     for (const g of games) if (g.id !== "raskraska") expect(HOWTO_VOICE[g.id], g.id).toBeTruthy();
     for (let i = 0; i < 20; i++) expect(PRAISE_LINES).toContain(praiseLine());
+    // v13: the voice never repeats the word on the card.
+    for (const word of ["Ура!", "Получилось!", "Отлично!", "Молодец!", "Здорово!"])
+      for (let i = 0; i < 10; i++) expect(VOICE_LINES[praiseLine(() => i / 10, word)]!.toLowerCase()).not.toContain(word.replace("!", "").toLowerCase());
+    for (const id of PRAISE_LINES) expect(VOICE_LINES[id]).not.toMatch(/умни|молодчин/i);
     expect(MUSIC_FILES.raskraska).toBeUndefined();
   });
 });

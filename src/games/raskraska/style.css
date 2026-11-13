@@ -361,7 +361,7 @@ p {
 
 .chip__note {
   max-width: 140px;
-  font-size: 0.72rem;
+  font-size: 13px;
   font-weight: 800;
   line-height: 1.15;
   text-align: center;
@@ -702,7 +702,7 @@ p {
 .dock__cap {
   margin: 0;
   color: var(--ink-soft);
-  font-size: 0.72rem;
+  font-size: 13px;
   font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -737,6 +737,7 @@ p {
 .tool__label {
   max-width: 100%;
   overflow: hidden;
+  /* v13: 11 px stays only for the five tools in a 360 px row; wider layouts get 15 px below. */
   font-size: 0.68rem;
   font-weight: 800;
   line-height: 1.15;
@@ -1290,7 +1291,7 @@ p {
 }
 
 .adult__section-title {
-  font-size: 0.8rem;
+  font-size: 13px;
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1468,7 +1469,7 @@ p {
   }
 
   .tool__label {
-    font-size: 0.8rem;
+    font-size: 15px;
   }
 
   .palette {
@@ -1494,7 +1495,7 @@ p {
   }
 
   .tool__label {
-    font-size: 0.72rem;
+    font-size: 15px;
   }
 }
 
@@ -2006,6 +2007,27 @@ body[data-route="lullabies"] {
   }
   .menu__head .btn--parent {
     padding: 8px 12px;
-    font-size: 0.8rem;
+    font-size: 13px;
+  }
+}
+
+/* v13: tablets and wide screens have room for readable tool names. */
+@media (min-width: 600px) {
+  .tool__label {
+    font-size: 15px;
+  }
+}
+
+/* v13: phones — back, «Родителям» and «?» share the row with the title; the
+   small fox gives way so «Раскраска с Рыжиком» is not covered. */
+@media (max-width: 420px) {
+  .menu__head .brand__fox {
+    display: none;
+  }
+  .menu__head .brand__text {
+    min-width: 0;
+  }
+  .menu__head .brand__title {
+    font-size: 1.3rem;
   }
 }

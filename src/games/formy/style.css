@@ -61,7 +61,7 @@
 
 @media (max-height: 500px) {
   .fm-say__text {
-    font-size: 14px;
+    font-size: 15px;
   }
 }
 
@@ -281,7 +281,7 @@
   padding: 1px 10px;
   border-radius: 999px;
   background: rgba(255, 248, 236, 0.92);
-  font: 800 14px var(--font-ui);
+  font: 800 15px var(--font-ui);
   color: var(--ink);
 }
 
@@ -493,7 +493,7 @@
 }
 
 .fm-bin__name {
-  font: 800 14px var(--font-ui);
+  font: 800 15px var(--font-ui);
   color: var(--ink-soft, #6b5a4c);
 }
 

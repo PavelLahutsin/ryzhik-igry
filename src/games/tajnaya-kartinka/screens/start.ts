@@ -1,4 +1,4 @@
-import heroUrl from "../assets/hero.webp";
+import heroUrl from "../../../shared/assets/characters/ryzhik.webp";
 import { levels } from "../data/levels";
 import { totalStars } from "../game/stars";
 import { goHome } from "../../../shared/router";

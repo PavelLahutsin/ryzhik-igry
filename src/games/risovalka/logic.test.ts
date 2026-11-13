@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { advance, numberWord, offTrack, resample, starsFor, strokeDone } from "./logic";
+import { advance, countedSlips, numberWord, offTrack, resample, starsFor, strokeDone } from "./logic";
 import { levels, worlds } from "./pictures";
 
 const line = resample([
@@ -65,5 +65,10 @@ describe("risovalka", () => {
     const longest = (w: string): number => Math.max(...levels.filter((l) => l.world === w).flatMap((l) => l.strokes.map(len)));
     expect(longest("paths")).toBeGreaterThan(longest("first"));
     for (const l of levels.filter((x) => x.world === "master")) expect(l.strokes.length).toBeGreaterThanOrEqual(5);
+  });
+  it("v13: slips in «Первые рисунки» cost no star", () => {
+    expect(starsFor(countedSlips("first", 9), 0).stars).toBe(3);
+    expect(starsFor(countedSlips("animals", 9), 0).stars).toBeLessThan(3);
+    expect(countedSlips(undefined, 4)).toBe(4);
   });
 });

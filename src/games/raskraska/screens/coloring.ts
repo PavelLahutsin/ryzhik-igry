@@ -18,7 +18,7 @@ type ColorEntry = { name: string; hex: string };
 
 /**
  * Eight big colours that are always on screen. Orange and green are sampled
- * from src/assets/ryzhik/ryzhik-wave.webp, yellow is --yellow (the star colour)
+ * from src/shared/assets/characters/ryzhik.webp (once ryzhik-wave.webp, the same file), yellow is --yellow (the star colour)
  * from docs/design.md.
  */
 const MAIN_COLORS: ColorEntry[] = [

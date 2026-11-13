@@ -66,7 +66,7 @@ const PART_WORD: Record<number, RegExp> = { 0.25: /четверти/, 0.5: /по
 describe("«Как играть» says exactly what the code does", () => {
   it("every level game has a spec, and its card prints that spec", () => {
     for (const g of games) {
-      if (["domik", "kuhnya", "raskraska", "tajnaya-kartinka"].includes(g.id)) continue;
+      if (["domik", "kuhnya", "raskraska", "tajnaya-kartinka", "tapni", "stikery", "zima"].includes(g.id)) continue;
       expect(STARS, g.id).toHaveProperty(g.id);
     }
     for (const [id, spec] of Object.entries(STARS)) expect(HOWTO[id]?.stars, id).toBe(starLine(spec as StarSpec));

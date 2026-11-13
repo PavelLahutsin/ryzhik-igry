@@ -10,7 +10,12 @@ const S = `stroke="${INK}" stroke-width="5" stroke-linejoin="round" stroke-linec
 const sw = (w: number): string => `stroke="${INK}" stroke-width="${w}" stroke-linejoin="round" stroke-linecap="round"`;
 const s3 = `stroke="${INK}" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"`;
 
-const svg = (body: string): string => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">${body}</svg>`;
+/**
+ * v13: the tiles are 4:3, so the frame is 4:3 too — the 200×200 scene sits in
+ * the middle of a 266.67×200 viewBox, nothing is cropped (ground and tops stay).
+ */
+export const TILE_VIEWBOX = "-33.33 0 266.67 200";
+const svg = (body: string): string => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${TILE_VIEWBOX}">${body}</svg>`;
 /** A data URL usable as <img src>. */
 export const svgUrl = (markup: string): string => `data:image/svg+xml,${encodeURIComponent(markup)}`;
 
@@ -156,5 +161,37 @@ export const TILE_ART = {
       `<path d="${star(100, 108, 16)}" fill="#ffc94a" ${s3}/><path d="M60 138 H140" stroke="#3f9b3a" stroke-width="6"/>` +
       `<path d="M22 182 V160 C22 150 30 146 38 148 L42 150 V170 H58 C66 170 68 182 60 182 Z" fill="#e8463a" ${s3}/><path d="M46 182 V160 C46 150 54 146 62 148 L66 150 V170 H82 C90 170 92 182 84 182 Z" fill="#e8463a" ${s3}/>` +
       `<path d="M124 178 C124 150 142 140 160 140 C178 140 194 150 194 178 Z" fill="#3a8fd4" ${S}/><path d="M118 178 H198" ${sw(7)}/><circle cx="160" cy="134" r="9" fill="#fff" ${s3}/>`,
+  ),
+  /** v13 «Тапни и послушай»: a drum with sticks, sound waves and notes, a bird answering. */
+  tapni: svg(
+    `${ground(186, 80)}` +
+      `<path d="M50 112 V160 C50 174 150 174 150 160 V112" fill="#e8463a" ${S}/><ellipse cx="100" cy="112" rx="50" ry="16" fill="#fff3d6" ${S}/>` +
+      `<path d="M56 128 L78 162 L100 128 L122 162 L144 128" fill="none" stroke="#ffd54a" stroke-width="5" stroke-linejoin="round"/>` +
+      `<path d="M74 60 L92 104 M136 54 L112 102" ${sw(7)}/><circle cx="72" cy="56" r="9" fill="#ffd54a" ${s3}/><circle cx="138" cy="50" r="9" fill="#ffd54a" ${s3}/>` +
+      `<path d="M26 92 C16 110 16 130 26 148 M12 82 C-2 108 -2 134 12 158" fill="none" stroke="#3a8fd4" stroke-width="6" stroke-linecap="round"/>` +
+      `<path d="M174 92 C184 110 184 130 174 148 M188 82 C202 108 202 134 188 158" fill="none" stroke="#3a8fd4" stroke-width="6" stroke-linecap="round"/>` +
+      `<path d="M160 30 V8 L180 4 V26" fill="none" ${sw(4)}/><ellipse cx="155" cy="31" rx="7" ry="5" fill="${INK}"/><ellipse cx="175" cy="27" rx="7" ry="5" fill="${INK}"/>` +
+      `<path d="M30 30 V10" ${sw(4)}/><ellipse cx="25" cy="31" rx="7" ry="5" fill="${INK}"/><path d="M30 10 C38 14 42 20 38 26" fill="none" ${sw(4)}/>`,
+  ),
+  /** v13 «Картинка из наклеек»: a sheet with a sun, a flower and a house stuck on, one more sticker peeling. */
+  stikery: svg(
+    `${ground(188, 84)}` +
+      `<rect x="22" y="26" width="156" height="150" rx="14" fill="#fffaf0" ${S}/><path d="M22 128 H178 V162 C178 170 172 176 164 176 H36 C28 176 22 170 22 162 Z" fill="#a9d98a"/>` +
+      `<rect x="22" y="26" width="156" height="150" rx="14" fill="none" ${S}/>` +
+      `<circle cx="56" cy="62" r="18" fill="#ffd54a" ${s3}/><path d="M56 34 V38 M56 86 V90 M28 62 H32 M80 62 H84" stroke="#f5a623" stroke-width="4" stroke-linecap="round"/>` +
+      `<path d="M104 112 L130 88 L156 112 Z" fill="#e8463a" ${s3}/><rect x="110" y="112" width="40" height="34" fill="#ffb067" ${s3}/><rect x="124" y="124" width="12" height="22" fill="#a86b3c" ${s3}/>` +
+      `<path d="M66 146 V122" stroke="#3f9b3a" stroke-width="5" stroke-linecap="round"/><circle cx="66" cy="114" r="10" fill="#f27aa0" ${s3}/><circle cx="66" cy="114" r="4" fill="#ffd54a"/>` +
+      `<g transform="rotate(-14 170 40)"><rect x="146" y="18" width="50" height="44" rx="10" fill="#fff" ${s3}/><path d="M196 46 L180 62 H186 C192 62 196 58 196 52 Z" fill="#e6d8c8" ${s3}/><path d="M171 26 L176 37 L188 38 L179 46 L182 58 L171 51 L160 58 L163 46 L154 38 L166 37 Z" fill="#ffc94a" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/></g>`,
+  ),
+  /** v13 «Зима»: a snowman by a snowy fir, snowflakes. */
+  zima: svg(
+    `${ground(188, 90)}` +
+      `<path d="M10 186 C40 168 160 168 190 186 Z" fill="#fff" ${s3}/>` +
+      `<path d="M150 24 L178 70 H164 L186 110 H168 L192 152 H108 L132 110 H114 L136 70 H122 Z" fill="#3f9a4a" ${S}/><path d="M138 70 L150 62 L162 70 M128 110 L150 100 L172 110" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><rect x="142" y="152" width="16" height="20" fill="#a86b3c" ${s3}/>` +
+      `<circle cx="70" cy="146" r="30" fill="#fff" ${S}/><circle cx="70" cy="94" r="22" fill="#fff" ${S}/>` +
+      `<path d="M50 80 C50 60 90 60 90 80 Z" fill="#e8463a" ${s3}/><circle cx="70" cy="58" r="6" fill="#fff" ${s3}/><path d="M46 80 H94" ${sw(6)}/>` +
+      `<circle cx="62" cy="92" r="3" fill="${INK}"/><circle cx="78" cy="92" r="3" fill="${INK}"/><path d="M70 98 L84 102 L70 104 Z" fill="#ff8a3d" stroke="${INK}" stroke-width="2" stroke-linejoin="round"/>` +
+      `<path d="M52 112 C62 120 78 120 88 112" fill="none" stroke="#3a8fd4" stroke-width="7" stroke-linecap="round"/><circle cx="70" cy="140" r="3.5" fill="${INK}"/><circle cx="70" cy="156" r="3.5" fill="${INK}"/>` +
+      ["M22 40", "M110 30", "M24 120", "M186 30"].map((m, i) => { const [x, y] = m.slice(1).split(" ").map(Number) as [number, number]; const r = i % 2 ? 7 : 9; return `<path d="M${x - r} ${y} H${x + r} M${x} ${y - r} V${y + r} M${x - r * 0.7} ${y - r * 0.7} L${x + r * 0.7} ${y + r * 0.7} M${x - r * 0.7} ${y + r * 0.7} L${x + r * 0.7} ${y - r * 0.7}" stroke="#6db3d4" stroke-width="3" stroke-linecap="round"/>`; }).join(""),
   ),
 } as const;

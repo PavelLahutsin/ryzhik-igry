@@ -1,5 +1,5 @@
 import { audio } from "../../../shared/audio";
-import heroUrl from "../assets/hero.webp";
+import heroUrl from "../../../shared/assets/characters/ryzhik.webp";
 import { INTROS, gameConfig, getLevel, getWorld } from "../data/levels";
 import { EFFECT_TIME, Game, type ItemKind } from "../game/engine";
 import { drawGame, loadMarker, pointerToCell, sizeCanvas, type IconKind } from "../game/render";

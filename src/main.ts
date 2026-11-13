@@ -7,7 +7,10 @@ import "@fontsource/nunito/latin-400.css";
 import "@fontsource/nunito/latin-700.css";
 import "@fontsource/nunito/latin-800.css";
 
-import { findGame } from "./games/registry";
+import { findGame, freshKey, type GameEntry } from "./games/registry";
+import { markOpened } from "./shared/played";
+import { TITLE_VOICE } from "./shared/voice-lines";
+import { firstOpenGift } from "./shared/gift";
 import { renderHome } from "./home/home";
 import { renderParents } from "./home/parents";
 import { renderAlbum } from "./home/album";
@@ -23,6 +26,13 @@ import baseCss from "./shared/base.css?inline";
 import overlaysCss from "./shared/overlays.css?inline";
 
 dragFeedback.none = () => audio.play("drop");
+
+/** v13: remember the game (recent row, badges); the very first time a small gift opens. */
+async function opened(game: GameEntry): Promise<void> {
+  const key = freshKey(game);
+  if (key) await markOpened(key, false);
+  if (await markOpened(game.id)) firstOpenGift(root);
+}
 
 const node = document.getElementById("app");
 if (!node) throw new Error("Нет #app");
@@ -84,6 +94,7 @@ function onHash(): void {
       if (mine !== token || !current) return;
       root.replaceChildren();
       const stop = module.mount(root);
+      void opened(game);
       const stopHelp = attachHowToButton(game.id, root);
       current.cleanup = () => {
         stopHelp();
@@ -91,7 +102,10 @@ function onHash(): void {
       };
       // First time in this game: show «Как играть».
       void howToSeen(game.id).then((seen) => {
-        if (!seen && mine === token) void showHowTo(game.id);
+        if (mine !== token) return;
+        if (!seen) void showHowTo(game.id);
+        // v13: Ryzhik says the game's name (when recorded) unless «Как играть» speaks.
+        else if (TITLE_VOICE[game.id]) audio.say(TITLE_VOICE[game.id]!);
       });
     })
     .catch(() => {

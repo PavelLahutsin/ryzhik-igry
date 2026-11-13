@@ -1,4 +1,4 @@
-import ryzhikWave from "../assets/ryzhik/ryzhik-wave.webp";
+import ryzhikWave from "../../../shared/assets/characters/ryzhik.webp";
 import { catalog } from "../data/albums";
 import { goHome } from "../../../shared/router";
 import { navigate } from "../router";

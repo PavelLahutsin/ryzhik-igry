@@ -1,5 +1,8 @@
 import { audio } from "./audio";
 import { el, svgEl, replayClass } from "./dom";
+import { markOpened, wasOpened } from "./played";
+import { seasonOpen } from "./season";
+import { countWin, showBreak } from "./toys";
 import { gameProgress, isUnlocked, isUnlockedInWorld, totalStars, type Progress } from "./progress";
 import { goHome, listenGame, navigateGame } from "./router";
 import { praiseOverlay, starRow, toolbar } from "./ui";
@@ -61,6 +64,11 @@ export type LevelGameDef<L extends LevelInfo> = {
   /** Every world starts open; levels open one by one inside it. */
   openWorlds?: boolean;
   /**
+   * Level → the level that opens it, when not the one before it in the list
+   * (a world added in the middle: the old next world still opens as before).
+   */
+  after?: Record<string, string>;
+  /**
    * The game's own first screen at "#/<id>/" (e.g. a big mode). The level
    * list then lives at "#/<id>/levels" as a second section.
    */
@@ -105,8 +113,12 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
   const ids = def.levels.map((level) => level.id);
   /** Where the level list is: the first screen, or "/levels" behind `home`. */
   const LIST = def.home ? "/levels" : "/";
-  const unlocked = (id: string, completed: readonly string[]): boolean =>
-    def.openWorlds ? isUnlockedInWorld(def.levels, id, completed) : isUnlocked(ids, id, completed);
+  const unlocked = (id: string, completed: readonly string[]): boolean => {
+    if (seasonOpen(def.id, id)) return true;
+    const after = def.after?.[id];
+    if (after) return completed.includes(after) || completed.includes(id);
+    return def.openWorlds ? isUnlockedInWorld(def.levels, id, completed) : isUnlocked(ids, id, completed);
+  };
   let cleanup: (() => void) | null = null;
   let token = 0;
 
@@ -203,6 +215,16 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
           grid.append(card);
         }
         sections.append(section);
+        // v13: a world that just opened (its first level is playable) greets once with a soft glow.
+        if (group.world && groups[0] !== group && !def.openWorlds && unlocked(groupIds[0]!, progress.completed)) {
+          const key = `world:${def.id}:${group.world.id}`;
+          void wasOpened(key).then((seen) => {
+            if (seen || stale()) return;
+            section.classList.add("is-fresh");
+            section.querySelector(".world__head")?.append(el("span", { class: "world__new", text: "Новое!" }));
+            void markOpened(key, false);
+          });
+        }
         if (strip && group.world) {
           const w = group.world;
           const got = totalStars(progress.stars, groupIds);
@@ -229,7 +251,14 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
       if (strip) {
         // The chip of the world on screen lights up (and scrolls into the strip).
         let current: HTMLElement | null = null;
+        // v13: a soft fade on the side where more chips hide, so the strip shows it scrolls.
+        const edges = (): void => {
+          const max = strip.scrollWidth - strip.clientWidth;
+          strip.classList.toggle("has-more", max > 2 && strip.scrollLeft < max - 2);
+          strip.classList.toggle("has-less", strip.scrollLeft > 2);
+        };
         const mark = (): void => {
+          edges();
           const line = strip.getBoundingClientRect().bottom + 24;
           let on = chips[0];
           for (const c of chips) if (c.section.getBoundingClientRect().top <= line) on = c;
@@ -340,6 +369,7 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
           .win(level.id, stars)
           .then(() => newStickers())
           .catch(() => [] as Sticker[]);
+        const rest = countWin();
         const next = def.levels[index + 1];
         const actions = [
           next
@@ -370,6 +400,14 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
             voice: next ? undefined : "v09",
           });
           view.append(card);
+          // v13: after several levels in a row, a short «Потрогай» break is offered (never forced).
+          if (rest) {
+            card.querySelector(".praise__actions")?.before(
+              el("button", { class: "btn btn--ghost praise__break", attrs: { type: "button" }, on: { click: () => showBreak(view) } }, [
+                el("span", { text: "Передохнуть: потрогай игрушки" }),
+              ]),
+            );
+          }
           // A new sticker for the album, if the stars opened one.
           void fresh.then((list) => {
             const s = list[list.length - 1];

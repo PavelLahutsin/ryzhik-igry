@@ -83,14 +83,20 @@
   animation: pop-in 300ms cubic-bezier(0.3, 1.5, 0.5, 1);
 }
 
+/* v13: two-word names («Большое красное») wrap inside their basket instead of
+   running into the next one; never under 15 px. */
 .so-basket__name {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 5px;
+  max-width: 100%;
   margin-top: 2px;
   font-weight: 800;
-  font-size: clamp(13px, 2vh, 17px);
-  white-space: nowrap;
+  font-size: clamp(15px, 2vh, 17px);
+  line-height: 1.1;
+  text-align: center;
+  overflow-wrap: break-word;
 }
 
 .so-basket__label {
@@ -272,7 +278,7 @@
     width: min(100%, 10.5vh, 120px);
   }
   .so-baskets--4 .so-basket__name {
-    font-size: 13px;
+    font-size: 15px;
   }
   .so-baskets--4 ~ .so-table {
     gap: 8px;

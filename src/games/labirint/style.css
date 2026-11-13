@@ -215,3 +215,10 @@
   border-radius: 50%;
   background: rgba(59, 46, 37, 0.22);
 }
+
+/* v13: a far tap — Ryzhik waits with a soft shake; the first apple level calls the apple. */
+.lb-fox.is-wait img { animation: lb-wait 0.5s ease-in-out; }
+@keyframes lb-wait { 25% { rotate: -8deg; } 75% { rotate: 8deg; } }
+.lb-apple.is-call > .svg-art { animation: lb-call 0.7s ease-in-out 3; }
+@keyframes lb-call { 50% { scale: 1.3; } }
+@media (prefers-reduced-motion: reduce) { .lb-fox.is-wait img, .lb-apple.is-call > .svg-art { animation: none; } }

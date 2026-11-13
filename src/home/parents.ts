@@ -8,6 +8,7 @@ import { gateTask, gateWords } from "./gate";
 import { HOWTO } from "../shared/howto-data";
 import { removeSaved } from "../shared/reset";
 import { resetSeen } from "../shared/seen";
+import { resetPlayed } from "../shared/played";
 
 let unlocked = false;
 
@@ -98,6 +99,7 @@ function settings(view: HTMLElement): void {
   const tipsBtn = el("button", { class: "btn", attrs: { type: "button" }, text: "Показать снова" });
   tipsBtn.addEventListener("click", () => {
     void resetSeen();
+    void resetPlayed();
     tipsBtn.textContent = "Готово";
     tipsBtn.disabled = true;
   });
@@ -108,7 +110,7 @@ function settings(view: HTMLElement): void {
       const h = HOWTO[game.id]!;
       return el("details", { class: "rules" }, [
         el("summary", { text: game.title }),
-        el("p", { text: h.rules }),
+        ...h.rules.split("\n").map((t) => el("p", { text: t })),
         h.stars ? el("p", { class: "rules__dev" }, [el("b", { text: "Звёзды: " }), h.stars.replace(/ · /g, "; ")]) : null,
         el("p", { class: "rules__dev" }, [el("b", { text: "Развивает: " }), h.develops]),
       ]);
