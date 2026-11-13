@@ -1,5 +1,6 @@
 import { audio } from "./audio";
 import { el, svgEl, replayClass } from "./dom";
+import { markOpened, wasOpened } from "./played";
 import { gameProgress, isUnlocked, isUnlockedInWorld, totalStars, type Progress } from "./progress";
 import { goHome, listenGame, navigateGame } from "./router";
 import { praiseOverlay, starRow, toolbar } from "./ui";
@@ -203,6 +204,16 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
           grid.append(card);
         }
         sections.append(section);
+        // v13: a world that just opened (its first level is playable) greets once with a soft glow.
+        if (group.world && groups[0] !== group && !def.openWorlds && unlocked(groupIds[0]!, progress.completed)) {
+          const key = `world:${def.id}:${group.world.id}`;
+          void wasOpened(key).then((seen) => {
+            if (seen || stale()) return;
+            section.classList.add("is-fresh");
+            section.querySelector(".world__head")?.append(el("span", { class: "world__new", text: "Новое!" }));
+            void markOpened(key, false);
+          });
+        }
         if (strip && group.world) {
           const w = group.world;
           const got = totalStars(progress.stars, groupIds);

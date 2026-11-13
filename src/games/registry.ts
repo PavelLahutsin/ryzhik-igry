@@ -26,7 +26,12 @@ export type GameEntry = {
   summary: () => Promise<Summary>;
   /** Storage keys that «Родителям → Сбросить» clears (never the coloring drawings). */
   resetKeys?: string[];
+  /** v13: «Новое» badge on the home tile until the game is opened once after this release. */
+  fresh?: { since: string; text: "Новое" | "Новые уровни" };
 };
+
+/** The key that remembers a «Новое» badge was seen (opening the game marks it). */
+export const freshKey = (game: Pick<GameEntry, "id" | "fresh">): string | null => (game.fresh ? `new:${game.id}:${game.fresh.since}` : null);
 
 /** A level game: stars on the tile, «Сбросить» clears "ryzhik-igry:<id>:progress". */
 function levelStars(

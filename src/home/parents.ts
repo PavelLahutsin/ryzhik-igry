@@ -8,6 +8,7 @@ import { gateTask, gateWords } from "./gate";
 import { HOWTO } from "../shared/howto-data";
 import { removeSaved } from "../shared/reset";
 import { resetSeen } from "../shared/seen";
+import { resetPlayed } from "../shared/played";
 
 let unlocked = false;
 
@@ -98,6 +99,7 @@ function settings(view: HTMLElement): void {
   const tipsBtn = el("button", { class: "btn", attrs: { type: "button" }, text: "Показать снова" });
   tipsBtn.addEventListener("click", () => {
     void resetSeen();
+    void resetPlayed();
     tipsBtn.textContent = "Готово";
     tipsBtn.disabled = true;
   });
