@@ -103,5 +103,6 @@ describe("voice and music files", () => {
       for (let i = 0; i < 10; i++) expect(VOICE_LINES[praiseLine(() => i / 10, word)]!.toLowerCase()).not.toContain(word.replace("!", "").toLowerCase());
     for (const id of PRAISE_LINES) expect(VOICE_LINES[id]).not.toMatch(/умни|молодчин/i);
     expect(MUSIC_FILES.raskraska).toBeUndefined();
+    expect([MUSIC_FILES.tapni, MUSIC_FILES.stikery, MUSIC_FILES.zima, MUSIC_FILES.break]).toEqual(["m13", "m14", "m15", "m16"]);
   });
 });

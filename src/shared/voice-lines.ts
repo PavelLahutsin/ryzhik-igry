@@ -206,8 +206,10 @@ export const MUSIC_FILES: Record<string, string> = {
   risovalka: "m11",
   bukvy: "m11",
   tochki: "m11",
-  tapni: "m06",
-  stikery: "m03",
-  zima: "m01",
+  tapni: "m13",
+  stikery: "m14",
+  zima: "m15",
+  /** The short «Передохнём» break between levels (src/shared/toys.ts). */
+  break: "m16",
 };
 export const WIN_JINGLE = "m12";

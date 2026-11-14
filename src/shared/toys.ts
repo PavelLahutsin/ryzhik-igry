@@ -49,7 +49,12 @@ export function countWin(): boolean {
 export function showBreak(parent: HTMLElement): void {
   if (parent.querySelector(".toy-break")) return;
   const grid = el("div", { class: "toy-break__grid" });
-  const close = (): void => box.remove();
+  // Its own calm music while it is open, then back to the game's.
+  const theme = audio.theme;
+  const close = (): void => {
+    box.remove();
+    if (audio.theme === "break") audio.setTheme(theme);
+  };
   const box = el("div", { class: "toy-break", attrs: { role: "dialog", "aria-label": "Передохнём" } }, [
     el("div", { class: "toy-break__card" }, [
       el("h2", { class: "toy-break__title", text: "Передохнём! Потрогай игрушки" }),
@@ -58,6 +63,7 @@ export function showBreak(parent: HTMLElement): void {
     ]),
   ]);
   parent.append(box);
+  audio.setTheme("break");
   audio.say("v66");
   void import("../games/tapni/scenes").then(({ TOYS }) => {
     if (!box.isConnected) return;
