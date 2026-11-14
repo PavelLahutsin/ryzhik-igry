@@ -106,7 +106,7 @@ export const games: GameEntry[] = [
   },
   {
     id: "tapni",
-    title: "Тапни и послушай",
+    title: "Нажми и послушай",
     note: "Лес, кухня и двор: всё звучит",
     color: "#3fae6a",
     art: { src: svgUrl(TILE_ART.tapni), figure: true },
@@ -116,7 +116,7 @@ export const games: GameEntry[] = [
   },
   {
     id: "risovalka",
-    title: "Обводилка",
+    title: "Обведи картинку",
     note: "Обведи — и рисунок оживёт",
     color: "#9b6cd8",
     art: { src: svgUrl(TILE_ART.risovalka), figure: true },
@@ -140,7 +140,7 @@ export const games: GameEntry[] = [
   },
   {
     id: "tochki",
-    title: "По точкам",
+    title: "Рисуем по точкам",
     note: "Соедини точки: цифры и буквы",
     color: "#3fae6a",
     art: { src: svgUrl(TILE_ART.tochki), figure: true },
@@ -242,7 +242,7 @@ export const games: GameEntry[] = [
   },
   {
     id: "sortirovka",
-    title: "По корзинкам",
+    title: "Разложи по корзинкам",
     note: "По цвету, смыслу, размеру и счёту",
     color: "#ff9f6b",
     art: { src: svgUrl(TILE_ART.sortirovka), figure: true },

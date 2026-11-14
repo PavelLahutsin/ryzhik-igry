@@ -1,4 +1,4 @@
-/* «Тапни и послушай» */
+/* «Нажми и послушай» */
 .game--tapni { padding-bottom: 10px; }
 .tp-stage { padding: 0; }
 .tp-scene {
@@ -34,8 +34,9 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  min-height: 56px;
-  padding: 4px 14px 4px 6px;
+  min-height: 64px;
+  padding: 4px 16px 4px 6px;
+  transition: transform 160ms ease, background-color 160ms ease;
   border-radius: 999px;
   background: var(--surface);
   box-shadow: 0 0 0 3px var(--line);
@@ -43,8 +44,13 @@
   color: var(--ink);
   cursor: pointer;
 }
-.tp-tab.is-on { background: var(--yellow-tint); box-shadow: 0 0 0 4px var(--orange); }
-.tp-tab__icon, .tp-tab__icon svg { width: 42px; height: 42px; display: block; }
+.tp-tab.is-on {
+  background: var(--yellow-tint);
+  box-shadow: 0 0 0 5px var(--orange), 0 6px 0 rgba(59, 46, 37, 0.12);
+  transform: translateY(-3px) scale(1.06);
+}
+.tp-tab:not(.is-on) .tp-tab__icon { opacity: 0.8; }
+.tp-tab__icon, .tp-tab__icon svg { width: 52px; height: 52px; display: block; }
 .tp-toys {
   flex: 1;
   min-height: 0;
@@ -52,13 +58,15 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   align-content: center;
   justify-items: center;
-  gap: 8px;
+  /* Room for the word that pops up above a toy: rows never touch. */
+  gap: 22px 8px;
+  padding-top: 14px;
 }
 .tp-score.is-bump { animation: toy-bounce 500ms cubic-bezier(0.3, 1.6, 0.5, 1); }
 @media (max-width: 420px) {
-  .tp-tab { padding: 4px; }
+  .tp-tab { padding: 5px; }
   .tp-tab__name { display: none; }
-  .tp-tabs { gap: 14px; }
+  .tp-tabs { gap: 16px; padding-top: 6px; }
 }
 @media (max-height: 500px) and (min-aspect-ratio: 3/2) {
   .game--tapni {
@@ -69,9 +77,10 @@
   }
   .game--tapni > .toolbar { grid-column: 1 / -1; }
   .tp-tabs { flex-direction: column; flex-wrap: nowrap; }
-  .tp-tab { padding: 4px; min-height: 48px; }
+  .tp-tab { padding: 6px; min-height: 56px; }
+  .tp-tab.is-on { transform: translateX(-3px) scale(1.06); }
   .tp-tab__name { display: none; }
-  .tp-tab__icon, .tp-tab__icon svg { width: 36px; height: 36px; }
+  .tp-tab__icon, .tp-tab__icon svg { width: 42px; height: 42px; }
   .tp-toys { grid-template-columns: repeat(5, minmax(0, 1fr)); }
   .tp-spot { width: min(16vw, 22vh, 120px); height: min(16vw, 22vh, 120px); }
 }

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { SOUND_KINDS } from "../../shared/sounds";
 import { allFinds, SCENES, TOYS } from "./scenes";
 
-describe("«Тапни и послушай»", () => {
+describe("«Нажми и послушай»", () => {
   it("has the forest, the kitchen and the yard, 8 things each, all drawn and with a sound", () => {
     expect(SCENES.map((s) => s.title)).toEqual(["Лес", "Кухня", "Двор"]);
     for (const s of SCENES) {

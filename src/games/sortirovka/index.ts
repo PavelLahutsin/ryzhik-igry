@@ -24,8 +24,8 @@ export function mount(root: HTMLElement): () => void {
   return mountLevelGame(
     {
       id: "sortirovka",
-      title: "По корзинкам",
-      subtitle: "Разложи картинки по корзинкам",
+      title: "Разложи по корзинкам",
+      subtitle: "По цвету, по виду, по размеру и по смыслу",
       levels,
       worlds,
       after: AFTER,
