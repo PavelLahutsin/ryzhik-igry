@@ -116,7 +116,7 @@ export const games: GameEntry[] = [
   },
   {
     id: "risovalka",
-    title: "Обводилка",
+    title: "Обведи картинку",
     note: "Обведи — и рисунок оживёт",
     color: "#9b6cd8",
     art: { src: svgUrl(TILE_ART.risovalka), figure: true },
@@ -140,7 +140,7 @@ export const games: GameEntry[] = [
   },
   {
     id: "tochki",
-    title: "По точкам",
+    title: "Рисуем по точкам",
     note: "Соедини точки: цифры и буквы",
     color: "#3fae6a",
     art: { src: svgUrl(TILE_ART.tochki), figure: true },

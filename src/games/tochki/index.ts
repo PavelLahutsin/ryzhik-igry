@@ -18,7 +18,7 @@ export function mount(root: HTMLElement): () => void {
   return mountLevelGame(
     {
       id: "tochki",
-      title: "По точкам",
+      title: "Рисуем по точкам",
       subtitle: "Соедини точки по порядку — и увидишь, что получится",
       levels,
       worlds,

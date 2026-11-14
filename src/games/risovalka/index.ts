@@ -13,9 +13,9 @@ export function mount(root: HTMLElement): () => void {
   return mountLevelGame(
     {
       id: "risovalka",
-      // Shown as «Обводилка» (you trace); the id, the route and the progress
+      // Shown as «Обведи картинку» (you trace); the id, the route and the progress
       // key stay "risovalka", so stars are kept.
-      title: "Обводилка",
+      title: "Обведи картинку",
       subtitle: "Обведи пальчиком по точкам — и рисунок оживёт",
       levels,
       worlds,
