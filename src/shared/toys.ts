@@ -5,7 +5,7 @@ import { svgNode } from "./ui";
 
 /**
  * v13 «Потрогай»: a toy you touch — it wobbles, bounces or spins, makes its
- * sound and says a short word. Nothing to win or lose. Used by «Тапни и
+ * sound and says a short word. Nothing to win or lose. Used by «Нажми и
  * послушай» and by the short break between levels.
  */
 export type Motion = "bounce" | "wobble" | "spin" | "hop" | "squash" | "float" | "swing" | "shake";
@@ -21,7 +21,7 @@ export function touchable(t: Touchable, onTouch?: (id: string) => void, cls = "t
       on: {
         click: () => {
           audio.unlock();
-          audio.play(t.sound);
+          audio.play(t.sound, "toy");
           replayClass(node, "is-on");
           replayClass(word, "is-on");
           onTouch?.(t.id);
@@ -30,6 +30,10 @@ export function touchable(t: Touchable, onTouch?: (id: string) => void, cls = "t
     },
     [svgNode(t.svg, "toy__art"), word],
   );
+  // After its move the toy goes back to the gentle idle sway.
+  node.addEventListener("animationend", (e) => {
+    if (e.target !== word && e.animationName !== "toy-idle") node.classList.remove("is-on");
+  });
   return node;
 }
 

@@ -166,6 +166,9 @@ function startSynth(): void {
   }
 }
 
+/** Sounds that cut each other (see audio.play). */
+const channels = new Map<string, GainNode>();
+
 export const audio = {
   get enabled(): boolean {
     return enabled;
@@ -199,9 +202,30 @@ export const audio = {
     if (c && c.state === "suspended") void c.resume();
     syncMusic();
   },
-  play(kind: SoundKind): void {
+  /**
+   * A short sound. With a `channel` (e.g. "toy"), a new sound on that channel
+   * cuts the one still ringing there, so fast taps do not pile up.
+   */
+  play(kind: SoundKind, channel?: string): void {
     const c = ready();
-    if (!c || !fx) return;
+    if (!c || !fx) {
+      // The very first tap: the context is still waking up, play once it is.
+      const w = enabled ? context() : null;
+      if (w && w.state === "suspended") void w.resume().then(() => w.state === "running" && audio.play(kind, channel)).catch(() => {});
+      return;
+    }
+    if (channel) {
+      const prev = channels.get(channel);
+      if (prev) {
+        prev.gain.setTargetAtTime(0, c.currentTime, 0.015);
+        setTimeout(() => prev.disconnect(), 120);
+      }
+      const g = c.createGain();
+      g.connect(fx);
+      channels.set(channel, g);
+      recipe(kind)(c, g, c.currentTime);
+      return;
+    }
     if (kind === "miss" || kind === "boing") {
       // Now and then Ryzhik cheers up after a miss (when recorded).
       misses++;
@@ -266,6 +290,13 @@ export const audio = {
 };
 
 if (typeof document !== "undefined") {
+  // Browsers start WebAudio only from a user gesture: wake it on the first one.
+  const wake = (): void => {
+    if (!enabled) return;
+    const c = context();
+    if (c && c.state === "suspended") void c.resume().catch(() => {});
+  };
+  for (const type of ["pointerdown", "touchend", "keydown"]) document.addEventListener(type, wake, { capture: true, passive: true });
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
       voicePlaying?.pause();
