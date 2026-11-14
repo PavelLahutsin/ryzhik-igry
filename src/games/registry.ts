@@ -106,7 +106,7 @@ export const games: GameEntry[] = [
   },
   {
     id: "tapni",
-    title: "Тапни и послушай",
+    title: "Нажми и послушай",
     note: "Лес, кухня и двор: всё звучит",
     color: "#3fae6a",
     art: { src: svgUrl(TILE_ART.tapni), figure: true },
@@ -242,7 +242,7 @@ export const games: GameEntry[] = [
   },
   {
     id: "sortirovka",
-    title: "По корзинкам",
+    title: "Разложи по корзинкам",
     note: "По цвету, смыслу, размеру и счёту",
     color: "#ff9f6b",
     art: { src: svgUrl(TILE_ART.sortirovka), figure: true },
