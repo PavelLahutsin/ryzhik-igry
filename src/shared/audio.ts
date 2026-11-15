@@ -25,17 +25,21 @@ let ctx: AudioContext | null = null;
 let fx: GainNode | null = null;
 let musicBus: GainNode | null = null;
 let enabled = true;
-let musicOn = false;
+// Music is on unless a parent switched it off in «Родителям» (v16: the
+// recorded tracks are in, so the menu has its melody from the first tap).
+let musicOn = true;
 let theme = "home";
 const KEY = "sound";
 const MUSIC_KEY = "music";
 
-void platform.storage.get<boolean>(KEY).then((value) => {
-  if (value === false) enabled = false;
-});
-void platform.storage.get<boolean>(MUSIC_KEY).then((value) => {
-  if (value === true) musicOn = true;
-});
+void Promise.all([
+  platform.storage.get<boolean>(KEY).then((value) => {
+    if (value === false) enabled = false;
+  }),
+  platform.storage.get<boolean>(MUSIC_KEY).then((value) => {
+    if (value === false) musicOn = false;
+  }),
+]).then(() => syncMusic());
 
 function context(): AudioContext | null {
   if (ctx) return ctx;
@@ -133,7 +137,7 @@ function syncMusic(): void {
   const want = enabled && musicOn && Boolean(musicFor(theme));
   const id = MUSIC_FILES[theme];
   const url = id ? fileUrl("music", id) : "";
-  if (want && url && fileKnown(url)) {
+  if (want && url && fileKnown(url) && typeof Audio !== "undefined") {
     // A recorded track replaces the synthesized loop.
     stopSynth();
     if (trackUrl !== url) {
@@ -147,7 +151,8 @@ function syncMusic(): void {
     return;
   }
   stopTrack();
-  if (want) startSynth();
+  // Node tests have no window; the menu music still loads settings there.
+  if (want && typeof window !== "undefined") startSynth();
   else stopSynth();
 }
 
@@ -291,10 +296,14 @@ export const audio = {
 
 if (typeof document !== "undefined") {
   // Browsers start WebAudio only from a user gesture: wake it on the first one.
+  // A recorded track may only start inside a gesture too: the first tap on the
+  // menu (also when the page opens straight on it) starts the melody, and a
+  // track the browser refused earlier (e.g. after the system Back) retries.
   const wake = (): void => {
     if (!enabled) return;
     const c = context();
     if (c && c.state === "suspended") void c.resume().catch(() => {});
+    syncMusic();
   };
   for (const type of ["pointerdown", "touchend", "keydown"]) document.addEventListener(type, wake, { capture: true, passive: true });
   document.addEventListener("visibilitychange", () => {
