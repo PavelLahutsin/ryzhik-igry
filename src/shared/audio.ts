@@ -137,7 +137,7 @@ function syncMusic(): void {
   const want = enabled && musicOn && Boolean(musicFor(theme));
   const id = MUSIC_FILES[theme];
   const url = id ? fileUrl("music", id) : "";
-  if (want && url && fileKnown(url)) {
+  if (want && url && fileKnown(url) && typeof Audio !== "undefined") {
     // A recorded track replaces the synthesized loop.
     stopSynth();
     if (trackUrl !== url) {
@@ -151,7 +151,8 @@ function syncMusic(): void {
     return;
   }
   stopTrack();
-  if (want) startSynth();
+  // Node tests have no window; the menu music still loads settings there.
+  if (want && typeof window !== "undefined") startSynth();
   else stopSynth();
 }
 
