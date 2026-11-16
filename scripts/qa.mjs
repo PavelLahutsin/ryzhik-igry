@@ -354,7 +354,9 @@ async function playGame(game, vpTag) {
   await p.goto(`${BASE}#/${game}/`, { waitUntil: "networkidle" });
   const { levels } = await p.evaluate(async ([g, m]) => {
     const mod = await import(`/src/games/${g}/${m}.ts`);
-    return { levels: JSON.parse(JSON.stringify(mod.levels)) };
+    // v17: played world by world (a picture added at the end of the array plays inside its world).
+    const { playOrder } = await import("/src/shared/progress.ts");
+    return { levels: JSON.parse(JSON.stringify(playOrder(mod.levels).map((l) => ({ ...l, at: mod.levels.indexOf(l) + 1 })))) };
   }, [game, MODULES[game]]);
   console.log(`${game} ${vpTag}: ${levels.length} levels`);
   // First launch: the «Как играть» card must show; then it is closed.
@@ -397,7 +399,7 @@ async function playGame(game, vpTag) {
     const level = levels[i];
     const where = `${i + 1} ${level.id}`;
     try {
-      await p.waitForFunction((n) => location.hash.endsWith(`/play/${n}`), i + 1, { timeout: 5000 });
+      await p.waitForFunction((n) => location.hash.endsWith(`/play/${n}`), level.at, { timeout: 5000 });
       await p.waitForTimeout(700);
       (await layoutCheck(p)).forEach((m) => note(game, vpTag, where, m));
       await p.screenshot({ path: `${OUT}/${game}--${vpTag}--${String(i + 1).padStart(2, "0")}.png` });
@@ -434,7 +436,7 @@ async function playGame(game, vpTag) {
         v.completed.push(id);
         localStorage.setItem(k, JSON.stringify(v));
       }, [game, level.id]);
-      if (i < levels.length - 1) await p.goto(`${BASE}#/${game}/play/${i + 2}`);
+      if (i < levels.length - 1) await p.goto(`${BASE}#/${game}/play/${levels[i + 1].at}`);
       await p.reload();
     }
   }

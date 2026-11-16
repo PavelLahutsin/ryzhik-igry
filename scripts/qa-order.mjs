@@ -21,10 +21,13 @@ for (const g of games) {
   const gap = list.findIndex((c, i) => c.n !== i + 1);
   if (gap >= 0) { bad++; console.log(`${g}: number ${list[gap].n} at place ${gap + 1}`); }
   const all = await src.evaluate(async (g) => { const m = await import(`/src/games/${g === "risovalka" ? "risovalka/pictures" : g === "bukvy" ? "bukvy/letters" : `${g}/levels`}.ts`); return m.levels.map((l) => ({ id: l.id, world: l.world })); }, g).catch(() => []);
-  const ids = all.map((l) => l.id);
+  // v17: the list order (world by world) is the play order; cards carry their level id.
+  const listed = list.map((c) => c.id).filter(Boolean);
+  const ids = listed.length === all.length ? listed : all.map((l) => l.id);
+  const byId = new Map(all.map((l) => [l.id, l]));
   for (const w of WINTER[g] ?? []) {
     const k = ids.indexOf(w);
-    const own = OPEN_WORLDS.includes(g) ? all.filter((l) => l.world === all[k].world).map((l) => l.id) : ids;
+    const own = OPEN_WORLDS.includes(g) ? ids.filter((id) => byId.get(id)?.world === byId.get(w)?.world) : ids;
     const j = own.indexOf(w);
     if (j < 2 || j + 1 >= own.length) continue;
     // Everything before the winter level's previous one is won (worlds before too), and the winter level.

@@ -3,7 +3,7 @@ import { el, svgEl, replayClass } from "./dom";
 import { markOpened, wasOpened } from "./played";
 import { seasonOpen } from "./season";
 import { countWin, showBreak } from "./toys";
-import { gameProgress, levelOpen, totalStars, type Progress } from "./progress";
+import { gameProgress, levelOpen, orderAfter, playOrder, totalStars, type Progress } from "./progress";
 import { goHome, listenGame, navigateGame } from "./router";
 import { praiseOverlay, starRow, toolbar } from "./ui";
 import { whenIdle } from "./guide";
@@ -113,8 +113,14 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
   const ids = def.levels.map((level) => level.id);
   /** Where the level list is: the first screen, or "/levels" behind `home`. */
   const LIST = def.home ? "/levels" : "/";
+  // v17: listed and played world by world; a level added at the end of the
+  // array (new id) sits in its own world and opens after that world's last one.
+  const ordered = playOrder(def.levels);
+  /** 1, 2, 3… as the child sees it on the list (the route keeps the array index). */
+  const numberOf = (level: L): number => ordered.indexOf(level) + 1;
+  const after = { ...orderAfter(def.levels), ...def.after };
   const unlocked = (id: string, completed: readonly string[]): boolean => {
-    return levelOpen(def.levels, id, completed, { after: def.after, openWorlds: def.openWorlds, season: (lid) => seasonOpen(def.id, lid) });
+    return levelOpen(def.levels, id, completed, { after, openWorlds: def.openWorlds, season: (lid) => seasonOpen(def.id, lid) });
   };
   let cleanup: (() => void) | null = null;
   let token = 0;
@@ -175,12 +181,13 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
       if (stale()) return;
       score.textContent = `★ ${totalStars(progress.stars, ids)}/${ids.length * 3}`;
       const groups: Array<{ world: World | null; items: Array<{ level: L; index: number }> }> = [];
-      def.levels.forEach((level, index) => {
+      for (const level of ordered) {
+        const index = def.levels.indexOf(level);
         const world = def.worlds?.find((w) => w.id === level.world) ?? null;
         const last = groups[groups.length - 1];
         if (last && last.world?.id === world?.id) last.items.push({ level, index });
         else groups.push({ world, items: [{ level, index }] });
-      });
+      }
       let focus: HTMLElement | null = null;
       // v12: a sticky strip of world chips to jump to a world (3+ worlds).
       const chips: Array<{ chip: HTMLElement; section: HTMLElement }> = [];
@@ -295,7 +302,8 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
         attrs: {
           type: "button",
           disabled: open ? null : true,
-          "aria-label": open ? `Уровень ${index + 1}: ${level.title}` : `Уровень ${index + 1}, ещё закрыт`,
+          "aria-label": open ? `Уровень ${numberOf(level)}: ${level.title}` : `Уровень ${numberOf(level)}, ещё закрыт`,
+          "data-id": level.id,
         },
         on: {
           click: () => {
@@ -311,7 +319,7 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
           open
             ? el("span", { class: "level-card__art" }, [def.thumb(level, index)])
             : el("span", { class: "level-card__art level-card__mystery" }, [lockIcon()]),
-          el("span", { class: "level-card__num", text: String(index + 1) }),
+          el("span", { class: "level-card__num", text: String(numberOf(level)) }),
           done || !open ? null : el("span", { class: "level-card__play", attrs: { "aria-hidden": "true" } }),
         ]),
         el("span", { class: "level-card__foot" }, [
@@ -333,7 +341,7 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
       [lampIcon()],
     );
     tool.append(hintBtn);
-    const bar = toolbar(`${index + 1}. ${level.title}`, () => navigateGame(def.id, LIST), tool);
+    const bar = toolbar(`${numberOf(level)}. ${level.title}`, () => navigateGame(def.id, LIST), tool);
     const stage = el("div", { class: "stage" });
     const view = el("div", { class: `screen screen--play game--${def.id}` }, [bar, stage]);
     root.append(view);
@@ -367,21 +375,18 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
           .then(() => newStickers())
           .catch(() => [] as Sticker[]);
         const rest = countWin();
+        const next = ordered[ordered.indexOf(level) + 1];
         // «Дальше»: the next level; after a winter level won out of order
         // (its next one still closed), the first open level not yet won.
         const goNext = (): void => {
           void store.load().then((p) => {
             if (!view.isConnected) return;
             const done = p.completed.includes(level.id) ? p.completed : [...p.completed, level.id];
-            const order = def.levels.map((l, i) => ({ l, i }));
             const pick =
-              index + 1 < def.levels.length && unlocked(def.levels[index + 1]!.id, done)
-                ? index + 1
-                : (order.find(({ l }) => !done.includes(l.id) && unlocked(l.id, done))?.i ?? index + 1);
-            navigateGame(def.id, `/play/${pick + 1}`);
+              next && unlocked(next.id, done) ? next : (ordered.find((l) => !done.includes(l.id) && unlocked(l.id, done)) ?? next);
+            navigateGame(def.id, `/play/${def.levels.indexOf(pick ?? level) + 1}`);
           });
         };
-        const next = def.levels[index + 1];
         const actions = [
           next
             ? { label: "Дальше", primary: true, onClick: () => void fresh.then(goNext, goNext) }

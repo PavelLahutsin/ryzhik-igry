@@ -88,6 +88,43 @@ export function isUnlockedInWorld(levels: ReadonlyArray<{ id: string; world?: st
 }
 
 /**
+ * v17: the order a level game is listed and played in: world by world, in
+ * the order the worlds first appear, and the array order inside a world.
+ * Pictures added later go at the end of the array (new ids, so stars and
+ * routes stay) and still show up and open inside their own world.
+ */
+export function playOrder<T extends { world?: string }>(levels: readonly T[]): T[] {
+  const order: Array<string | undefined> = [];
+  for (const l of levels) if (!order.includes(l.world)) order.push(l.world);
+  return order.flatMap((w) => levels.filter((l) => l.world === w));
+}
+
+/** v17: level → the level before it in `playOrder`, where that is not the one before it in the array. */
+export function orderAfter(levels: ReadonlyArray<{ id: string; world?: string }>): Record<string, string> {
+  const order = playOrder(levels);
+  const after: Record<string, string> = {};
+  order.forEach((l, i) => {
+    const k = levels.indexOf(l);
+    if (i > 0 && levels[k - 1] !== order[i - 1]) after[l.id] = order[i - 1]!.id;
+  });
+  return after;
+}
+
+/** The level that has to be won before `id` opens (none for the first). */
+export function prevLevel(
+  levels: ReadonlyArray<{ id: string; world?: string }>,
+  id: string,
+  opts: { after?: Record<string, string>; openWorlds?: boolean } = {},
+): string | undefined {
+  const after = opts.after?.[id];
+  if (after) return after;
+  const level = levels.find((l) => l.id === id);
+  const list = opts.openWorlds && level ? levels.filter((l) => l.world === level.world) : levels;
+  const i = list.findIndex((l) => l.id === id);
+  return i > 0 ? list[i - 1]!.id : undefined;
+}
+
+/**
  * v14: is a level of a level game open? A winter level opens early (the
  * «Зима» pack), but winning it out of order must not open the level after it:
  * «Ёлочка» (14) won before «Грибок» (13) used to open 15, and the child went
@@ -101,14 +138,7 @@ export function levelOpen(
   opts: { after?: Record<string, string>; openWorlds?: boolean; season?: (id: string) => boolean } = {},
 ): boolean {
   const season = (lid: string): boolean => opts.season?.(lid) === true;
-  const prevOf = (lid: string): string | undefined => {
-    const after = opts.after?.[lid];
-    if (after) return after;
-    const level = levels.find((l) => l.id === lid);
-    const list = opts.openWorlds && level ? levels.filter((l) => l.world === level.world) : levels;
-    const i = list.findIndex((l) => l.id === lid);
-    return i > 0 ? list[i - 1]!.id : undefined;
-  };
+  const prevOf = (lid: string): string | undefined => prevLevel(levels, lid, opts);
   // Reached in order: its previous level was won and was itself reached in order.
   const byOrder = (lid: string, depth: number): boolean => {
     const prev = prevOf(lid);
