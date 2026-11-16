@@ -38,9 +38,9 @@ describe("risovalka", () => {
     expect(starsFor(7, 2).stars).toBe(1);
     expect(numberWord(3)).toBe("Три");
   });
-  it("has 46 pictures, old ids first so progress keeps working (v17: r31–r46 added at the end)", () => {
-    expect(levels).toHaveLength(46);
-    expect(levels.map((l) => l.id)).toEqual(Array.from({ length: 46 }, (_, i) => `r${i + 1}`));
+  it("has 51 pictures, old ids first so progress keeps working (v17: r31–r51 added at the end)", () => {
+    expect(levels).toHaveLength(51);
+    expect(levels.map((l) => l.id)).toEqual(Array.from({ length: 51 }, (_, i) => `r${i + 1}`));
     expect(new Set(levels.map((l) => l.title)).size).toBe(levels.length);
     for (const l of levels) {
       expect(l.strokes.length).toBeGreaterThan(0);
@@ -94,10 +94,10 @@ describe("risovalka", () => {
     // World by world, in the worlds' order; old pictures first inside a world.
     expect(order.map((l) => worldIds.indexOf(l.world!))).toEqual([...order.map((l) => worldIds.indexOf(l.world!))].sort((a, b) => a - b));
     const ids = order.map((l) => l.id);
-    expect(ids.slice(4, 17)).toEqual(["r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12", "r31", "r32", "r33", "r34", "r35"]);
+    expect(ids.slice(4, 18)).toEqual(["r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12", "r31", "r32", "r33", "r34", "r35", "r47"]);
     expect(ids.at(-1)).toBe("r30");
     const after = orderAfter(levels);
-    expect(after).toEqual({ r31: "r12", r13: "r35", r36: "r18", r19: "r41", r42: "r24", r25: "r46" });
+    expect(after).toEqual({ r31: "r12", r13: "r47", r36: "r18", r19: "r48", r42: "r24", r25: "r51", r47: "r35", r48: "r41", r49: "r46" });
     // Each level opens once the one before it in play order is won.
     for (let i = 1; i < order.length; i++) {
       const won = ids.slice(0, i);
