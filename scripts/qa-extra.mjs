@@ -246,12 +246,13 @@ for (const game of ALL) {
   const words = ["один", "два", "три", "четыре", "пять", "шесть", "семь", "восемь", "девять"];
   for (const d of ask.split(":")[1].split(",").map((w) => words.indexOf(w.trim()) + 1)) await p.locator(".gate__keys button", { hasText: String(d) }).click();
   await p.locator(".setting", { hasText: "музыка" }).locator(".btn").click();
-  if ((await p.evaluate(() => localStorage.getItem("ryzhik-igry:music"))) !== "true") bad("music toggle", "not stored");
+  // v16: music is on by default, so one tap switches it off and stores that.
+  if ((await p.evaluate(() => localStorage.getItem("ryzhik-igry:music"))) !== "false") bad("music toggle", "not stored");
   await p.locator(".setting", { hasText: "Показать подсказки" }).locator(".btn").click();
   await p.waitForTimeout(200);
   if (await p.evaluate(() => localStorage.getItem("ryzhik-igry:seen"))) bad("tips reset", "seen still stored");
   const rules = await p.locator("details.rules").count();
-  if (rules !== 16) bad("rules", `${rules} games in «Как играть»`);
+  if (rules !== 20) bad("rules", `${rules} games in «Как играть»`);
   await p.locator(".setting", { hasText: "музыка" }).locator(".btn").click();
   await done("parents v4");
 }
