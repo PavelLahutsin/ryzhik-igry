@@ -93,15 +93,17 @@ export function isUnlockedInWorld(levels: ReadonlyArray<{ id: string; world?: st
  * Pictures added later go at the end of the array (new ids, so stars and
  * routes stay) and still show up and open inside their own world.
  */
-export function playOrder<T extends { world?: string }>(levels: readonly T[]): T[] {
-  const order: Array<string | undefined> = [];
+export function playOrder<T extends { world?: string }>(levels: readonly T[], worlds: readonly string[] = []): T[] {
+  // v18: the game's world list sets the order (a world added later can sit
+  // before an older one); worlds not in the list follow in array order.
+  const order: Array<string | undefined> = worlds.filter((w) => levels.some((l) => l.world === w));
   for (const l of levels) if (!order.includes(l.world)) order.push(l.world);
   return order.flatMap((w) => levels.filter((l) => l.world === w));
 }
 
 /** v17: level → the level before it in `playOrder`, where that is not the one before it in the array. */
-export function orderAfter(levels: ReadonlyArray<{ id: string; world?: string }>): Record<string, string> {
-  const order = playOrder(levels);
+export function orderAfter(levels: ReadonlyArray<{ id: string; world?: string }>, worlds: readonly string[] = []): Record<string, string> {
+  const order = playOrder(levels, worlds);
   const after: Record<string, string> = {};
   order.forEach((l, i) => {
     const k = levels.indexOf(l);
