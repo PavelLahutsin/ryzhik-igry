@@ -4,6 +4,8 @@ import { levels as letters } from "../bukvy/letters";
 import { levels, worlds } from "./pictures";
 import { levelOpen, orderAfter, playOrder } from "../../shared/progress";
 
+const W = worlds.map((w) => w.id);
+
 const line = resample([
   { x: 0, y: 0 },
   { x: 100, y: 0 },
@@ -38,9 +40,9 @@ describe("risovalka", () => {
     expect(starsFor(7, 2).stars).toBe(1);
     expect(numberWord(3)).toBe("Три");
   });
-  it("has 51 pictures, old ids first so progress keeps working (v17: r31–r51 added at the end)", () => {
-    expect(levels).toHaveLength(51);
-    expect(levels.map((l) => l.id)).toEqual(Array.from({ length: 51 }, (_, i) => `r${i + 1}`));
+  it("has 62 pictures, old ids first so progress keeps working (v17: r31–r51, v18: r52–r62 added at the end)", () => {
+    expect(levels).toHaveLength(62);
+    expect(levels.map((l) => l.id)).toEqual(Array.from({ length: 62 }, (_, i) => `r${i + 1}`));
     expect(new Set(levels.map((l) => l.title)).size).toBe(levels.length);
     for (const l of levels) {
       expect(l.strokes.length).toBeGreaterThan(0);
@@ -60,9 +62,9 @@ describe("risovalka", () => {
     // kept) → only the current line, no arrow. It never comes back.
     // v17: checked in the order the child plays (world by world), not the array order.
     const rank = { full: 0, next: 1, less: 2 } as const;
-    const ranks = playOrder(levels).map((l) => rank[l.help ?? "full"]);
+    const ranks = playOrder(levels, W).map((l) => rank[l.help ?? "full"]);
     for (let i = 1; i < ranks.length; i++) expect(ranks[i]!).toBeGreaterThanOrEqual(ranks[i - 1]!);
-    for (const l of levels) expect(l.help !== undefined).toBe(l.world === "master" || l.world === "paths");
+    for (const l of levels) expect(l.help !== undefined).toBe(l.world === "master" || l.world === "big" || l.world === "paths");
     expect(levels.filter((l) => l.help === "next").map((l) => l.id)).toEqual(["r19", "r20", "r21"]);
     // «Длинные дорожки»: the longest lines of the game, drawn without lifting the finger.
     const len = (d: string): number => d.length;
@@ -89,15 +91,20 @@ describe("risovalka", () => {
     expect(lines.slice(-2)).toEqual(["M44 120 C 30 130 32 150 48 156", "M156 120 C 170 130 168 150 152 156"]);
   });
   it("v17: new pictures play inside their world: listed there, opened after its last level, «Дальше» goes on in that order", () => {
-    const order = playOrder(levels);
+    const order = playOrder(levels, W);
     const worldIds = worlds.map((w) => w.id);
     // World by world, in the worlds' order; old pictures first inside a world.
     expect(order.map((l) => worldIds.indexOf(l.world!))).toEqual([...order.map((l) => worldIds.indexOf(l.world!))].sort((a, b) => a - b));
     const ids = order.map((l) => l.id);
     expect(ids.slice(4, 18)).toEqual(["r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12", "r31", "r32", "r33", "r34", "r35", "r47"]);
     expect(ids.at(-1)).toBe("r30");
-    const after = orderAfter(levels);
-    expect(after).toEqual({ r31: "r12", r13: "r47", r36: "r18", r19: "r48", r42: "r24", r25: "r51", r47: "r35", r48: "r41", r49: "r46" });
+    // v18: «Большие картины» right after «Мастер рисования», before «Длинные дорожки».
+    expect(ids.slice(45, 56)).toEqual(Array.from({ length: 11 }, (_, i) => `r${52 + i}`));
+    expect(order[44]!.id).toBe("r51");
+    expect(order[56]!.id).toBe("r25");
+    expect(playOrder(levels).at(-1)!.world).toBe("big"); // without the world list: array order (labirint etc. unchanged)
+    const after = orderAfter(levels, W);
+    expect(after).toEqual({ r31: "r12", r13: "r47", r36: "r18", r19: "r48", r42: "r24", r25: "r62", r47: "r35", r48: "r41", r49: "r46" });
     // Each level opens once the one before it in play order is won.
     for (let i = 1; i < order.length; i++) {
       const won = ids.slice(0, i);
@@ -108,18 +115,21 @@ describe("risovalka", () => {
     const old = Array.from({ length: 30 }, (_, i) => `r${i + 1}`);
     for (const id of ["r31", "r36", "r42"]) expect(levelOpen(levels, id, old, { after })).toBe(true);
     // Stroke counts per world for the new pictures, all inside the 12–188 box.
-    const lim: Record<string, [number, number]> = { animals: [2, 3], harder: [4, 5], master: [6, 7] };
+    const lim: Record<string, [number, number]> = { animals: [2, 3], harder: [4, 5], master: [6, 7], big: [6, 10] };
     for (const l of levels.slice(30)) {
       const [lo, hi] = lim[l.world!]!;
       expect(l.strokes.length, l.title).toBeGreaterThanOrEqual(lo);
       expect(l.strokes.length, l.title).toBeLessThanOrEqual(hi);
       expect(l.done, l.title).toMatch(/!$/);
-      expect(l.done, l.title).not.toMatch(/\bты\b|нарисовал/i);
+      expect(l.done, l.title).not.toMatch(/(^|[^а-яё])ты([^а-яё]|$)|нарисовал|молод|умниц/i);
       for (const d of l.strokes) {
         expect(d, l.title).not.toMatch(/[a-zZ]/);
-        for (const n of d.match(/-?\d+(\.\d+)?/g)!.map(Number).filter((n) => n > 1)) {
-          expect(n, `${l.title}: ${d}`).toBeGreaterThanOrEqual(12);
-          expect(n, `${l.title}: ${d}`).toBeLessThanOrEqual(188);
+        // Points only (an arc's radii and flags are not points); 12–188, «Большие картины» 10–190.
+        const [lo2, hi2] = l.world === "big" ? [10, 190] : [12, 188];
+        const pts = d.replace(/A\s*[\d.]+\s+[\d.]+\s+[\d.]+\s+[01]\s+[01]/g, " ");
+        for (const n of pts.match(/-?\d+(\.\d+)?/g)!.map(Number)) {
+          expect(n, `${l.title}: ${d}`).toBeGreaterThanOrEqual(lo2);
+          expect(n, `${l.title}: ${d}`).toBeLessThanOrEqual(hi2);
         }
       }
     }

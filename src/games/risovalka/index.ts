@@ -19,6 +19,8 @@ export function mount(root: HTMLElement): () => void {
       subtitle: "Обведи пальчиком по точкам — и рисунок оживёт",
       levels,
       worlds,
+      // «Большие картины» (r52+, at the end of the array) come after «Мастер рисования».
+      worldOrder: worlds.map((w) => w.id),
       thumb: (level) => svgNode(thumbArt(level), "rv-thumb"),
       caption: (level) => level.title,
       play,

@@ -356,7 +356,7 @@ async function playGame(game, vpTag) {
     const mod = await import(`/src/games/${g}/${m}.ts`);
     // v17: played world by world (a picture added at the end of the array plays inside its world).
     const { playOrder } = await import("/src/shared/progress.ts");
-    return { levels: JSON.parse(JSON.stringify(playOrder(mod.levels).map((l) => ({ ...l, at: mod.levels.indexOf(l) + 1 })))) };
+    return { levels: JSON.parse(JSON.stringify(playOrder(mod.levels, g === "risovalka" ? mod.worlds.map((w) => w.id) : []).map((l) => ({ ...l, at: mod.levels.indexOf(l) + 1 })))) };
   }, [game, MODULES[game]]);
   console.log(`${game} ${vpTag}: ${levels.length} levels`);
   // First launch: the «Как играть» card must show; then it is closed.

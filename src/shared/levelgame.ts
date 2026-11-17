@@ -61,6 +61,12 @@ export type LevelGameDef<L extends LevelInfo> = {
   routes?: Record<string, (root: HTMLElement, rest: string[]) => () => void>;
   /** Shown above the worlds on the level list (e.g. a big mode card). */
   listTop?: () => Node | null;
+  /**
+   * v18: world ids in the order they are played, when a world added at the
+   * end of the array has to come before an older one. Default: the order
+   * the worlds first appear in `levels`.
+   */
+  worldOrder?: readonly string[];
   /** Every world starts open; levels open one by one inside it. */
   openWorlds?: boolean;
   /**
@@ -115,10 +121,11 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
   const LIST = def.home ? "/levels" : "/";
   // v17: listed and played world by world; a level added at the end of the
   // array (new id) sits in its own world and opens after that world's last one.
-  const ordered = playOrder(def.levels);
+  const worldIds = def.worldOrder ?? [];
+  const ordered = playOrder(def.levels, worldIds);
   /** 1, 2, 3… as the child sees it on the list (the route keeps the array index). */
   const numberOf = (level: L): number => ordered.indexOf(level) + 1;
-  const after = { ...orderAfter(def.levels), ...def.after };
+  const after = { ...orderAfter(def.levels, worldIds), ...def.after };
   const unlocked = (id: string, completed: readonly string[]): boolean => {
     return levelOpen(def.levels, id, completed, { after, openWorlds: def.openWorlds, season: (lid) => seasonOpen(def.id, lid) });
   };
