@@ -23,7 +23,7 @@ function scatter(n: number, seed: number, fn: (x: number, y: number, i: number) 
 }
 
 const starsSky = (h: number): string =>
-  scatter(40, 7, (x, y, i) => `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${2 + (i % 3)}" fill="#fff7c9" class="dm-twinkle" style="animation-delay:${(i % 7) * 0.4}s"/>`, 1600, h);
+  scatter(28, 7, (x, y, i) => `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${2 + (i % 3)}" fill="#fff7c9" ${i % 5 === 0 ? `class="dm-twinkle" style="animation-delay:${i * .1}s"` : ""}/>`, 1600, h);
 
 function sky(night: boolean, h: number): string {
   return night
@@ -36,16 +36,18 @@ const grassTufts = (y0: number, color: string): string =>
 
 // ---------- Backgrounds ----------
 
-export function roomBack(): string {
+export function roomBack(night: boolean): string {
   return svg(
     1600,
     1000,
-    `<rect width="1600" height="740" fill="#ffe7c4"/>` +
-      scatter(60, 11, (x, y) => `<circle cx="${x.toFixed(0)}" cy="${(y * 0.7).toFixed(0)}" r="7" fill="#ffd6a0" opacity=".8"/>`) +
+    `<rect width="1600" height="740" fill="${night ? "#aa8d91" : "#ffe7c4"}"/>` +
+      `<defs><pattern id="dm-wall" width="94" height="98" patternUnits="userSpaceOnUse"><path d="M47 26q15 12 0 25q-14 -13 0 -25Zm-5 29q-15 1 -15 -12q12 0 15 12Z" fill="#ca8b65" opacity=".24"/></pattern></defs><rect width="1600" height="700" fill="url(#dm-wall)"/>` +
+      plank(505, 485, 320, 19, '#c38d64') +
+      [coral, teal, honey].map((c,i) => plank(726+i*24, 434-i*6, 23, 51+i*6, c) + line(`M${731+i*24} 475h12`, cream, 3)).join('') +
       `<rect y="700" width="1600" height="40" fill="#e7b882" ${o3}/>` +
       `<rect y="740" width="1600" height="260" fill="#d39a5e"/>` +
       [0, 1, 2, 3].map((i) => `<path d="M0 ${790 + i * 60} H1600" stroke="#b97e45" stroke-width="4"/>`).join("") +
-      scatter(18, 5, (x, y) => `<path d="M${x.toFixed(0)} ${(760 + y * 0.22).toFixed(0)} v40" stroke="#b97e45" stroke-width="4"/>`) +
+      [0,1,2,3].map(i => line(`M${165+i%2*255} ${790+i*60}v60m560 -60v60m560 -60v60`, "#b97e45")).join("") +
       `<ellipse cx="760" cy="880" rx="420" ry="90" fill="#f27aa0" ${O}/>` +
       `<ellipse cx="760" cy="880" rx="330" ry="62" fill="none" stroke="#fff3f7" stroke-width="10" stroke-dasharray="26 18"/>`,
   );
@@ -60,6 +62,9 @@ export function gardenBack(night: boolean): string {
       `<path d="M0 700 Q 400 640 800 690 T 1600 680 V1000 H0 Z" fill="${night ? "#3d7d4f" : "#7cc46a"}"/>` +
       grassTufts(720, night ? "#2f6b40" : "#5aa64a") +
       `<path d="M700 1000 C 760 880 860 800 980 700 L 1040 700 C 960 800 900 900 900 1000 Z" fill="${night ? "#a88f6f" : "#efd7a8"}"/>` +
+      flecks(night) +
+      scatter(13, 51, (x, y, i) => at(Math.round(x), 730 + Math.round(y), .9, line('M0 0l3 -15', '#54865c', 3) +
+        [-1, 0, 1].map(j => oval(3+j*5, -16-Math.abs(j)*3, 4, 5, night ? '#a99eac' : i%2 ? '#ffded0' : '#fff2ac')).join('')), 1590, 216) +
       // fence
       [...Array(9)].map((_, i) => `<path d="M${40 + i * 70} 690 v-110 l18 -20 l18 20 v110 Z" fill="${night ? "#c9b49a" : "#fff4e0"}" ${o3}/>`).join("") +
       `<rect x="30" y="610" width="640" height="16" rx="6" fill="${night ? "#c9b49a" : "#fff4e0"}" ${o3}/><rect x="30" y="650" width="640" height="16" rx="6" fill="${night ? "#c9b49a" : "#fff4e0"}" ${o3}/>`,
@@ -75,10 +80,12 @@ export function forestBack(night: boolean): string {
     1600,
     1000,
     sky(night, 1000) +
+      (night ? moon(1330, 125) : cloudBank(1040, 100)) +
       [0, 1, 2, 3, 4, 5, 6, 7, 8].map((i) => fir(80 + i * 190, 260 + (i % 3) * 30, 1.2, far)).join("") +
       `<rect y="600" width="1600" height="400" fill="${mid}"/>` +
       `<path d="M0 640 Q 400 600 800 640 T 1600 630 V1000 H0 Z" fill="${night ? "#356b46" : "#6fbf4a"}"/>` +
       grassTufts(680, night ? "#285a3a" : "#4f9e34") +
+      flecks(night) +
       // pond
       `<ellipse cx="1290" cy="860" rx="270" ry="85" fill="${night ? "#2b5f8f" : "#5ab4ec"}" ${O}/>` +
       `<path d="M1120 850 q30 -14 60 0 M1300 890 q30 -14 60 0 M1380 830 q24 -10 48 0" fill="none" stroke="#e3f5ff" stroke-width="5" stroke-linecap="round" opacity=".8"/>` +
@@ -108,6 +115,7 @@ export function windowArt(open: boolean, night: boolean): string {
       `<path d="M150 22 V258 M22 140 H278" stroke="#fffcf7" stroke-width="12"/>` +
       `<rect x="12" y="12" width="276" height="256" rx="10" fill="none" ${O}/>` +
       `<rect x="0" y="262" width="300" height="24" rx="8" fill="#e7b882" ${O}/>` +
+      (night && open ? plank(78, 197, 32, 26, "#596179") + oval(89, 211, 5, 7, "#ffe191") + oval(101, 211, 4, 7, "#ffe191") : "") +
       curtain(true) +
       curtain(false) +
       `<path d="M8 4 H292" stroke="${INK}" stroke-width="8" stroke-linecap="round"/>`,
@@ -122,6 +130,7 @@ export function lampArt(on: boolean): string {
       `<path d="M70 120 V350" stroke="${INK}" stroke-width="9"/>` +
       `<ellipse cx="70" cy="356" rx="46" ry="14" fill="#9b6a3c" ${O}/>` +
       `<path d="M28 120 L 46 34 H 94 L 112 120 Z" fill="${on ? "#ffd54a" : "#f5a623"}" ${O}/>` +
+      line("M54 47l-12 57 M86 46l10 58", "#ffe29a", 5) +
       `<path d="M70 120 v40" stroke="${INK}" stroke-width="3"/><circle cx="70" cy="164" r="6" fill="#f27aa0" ${o3}/>`,
   );
 }
@@ -206,12 +215,14 @@ export function plantArt(stage: number): string {
   );
 }
 
-export function frameArt(href: string): string {
+export function frameArt(): string {
   return svg(
     250,
     180,
     `<rect x="6" y="6" width="238" height="168" rx="12" fill="#c08a52" ${O}/>` +
-      `<image href="${href}" x="22" y="22" width="206" height="136" preserveAspectRatio="xMidYMid slice"/>` +
+      plank(21, 21, 208, 138, "#abd9d8") + oval(168, 60, 20, 20, honey) +
+      path("M23 113q52 -53 106 -14t97 -10v68H23Z", teal) +
+      path("M23 141q70 -45 122 -20t81 -11v47H23Z", "#8ba579") +
       `<rect x="22" y="22" width="206" height="136" fill="none" stroke="${INK}" stroke-width="3"/>`,
   );
 }
@@ -260,9 +271,11 @@ export function appleTreeArt(apples: number): string {
   return svg(
     520,
     640,
-    `<path d="M220 640 L 232 380 C 200 340 180 330 150 330 M232 380 L 300 300 L 292 380 L 300 640 Z" fill="#9b6a3c" ${O}/>` +
+    `<path d="M212 640 Q 230 530 232 430 Q 195 375 150 330 L 172 312 Q 214 350 250 392 Q 285 345 320 305 L 340 322 Q 302 370 274 430 Q 276 530 304 640 Z" fill="#9b6a3c" ${O}/>` +
       `<circle cx="160" cy="250" r="110" fill="#5aac3e" ${O}/><circle cx="360" cy="240" r="120" fill="#5aac3e" ${O}/><circle cx="260" cy="160" r="130" fill="#6fbf4a" ${O}/>` +
       `<path d="M80 290 Q 260 400 460 290" fill="#5aac3e"/>` +
+      line("M248 603q18 -40 9 -66t9 -68 M282 615q-8 -36 1 -52", "#795439", 6) +
+      line("M160 174q10 -54 67 -78 M340 185q40 -12 60 17", "#96d777", 9) +
       spots
         .slice(0, apples)
         .map(([x, y]) => `<circle cx="${x}" cy="${y}" r="22" fill="#e8463a" ${o3}/><circle cx="${x! - 7}" cy="${y! - 7}" r="6" fill="#fff" opacity=".6"/>`)
@@ -383,13 +396,13 @@ export function oakArt(night: boolean): string {
   return svg(
     320,
     620,
-    `<path d="M120 620 L 130 300 L 190 300 L 200 620 Z" fill="#8a5a2b" ${O}/>` +
+    `<path d="M96 620 Q 124 600 126 560 L 132 300 L 188 300 L 194 560 Q 196 600 224 620 Z" fill="#8a5a2b" ${O}/>` + line("M148 470q-6 -30 2 -60 M174 540q6 -24 -2 -44", "#6b4421", 5) +
       `<ellipse cx="160" cy="390" rx="26" ry="36" fill="#3b2e25"/>` +
       (night
         ? `<g class="dm-owl"><ellipse cx="160" cy="392" rx="22" ry="30" fill="#c08a52" ${o3}/><circle cx="150" cy="384" r="8" fill="#fff3b0"/><circle cx="170" cy="384" r="8" fill="#fff3b0"/><circle cx="150" cy="384" r="3.5" fill="${INK}"/><circle cx="170" cy="384" r="3.5" fill="${INK}"/><path d="M156 396 l4 6 l4 -6 Z" fill="#f5a623"/></g>`
         : "") +
-      `<circle cx="80" cy="220" r="90" fill="${night ? "#2f6b40" : "#4f9e34"}" ${O}/><circle cx="240" cy="220" r="90" fill="${night ? "#2f6b40" : "#4f9e34"}" ${O}/><circle cx="160" cy="130" r="120" fill="${night ? "#356b46" : "#5aac3e"}" ${O}/>` +
-      `<path d="M10 250 Q 160 340 310 250" fill="${night ? "#2f6b40" : "#4f9e34"}"/>`,
+      `<circle cx="92" cy="225" r="82" fill="${night ? "#2f6b40" : "#4f9e34"}" ${O}/><circle cx="228" cy="225" r="82" fill="${night ? "#2f6b40" : "#4f9e34"}" ${O}/><circle cx="160" cy="135" r="112" fill="${night ? "#356b46" : "#5aac3e"}" ${O}/>` +
+      `<path d="M22 250 Q 160 330 298 250" fill="${night ? "#2f6b40" : "#4f9e34"}"/>`,
   );
 }
 
@@ -453,3 +466,138 @@ export const FX: Record<string, string> = {
   bubble: svg(40, 40, `<circle cx="20" cy="20" r="15" fill="#e3f5ff" fill-opacity=".6" stroke="#6db3d4" stroke-width="3"/><circle cx="14" cy="14" r="4" fill="#fff"/>`),
   spark: svg(30, 30, `<circle cx="15" cy="15" r="7" fill="#fff59a"/><circle cx="15" cy="15" r="13" fill="#fff59a" opacity=".35"/>`),
 };
+
+// Small shapes share a pen, not a bitmap; all coordinates are local to the prop.
+const path = (d: string, fill: string): string => `<path d="${d}" fill="${fill}" ${o3}/>`;
+const line = (d: string, colour: string, width = 4): string => `<path d="${d}" fill="none" stroke="${colour}" stroke-width="${width}" stroke-linecap="round" stroke-linejoin="round"/>`;
+const oval = (x: number, y: number, rx: number, ry: number, fill: string): string => `<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="${fill}"/>`;
+const plank = (x: number, y: number, w: number, h: number, fill: string): string => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="5" fill="${fill}" ${o3}/>`;
+const honey = "#efbb77", coral = "#e28a75", teal = "#72b6ab", cream = "#fff0c6";
+const at = (x: number, y: number, scale: number, body: string): string => `<g transform="translate(${x} ${y}) scale(${scale})">${body}</g>`;
+const cloudBank = (x: number, y: number): string => at(x, y, 1,
+  `<path d="M0 34q-11 -24 20 -29q12 -40 50 -21q30 -51 76 -17q16 9 19 32q50 -9 57 31q-88 18 -222 4Z" fill="#fff7e9"/><path d="M8 34q105 8 204 -8q-16 20 -103 18T8 34Z" fill="#dee9e3"/>`);
+const moon = (x: number, y: number): string => at(x, y, 1, `<path d="M0 -52 A52 52 0 1 0 48 26 A54 54 0 0 1 0 -52Z" fill="#ffedb0"/>`);
+const flecks = (night: boolean): string => scatter(18, 41, (x, y, i) => at(Math.round(x), 808 + Math.round(y), 1,
+  i % 3 ? oval(0, 0, 11, 5, night ? "#667975" : "#bca990") + oval(-3, -2, 5, 2, night ? "#879695" : cream)
+    : line('M0 2q-8 -16 -16 -13 M0 2q6 -20 15 -22', night ? '#526f66' : '#639a58')), 1600, 184);
+
+export function riverBack(night: boolean): string {
+  return svg(1600, 1000, sky(night, 1000) + (night ? moon(1270, 140) : cloudBank(1110, 130)) +
+    path('M-8 385Q200 160 490 328T1020 300T1610 286V520H-8Z', night ? '#374c60' : '#b8cfa9') +
+    path('M-8 440Q280 340 590 415T1200 378T1610 384V530H-8Z', night ? '#365850' : '#85b68c') +
+    `<path d="M0 458Q350 405 780 450T1600 408V840H0Z" fill="${night ? '#355b7a' : '#82cbd1'}"/>` +
+    // Low grassy banks anchor both ends of the footbridge over the inlet.
+    path('M-8 515q100 -22 183 20q45 16 31 46q-76 41 -214 35Z', night ? '#4a6657' : '#a1be82') +
+    path('M475 548q6 -30 55 -42q51 -15 90 -82l144 -3q-62 102 -167 143q-100 37 -122 -16Z', night ? '#4a6657' : '#a1be82') +
+    scatter(24, 42, (x,y) => at(Math.round(x), 480 + Math.round(y), 1, line('M0 0q24 6 52 -1', night ? '#8096ae' : '#d2f1e7', 5)), 1540, 245) +
+    path('M-10 722Q280 742 490 714T1020 738T1610 720V1010H-10Z', night ? '#556c5d' : '#aaca85') +
+    grassTufts(760, night ? '#445d4e' : '#88b36f') + flecks(night));
+}
+
+export function bookArt(n: number): string {
+  const pictures = [path('M70 63l16 -26 15 26Z', teal), oval(84, 49, 12, 12, coral) + line('M85 38l6 -9', '#709c66'), at(84, 51, .29, moon(0, 0))];
+  return svg(140, 100, path('M8 26Q38 15 68 31Q99 14 130 24V78Q96 71 68 89Q38 75 8 81Z', coral) +
+    path('M14 19Q37 12 68 26Q99 10 125 17V71Q97 65 68 81Q38 65 14 73Z', cream) +
+    line('M68 27v49 M24 35q13 -2 27 3 M24 47l26 4 M24 60l16 2', '#bb946c', 3) + pictures[n % 3]);
+}
+
+export function chimesArt(): string {
+  return svg(140, 140, line('M13 38L70 8l57 30 M30 41v36 M69 41v53 M109 41v24', INK, 3) + plank(12, 35, 116, 10, honey) +
+    [teal, coral, honey].map((c, i) => at(30 + i * 39, [72, 88, 61][i]!, 1,
+      oval(0, 35, 6, 7, INK) + path('M-17 31Q-11 24 -10 10Q-9 -4 0 -4Q11 -4 11 12Q11 23 18 31Z', c) + line('M-4 5l-2 9', cream, 3))).join(''));
+}
+
+export function wheelArt(n: number): string {
+  return svg(140, 180, plank(65, 58, 10, 117, honey) + `<g transform="rotate(${n * 30} 70 60)">` + [teal, honey, coral, '#a999c2'].map((c,i) => `<g transform="rotate(${i*90} 70 60)">${path('M70 60L15 44 39 8Z', c)}${line('M39 12l15 29', cream, 3)}</g>`).join('') + '</g>' + oval(70, 60, 8, 8, INK));
+}
+
+export function canArt(): string {
+  return svg(150, 110, line('M108 51q46 -26 34 9q-6 17 -31 14', INK, 10) + line('M108 51q46 -26 34 9q-6 17 -31 14', honey, 5) +
+    path('M49 61L20 39 14 45l34 45Z', teal) + path('M50 43q33 -14 65 0l4 49q-36 20 -76 0Z', teal) + oval(82, 43, 31, 8, '#507d74') + plank(5, 29, 24, 16, honey) + line('M58 55l-2 26', '#bee3cf', 6));
+}
+
+export function snailArt(n: number): string {
+  return svg(145, 90, oval(71, 78, 62, 7, '#729468') + path('M8 71q25 -10 58 -7l35 -13q0 -25 18 -23q21 4 11 30q-12 25 -60 23Z', honey) +
+    line('M111 36l-3 -14 M124 35l8 -17', INK, 3) + oval(108, 21, 3, 3, INK) + oval(132, 17, 3, 3, INK) +
+    `<g transform="translate(${n * 3} 0)">${path('M29 65Q17 31 44 17Q76 3 88 37Q98 68 69 71Z', coral)}${line('M40 56q-12 -29 13 -29q23 0 19 23q-3 15 -17 10q-12 -5 -5 -15q5 -5 10 0', '#a55c50')}</g>`);
+}
+
+export function fernArt(n: number): string {
+  const frond = (angle: number) => `<g transform="rotate(${angle} 74 116)">${line('M74 116q-5 -57 4 -98', '#536f44', 4)}${[0,1,2,3].map(i => at(74, 85-i*17, 1-i*.15,
+    path('M0 0q-28 -2 -30 -27q23 1 30 27Zm0 1q24 -2 29 -26q-24 1 -29 26Z', '#89b977'))).join('')}</g>`;
+  return svg(150, 125, oval(74, 116, 49, 6, '#638d62') + frond(-28-n*6) + frond(32+n*5) + frond(0));
+}
+
+export function bridgeArt(): string {
+  const posts = [16, 66, 120, 174, 224];
+  return svg(240, 150, posts.map((x,i) => plank(x-4, 45-Math.sin(i*Math.PI/4)*22, 10, 84, honey)).join('') +
+    path('M5 65Q120 -4 235 65V75Q120 9 5 75Z', honey) + path('M4 115Q120 58 236 115V136Q120 80 4 136Z', '#bd8558') + line('M10 116Q120 65 230 116', cream, 4) +
+    posts.map((x,i) => oval(x, 123-Math.sin(i*Math.PI/4)*27, 3, 3, INK)).join(''));
+}
+
+export function boatArt(n: number): string {
+  return svg(200, 150, line('M100 106V13', INK, 5) + path('M95 21L31 90Q62 83 95 91Z', cream) +
+    path('M106 26Q141 51 157 88l-51 -3Z', [coral, teal, honey][n % 3]!) + path('M8 99Q95 116 191 92Q174 133 146 137H54Q30 134 8 99Z', honey) + line('M38 117q62 14 125 -2', '#a56a48') + line('M30 144q34 4 65 0m21 0q23 3 44 -2', '#d4eee6'));
+}
+
+export function ducksArt(n: number): string {
+  const duck = path('M12 44q16 11 33 0q-2 -24 16 -24q14 0 15 15l10 4l-11 7q-4 24 -35 24q-23 0 -28 -26Z', honey) +
+    path('M72 36l16 4l-15 5Z', coral) + oval(66, 33, 2.8, 2.8, INK) + line('M31 51q8 12 24 2', '#bc824f', 3);
+  return svg(210, 94, at(100, -7, 1.18, duck) + Array.from({length: n % 3 + 1}, (_,i) => at(67-i*32, 39+(i%2)*7, .48, duck)).join('') + line('M8 83q49 4 83 -2m20 0q37 4 69 -2', '#d0ece5', 3));
+}
+
+export function reedsArt(): string {
+  return svg(130, 170, [0,1,2].map(i => `<g transform="rotate(${(i-1)*15} 65 158)">${line(`M65 158V${43+i*9}`, '#697e48', 5)}${plank(57, 14+i*9, 16, 40, '#b08058')}</g>`).join('') + path('M65 160Q29 142 12 83Q51 98 65 160Q83 90 119 76Q105 133 65 160Z', '#88aa68'));
+}
+
+export function lilyArt(n: number): string {
+  return svg(140, 92, path('M70 70L12 61C-1 28 122 24 132 55C144 86 53 89 25 75Z', teal) +
+    [-32,0,32].map(a => `<g transform="rotate(${a*(1+n*.35)} 78 58)">${path('M78 58q-22 -12 0 -43q23 29 0 43Z', '#f3afa8')}</g>`).join('') + oval(78, 57, 9, 5, honey));
+}
+
+export function nurseryBack(night: boolean): string {
+  const pane = night ? '#33446d' : '#b6e3e4';
+  return svg(1600, 1000, `<rect width="1600" height="735" fill="${night ? '#777388' : '#f7d9bb'}"/>` +
+    `<defs><pattern id="dm-quilt" width="110" height="110" patternUnits="userSpaceOnUse"><path d="M55 22l8 11 -8 11 -8 -11Z" fill="#fff0d9" opacity=".32"/></pattern></defs><rect width="1600" height="720" fill="url(#dm-quilt)"/>` +
+    plank(550, 98, 358, 246, honey) + plank(568, 116, 322, 205, pane) + (night ? moon(785, 193) + oval(633, 177, 5, 5, cream) : oval(790, 186, 41, 41, '#ffda91')) +
+    path('M570 271q83 -61 162 -12t155 -30v89H570Z', night ? '#4e6267' : '#99c293') + line('M726 118v199 M568 224h320', honey, 12) + plank(532, 325, 395, 19, honey) + plank(948, 516, 236, 19, honey) +
+    `<rect y="734" width="1600" height="266" fill="${night ? '#987d77' : '#dfb58f'}"/>` + plank(-5, 706, 1610, 28, honey) +
+    line('M0 796h1600 M0 888h1600 M0 977h1600 M275 735v61 M930 796v92 M570 888v89', night ? '#806a65' : '#c39873', 4) +
+    oval(840, 872, 545, 95, night ? '#727a7f' : '#9bc5bd') + `<ellipse cx="840" cy="872" rx="512" ry="77" fill="none" stroke="#e2ece0" stroke-width="6" stroke-dasharray="20 12"/>`);
+}
+
+export function tentArt(on: boolean): string {
+  return svg(240, 210, oval(120, 194, 116, 13, '#ae9481') + line('M12 191L125 9 M231 193L113 8', '#956748', 8) +
+    path('M13 186L118 20l112 169q-68 16 -117 3q-53 7 -100 -6Z', '#f2c285') + path('M112 58l53 134q-51 -9 -86 -1Z', '#97685e') +
+    path(on ? 'M112 58L83 192l-49 -2q58 -43 78 -132Z' : 'M112 58l44 134q-46 -4 -82 0Z', coral) +
+    line('M34 161l65 -105 M144 72l57 95', cream, 5) + oval(120, 22, 8, 6, teal));
+}
+
+export function rockerArt(): string {
+  return svg(210, 160, path('M18 126Q105 165 193 120l6 9q-94 52 -185 9Z', honey) +
+    line('M62 136l14 -40 M152 135l-15 -39', '#936f54', 10) + path('M38 76q25 6 61 0l21 -49l14 8l11 -22l8 23l28 22q9 9 -2 21l-23 -7q-5 26 -20 38H64q-25 -1 -26 -34Z', honey) +
+    path('M41 78q-24 -20 -30 12q17 -12 29 6Z', '#ba7b60') + path('M65 77h43l-6 19H74Z', teal) + oval(151, 48, 4, 4, INK) + line('M124 40l-13 27', coral, 6));
+}
+
+export function blocksArt(n: number): string {
+  const block = (x: number,y: number,c: string) => plank(x,y,44,41,c) + line(`M${x+7} ${y+29}v-21h29`, cream, 3);
+  return svg(160, 145, oval(80,136,73,7,'#aa9984') + block(9,92,teal) + block(54,92,honey) + block(99,92,coral) +
+    (n > 0 ? block(34,50,coral) + block(80,50,teal) : '') + (n > 1 ? path('M52 48l26 -37l26 37Z', honey) : ''));
+}
+
+export function drumArt(): string {
+  return svg(150, 125, path('M16 48q57 18 118 0v52q-58 27 -118 0Z', coral) + line('M18 56l15 43l19 -35l19 42l23 -41l16 33l21 -42', cream, 4) +
+    `<ellipse cx="75" cy="48" rx="60" ry="18" fill="${cream}" ${o3}/>` + line('M11 9l58 33 M140 8L87 40', '#916f55', 6) + oval(68,41,7,6,honey) + oval(87,40,7,6,honey));
+}
+
+export function nightlightArt(on: boolean): string {
+  return svg(160, 150, (on ? oval(80,71,75,65,'#fff0ad') : '') + plank(37,117,86,18,honey) +
+    path('M80 16l17 35l38 7l-27 28l5 38l-33 -17l-34 17l6 -38l-28 -28l39 -7Z', on ? '#ffdd78' : '#d6b2a3') +
+    line('M60 75q5 5 10 0m20 0q5 5 10 0 M74 89q6 6 13 0', INK, 3));
+}
+
+export function shoalArt(n: number): string {
+  const fish = (colour: string) => path('M17 27L2 15v24Z', coral) + path('M16 27q16 -24 43 -1q-18 23 -43 1Z', colour) + oval(49,25,2,2,INK);
+  return svg(160, 96, at(60, 30, 1.4, fish(honey)) + at(10, 37, .8, fish(teal)) +
+    (n > 0 ? at(28, 0, .76, fish(coral)) : '') + (n > 1 ? at(0, 66, .56, fish(honey)) : ''));
+}

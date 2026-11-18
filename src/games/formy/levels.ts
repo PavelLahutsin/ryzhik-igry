@@ -59,8 +59,8 @@ const FIRST: FormLevel[] = [
     done: "Подарки нашли хозяев!",
   },
   { id: "r5", world: "size", mode: "pyramid", title: "Большая пирамидка", rings: 6, ask: "Шесть колечек — от большого к маленькому.", done: "Высокая пирамидка!" },
-  { id: "f1", world: "shape", mode: "sorter", title: "Круг и квадрат", shapes: ["circle", "square"], perShape: 2, ask: "Найди для каждой фигурки её окошко.", done: "Все фигурки в коробке!" },
-  { id: "f2", world: "shape", mode: "sorter", title: "Три фигуры", shapes: ["circle", "square", "triangle"], perShape: 2, ask: "Круг, квадрат, треугольник — опусти в своё окошко.", done: "Молодец, знаешь фигуры!" },
+  { id: "f1", world: "shape", mode: "sorter", title: "Круг и квадрат", shapes: ["circle", "square"], perShape: 2, ask: "Найди такую же форму", done: "Все фигурки в коробке!" },
+  { id: "f2", world: "shape", mode: "sorter", title: "Три фигуры", shapes: ["circle", "square", "triangle"], perShape: 2, ask: "Круг, квадрат, треугольник — опусти в своё окошко.", done: "Все фигуры в своих окошках!" },
   {
     id: "f3",
     world: "shape",
@@ -177,7 +177,7 @@ const ADDED: FormLevel[] = [
     spec: { kind: "compare", dims: ["thick"], count: 2, want: "mix" },
     rounds: 4,
     ask: "Где толстая книга, а где тонкая?",
-    done: "Толстая и тонкая — молодец!",
+    done: "Вот толстая книга, а вот тонкая!",
   },
   {
     id: "m4",

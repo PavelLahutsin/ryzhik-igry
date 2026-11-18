@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { createRng } from "../../shared/rng";
 import { characters } from "../../shared/assets";
 import { levels } from "./levels";
-import { E, N, S, W, canStep, fitMaze, makeMaze, maxWay, pickMaze, placeApples, sizeWord, solve, tapPath, walkToward } from "./maze";
+import { E, N, S, W, canStep, checkMaze, fitMaze, makeMaze, maxWay, pickMaze, placeApples, sizeWord, solve, tapPath, walkToward } from "./maze";
 
 function opens(v: number): number {
   return [N, E, S, W].filter((b) => v & b).length;
@@ -51,6 +51,10 @@ describe("labirint", () => {
     expect(levels).toHaveLength(15);
     for (const level of levels) expect(characters[level.goal], level.goal).toBeDefined();
     const sizes = levels.map((l) => l.cols * l.rows);
+    for (let i = 1; i < levels.length; i++) {
+      expect(sizes[i], levels[i]!.id).toBeGreaterThanOrEqual(sizes[i - 1]!);
+      expect(levels[i]!.apples, levels[i]!.id).toBeGreaterThanOrEqual(levels[i - 1]!.apples);
+    }
     expect(sizes[0]).toBe(9);
     // The biggest maze is the last one: the game keeps getting harder.
     expect(sizes[sizes.length - 1]).toBe(72);
@@ -78,6 +82,41 @@ describe("labirint", () => {
       const m = pickMaze(6, 7, createRng(seed));
       expect(solve(m, { c: 0, r: 0 }, { c: 5, r: 6 }).length).toBeLessThanOrEqual(maxWay(6, 7));
     }
+  });
+  it("validates 200 seeded games per rectangle and requested apple count", () => {
+    for (let cols = 3; cols <= 9; cols++) for (let rows = 3; rows <= 9; rows++) {
+      for (let count = 0; count <= 5; count++) for (let sample = 0; sample < 200; sample++) {
+        const seed = (((cols * 10 + rows) * 6 + count) * 200) + sample;
+        const rand = createRng(seed);
+        const maze = pickMaze(cols, rows, rand);
+        const apples = placeApples(maze, count, { c: 0, r: 0 }, { c: cols - 1, r: rows - 1 }, rand);
+        const errors = checkMaze(maze, apples);
+        if (apples.length > count || errors.length) throw new Error(`${cols}x${rows}, count=${count}, seed=${seed}: ${errors}`);
+      }
+    }
+  }, 120_000);
+  it("replays the maze and apples from one world seed", () => {
+    function replay() {
+      const rand = createRng(421);
+      const maze = pickMaze(8, 9, rand);
+      return { maze, apples: placeApples(maze, 5, { c: 0, r: 0 }, { c: 7, r: 8 }, rand) };
+    }
+    expect(replay()).toEqual(replay());
+  });
+  it("keeps the exit a leaf even with no retry budget or entropy", () => {
+    for (let cols = 3; cols <= 9; cols++) for (let rows = 3; rows <= 9; rows++) {
+      expect(checkMaze(pickMaze(cols, rows, () => 0, 0), [])).toEqual([]);
+    }
+  });
+  it("rejects a cut passage and apples at or behind the exit", () => {
+    const maze = pickMaze(3, 3, createRng(3), 1);
+    const goal = { c: 2, r: 2 };
+    expect(checkMaze(maze, [goal])).not.toEqual([]);
+    maze.open[8] = 0;
+    maze.open[5]! &= ~S;
+    maze.open[7]! &= ~E;
+    expect(solve(maze, { c: 0, r: 0 }, goal)).toEqual([]);
+    expect(checkMaze(maze, [])).toContain("disconnected maze");
   });
   it("v13: a tap a few steps away walks the way; a far tap does nothing", () => {
     const m = makeMaze(6, 6, createRng(9));

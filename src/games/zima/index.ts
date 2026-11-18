@@ -67,7 +67,7 @@ export function mount(root: HTMLElement): () => void {
       cards.push(card({ game: w.game, title: levels[index]!.title, path: `/${w.game}/play/${index + 1}`, icon: w.icon, stars: progress.stars[w.level] ?? 0 }));
     }
     cards.push(card({ game: "stikery", title: "Зимняя картинка", path: "/stikery/zima", icon: "mitten" }));
-    cards.push(card({ game: "raskraska", title: "Рыжик лепит снеговика", path: "/raskraska", icon: "snowman" }));
+    cards.push(card({ game: "raskraska", title: "Рыжик лепит снеговика", path: "/raskraska/picture/ryzhik_snegovik", icon: "snowman" }));
     if (view.isConnected) grid.replaceChildren(...cards);
   })();
 

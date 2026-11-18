@@ -151,7 +151,7 @@ export const levels: Scenario[] = [
       { id: "fish", n: 2 },
     ],
     shelf: ["carrot", "fish", "apple", "banana", "mushroom", "pear", "cherry", "cup", "cube"],
-    done: "Пять покупок — пять монеток! Молодец!",
+    done: "Пять покупок — пять монеток!",
   },
   {
     id: "magazin-3",
@@ -223,6 +223,6 @@ export const levels: Scenario[] = [
       { id: "myach", danger: false, say: "Мячик — для игры, это не опасно." },
       { id: "lampa", danger: false, say: "Лампа светит. Это не опасно." },
     ],
-    done: "Молодец! Комната стала безопасной.",
+    done: "Комната стала безопасной.",
   },
 ];

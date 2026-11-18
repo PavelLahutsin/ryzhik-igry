@@ -1132,7 +1132,7 @@ button {
 
 .btn--parent {
   min-height: 48px;
-  min-width: 0;
+  min-width: 48px;
   padding: 0 14px;
   font-size: 15px;
   font-weight: 700;
@@ -1260,10 +1260,6 @@ button {
   justify-content: center;
   gap: 8px 14px;
   padding-bottom: 8px;
-}
-
-.home__foot .btn--parent {
-  min-height: 44px;
 }
 
 /* Phones held sideways: a compact top bar so the games get the height. */
@@ -1640,7 +1636,8 @@ button {
   appearance: none;
   border: 0;
   flex: none;
-  min-height: 44px;
+  min-width: 48px;
+  min-height: 48px;
   padding: 6px 14px;
   border-radius: 999px;
   display: inline-flex;

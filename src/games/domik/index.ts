@@ -257,6 +257,7 @@ export function mount(root: HTMLElement): () => void {
         case "lamp":
           st.on = !st.on;
           paintProp(prop);
+          anim(node, "is-wiggle", 600);
           audio.play(st.on ? "ding" : "tap");
           paintDark();
           break;
@@ -439,6 +440,50 @@ export function mount(root: HTMLElement): () => void {
           audio.play("chop");
           bubbleAt(c.x, prop.y, "Тук-тук!");
           break;
+        case "turn":
+        case "stack":
+          st.n = cycle(st.n, 3);
+          paintProp(prop);
+          anim(node, prop.tap === "turn" ? "is-wiggle" : "is-boing", 600);
+          audio.play(prop.tap === "turn" ? "flip" : "clack");
+          break;
+        case "chime":
+          st.n = cycle(st.n, 3);
+          anim(node, "is-wiggle", 600);
+          audio.tone(NOTES[st.n * 2]!, 0.35);
+          burst("note", c.x, c.y, 3);
+          break;
+        case "sprinkle":
+          st.n = cycle(st.n, 3);
+          paintProp(prop);
+          anim(node, "is-wiggle", 600);
+          audio.play("drip");
+          for (let i = 0; i < 3; i++) fx("drop", prop.x + 16, c.y, { dx: -28 - i * 9, dy: 55, delay: i * 80, ms: 500 });
+          break;
+        case "sway":
+          st.n = cycle(st.n, 3);
+          paintProp(prop);
+          anim(node, "is-shake", 600);
+          audio.play(prop.id === "rocker" ? "clack" : "rustle");
+          break;
+        case "paddle":
+        case "quack":
+          st.n = cycle(st.n, 3);
+          paintProp(prop);
+          anim(node, "is-bobbing", 800);
+          audio.play(prop.tap === "quack" ? "honk" : "splash");
+          burst("bubble", c.x, prop.y + prop.h * .8, 3);
+          break;
+        case "flap":
+          st.on = !st.on;
+          paintProp(prop);
+          anim(node, "is-wiggle", 600);
+          audio.play("rustle");
+          break;
+        case "drum":
+          anim(node, "is-boing", 600);
+          audio.play(prop.id === "bridge" ? "clack" : "thump");
+          break;
         case "none":
           break;
       }
@@ -461,8 +506,8 @@ export function mount(root: HTMLElement): () => void {
     function paintDark(): void {
       dark.className = "dm-dark";
       if (!night) return;
-      if (scene.id === "dom") {
-        const lamp = propState("lamp");
+      if (scene.indoorLamp) {
+        const lamp = propState(scene.indoorLamp);
         dark.classList.add(lamp.on ? "is-lamp" : "is-dark");
       } else dark.classList.add("is-dusk");
     }
@@ -472,8 +517,8 @@ export function mount(root: HTMLElement): () => void {
     function paintFlies(): void {
       for (const f of flies) f.remove();
       flies = [];
-      if (!night || scene.id === "dom" || reducedMotion()) return;
-      for (let i = 0; i < 10; i++) {
+      if (!night || scene.indoorLamp) return;
+      for (let i = 0; i < 6; i++) {
         const f = svgNode(FX.spark!, "dm-firefly");
         place(f, 100 + Math.random() * 1400, 300 + Math.random() * 450, 30, 30);
         f.style.animationDelay = `${-Math.random() * 4}s`;
@@ -578,7 +623,7 @@ export function mount(root: HTMLElement): () => void {
               discover(`seat:${seat.id}`);
               if (seat.pose === "sleep") say(ch, "Баю-бай…");
               if (seat.pose === "swing") say(ch, "Ух ты-ы!");
-              if (seat.pose === "sit") say(ch, "Посижу немножко");
+              if (seat.pose === "sit") say(ch, "Посижу немножко!");
             } else {
               const p = clampFoot(fx0, fy0, scene.floor);
               ch.state.x = p.x;

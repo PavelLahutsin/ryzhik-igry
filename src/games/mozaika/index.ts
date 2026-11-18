@@ -192,7 +192,7 @@ function play(stage: HTMLElement, level: MozaikaLevel, _index: number, api: Play
     if (basket) Object.assign(node.style, { left: basket.style.left, top: basket.style.top, rotate: "" });
     if (basket) replayClass(basket, "is-got");
     audio.play("sparkle");
-    say("Молодец, лишний кусочек найден!");
+    say("Этот кусочек лишний");
     next(index);
   }
 

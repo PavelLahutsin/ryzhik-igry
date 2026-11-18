@@ -28,7 +28,7 @@ export const LEVEL_TIPS: Record<string, Record<string, LevelTip>> = {
     t31: { at: ".tn-round", text: "Тут две части: после первых теней будут новые" },
   },
   odezhda: {
-    o2: { at: ".od-banner", text: "Смотри на погоду: что надеть под дождик?" },
+    o2: { at: ".od-banner", text: "Посмотри в окно. Что надеть в дождь?" },
   },
   sortirovka: {
     k1: { at: ".so-basket", text: "Теперь не по цвету, а по виду: что куда?" },
@@ -46,7 +46,7 @@ export const LEVEL_TIPS: Record<string, Record<string, LevelTip>> = {
   },
   risovalka: {
     r13: { at: ".rv-board", text: "Теперь линий больше — веди по очереди" },
-    r19: { at: ".rv-board", text: "Мастер! Видна только одна линия — следующая появится потом" },
+    r19: { at: ".rv-board", text: "Веди по линии. Потом появится следующая" },
     r22: { at: ".rv-board", text: "Теперь и стрелки нет — куда вести, подскажет рисунок" },
   },
   bukvy: {

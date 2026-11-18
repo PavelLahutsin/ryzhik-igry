@@ -168,7 +168,7 @@ function taskBar(text: string): { node: HTMLElement; say: (t: string) => void; d
 
 function play(stage: HTMLElement, level: FormLevel, index: number, api: PlayApi): () => void {
   if (level.mode === "pick") return playPick(stage, level, index, api);
-  if (level.mode === "sorter" || level.mode === "things" || level.mode === "sort2") audio.say("v37");
+  if (level.mode === "sorter" || level.mode === "things" || level.mode === "sort2") audio.say("v67");
   const scope = createScope();
   const { later } = scope;
   let misses = 0;

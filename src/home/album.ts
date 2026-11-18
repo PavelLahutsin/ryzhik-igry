@@ -26,7 +26,7 @@ export function renderAlbum(root: HTMLElement): () => void {
     const next = have < STICKERS.length ? starsFor(have) - stars : 0;
     note.textContent =
       have === STICKERS.length
-        ? `Все ${STICKERS.length} наклеек собраны! Ты молодец!`
+        ? "Все наклейки на месте!"
         : `Наклеек: ${have} из ${STICKERS.length}. До новой наклейки: ★ ${next}`;
   });
   return () => {
