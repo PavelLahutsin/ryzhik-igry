@@ -91,10 +91,12 @@ export function renderHome(root: HTMLElement): () => void {
   });
   const sumP = shown.map((game) => game.summary());
   const summaries = shown.map((game, i) => sumP[i]!.then((s) => void sums.set(game.id, s)).catch(() => undefined));
-  void Promise.all([playedP, ...summaries]).then(([played]) => {
+  void Promise.all([playedP, Promise.all(summaries)]).then(([played]) => {
     if (gone) return;
     const list = shown.filter((g) => sums.has(g.id)).map((g) => ({ id: g.id, got: sums.get(g.id)!.got, max: sums.get(g.id)!.max }));
-    const pick = pickToday(list, played as Played, Math.floor(Date.now() / 86_400_000));
+    const firstVisit = !played.opened.length && !played.recent.length;
+    const choices = firstVisit ? list.filter((g) => ["tapni", "domik", "raskraska"].includes(g.id)) : list;
+    const pick = pickToday(choices, played, Math.floor(Date.now() / 86_400_000));
     const game = pick && shown.find((g) => g.id === pick.id);
     if (!game || !pick) return;
     const s = sums.get(game.id)!;
@@ -112,8 +114,8 @@ export function renderHome(root: HTMLElement): () => void {
     today.hidden = false;
   });
   for (const [i, game] of shown.entries()) {
-    void sumP[i]!
-      .then((summary) => {
+    void Promise.all([sumP[i]!, playedP])
+      .then(([summary, played]) => {
         if (gone) return;
         if (summary.unit === "stars") {
           stars += summary.got;
@@ -121,7 +123,8 @@ export function renderHome(root: HTMLElement): () => void {
           total.hidden = stars === 0;
         }
         const node = view.querySelector<HTMLElement>(`[data-game="${game.id}"] .game-tile__progress`);
-        if (node) fillProgress(node, summary);
+        const hideZero = summary.got === 0 && (summary.unit === "stars" || summary.unit === "finds") && !played.opened.includes(game.id);
+        if (node && !hideZero) fillProgress(node, summary);
       })
       .catch(() => undefined);
   }

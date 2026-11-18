@@ -44,7 +44,7 @@ export function svgNode(markup: string, className = ""): HTMLElement {
   return wrap;
 }
 
-const PRAISE = ["Молодец!", "Ура!", "Здорово!", "Красота!", "Отлично!", "Получилось!"];
+const PRAISE = ["Ура!", "Здорово!", "Красота!", "Отлично!", "Получилось!"];
 
 export function praiseWord(index = Math.floor(Math.random() * PRAISE.length)): string {
   return PRAISE[index % PRAISE.length]!;

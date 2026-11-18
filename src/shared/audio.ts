@@ -1,7 +1,7 @@
 /**
  * Sound for all games: soft synthesized effects and a quiet optional music
  * loop. Recorded files are optional: public/audio/voice/vNN.mp3 (Ryzhik's
- * phrases, `audio.say("v02")`) and public/audio/music/mNN.mp3 (music per
+ * phrases, `audio.say("v03")`) and public/audio/music/mNN.mp3 (music per
  * world, m12 = win jingle) are used when present, otherwise the synthesized
  * sounds play (see voice-lines.ts and public/audio/README.md).
  *

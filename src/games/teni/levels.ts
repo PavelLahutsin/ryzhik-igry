@@ -134,7 +134,7 @@ export const levels: TeniLevel[] = [
   {
     id: "t33",
     world: "scene",
-    title: "Мастер теней",
+    title: "Сложные тени",
     items: [flip("char:ryzhik"), hide("char:mama"), "char:papa", turn("char:mishka", 30), "char:ezhik", "char:belka@s"],
     decoys: ["teddy"],
     more: [

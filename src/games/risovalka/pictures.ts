@@ -37,8 +37,8 @@ export const worlds = [
   { id: "first", title: "Первые рисунки", color: "#ffb23f" },
   { id: "animals", title: "Оживают!", color: "#7cc46a" },
   { id: "harder", title: "Посложнее", color: "#6db3d4" },
-  { id: "master", title: "Мастер рисования", color: "#9b6cd8" },
-  // v18: after «Мастер рисования»; its pictures sit at the end of the array (r52+).
+  { id: "master", title: "Рисуй без точек", color: "#9b6cd8" },
+  // v18: after «Рисуй без точек»; its pictures sit at the end of the array (r52+).
   { id: "big", title: "Большие картины", color: "#e8774a" },
   { id: "paths", title: "Длинные дорожки", color: "#3fae6a" },
 ];

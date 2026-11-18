@@ -83,14 +83,11 @@ describe("daily gift", () => {
 
 import { HOWTO_VOICE, MUSIC_FILES, PRAISE_LINES, VOICE_LINES, VOICE_WHEN, WIN_JINGLE, praiseLine } from "./voice-lines";
 describe("voice and music files", () => {
-  it("has v01–v37 and m01–m12 as in the prompts, and the v12 slots v38–v42", () => {
-    const ids = Object.keys(VOICE_LINES);
-    expect(ids).toHaveLength(66);
-    expect(ids[0]).toBe("v01");
-    expect(ids[36]).toBe("v37");
-    expect(ids.slice(37, 42)).toEqual(["v38", "v39", "v40", "v41", "v42"]);
-    expect(ids.slice(42)).toEqual(Array.from({ length: 24 }, (_, i) => `v${43 + i}`));
-    for (const id of ids.slice(37)) expect(VOICE_WHEN[id], id).toBeTruthy();
+  it("keeps active voice slots stable and does not reuse retired recordings", () => {
+    const retired = new Set(["v02", "v37"]);
+    const ids = Array.from({ length: 67 }, (_, i) => `v${String(i + 1).padStart(2, "0")}`).filter((id) => !retired.has(id));
+    expect(Object.keys(VOICE_LINES)).toEqual(ids);
+    for (const id of ids.filter((id) => id >= "v38")) expect(VOICE_WHEN[id], id).toBeTruthy();
     const music = new Set([...Object.values(MUSIC_FILES), WIN_JINGLE]);
     for (let i = 1; i <= 12; i++) expect(music.has(`m${String(i).padStart(2, "0")}`), `m${i}`).toBe(true);
   });
