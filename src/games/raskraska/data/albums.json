@@ -88,6 +88,119 @@
       ]
     },
     {
+      "id": "pervyi_sneg",
+      "title": "Рыжик и первый снег",
+      "emoji": "",
+      "cover": "sneg_sanki",
+      "available": true,
+      "pictures": [
+        {
+          "id": "sneg_okno",
+          "title": "Первый снег за окном"
+        },
+        {
+          "id": "sneg_mishka_zayka",
+          "title": "Мишка и Зайка ловят снежинки"
+        },
+        {
+          "id": "sneg_sanki",
+          "title": "Катаемся на санках"
+        }
+      ]
+    },
+    {
+      "id": "ovechki",
+      "title": "Считаем овечек",
+      "emoji": "",
+      "cover": "ovechki_son",
+      "available": true,
+      "pictures": [
+        {
+          "id": "ovechki_zvyozdy",
+          "title": "Смотрим на звёзды"
+        },
+        {
+          "id": "ovechki_oblako",
+          "title": "Овечка спит на облачке"
+        },
+        {
+          "id": "ovechki_son",
+          "title": "Рыжик спит под пледом"
+        }
+      ]
+    },
+    {
+      "id": "edinorozhka",
+      "title": "Рыжик и Единорожка",
+      "emoji": "",
+      "cover": "edinorozhka_obnimka",
+      "available": true,
+      "pictures": [
+        {
+          "id": "edinorozhka_risuet",
+          "title": "Рыжик рисует Единорожку"
+        },
+        {
+          "id": "edinorozhka_obnimka",
+          "title": "Рыжик обнимает Единорожку"
+        },
+        {
+          "id": "edinorozhka_raduga",
+          "title": "Рыжик дорисовывает радугу"
+        },
+        {
+          "id": "edinorozhka_gorka",
+          "title": "Радужная горка"
+        }
+      ]
+    },
+    {
+      "id": "kozlyata",
+      "title": "Волк и семеро козлят",
+      "emoji": "",
+      "cover": "kozlyata_volk_dver",
+      "available": true,
+      "pictures": [
+        {
+          "id": "kozlyata_volk_dver",
+          "title": "Волк у избушки"
+        },
+        {
+          "id": "kozlyata_mama",
+          "title": "Мама-коза и козлёнок"
+        },
+        {
+          "id": "kozlyata_volk_gorka",
+          "title": "Волк несёт мешок"
+        },
+        {
+          "id": "kozlyata_luzha",
+          "title": "Волк в луже"
+        }
+      ]
+    },
+    {
+      "id": "volshebnye_slova",
+      "title": "Волшебные слова",
+      "emoji": "",
+      "cover": "slova_yabloko",
+      "available": true,
+      "pictures": [
+        {
+          "id": "slova_yabloko",
+          "title": "Яблочко для друга"
+        },
+        {
+          "id": "slova_zayka",
+          "title": "Рыжик и Зайка"
+        },
+        {
+          "id": "slova_vmeste",
+          "title": "Все вместе"
+        }
+      ]
+    },
+    {
       "id": "songs",
       "title": "Рыжик и его песенки",
       "emoji": "",
