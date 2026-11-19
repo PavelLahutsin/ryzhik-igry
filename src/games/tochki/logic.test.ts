@@ -49,7 +49,7 @@ describe("tochki levels", () => {
     for (const l of levels) {
       expect(worlds.some((w) => w.id === l.world)).toBe(true);
       expect(l.dots.length).toBeGreaterThanOrEqual(5);
-      expect(l.dots.length).toBeLessThanOrEqual(24);
+      expect(l.dots.length).toBeLessThanOrEqual(l.world === "big" ? 30 : 24); // v20: «Много точек» up to 30
       expect(closestPair(l.dots), l.title).toBeGreaterThanOrEqual(MIN_GAP);
       for (const d of l.dots) {
         expect(d.x).toBeGreaterThanOrEqual(8);
@@ -90,7 +90,7 @@ describe("tochki levels", () => {
       return ls.reduce((s, l) => s + difficulty(l.dots.length, l.count), 0) / ls.length;
     };
     for (let i = 1; i < order.length; i++) expect(mean(order[i]!), order[i]).toBeGreaterThan(mean(order[i - 1]!));
-    expect(levels.length).toBeGreaterThanOrEqual(29);
+    expect(levels.length).toBe(63); // v20: 31 + 32
   });
 
   it("put every label clear of the other dots", () => {

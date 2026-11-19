@@ -40,9 +40,9 @@ describe("risovalka", () => {
     expect(starsFor(7, 2).stars).toBe(1);
     expect(numberWord(3)).toBe("Три");
   });
-  it("has 62 pictures, old ids first so progress keeps working (v17: r31–r51, v18: r52–r62 added at the end)", () => {
-    expect(levels).toHaveLength(62);
-    expect(levels.map((l) => l.id)).toEqual(Array.from({ length: 62 }, (_, i) => `r${i + 1}`));
+  it("has 100 pictures, old ids first so progress keeps working (v17: r31–r51, v18: r52–r62, v20: r63–r100 added at the end)", () => {
+    expect(levels).toHaveLength(100);
+    expect(levels.map((l) => l.id)).toEqual(Array.from({ length: 100 }, (_, i) => `r${i + 1}`));
     expect(new Set(levels.map((l) => l.title)).size).toBe(levels.length);
     for (const l of levels) {
       expect(l.strokes.length).toBeGreaterThan(0);
@@ -64,7 +64,7 @@ describe("risovalka", () => {
     const rank = { full: 0, next: 1, less: 2 } as const;
     const ranks = playOrder(levels, W).map((l) => rank[l.help ?? "full"]);
     for (let i = 1; i < ranks.length; i++) expect(ranks[i]!).toBeGreaterThanOrEqual(ranks[i - 1]!);
-    for (const l of levels) expect(l.help !== undefined).toBe(l.world === "master" || l.world === "big" || l.world === "paths");
+    for (const l of levels) expect(l.help !== undefined).toBe(l.world === "master" || l.world === "big" || l.world === "things" || l.world === "paths");
     expect(levels.filter((l) => l.help === "next").map((l) => l.id)).toEqual(["r19", "r20", "r21"]);
     // «Длинные дорожки»: the longest lines of the game, drawn without lifting the finger.
     const len = (d: string): number => d.length;
@@ -101,10 +101,13 @@ describe("risovalka", () => {
     // v18: «Большие картины» right after «Мастер рисования», before «Длинные дорожки».
     expect(ids.slice(45, 56)).toEqual(Array.from({ length: 11 }, (_, i) => `r${52 + i}`));
     expect(order[44]!.id).toBe("r51");
-    expect(order[56]!.id).toBe("r25");
-    expect(playOrder(levels).at(-1)!.world).toBe("big"); // without the world list: array order (labirint etc. unchanged)
+    // v20: new animals right after the old «Большие картины», then «Вещи и вкусности», then «Длинные дорожки».
+    expect(ids.slice(56, 94)).toEqual(Array.from({ length: 38 }, (_, i) => `r${63 + i}`));
+    expect(order.slice(77, 94).every((l) => l.world === "things")).toBe(true);
+    expect(order[94]!.id).toBe("r25");
+    expect(playOrder(levels).at(-1)!.world).toBe("things"); // without the world list: array order (labirint etc. unchanged)
     const after = orderAfter(levels, W);
-    expect(after).toEqual({ r31: "r12", r13: "r47", r36: "r18", r19: "r48", r42: "r24", r25: "r62", r47: "r35", r48: "r41", r49: "r46" });
+    expect(after).toEqual({ r31: "r12", r13: "r47", r36: "r18", r19: "r48", r42: "r24", r25: "r100", r47: "r35", r48: "r41", r49: "r46" });
     // Each level opens once the one before it in play order is won.
     for (let i = 1; i < order.length; i++) {
       const won = ids.slice(0, i);
@@ -115,7 +118,8 @@ describe("risovalka", () => {
     const old = Array.from({ length: 30 }, (_, i) => `r${i + 1}`);
     for (const id of ["r31", "r36", "r42"]) expect(levelOpen(levels, id, old, { after })).toBe(true);
     // Stroke counts per world for the new pictures, all inside the 12–188 box.
-    const lim: Record<string, [number, number]> = { animals: [2, 3], harder: [4, 5], master: [6, 7], big: [6, 10] };
+    // v20: new «Большие картины» and «Вещи и вкусности» have up to 12 lines.
+    const lim: Record<string, [number, number]> = { animals: [2, 3], harder: [4, 5], master: [6, 7], big: [6, 12], things: [6, 12] };
     for (const l of levels.slice(30)) {
       const [lo, hi] = lim[l.world!]!;
       expect(l.strokes.length, l.title).toBeGreaterThanOrEqual(lo);
@@ -125,7 +129,7 @@ describe("risovalka", () => {
       for (const d of l.strokes) {
         expect(d, l.title).not.toMatch(/[a-zZ]/);
         // Points only (an arc's radii and flags are not points); 12–188, «Большие картины» 10–190.
-        const [lo2, hi2] = l.world === "big" ? [10, 190] : [12, 188];
+        const [lo2, hi2] = l.world === "big" || l.world === "things" ? [10, 190] : [12, 188];
         const pts = d.replace(/A\s*[\d.]+\s+[\d.]+\s+[\d.]+\s+[01]\s+[01]/g, " ");
         for (const n of pts.match(/-?\d+(\.\d+)?/g)!.map(Number)) {
           expect(n, `${l.title}: ${d}`).toBeGreaterThanOrEqual(lo2);
