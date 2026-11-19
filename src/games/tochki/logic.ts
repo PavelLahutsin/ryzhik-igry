@@ -5,7 +5,9 @@ export type Pt = { x: number; y: number };
 /** How close (picture units, 200 × 200) a finger must come to a dot. */
 export const REACH = 17;
 /** Dots are never closer than this, so every touch zone stays big enough. */
-export const MIN_GAP = 22;
+// v20: 14 (was 22) so the bigger new pictures (legs, tentacles, poles) keep their shape;
+// zones stay half the way to the nearest dot, so a touch is still one dot.
+export const MIN_GAP = 14;
 
 /**
  * Each dot's touch zone: REACH, or less where dots sit close together —
