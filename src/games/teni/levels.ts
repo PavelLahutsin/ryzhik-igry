@@ -2,6 +2,7 @@ import { CHARACTER_NAMES, characters } from "../../shared/assets";
 import { OBJECTS, type ObjectId } from "../../shared/objects";
 import type { LevelInfo } from "../../shared/levelgame";
 import { SHAPES } from "./shapes";
+import { TENI_V23, TENI_V23_AFTER } from "./levels-v23";
 
 /** Where a shadow hides behind something: a bush, a cloud or a box. */
 export type Hide = "bush" | "cloud" | "box";
@@ -49,7 +50,7 @@ const hide = (id: string, where: Hide = "bush"): Spec => ({ id, hide: where });
  * world's (see `difficulty` and the tests). Ids t1–t15 are the levels of
  * earlier versions, kept (with new pictures) so saved stars stay.
  */
-export const levels: TeniLevel[] = [
+const BASE: TeniLevel[] = [
   // Простые тени: 2 → 4 different shapes, nothing extra.
   { id: "t1", world: "easy", title: "Яблоко и звёздочка", items: ["apple", "star"] },
   { id: "t2", world: "easy", title: "Шарик и рыбка", items: ["balloon", "fish", "car"] },
@@ -201,6 +202,19 @@ export const levels: TeniLevel[] = [
     ],
   },
 ];
+
+/** v23: the new levels sit where their difficulty fits (ids stay, so stars stay). */
+export const levels: TeniLevel[] = (() => {
+  const out = [...BASE];
+  const left = [...TENI_V23];
+  while (left.length) {
+    const i = left.findIndex((l) => out.some((b) => b.id === TENI_V23_AFTER[l.id]));
+    if (i < 0) throw new Error(`Нет места для ${left[0]!.id}`);
+    const [l] = left.splice(i, 1);
+    out.splice(out.findIndex((b) => b.id === TENI_V23_AFTER[l!.id]) + 1, 0, l!);
+  }
+  return out;
+})();
 
 /** All rounds of a level, the first one included. */
 export function roundsOf(level: TeniLevel): Round[] {

@@ -83,6 +83,20 @@
         {"id": "tsirk", "title": "Полосатый цирк", "file": "tsirk.svg", "enemies": 4, "fastBees": 2, "beeStep": 0.33, "winPercent": 0.85, "ladybugs": 2, "spiders": 2, "puddles": 2, "items": ["heart", "snail", "honey", "shield", "star"]},
         {"id": "pustynya", "title": "Золотые дюны", "file": "pustynya.svg", "enemies": 4, "fastBees": 2, "beeStep": 0.34, "winPercent": 0.85, "ladybugs": 2, "spiders": 2, "puddles": 2, "items": ["heart", "snail", "honey", "shield", "star"]}
       ]
+    },
+    {
+      "id": "pyostrye_dali",
+      "title": "Пёстрые дали",
+      "color": "#398477",
+      "cols": 22,
+      "rows": 12,
+      "levels": [
+        {"id": "izba_u_beryoz", "title": "Избушка у берёз", "file": "izba_u_beryoz.svg", "enemies": 4, "winPercent": 0.85, "beeStep": 0.31, "fastBees": 2, "ladybugs": 1, "spiders": 2, "puddles": 2, "items": ["heart", "snail", "honey", "shield", "star"]},
+        {"id": "mostik_nad_ruchyom", "title": "Мостик над ручьём", "file": "mostik_nad_ruchyom.svg", "enemies": 4, "winPercent": 0.85, "beeStep": 0.32, "fastBees": 2, "ladybugs": 2, "spiders": 2, "puddles": 2, "items": ["heart", "snail", "honey", "shield", "star"]},
+        {"id": "zelyony_vinograd", "title": "Зелёный виноград", "file": "zelyony_vinograd.svg", "enemies": 4, "winPercent": 0.85, "beeStep": 0.33, "fastBees": 2, "ladybugs": 2, "spiders": 2, "puddles": 2, "items": ["heart", "snail", "honey", "shield", "star"]},
+        {"id": "dvor_s_fonaryom", "title": "Двор с фонарём", "file": "dvor_s_fonaryom.svg", "enemies": 4, "winPercent": 0.85, "beeStep": 0.34, "fastBees": 3, "ladybugs": 2, "spiders": 2, "puddles": 2, "items": ["heart", "snail", "honey", "shield", "star"]},
+        {"id": "polyot_planyora", "title": "Полёт планёра", "file": "polyot_planyora.svg", "enemies": 4, "winPercent": 0.85, "beeStep": 0.35, "fastBees": 3, "ladybugs": 2, "spiders": 3, "puddles": 2, "items": ["heart", "snail", "honey", "shield", "star"]}
+      ]
     }
   ]
 }

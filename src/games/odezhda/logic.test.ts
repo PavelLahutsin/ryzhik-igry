@@ -27,8 +27,12 @@ describe("odezhda", () => {
   it("gives stars kindly", () => {
     expect([starsFor(0).stars, starsFor(2).stars, starsFor(5).stars, starsFor(5, 2).stars]).toEqual([3, 2, 2, 1]);
   });
-  it("has 31 levels with at most 8 things in the tray", () => {
-    expect(levels).toHaveLength(31);
+  it("has 40 levels with at most 8 things in the tray", () => {
+    expect(levels).toHaveLength(40);
+    // v23: titles differ, and no level repeats another (same things to wear and the same extras)
+    expect(new Set(levels.map((l) => l.title)).size).toBe(levels.length);
+    const sig = levels.map((l) => `${l.weather}|${[...l.wear].sort()}|${[...l.extra].sort()}`);
+    expect(new Set(sig).size).toBe(levels.length);
     for (const level of levels) {
       expect(level.wear.length + level.extra.length, level.id).toBeLessThanOrEqual(8);
       for (const id of [...level.wear, ...level.extra]) expect(ITEMS[id], id).toBeDefined();

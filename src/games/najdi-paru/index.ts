@@ -7,25 +7,35 @@ import { reducedMotion, useStyles } from "../../shared/style";
 import { hint, svgNode } from "../../shared/ui";
 import baseCss from "../../shared/base.css?inline";
 import css from "./style.css?inline";
-import { FACE_COLORS, face, groupsFor, levels, pairsOf, worlds, type ParaLevel } from "./levels";
+import { ALL_AFTER, WORLD_ORDER, isGuests, levels as allLevels, worlds as allWorlds } from "./all";
+import { FACE_COLORS, face, groupsFor, pairsOf, type ParaLevel } from "./levels";
 import { closeMiss, dealGroups, fitGrid, flip, peekable, solved, starsFor } from "./logic";
+import { plural } from "../../shared/words";
+import { guestsThumb, playGuests } from "../zveri/guests-play";
+import zvCss from "../zveri/style.css?inline";
+
 
 /**
  * «Найди пару»: memory cards with Ryzhik, family and friends. No clock.
  * Later worlds: a number and that many things, a thing and its shadow, three alike.
  */
 export function mount(root: HTMLElement): () => void {
-  useStyles(baseCss, css);
+  useStyles(baseCss, css, zvCss);
   return mountLevelGame(
     {
       id: "najdi-paru",
       title: "Найди пару",
       subtitle: "Открой две карточки, которые подходят друг к другу",
-      levels,
-      worlds,
-      thumb: (level) => faceNode(thumbFace(level), "np-thumb"),
-      caption: (level) => (level.cols * level.rows === 4 ? "4 карточки" : `${level.cols * level.rows} карточек`) + (level.mode === "three" ? " · по три" : ""),
-      play,
+      levels: allLevels,
+      worlds: allWorlds,
+      worldOrder: WORLD_ORDER,
+      after: ALL_AFTER,
+      thumb: (level) => (isGuests(level) ? guestsThumb(level) : faceNode(thumbFace(level), "np-thumb")),
+      caption: (level) =>
+        isGuests(level)
+          ? plural(level.start + level.steps, ["зверёк", "зверька", "зверят"])
+          : (level.cols * level.rows === 4 ? "4 карточки" : `${level.cols * level.rows} карточек`) + (level.mode === "three" ? " · по три" : ""),
+      play: (stage, level, index, api) => (isGuests(level) ? playGuests(stage, level, index, api) : play(stage, level, index, api)),
     },
     root,
   );

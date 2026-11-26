@@ -43,6 +43,9 @@
 .fm-say__bubble {
   flex: 1;
   min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   padding: 8px 12px;
   border-radius: 18px;
   background: var(--surface);
@@ -1017,4 +1020,91 @@
   .fm-holebox__in {
     animation: none;
   }
+}
+
+/* v23: the picture of the question, the text, 🔊 */
+.fm-say__icon {
+  flex: none;
+  width: 48px;
+  height: 48px;
+}
+.fm-say__icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.fm-say__body {
+  flex: 1;
+  min-width: 0;
+}
+@media (max-height: 500px) {
+  .fm-say__icon {
+    width: 38px;
+    height: 38px;
+  }
+}
+
+/* v23: the trial pair the hand shows the move on */
+.fm-layout {
+  position: relative;
+}
+.fm-trial {
+  position: absolute;
+  left: 50%;
+  top: 72px;
+  z-index: 20;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 14px;
+  align-items: flex-end;
+  padding: 10px 16px;
+  border-radius: 22px;
+  background: #fffcf7;
+  box-shadow: 0 0 0 3px #f0b46a, 0 10px 24px rgba(59, 46, 37, 0.25);
+  pointer-events: none;
+  animation: fm-trial-in 260ms ease-out;
+}
+.fm-trial__i {
+  width: 74px;
+  height: 74px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  transition: opacity 300ms, box-shadow 300ms;
+}
+.fm-trial__art {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+.fm-trial__art svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.fm-trial__shelf {
+  height: 18px;
+  align-self: end;
+  border-radius: 6px;
+  background: #c48a4a;
+  box-shadow: inset 0 -4px 0 #9b6633;
+}
+.fm-trial__i.is-moved {
+  opacity: 0.15;
+}
+.fm-trial__i.is-right {
+  box-shadow: 0 0 0 4px #3fae6a;
+}
+.fm-trial__i.is-got {
+  animation: fm-trial-got 500ms ease-out;
+}
+@keyframes fm-trial-in {
+  from { opacity: 0; transform: translateX(-50%) scale(0.9); }
+}
+@keyframes fm-trial-got {
+  40% { transform: scale(1.15); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fm-trial, .fm-trial__i.is-got { animation: none; }
 }

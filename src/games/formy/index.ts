@@ -8,11 +8,16 @@ import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
 import { OBJECT_GENDER, OBJECTS, type Gender } from "../../shared/objects";
 import { shuffle } from "../../shared/rng";
 import { reducedMotion, useStyles } from "../../shared/style";
+import { loadSeen, markSeen } from "../../shared/seen";
+import { speakButton } from "../../shared/speak";
+import { ASK_ICONS } from "./ask-icons";
+import { demoFor, type DemoTarget } from "./demos";
+import { demoKey, FORMY_BUBBLE, FORMY_FALLBACK, FORMY_RESULT_VOICE, taskKey, taskVoice, type TaskKey } from "./voice";
 import { createAutoHint } from "../../shared/autoHint";
 import { svgNode } from "../../shared/ui";
 import baseCss from "../../shared/base.css?inline";
 import css from "./style.css?inline";
-import { blockSvg, bookSvg, cornersSvg, figHoleSvg, figSvg, firSvg, holeSvg, numberSvg, pencilSvg, PLATE, POLE, RING_COLORS, shapeIcon, TABLE, THINGS } from "./art";
+import { blockSvg, bookSvg, cornersSvg, FIG_R, figHoleSvg, figSvg, firSvg, holeSvg, numberSvg, pencilSvg, PLATE, POLE, RING_COLORS, shapeIcon, TABLE, THINGS } from "./art";
 import {
   levels,
   worlds,
@@ -28,7 +33,7 @@ import {
 } from "./levels";
 import {
   canStack,
-  compareAsk,
+  cornerPoints,
   figName,
   makeRounds,
   matches,
@@ -152,13 +157,66 @@ const SIZE_OWNER: Record<Size, { who: string; char: string; name: string }> = {
   small: { who: "Рыжику", char: "ryzhik", name: "Рыжик" },
 };
 
-/** The task line on top: one clear instruction, and dots for the progress. */
-function taskBar(text: string): { node: HTMLElement; say: (t: string) => void; dots: (done: number, total: number) => void } {
+/** The picture of the question next to the bubble (v23). */
+const ASK_ICON: Partial<Record<TaskKey, keyof typeof ASK_ICONS>> = {
+  "family:2": "plates",
+  "family:3": "plates",
+  pyramid: "stairsDown",
+  sorter: "fitOne",
+  "order:up": "stairsUp",
+  "order:down": "stairsDown",
+  "pick:compare:size:most:2": "bigOne",
+  "pick:compare:size:most:3+": "bigOne",
+  "pick:compare:size:least:2": "smallOne",
+  "pick:compare:size:least:3+": "smallOne",
+  "pick:compare:length:most": "longOne",
+  "pick:compare:length:least": "shortOne",
+  "pick:compare:height:most": "tallOne",
+  "pick:compare:height:least": "lowOne",
+  "pick:compare:thick:most": "thickOne",
+  "pick:compare:thick:least": "thinOne",
+  "pick:same": "sameOne",
+  "pick:odd:shape": "oddOne",
+  "pick:odd:tint": "oddOne",
+  "pick:odd:size": "oddOne",
+  "pick:pattern": "nextOne",
+  "pick:fit": "fitOne",
+};
+
+/** The line Ryzhik says for the level: the new one, or an older recorded one that fits. */
+function spokenTask(level: FormLevel): string {
+  const id = taskVoice(level);
+  const old = FORMY_FALLBACK[taskKey(level)];
+  return !audio.hasVoice(id) && old && audio.hasVoice(old) ? old : id;
+}
+
+/** Say a result line if it is recorded (never instead of the game's sounds). */
+const sayIf = (id: string | undefined): void => {
+  if (id && audio.hasVoice(id)) audio.say(id);
+};
+
+/**
+ * The task line on top: a picture of the question, one clear instruction
+ * (Ryzhik says it; 🔊 repeats it), and dots for the progress.
+ */
+function taskBar(level: FormLevel): { node: HTMLElement; text: string; say: (t: string) => void; dots: (done: number, total: number) => void } {
+  const key = taskKey(level);
+  const voice = taskVoice(level);
+  const text = FORMY_BUBBLE[voice] ?? level.ask;
   const sayText = el("p", { class: "fm-say__text", attrs: { "aria-live": "polite" }, text });
   const dotRow = el("div", { class: "fm-say__dots", attrs: { "aria-hidden": "true" } });
-  const node = el("div", { class: "fm-say" }, [el("div", { class: "fm-say__bubble" }, [sayText, dotRow])]);
+  const icon = ASK_ICON[key];
+  const speak = speakButton(spokenTask(level));
+  const node = el("div", { class: "fm-say" }, [
+    el("div", { class: "fm-say__bubble" }, [
+      ...(icon ? [svgNode(ASK_ICONS[icon], "fm-say__icon")] : []),
+      el("div", { class: "fm-say__body" }, [sayText, dotRow]),
+      speak.node,
+    ]),
+  ]);
   return {
     node,
+    text,
     say: (t) => {
       sayText.textContent = t;
       replayClass(sayText, "is-new");
@@ -167,9 +225,124 @@ function taskBar(text: string): { node: HTMLElement; say: (t: string) => void; d
   };
 }
 
+/** A picture of the trial pair. */
+function trialNode(t: DemoTarget): HTMLElement {
+  let n: HTMLElement;
+  if ("fig" in t) n = svgNode(figSvg(t.fig), "fm-trial__art");
+  else if ("obj" in t) {
+    n = svgNode(OBJECTS[t.obj].svg, "fm-trial__art");
+    n.style.transform = t.size === "small" ? "scale(.55)" : "";
+  } else if ("measure" in t) n = svgNode(t.measure === "length" ? pencilSvg(t.v, 2, t.color) : bookSvg(t.v, 2, t.color), `fm-trial__art fm-m--${t.measure}`);
+  else if (t.slot === "papa") n = el("img", { class: "fm-trial__art", attrs: { src: character("papa"), alt: "", draggable: "false" } });
+  else if (t.slot === "pole") n = svgNode(POLE, "fm-trial__art");
+  else if (t.slot === "hole") n = svgNode(holeSvg(t.shape), "fm-trial__art");
+  else if (t.slot === "box") n = svgNode(t.tint ? figSvg({ shape: t.shape, tint: t.tint, size: 2 }) : shapeIcon(t.shape), "fm-trial__art fm-trial__box");
+  else n = el("div", { class: "fm-trial__art fm-trial__shelf" });
+  return el("div", { class: "fm-trial__i" }, [n]);
+}
+
+/**
+ * v23: the hand shows the move on a separate trial pair above the field (not
+ * the level's answers), then Ryzhik says the task. The first time a child
+ * meets a kind of task, and again after 4 s without a touch — at most 3 times
+ * a level.
+ */
+function trialDemo(layout: HTMLElement, level: FormLevel, later: (fn: () => void, ms: number) => void): { run: () => void; firstTime: () => void } {
+  const demo = demoFor(demoKey(level));
+  let shown = 0;
+  let token = 0;
+  let lastTouch = Date.now();
+  let watching = false;
+  let box: HTMLElement | null = null;
+  const stop = (): void => {
+    token++;
+    box?.remove();
+    box = null;
+  };
+  layout.addEventListener("pointerdown", () => {
+    lastTouch = Date.now();
+    stop();
+  });
+  const run = (): void => {
+    if (!demo || shown >= 3 || box || !layout.isConnected || document.querySelector(".ht")) return;
+    shown++;
+    const mine = ++token;
+    const nodes = demo.trial.map(trialNode);
+    box = el("div", { class: "fm-trial", attrs: { "aria-hidden": "true" } }, nodes);
+    layout.append(box);
+    if (!audio.saidRecently("v07", 2000)) audio.say("v07");
+    let t = 700;
+    for (const step of demo.steps) {
+      const from = nodes[step.from]!;
+      if (step.move === "drag") {
+        const to = nodes[step.to!]!;
+        later(() => mine === token && showDrag(centre(from), centre(to)), t);
+        later(() => {
+          if (mine !== token) return;
+          from.classList.add("is-moved");
+          replayClass(to, "is-got");
+        }, t + 1500);
+        t += 2100;
+      } else if (step.move === "tap") {
+        later(() => mine === token && showTap(centre(from)), t);
+        later(() => mine === token && from.classList.add("is-right"), t + 900);
+        t += 1800;
+      } else {
+        const f = demo.trial[step.from];
+        const fig = f && "fig" in f ? f.fig : null;
+        const pts = fig ? cornerPoints(fig.shape, 50, 50, FIG_R[fig.size]) : [];
+        pts.forEach(([x, y], i) => {
+          later(() => {
+            if (mine !== token) return;
+            const r = from.getBoundingClientRect();
+            showTap({ x: r.left + (x / 100) * r.width, y: r.top + (y / 100) * r.height });
+            sayIf(FORMY_RESULT_VOICE.count[i]);
+          }, t);
+          t += 1100;
+        });
+        t += 600;
+      }
+    }
+    later(() => {
+      if (mine !== token) return;
+      stop();
+      audio.say(spokenTask(level));
+      lastTouch = Date.now();
+    }, t + 300);
+  };
+  const watch = (): void => {
+    if (watching) return;
+    watching = true;
+    const tick = (): void => {
+      if (!layout.isConnected || shown >= 3) return;
+      if (!box && Date.now() - lastTouch >= 4000) run();
+      later(tick, 1000);
+    };
+    later(tick, 4000);
+  };
+  return {
+    run,
+    firstTime: () => {
+      if (!demo) return;
+      const id = `formy-demo:${demo.key}`;
+      void loadSeen().then((seen) => {
+        if (seen.tips.includes(id)) return;
+        void markSeen("tips", id);
+        // The guided first level runs the demo itself (levelgame), after «Как играть».
+        const go = (): void => {
+          if (!layout.isConnected) return;
+          if (document.querySelector(".ht")) return later(go, 800);
+          if (!document.body.classList.contains("is-tutorial")) run();
+          watch();
+        };
+        later(go, 2600);
+      });
+    },
+  };
+}
+
 function play(stage: HTMLElement, level: FormLevel, index: number, api: PlayApi): () => void {
   if (level.mode === "pick") return playPick(stage, level, index, api);
-  if (level.mode === "sorter" || level.mode === "things" || level.mode === "sort2") audio.say("v67");
   const scope = createScope();
   const { later } = scope;
   let misses = 0;
@@ -177,7 +350,7 @@ function play(stage: HTMLElement, level: FormLevel, index: number, api: PlayApi)
   const autoHint = createAutoHint();
   let placed = 0;
 
-  const bar = taskBar(level.ask);
+  const bar = taskBar(level);
   const guide = bar.node;
   const say = bar.say;
 
@@ -195,7 +368,11 @@ function play(stage: HTMLElement, level: FormLevel, index: number, api: PlayApi)
               : thingsSetup(level);
   const tray = el("div", { class: `fm-tray fm-tray--${level.mode}` });
   for (const item of shuffle(setup.items)) tray.append(item.node);
-  stage.append(el("div", { class: `fm-layout fm-layout--${level.mode}` }, [guide, setup.area, tray]));
+  const layout = el("div", { class: `fm-layout fm-layout--${level.mode}` }, [guide, setup.area, tray]);
+  stage.append(layout);
+  // v23: Ryzhik says the task (after the game's name, if it is still being said).
+  audio.say(spokenTask(level), { after: true });
+  const trial = trialDemo(layout, level, later);
   const total = setup.items.length;
   bar.dots(0, total);
   for (const item of setup.items) item.node.dataset.key = item.key;
@@ -227,6 +404,7 @@ function play(stage: HTMLElement, level: FormLevel, index: number, api: PlayApi)
             audio.play("boing");
             replayClass(target.node, "is-wrong");
             say(setup.wrongText(item, target));
+            sayIf(level.mode === "sorter" ? FORMY_RESULT_VOICE.miss.sorter : level.mode === "order" ? FORMY_RESULT_VOICE.miss.order : undefined);
             if (autoHint.recordMiss()) showHint();
             return false;
           }
@@ -248,11 +426,13 @@ function play(stage: HTMLElement, level: FormLevel, index: number, api: PlayApi)
     );
   }
 
-  // The hand shows the next move (free, no penalty).
+  // The hand shows the move: on the trial pair when there is one, else on the next move (free, no penalty).
   api.setDemo(() => {
+    if (demoFor(demoKey(level))) return trial.run();
     const pair = setup.hintPair();
     if (pair) showDrag(centre(pair[0].node), centre(pair[1].node));
   });
+  trial.firstTime();
   function showHint(): void {
     const pair = setup.hintPair();
     if (!pair) return;
@@ -299,6 +479,7 @@ function play(stage: HTMLElement, level: FormLevel, index: number, api: PlayApi)
         replayClass(target.node, "is-happy");
         audio.play("yum");
         say(`${item.name} — ${SIZE_OWNER[item.key as Size].who}! Спасибо!`);
+        if (placed < total) sayIf(FORMY_RESULT_VOICE.ok.family);
       },
       wrongText: (item) => `${item.name}… ${whoFits(item.gender ?? "n")}`,
       hintPair: () => {
@@ -339,6 +520,7 @@ function play(stage: HTMLElement, level: FormLevel, index: number, api: PlayApi)
         stackBox.append(ring);
         audio.tone(NOTES[Math.min(count - 1, NOTES.length - 1)]!, 0.2);
         say(nextRing(stack, l.rings) ? "Дальше — колечко поменьше!" : "Готово!");
+        if (nextRing(stack, l.rings)) sayIf(FORMY_RESULT_VOICE.ok["pyramid:ring"]);
       },
       wrongText: () => (stack.length ? "Это колечко не подходит. Ищи самое большое из оставшихся!" : "Сначала самое большое колечко!"),
       hintPair: () => {
@@ -373,6 +555,7 @@ function play(stage: HTMLElement, level: FormLevel, index: number, api: PlayApi)
         replayClass(target.node, "is-got");
         audio.play("pop");
         say(`${item.name}!`);
+        sayIf(FORMY_RESULT_VOICE.shapeName[item.key as Shape]);
       },
       wrongText: (item, target) => `Это ${item.name.toLowerCase()}, а окошко — ${SHAPE_NAME[target.key as Shape].toLowerCase()}.`,
       hintPair: () => {
@@ -517,24 +700,6 @@ const SHAPE_INSTR: Record<Shape, string> = {
 
 // ------------------------------------------------------------ one-tap levels
 
-/** The question line for a round. */
-function roundAsk(round: Round, level: PickLevel): string {
-  switch (round.kind) {
-    case "compare":
-      return round.thing ? compareAsk("size", round.want, round.values.length, { name: OBJECTS[round.thing as keyof typeof OBJECTS].name, g: OBJECT_GENDER[round.thing as keyof typeof OBJECTS] }) : compareAsk(round.dim, round.want, round.values.length);
-    case "same":
-      return level.spec.kind === "same" && level.spec.variant === "turn" ? "Найди ту же форму — цвет и поворот не важны." : "Найди такую же фигуру.";
-    case "odd":
-      return round.by === "shape" ? "Какая фигура другой формы?" : round.by === "tint" ? "Какая фигура другого цвета?" : "Какая фигура другого размера?";
-    case "pattern":
-      return "Что будет дальше в узоре?";
-    case "fit":
-      return round.hole.size === 3 ? "Какая фигурка подойдёт к окошку?" : "Какая фигурка пролезет как раз?";
-    case "corners":
-      return "Сколько углов у этой фигуры?";
-  }
-}
-
 function playPick(stage: HTMLElement, level: PickLevel, _index: number, api: PlayApi): () => void {
   const scope = createScope();
   const { later } = scope;
@@ -544,10 +709,13 @@ function playPick(stage: HTMLElement, level: PickLevel, _index: number, api: Pla
   let hints = 0;
   const autoHint = createAutoHint();
   let busy = false;
-  const bar = taskBar(level.ask);
+  const bar = taskBar(level);
   const question = el("div", { class: `fm-q fm-q--${level.spec.kind}` });
   const options = el("div", { class: `fm-opts fm-opts--${level.spec.kind}`, attrs: { role: "group" } });
-  stage.append(el("div", { class: `fm-layout fm-layout--pick fm-layout--${level.spec.kind}` }, [bar.node, question, options]));
+  const layout = el("div", { class: `fm-layout fm-layout--pick fm-layout--${level.spec.kind}` }, [bar.node, question, options]);
+  stage.append(layout);
+  audio.say(spokenTask(level), { after: true });
+  const trial = trialDemo(layout, level, later);
   let buttons: HTMLButtonElement[] = [];
 
   const optionArt = (round: Round, i: number): HTMLElement => {
@@ -564,8 +732,8 @@ function playPick(stage: HTMLElement, level: PickLevel, _index: number, api: Pla
   function show(): void {
     const round = rounds[at]!;
     busy = false;
-    bar.say(at === 0 ? level.ask : roundAsk(round, level));
-    if (at === 0) later(() => rounds[at] === round && bar.say(roundAsk(round, level)), 2600);
+    // v23: one question per level — the same words every round.
+    bar.say(bar.text);
     bar.dots(at, rounds.length);
     question.replaceChildren();
     question.className = `fm-q fm-q--${round.kind}`;
@@ -607,6 +775,7 @@ function playPick(stage: HTMLElement, level: PickLevel, _index: number, api: Pla
       b.disabled = true;
       b.classList.add("is-off");
       bar.say(wrongLine(round));
+      sayIf(round.kind === "fit" ? FORMY_RESULT_VOICE.miss.fit : round.kind === "compare" ? FORMY_RESULT_VOICE.miss.compare : round.kind === "odd" ? FORMY_RESULT_VOICE.miss.odd : round.kind === "pattern" ? FORMY_RESULT_VOICE.miss.pattern : undefined);
       if (autoHint.recordMiss()) showHint();
       return;
     }
@@ -625,6 +794,9 @@ function playPick(stage: HTMLElement, level: PickLevel, _index: number, api: Pla
     if (round.kind === "same") question.querySelector(".fm-sample")?.classList.add("is-got");
     autoHint.reset();
     bar.say(rightLine(round));
+    if (round.kind === "fit") sayIf(FORMY_RESULT_VOICE.ok.fit);
+    if (round.kind === "corners") sayIf(FORMY_RESULT_VOICE.count[round.options[round.answer]! - 1]);
+    if (round.kind === "compare" && round.dim === "size") sayIf(round.want === "most" ? FORMY_RESULT_VOICE.size.big : FORMY_RESULT_VOICE.size.small);
     at++;
     bar.dots(at, rounds.length);
     if (at < rounds.length) {
@@ -670,9 +842,11 @@ function playPick(stage: HTMLElement, level: PickLevel, _index: number, api: Pla
   }
 
   api.setDemo(() => {
+    if (demoFor(demoKey(level))) return trial.run();
     const b = buttons[rounds[at]?.answer ?? -1];
     if (b) showTap(centre(b));
   });
+  trial.firstTime();
   function showHint(): void {
     const b = buttons[rounds[at]?.answer ?? -1];
     if (!b || busy) return;

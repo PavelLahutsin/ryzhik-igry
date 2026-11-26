@@ -34,5 +34,14 @@
     "regionCount": 44,
     "neckCount": 0
   },
-  "neckCount": 0
+  "neckCount": 0,
+  "outlineRatio": 0.07530815972222223,
+  "limits": {
+    "maxBeforeNecks": 0,
+    "maxTinyRegions": 0,
+    "maxRegionCount": 50,
+    "maxOutlineRatio": 0.12
+  },
+  "allowed": true,
+  "failures": []
 }

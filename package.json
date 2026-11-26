@@ -11,7 +11,8 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "regions": "node scripts/run-regions.mjs"
+    "regions": "node scripts/run-regions.mjs",
+    "regions:import": "python3 scripts/import-lineart.py"
   },
   "dependencies": {
     "@capacitor/app": "^7.1.2",

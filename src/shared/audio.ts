@@ -200,7 +200,8 @@ const present = new Set([...audioFiles.voice, ...audioFiles.music]);
 
 /** Is the optional recording there? (Known at build time, no network.) */
 function fileKnown(url: string): boolean {
-  const id = (url.split("/").pop() ?? "").replace(/\.mp3$/, "");
+  // v23: "v72", "m03" or "words/bukva-m" (letters of «Азбука-картинки»).
+  const id = url.replace(/^.*audio\/(voice|music)\//, "").replace(/\.mp3$/, "");
   return present.has(id);
 }
 

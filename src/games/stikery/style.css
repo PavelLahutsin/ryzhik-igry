@@ -20,6 +20,10 @@
 .sk-bg--more { background: linear-gradient(#c6e9f7 0%, #e5f5f2 60%, #8dd8d8 60%, #58b3c6 100%); }
 .sk-bg--noch { background: radial-gradient(circle at 14% 19%, #ffe8ab 0 2px, transparent 3px), radial-gradient(circle at 43% 32%, #fff1cf 0 1.5px, transparent 2.5px), radial-gradient(circle at 68% 12%, #fff1cf 0 2px, transparent 3px), radial-gradient(circle at 86% 41%, #ffe8ab 0 1.5px, transparent 2.5px), linear-gradient(#293965 0%, #616e99 64%, #526265 64%, #374e53 100%); }
 .sk-bg--plyazh { background: radial-gradient(circle at 76% 28%, #ffe7a5 0 5%, transparent 5.3%), linear-gradient(#f6ccbd 0%, #fff0d8 56%, #98d5d4 56%, #bce5dc 63%, #fff4d9 63%, #fff4d9 65%, #f5d59c 65%, #ebc389 100%); }
+/* v23 (Astra) */
+.sk-bg--bereznyak { background: linear-gradient(90deg, transparent 0 8%, #f7f1dc 8% 11%, transparent 11% 24%, #eee7d2 24% 26%, transparent 26% 79%, #f7f1dc 79% 83%, transparent 83% 92%, #eee7d2 92% 94%, transparent 94%) top / 100% 63% no-repeat, radial-gradient(ellipse at 50% 5%, #e1edd5 0 24%, transparent 60%), linear-gradient(#bad4af 0 63%, #d9bc7d 63% 100%); }
+.sk-bg--utes { background: radial-gradient(ellipse 44% 33% at 0% 85%, #bba9a2 0 98%, transparent 100%), radial-gradient(ellipse 36% 24% at 100% 83%, #d0bab0 0 98%, transparent 100%), linear-gradient(#cfdeef 0%, #e8e4f1 60%, #a4cdd0 60%, #88b9bd 100%); }
+.sk-bg--shater { background: linear-gradient(105deg, #e5a59f 0 12%, transparent 12%) top left / 50% 100% no-repeat, linear-gradient(255deg, #e5a59f 0 12%, transparent 12%) top right / 50% 100% no-repeat, radial-gradient(ellipse 37% 14% at 50% 80%, #f8db9e 0 94%, #dfab81 95% 99%, transparent 100%), linear-gradient(#f4d9c5 0 64%, #d6b4a0 64% 100%); }
 .sk-on {
   position: absolute;
   width: min(20vw, 16vh, 120px);

@@ -90,7 +90,7 @@ describe("tochki levels", () => {
       return ls.reduce((s, l) => s + difficulty(l.dots.length, l.count), 0) / ls.length;
     };
     for (let i = 1; i < order.length; i++) expect(mean(order[i]!), order[i]).toBeGreaterThan(mean(order[i - 1]!));
-    expect(levels.length).toBe(83); // v20: 31 + 32, v22: +10, v22-b5: +10
+    expect(levels.length).toBe(93); // v20: 31 + 32, v22: +10, v22-b5: +10, v23: +10
   });
 
   it("put every label clear of the other dots", () => {

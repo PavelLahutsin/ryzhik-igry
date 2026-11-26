@@ -1,0 +1,197 @@
+/* v23 «Сколько?», «Где больше?» and the letter quizzes of «Цифры и буквы». */
+.sk-layout {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 12px;
+  container-type: size;
+}
+.sk-layout--more {
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.sk-say {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sk-say__bubble {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: 0 0 0 3px var(--line), var(--shadow-card);
+}
+.sk-say__text {
+  flex: 1;
+  margin: 0;
+  font: 800 17px/1.25 var(--font-ui);
+  color: var(--ink);
+}
+.sk-say__text.is-new {
+  animation: sk-pop 340ms cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+
+.sk-field {
+  container-type: size;
+  position: relative;
+  min-height: 160px;
+  border-radius: 24px;
+  background: #fff8ea;
+  box-shadow: inset 0 0 0 3px #f1dfc2;
+}
+.sk-field.is-new {
+  animation: sk-pop 380ms ease-out;
+}
+.sk-thing {
+  position: absolute;
+  width: calc(var(--s) * 1cqmin);
+  height: calc(var(--s) * 1cqmin);
+  max-width: 110px;
+  max-height: 110px;
+  transform: translate(-50%, -50%);
+  touch-action: manipulation;
+  cursor: pointer;
+}
+.sk-thing__art,
+.sk-thing__art svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+.sk-thing.is-counted .sk-thing__art {
+  animation: sk-hop 360ms ease-out;
+}
+.sk-badge {
+  position: absolute;
+  right: -6px;
+  top: -6px;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 4px;
+  border-radius: 13px;
+  background: #3fae6a;
+  color: #fff;
+  font: 900 16px/26px var(--font-ui);
+  text-align: center;
+  box-shadow: 0 0 0 2px #fff;
+  pointer-events: none;
+}
+
+.sk-opts {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.sk-opt {
+  width: 84px;
+  height: 84px;
+  padding: 6px;
+  border: 0;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 0 0 3px var(--line), 0 4px 0 var(--line);
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 120ms ease, opacity 200ms ease;
+}
+.sk-opt:active {
+  transform: translateY(2px);
+}
+.sk-opt__art,
+.sk-opt__art svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.sk-opt.is-off {
+  opacity: 0.3;
+}
+.sk-opt.is-right,
+.sk-pile.is-right {
+  box-shadow: 0 0 0 4px #3fae6a, 0 4px 0 #2d8a52;
+  background: #eafbe9;
+}
+.sk-opt.is-wrong,
+.sk-pile.is-wrong {
+  animation: sk-wobble 420ms ease;
+}
+.sk-opt.is-hint,
+.sk-pile.is-hint {
+  animation: sk-hint 0.55s ease 4;
+}
+
+.sk-piles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  min-height: 0;
+  container-type: size;
+}
+.sk-piles.is-new {
+  animation: sk-pop 380ms ease-out;
+}
+.sk-pile {
+  position: relative;
+  border: 0;
+  border-radius: 24px;
+  background: #fff8ea;
+  box-shadow: 0 0 0 3px #f1dfc2, 0 4px 0 #f1dfc2;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  container-type: size;
+}
+.sk-pile .sk-thing {
+  pointer-events: none;
+}
+
+.sk-thumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  height: 100%;
+}
+.sk-thumb__i {
+  width: 30%;
+  height: 60%;
+}
+.sk-thumb__i svg {
+  width: 100%;
+  height: 100%;
+}
+.sk-thumb__vs {
+  font: 900 22px var(--font-ui);
+  color: var(--ink);
+}
+
+@keyframes sk-pop { from { transform: scale(0.94); opacity: 0.5; } }
+@keyframes sk-hop { 40% { transform: translateY(-14%) scale(1.08); } }
+@keyframes sk-wobble { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+@keyframes sk-hint { 50% { transform: scale(1.08); box-shadow: 0 0 0 5px #3fae6a; } }
+@media (prefers-reduced-motion: reduce) {
+  .sk-say__text.is-new, .sk-field.is-new, .sk-piles.is-new, .sk-thing.is-counted .sk-thing__art, .sk-opt.is-wrong, .sk-pile.is-wrong, .sk-opt.is-hint, .sk-pile.is-hint { animation: none; }
+}
+@media (min-aspect-ratio: 5/4) {
+  .sk-layout:not(.sk-layout--more) {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+  .sk-layout:not(.sk-layout--more) .sk-say {
+    grid-column: 1 / span 2;
+  }
+  .sk-layout:not(.sk-layout--more) .sk-opts {
+    flex-direction: column;
+    justify-content: center;
+  }
+}

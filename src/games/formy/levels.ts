@@ -149,46 +149,10 @@ const ADDED: FormLevel[] = [
   { id: "o1", world: "size", mode: "order", title: "По росту", dim: "size", count: 3, dir: "up", object: "fish", ask: "Поставь рыбок по порядку: от маленькой к большой.", done: "Рыбки выстроились по росту!" },
   { id: "o2", world: "size", mode: "order", title: "От большого", dim: "size", count: 4, dir: "down", object: "house", ask: "Поставь домики: от большого к маленькому.", done: "Большой, поменьше, ещё меньше — и самый маленький!" },
   // --- long / tall / thick
-  {
-    id: "m1",
-    world: "measure",
-    mode: "pick",
-    title: "Длинный и короткий",
-    spec: { kind: "compare", dims: ["length"], count: 2, want: "mix" },
-    rounds: 4,
-    ask: "Где длинный карандаш, а где короткий?",
-    done: "Длинный и короткий — ты различаешь!",
-  },
-  {
-    id: "m2",
-    world: "measure",
-    mode: "pick",
-    title: "Высокая и низкая",
-    spec: { kind: "compare", dims: ["height"], count: 2, want: "mix" },
-    rounds: 4,
-    ask: "Где высокая ёлка, а где низкая?",
-    done: "Высокая и низкая — правильно!",
-  },
-  {
-    id: "m3",
-    world: "measure",
-    mode: "pick",
-    title: "Толстая и тонкая",
-    spec: { kind: "compare", dims: ["thick"], count: 2, want: "mix" },
-    rounds: 4,
-    ask: "Где толстая книга, а где тонкая?",
-    done: "Вот толстая книга, а вот тонкая!",
-  },
-  {
-    id: "m4",
-    world: "measure",
-    mode: "pick",
-    title: "Самый-самый",
-    spec: { kind: "compare", dims: ["length", "height", "thick"], count: 3, want: "mix" },
-    rounds: 6,
-    ask: "Слушай внимательно: самый длинный? самая низкая?",
-    done: "Самые-самые найдены!",
-  },
+  { id: "m1", world: "measure", mode: "pick", title: "Длинный карандаш", spec: { kind: "compare", dims: ["length"], count: 2, want: "most" }, rounds: 4, ask: "Где длинный карандаш? Нажми!", done: "Здорово!" },
+  { id: "m2", world: "measure", mode: "pick", title: "Высокая ёлочка", spec: { kind: "compare", dims: ["height"], count: 2, want: "most" }, rounds: 4, ask: "Где высокая ёлочка? Нажми!", done: "Получилось!" },
+  { id: "m3", world: "measure", mode: "pick", title: "Толстая книжка", spec: { kind: "compare", dims: ["thick"], count: 2, want: "most" }, rounds: 4, ask: "Где толстая книжка? Нажми!", done: "Ура!" },
+  { id: "m4", world: "measure", mode: "pick", title: "Из трёх книжек", spec: { kind: "compare", dims: ["thick"], count: 3, want: "most" }, rounds: 6, ask: "Какая книжка самая толстая?", done: "Отлично!" },
   { id: "m5", world: "measure", mode: "order", title: "Карандаши", dim: "length", count: 4, dir: "up", ask: "Разложи карандаши: от короткого к длинному.", done: "Карандаши лесенкой!" },
   { id: "m6", world: "measure", mode: "order", title: "Ёлочки", dim: "height", count: 5, dir: "up", ask: "Посади ёлочки: от низкой к высокой.", done: "Ёлочки растут лесенкой!" },
   // --- shapes
@@ -228,8 +192,8 @@ const ADDED: FormLevel[] = [
   { id: "d2", world: "logic", mode: "pick", title: "Не того цвета", spec: { kind: "odd", options: 4, shapes: SIX, by: "tint" }, rounds: 5, ask: "Какая фигура другого цвета?", done: "Глазки зоркие!" },
   { id: "q2", world: "logic", mode: "pick", title: "Цветные бусы", spec: { kind: "pattern", shown: 5, unit: "AAB", attr: "tint", options: 3, shapes: SIX }, rounds: 5, ask: "Какая бусинка будет следующей?", done: "Красивые бусы!" },
   { id: "d3", world: "logic", mode: "pick", title: "Другой размер", spec: { kind: "odd", options: 4, shapes: SIX, by: "size" }, rounds: 5, ask: "Какая фигура не такого размера?", done: "Размер не обманет!" },
-  { id: "q3", world: "logic", mode: "pick", title: "Три фигуры", spec: { kind: "pattern", shown: 5, unit: "ABC", attr: "shape", options: 3, shapes: SIX }, rounds: 5, ask: "Три фигуры по очереди. Что дальше?", done: "Узор разгадан!" },
-  { id: "d4", world: "logic", mode: "pick", title: "Найди лишнее", spec: { kind: "odd", options: 5, shapes: ALL, by: "mix" }, rounds: 6, ask: "Что лишнее: форма, цвет или размер?", done: "Зоркий глаз! Всё лишнее найдено!" },
+  { id: "q3", world: "logic", mode: "pick", title: "Три по очереди", spec: { kind: "pattern", shown: 5, unit: "ABC", attr: "shape", options: 3, shapes: SIX }, rounds: 5, ask: "Три фигуры по очереди. Что дальше?", done: "Узор разгадан!" },
+  { id: "d4", world: "logic", mode: "pick", title: "Один цвет не такой", spec: { kind: "odd", options: 5, shapes: ALL, by: "tint" }, rounds: 6, ask: "Одна фигурка другого цвета. Найди её!", done: "Получилось!" },
   { id: "q4", world: "logic", mode: "pick", title: "Хитрый узор", spec: { kind: "pattern", shown: 5, unit: "ABB", attr: "both", options: 4, shapes: ALL }, rounds: 6, ask: "Узор хитрый: смотри и на форму, и на цвет.", done: "Хитрый узор разгадан!" },
   // --- colour + shape, holes, corners
   { id: "h1", world: "mix", mode: "pick", title: "В окошко", spec: { kind: "fit", options: 3, shapes: SIX, sizes: false }, rounds: 4, ask: "Какая фигурка пролезет в окошко?", done: "Все фигурки пролезли!" },
@@ -339,7 +303,7 @@ const MORE: FormLevel[] = [
   { id: "n14", world: "shape", mode: "pick", title: "По контуру", spec: { kind: "fit", options: 3, shapes: ["oval", "rect", "pentagon", "hexagon"], sizes: false }, rounds: 4, ask: "Посмотри на контур. Какая фигура точно в него войдёт?", done: "Для каждого контура нашлась своя фигурка!" },
   { id: "n15", world: "logic", mode: "pick", title: "Три похожи", spec: { kind: "odd", options: 4, shapes: ["oval", "circle", "rect", "square", "pentagon", "hexagon"], by: "shape" }, rounds: 4, ask: "У трёх фигур форма одинаковая. Найди четвёртую!", done: "У каждой четвёрки нашлась фигурка другой формы!" },
   { id: "n16", world: "mix", mode: "pick", title: "Уголки по счёту", spec: { kind: "corners", shapes: ["triangle", "rect", "pentagon", "hexagon"], options: 4 }, rounds: 4, ask: "Веди пальчиком от уголка к уголку и считай. Какая фигура подойдёт?", done: "Все уголки сочтены, все фигуры найдены!" },
-  { id: "n17", world: "measure", mode: "pick", title: "Сравни и выбери", spec: { kind: "compare", dims: ["length", "height"], count: 4, want: "mix" }, rounds: 5, ask: "Сравни все четыре предмета. Какой подойдёт под подсказку?", done: "Все нужные предметы нашлись — и вот ещё один!" },
+  { id: "n17", world: "measure", mode: "pick", title: "Четыре карандаша", spec: { kind: "compare", dims: ["length"], count: 4, want: "most" }, rounds: 5, ask: "Какой карандаш самый длинный?", done: "Здорово!" },
   { id: "n18", world: "size", mode: "pyramid", title: "Семь колечек", rings: 7, ask: "Каждый раз бери самое большое из колечек, что ещё остались.", done: "Все семь колечек на месте, маленькое — на самой верхушке!" },
   { id: "n19", world: "shape", mode: "sorter", title: "У каждого своё окошко", shapes: ["oval", "rect", "pentagon", "hexagon"], perShape: 3, ask: "Подбери каждой фигурке своё окошко. Смотри на уголки и круглые бока!", done: "Каждая фигурка нашла своё окошко!" },
   { id: "n20", world: "logic", mode: "pick", title: "Тройка за тройкой", spec: { kind: "pattern", shown: 6, unit: "ABC", attr: "both", options: 4, shapes: ["oval", "rect", "pentagon", "hexagon"], }, rounds: 6, ask: "Посмотри на первые три фигурки, а потом ещё на три. Какая форма и какой цвет будут дальше?", done: "Цветные тройки повторяются снова и снова — всё по порядку!" },
@@ -359,16 +323,64 @@ const MORE: FormLevel[] = [
   { id: "n33", world: "mix", mode: "pick", title: "Цветные двойники", spec: { kind: "same", options: 4, shapes: ["heart", "rhombus", "oval", "triangle"], variant: "tint" }, rounds: 5, ask: "Найди фигурку такой же формы и такого же цвета, как образец.", done: "У фигурок совпали и форма, и цвет!" },
 ];
 
+/**
+ * v23: one question per level (children don't read; Ryzhik says the task).
+ * The «mix» levels (m1–m4, n17, d4) now ask one thing; their pairs m1b–d4b ask
+ * the other (Astra, brief 21-3). y1–y20: first steps for the youngest, one
+ * question each (Astra, brief 22-1; y3 dropped — the same as o1).
+ */
+const V23: FormLevel[] = [
+  { id: "m1b", world: "measure", mode: "pick", title: "Короткий карандаш", spec: { kind: "compare", dims: ["length"], count: 2, want: "least" }, rounds: 4, ask: "Где короткий карандаш? Нажми!", done: "Ура!" },
+  { id: "m2b", world: "measure", mode: "pick", title: "Низкая ёлочка", spec: { kind: "compare", dims: ["height"], count: 2, want: "least" }, rounds: 4, ask: "Где низкая ёлочка? Нажми!", done: "Отлично!" },
+  { id: "m3b", world: "measure", mode: "pick", title: "Тонкая книжка", spec: { kind: "compare", dims: ["thick"], count: 2, want: "least" }, rounds: 4, ask: "Где тонкая книжка? Нажми!", done: "Здорово!" },
+  { id: "m4b", world: "measure", mode: "pick", title: "Из трёх карандашей", spec: { kind: "compare", dims: ["length"], count: 3, want: "least" }, rounds: 6, ask: "Какой карандаш самый короткий?", done: "Получилось!" },
+  { id: "n17b", world: "measure", mode: "pick", title: "Четыре ёлочки", spec: { kind: "compare", dims: ["height"], count: 4, want: "least" }, rounds: 5, ask: "Какая ёлочка самая низкая?", done: "Ура!" },
+  { id: "d4b", world: "logic", mode: "pick", title: "Одна поменьше", spec: { kind: "odd", options: 5, shapes: ALL, by: "size" }, rounds: 6, ask: "Одна фигурка другого размера. Найди её!", done: "Отлично!" },
+  { id: "y1", world: "size", mode: "family", title: "Морковка и шарик", sizes: ["big", "small"], objects: ["carrot", "balloon", "flower"], ask: "Большое — папе, маленькое — Рыжику!", done: "Ура!" },
+  { id: "y2", world: "size", mode: "pick", title: "Большое из трёх", spec: { kind: "compare", dims: ["size"], count: 3, want: "most", things: ["car", "boat", "fish"] }, rounds: 1, ask: "Найди самое большое!", done: "Получилось!" },
+  { id: "y4", world: "size", mode: "order", title: "Лесенка чашек", dim: "size", count: 4, dir: "up", object: "cup", ask: "Поставь чашки от маленькой к большой!", done: "Отлично!" },
+  { id: "y5", world: "size", mode: "order", title: "Грибная лесенка", dim: "size", count: 5, dir: "down", object: "mushroom", ask: "Поставь грибы от большого к маленькому!", done: "Получилось!" },
+  { id: "y6", world: "measure", mode: "pick", title: "Где длиннее?", spec: { kind: "compare", dims: ["length"], count: 2, want: "most" }, rounds: 1, ask: "Где длинный карандаш? Нажми!", done: "Здорово!" },
+  { id: "y7", world: "measure", mode: "pick", title: "Ёлочка до неба", spec: { kind: "compare", dims: ["height"], count: 2, want: "most" }, rounds: 1, ask: "Где высокая ёлочка? Нажми!", done: "Ура!" },
+  { id: "y8", world: "measure", mode: "pick", title: "Самая толстая", spec: { kind: "compare", dims: ["thick"], count: 3, want: "most" }, rounds: 1, ask: "Нажми на самую толстую книжку!", done: "Отлично!" },
+  { id: "y9", world: "measure", mode: "pick", title: "Ёлочка ниже всех", spec: { kind: "compare", dims: ["height"], count: 4, want: "least" }, rounds: 1, ask: "Нажми на самую низкую ёлочку!", done: "Получилось!" },
+  { id: "y10", world: "shape", mode: "pick", title: "Две фигурки", spec: { kind: "same", options: 2, shapes: ["circle", "star"], variant: "plain" }, rounds: 1, ask: "Найди такую же фигурку!", done: "Здорово!" },
+  { id: "y11", world: "shape", mode: "pick", title: "Кто пролезет?", spec: { kind: "fit", options: 2, shapes: ["circle", "square"], sizes: false }, rounds: 1, ask: "Какая фигурка пролезет в окошко?", done: "Ура!" },
+  { id: "y12", world: "shape", mode: "sorter", title: "Каждой своё", shapes: ["circle", "triangle"], perShape: 1, ask: "Опусти каждую фигурку в своё окошко!", done: "Получилось!" },
+  { id: "y13", world: "shape", mode: "pick", title: "Кувырок", spec: { kind: "same", options: 3, shapes: ["heart", "triangle", "star"], variant: "turn" }, rounds: 1, ask: "Найди такую же фигурку! Она повернулась.", done: "Отлично!" },
+  { id: "y14", world: "logic", mode: "pick", title: "Пёстрые кружочки", spec: { kind: "pattern", shown: 4, unit: "AB", attr: "tint", options: 2, shapes: ["circle"] }, rounds: 1, ask: "Что будет дальше? Нажми!", done: "Ура!" },
+  { id: "y15", world: "logic", mode: "pick", title: "Три звёздочки", spec: { kind: "odd", options: 3, shapes: ["star"], by: "size" }, rounds: 1, ask: "Одна звёздочка другого размера. Найди её!", done: "Здорово!" },
+  { id: "y16", world: "logic", mode: "pick", title: "Круг или овал?", spec: { kind: "odd", options: 3, shapes: ["oval", "circle"], by: "shape" }, rounds: 1, ask: "Одна фигурка другой формы. Найди её!", done: "Получилось!" },
+  { id: "y17", world: "logic", mode: "pick", title: "Ещё одна бусина", spec: { kind: "pattern", shown: 6, unit: "ABB", attr: "shape", options: 3, shapes: ["heart", "square", "triangle"] }, rounds: 1, ask: "Что будет дальше? Нажми!", done: "Отлично!" },
+  { id: "y18", world: "mix", mode: "pick", title: "Пёстрые сердца", spec: { kind: "odd", options: 3, shapes: ["heart"], by: "tint" }, rounds: 1, ask: "Одно сердечко другого цвета. Найди его!", done: "Здорово!" },
+  { id: "y19", world: "mix", mode: "pick", title: "Уголки наперечёт", spec: { kind: "corners", shapes: ["triangle", "square"], options: 2 }, rounds: 1, ask: "Сколько уголков? Считай со мной!", done: "Получилось!" },
+  {
+    id: "y20",
+    world: "mix",
+    mode: "sort2",
+    title: "Жёлтые и синие",
+    bins: [
+      { shape: "circle", tint: "yellow" },
+      { shape: "square", tint: "yellow" },
+      { shape: "circle", tint: "blue" },
+      { shape: "square", tint: "blue" },
+    ],
+    per: 1,
+    ask: "Смотри и на цвет, и на форму!",
+    done: "Ура!",
+  },
+];
+
 /** Play order inside each world: from easy to hard (see `difficulty`). */
 const ORDER: Record<string, string[]> = {
-  size: ["c1", "n1", "r1", "n24", "o1", "r3", "n2", "r2", "r7", "n25", "o2", "r4", "r6", "n3", "r5", "n18"],
-  measure: ["m1", "m2", "m3", "n4", "n27", "m4", "n17", "m5", "n5", "m6", "n22", "n26", "n6", "n23"],
-  shape: ["s1", "n14", "f1", "n29", "n7", "f2", "f4", "n8", "s2", "n28", "s3", "f6", "n19", "f3", "f5"],
-  logic: ["d1", "q1", "n15", "n9", "n10", "d2", "q2", "d3", "n30", "n31", "q3", "q4", "d4", "n11", "n20"],
-  mix: ["h1", "f7", "k1", "h2", "n33", "x1", "n13", "n12", "n32", "n16", "k2", "n21", "f8", "x2"],
+  size: ["c1", "n1", "y2", "r1", "n24", "o1", "r3", "y1", "n2", "r2", "r7", "n25", "y4", "o2", "r4", "r6", "n3", "r5", "y5", "n18"],
+  measure: ["y6", "y7", "m1", "m2", "m1b", "m2b", "m3", "m3b", "y8", "n4", "n27", "m4b", "m4", "y9", "n17", "n17b", "m5", "n5", "m6", "n22", "n26", "n6", "n23"],
+  shape: ["y10", "y11", "y12", "s1", "n14", "f1", "n29", "n7", "f2", "y13", "f4", "n8", "s2", "n28", "s3", "f6", "n19", "f3", "f5"],
+  logic: ["y16", "y14", "d1", "y15", "q1", "n15", "n9", "n10", "d2", "y17", "q2", "d3", "n30", "n31", "q3", "d4", "d4b", "q4", "n11", "n20"],
+  mix: ["y18", "h1", "y19", "f7", "k1", "y20", "h2", "n33", "x1", "n13", "n12", "n32", "n16", "k2", "n21", "f8", "x2"],
 };
 
-const BY_ID = new Map([...FIRST, ...ADDED, ...MORE].map((l) => [l.id, l]));
+const BY_ID = new Map([...FIRST, ...ADDED, ...MORE, ...V23].map((l) => [l.id, l]));
 export const levels: FormLevel[] = worlds.flatMap((w) =>
   ORDER[w.id]!.map((id) => {
     const l = BY_ID.get(id);

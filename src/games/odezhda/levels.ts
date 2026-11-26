@@ -56,6 +56,16 @@ export const levels: OdezhdaLevel[] = [
   { id: "o29", world: "more", title: "Везём мишку", weather: "snow", wear: ["scarf", "mittens", "winterboots", "sled"], extra: ["sandals", "umbrella", "kite"] },
   { id: "o30", world: "more", title: "Бежит жёлтый листок", weather: "wind", wear: ["hat", "scarf", "jacket"], extra: ["cap", "raincoat", "sled"] },
   { id: "o31", world: "more", title: "Змей над клёном", weather: "wind", wear: ["jacket", "scarf", "kite"], extra: ["sunglasses", "umbrella", "winterboots"] },
+  // v23 (Astra b26-3)
+  { id: "o32", world: "more", title: "Песочный домик", weather: "sun", wear: ["panama", "tshirt", "sandals", "bucket"], extra: ["scarf", "winterboots", "sled"] },
+  { id: "o33", world: "more", title: "Шлёп по луже", weather: "rain", wear: ["raincoat", "rainboots"], extra: ["panama", "winterboots", "kite"] },
+  { id: "o34", world: "more", title: "Санки для лисёнка", weather: "snow", wear: ["hat", "jacket", "mittens", "winterboots", "sled"], extra: ["panama", "sandals", "kite"] },
+  { id: "o35", world: "more", title: "Полёт бумажного змея", weather: "wind", wear: ["scarf", "jacket", "kite"], extra: ["bucket", "sandals", "sled"] },
+  { id: "o36", world: "more", title: "Божьи коровки", weather: "sun", wear: ["cap", "sunglasses", "tshirt"], extra: ["mittens", "winterboots", "raincoat"] },
+  { id: "o37", world: "more", title: "Под весёлым зонтом", weather: "rain", wear: ["raincoat", "rainboots", "umbrella"], extra: ["sled", "sunglasses", "panama"] },
+  { id: "o38", world: "more", title: "Ёлочка в снегу", weather: "snow", wear: ["hat", "scarf", "jacket", "mittens", "winterboots"], extra: ["tshirt", "sandals", "bucket"] },
+  { id: "o39", world: "more", title: "Вертушка у берёзы", weather: "wind", wear: ["hat", "scarf", "jacket"], extra: ["sled", "rainboots", "bucket"] },
+  { id: "o40", world: "more", title: "Жёлтая ракушка", weather: "sun", wear: ["cap", "sunglasses", "tshirt", "bucket"], extra: ["hat", "mittens", "sled"] },
 ];
 
 /** A thing for the hint lamp: one Ryzhik still needs. */
