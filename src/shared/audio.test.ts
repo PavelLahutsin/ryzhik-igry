@@ -131,4 +131,22 @@ describe("sound effects and music (v22)", () => {
     audio.play("meow", "toy");
     expect(made.osc).toBeGreaterThan(before);
   });
+
+  it("the menu button turns only the music off, and turns sounds back on if they were off", () => {
+    audio.setEnabled(true);
+    audio.setMusic(true);
+    expect(audio.audible).toBe(true);
+    audio.toggleMenuMusic();
+    expect(audio.music).toBe(false);
+    expect(audio.enabled).toBe(true);
+    expect(audio.audible).toBe(false);
+
+    audio.setEnabled(false);
+    audio.setMusic(true);
+    expect(audio.audible).toBe(false);
+    audio.toggleMenuMusic();
+    expect(audio.enabled).toBe(true);
+    expect(audio.music).toBe(true);
+    expect(audio.audible).toBe(true);
+  });
 });

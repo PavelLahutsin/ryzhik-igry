@@ -391,6 +391,23 @@ export const audio = {
   get theme(): string {
     return theme;
   },
+  /** Music is heard only when both the music switch and the sounds switch are on. */
+  get audible(): boolean {
+    return enabled && musicOn;
+  },
+  /**
+   * The menu 🎵 button. Turns only the music off. If sounds were off
+   * (v21's 🔊 button stored that), turns sounds and music back on, so the
+   * note does not look "on" while everything stays silent.
+   */
+  toggleMenuMusic(): void {
+    if (enabled && musicOn) {
+      this.setMusic(false);
+      return;
+    }
+    if (!enabled) this.setEnabled(true);
+    this.setMusic(true);
+  },
   /** Call from a user gesture once; later sounds can then play. */
   unlock(): void {
     askPlaybackSession();

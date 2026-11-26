@@ -22,8 +22,8 @@ export function renderHome(root: HTMLElement): () => void {
   // too. All sounds off stays in «Родителям».
   const soundIcon = el("span", { attrs: { "aria-hidden": "true" }, text: "🎵" });
   const paintSound = (): void => {
-    soundBtn.setAttribute("aria-pressed", audio.music ? "true" : "false");
-    soundBtn.classList.toggle("is-off", !audio.music);
+    soundBtn.setAttribute("aria-pressed", audio.audible ? "true" : "false");
+    soundBtn.classList.toggle("is-off", !audio.audible);
   };
   const soundBtn = el(
     "button",
@@ -33,7 +33,7 @@ export function renderHome(root: HTMLElement): () => void {
       on: {
         click: () => {
           audio.unlock();
-          audio.setMusic(!audio.music);
+          audio.toggleMenuMusic();
           paintSound();
           audio.play("tap");
         },
@@ -42,6 +42,10 @@ export function renderHome(root: HTMLElement): () => void {
     [soundIcon],
   );
   paintSound();
+  // Storage is read asynchronously; repaint once it has applied (v21 may have sounds off).
+  window.setTimeout(() => {
+    if (!gone) paintSound();
+  }, 0);
   const gift = dailyButton((overlay) => view.append(overlay));
   const total = el("span", { class: "home__chip", attrs: { hidden: true } });
   // v13: «Во что поиграем сегодня?» and «Недавно играли» fill in once the progress is read.
