@@ -7,7 +7,7 @@ import { audio } from "../../shared/audio";
 import { el } from "../../shared/dom";
 import { createScope } from "../../shared/lifecycle";
 import { navigateGame } from "../../shared/router";
-import { toolbar } from "../../shared/ui";
+import { confirmLeave, toolbar } from "../../shared/ui";
 
 const GAME = "risovalka";
 
@@ -65,7 +65,7 @@ export function freeRoute(root: HTMLElement): () => void {
   const clear = el("button", { class: "rv-free__tool rv-free__tool--clear", attrs: { type: "button", "aria-label": "Чистый лист" }, on: { click: () => wipe() } }, [el("span", { text: "Чистый лист" })]);
   const palette = el("div", { class: "rv-free__palette" }, [el("div", { class: "rv-free__colors" }, colorBtns), el("div", { class: "rv-free__tools" }, [thick, thin, eraser, clear])]);
   const view = el("div", { class: `screen screen--play game--${GAME} rv-free` }, [
-    toolbar("Свободное рисование", () => navigateGame(GAME, "/")),
+    toolbar("Свободное рисование", () => confirmLeave(() => navigateGame(GAME, "/"))),
     el("div", { class: "stage rv-free__stage" }, [paper, palette]),
   ]);
   root.append(view);

@@ -12,7 +12,7 @@ import { platform } from "../../shared/platform";
 import { goHome, navigateGame } from "../../shared/router";
 import { reducedMotion } from "../../shared/style";
 import { tipOnce } from "../../shared/tips";
-import { hint, praiseOverlay, svgNode, toolbar } from "../../shared/ui";
+import { confirmLeave, hint, praiseOverlay, svgNode, toolbar } from "../../shared/ui";
 import { BIG_SIZE, WIN_TIER, bestTier, bigMove, bigUndo, hasMoves, newBigGame, restoreBigGame, tileValue, type BigGame, type Dir } from "./logic";
 import { SKINS, skinById, skinTier, type Skin, type SkinId } from "./skins";
 
@@ -193,7 +193,7 @@ function renderPlay(root: HTMLElement): () => void {
   );
   const stage = el("div", { class: "stage sb-stage" }, [chain, scoreRow, el("div", { class: "sl-wrap sb-wrap" }, [grid]), pad]);
   const view = el("div", { class: `screen screen--play game--${GAME} sb-play` }, [
-    toolbar("Вырасти сад", () => navigateGame(GAME, "/")),
+    toolbar("Вырасти сад", () => confirmLeave(() => navigateGame(GAME, "/"))),
     stage,
   ]);
   root.append(view);

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <rect width="1280" height="720" fill="#afe4f8"/>
+  <g stroke="#3b2e25" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
+    <circle cx="1082" cy="109" r="61" fill="#ffda69"/>
+    <path d="M72 147 C44 147 43 106 74 102 C75 69 124 60 141 88 C158 58 207 72 207 104 C248 97 259 146 223 147 Z" fill="#fffaf0"/>
+    <path d="M539 109 C509 109 508 72 538 69 C545 34 596 34 606 65 C640 51 672 74 664 94 Q684 94 689 109 Z" fill="#fffaf0"/>
+    <path d="M-6 394 Q163 375 325 391 T650 388 T976 393 T1286 385 V726 H-6 Z" fill="#75cfd8"/>
+    <path d="M-6 337 Q102 286 225 330 Q304 353 403 353 Q433 392 510 421 L391 444 L267 429 L147 456 L-6 440 Z" fill="#d79c76"/>
+    <path d="M-6 337 Q100 275 219 314 Q308 339 403 342 L425 369 Q341 382 241 353 Q118 320 -6 366 Z" fill="#95cc79"/>
+    <path d="M190 326 L218 160 H281 L309 340 Q245 341 190 326 Z" fill="#fff1cf"/>
+    <path d="M202 254 L211 202 L288 216 L297 270 Z" fill="#ef806a"/>
+    <rect x="213" y="113" width="74" height="49" rx="4" fill="#ffe088"/>
+    <path d="M245 118 V156 M201 163 H299" fill="none"/>
+    <path d="M200 113 L249 74 L301 113 Z" fill="#e47462"/>
+    <path d="M235 334 V303 C235 282 264 282 264 303 V337 Z" fill="#659aab"/>
+    <path d="M547 476 L715 211 V476 Z" fill="#fff0bc"/>
+    <path d="M738 272 Q814 350 865 464 L738 464 Z" fill="#f79379"/>
+    <path d="M725 498 V189" fill="none"/>
+    <path d="M726 188 L802 201 L726 222 Z" fill="#f6bd4e"/>
+    <path d="M509 491 Q687 507 903 482 L851 544 Q702 566 571 545 Z" fill="#5789b9"/>
+    <path d="M550 516 Q710 530 875 509" fill="none" stroke="#fff1cc"/>
+    <path d="M998 422 L1069 315 V422 Z" fill="#edb8d0"/>
+    <path d="M1070 310 V433" fill="none"/>
+    <path d="M974 432 H1147 L1111 463 H1012 Z" fill="#f4bd65"/>
+    <path d="M112 500 Q164 520 216 500 M366 577 Q414 597 464 580 M634 600 Q698 620 759 600 M966 517 Q1009 533 1051 517" fill="none" stroke="#ddf6ec" stroke-width="8"/>
+    <path d="M-6 607 Q166 567 323 626 T680 666 Q818 654 952 606 Q1120 546 1286 571 V726 H-6 Z" fill="#f7d799"/>
+    <path d="M1007 666 Q979 653 965 629 Q957 615 972 609 Q964 590 983 585 Q987 565 1005 573 Q1020 557 1035 577 Q1056 573 1061 592 Q1085 595 1074 615 Q1088 628 1072 639 L1029 667 Z" fill="#f3a48e"/>
+    <path d="M1015 650 L980 616 M1020 647 L1004 589 M1026 647 L1042 592 M1032 652 L1062 620" fill="none" stroke-width="4"/>
+  </g>
+</svg>

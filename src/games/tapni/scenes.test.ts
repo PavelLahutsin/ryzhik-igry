@@ -3,8 +3,8 @@ import { SOUND_KINDS } from "../../shared/sounds";
 import { allFinds, SCENES, TOYS } from "./scenes";
 
 describe("«Нажми и послушай»", () => {
-  it("has the forest, the kitchen and the yard, 8 things each, all drawn and with a sound", () => {
-    expect(SCENES.map((s) => s.title)).toEqual(["Лес", "Кухня", "Двор"]);
+  it("has one theme per tab (animals, vehicles, kitchen, nature, sea, party), 8 things each, all drawn and with a sound", () => {
+    expect(SCENES.map((s) => s.title)).toEqual(["Животные", "Транспорт", "Кухня", "Природа", "Море", "Праздник"]);
     for (const s of SCENES) {
       expect(s.spots).toHaveLength(8);
       expect(new Set(s.spots.map((p) => p.id)).size).toBe(8);
@@ -27,9 +27,16 @@ describe("«Нажми и послушай»", () => {
       for (const a of s.spots) for (const b of s.spots) if (a !== b) expect(Math.hypot(a.x - b.x, a.y - b.y), `${s.id} ${a.id}/${b.id}`).toBeGreaterThan(20);
     }
   });
+  it("keeps each theme to its kind: every animal in «Животные», every vehicle in «Транспорт»", () => {
+    const byId = Object.fromEntries(SCENES.map((s) => [s.id, s.spots.map((p) => p.id)]));
+    for (const animal of ["cat", "dog", "bird", "owl", "frog", "rabbit"]) expect(byId.zhivotnye, animal).toContain(animal);
+    for (const vehicle of ["car", "bus", "train", "tractor", "bicycle", "plane", "boat"]) expect(byId.transport, vehicle).toContain(vehicle);
+    const animalSounds = ["meow", "woof", "tweet", "owl", "frog"];
+    for (const s of SCENES) if (s.id !== "zhivotnye") for (const p of s.spots) expect(animalSounds, `${s.id}:${p.id}`).not.toContain(p.sound);
+  });
   it("counts every thing once for the home tile", () => {
     const all = allFinds();
     expect(new Set(all).size).toBe(all.length);
-    expect(all.length).toBe(3 * 8 + TOYS.length);
+    expect(all.length).toBe(6 * 8 + TOYS.length);
   });
 });

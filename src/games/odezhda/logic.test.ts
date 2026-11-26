@@ -27,8 +27,8 @@ describe("odezhda", () => {
   it("gives stars kindly", () => {
     expect([starsFor(0).stars, starsFor(2).stars, starsFor(5).stars, starsFor(5, 2).stars]).toEqual([3, 2, 2, 1]);
   });
-  it("has 15 levels with at most 8 things in the tray", () => {
-    expect(levels).toHaveLength(15);
+  it("has 31 levels with at most 8 things in the tray", () => {
+    expect(levels).toHaveLength(31);
     for (const level of levels) {
       expect(level.wear.length + level.extra.length, level.id).toBeLessThanOrEqual(8);
       for (const id of [...level.wear, ...level.extra]) expect(ITEMS[id], id).toBeDefined();

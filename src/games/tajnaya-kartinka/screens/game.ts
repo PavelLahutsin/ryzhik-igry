@@ -5,6 +5,7 @@ import { EFFECT_TIME, Game, type ItemKind } from "../game/engine";
 import { drawGame, loadMarker, pointerToCell, sizeCanvas, type IconKind } from "../game/render";
 import { starsFor } from "../game/stars";
 import { navigate } from "../router";
+import { confirmLeave } from "../../../shared/ui";
 import { markCompleted } from "../storage";
 import { el } from "../ui/dom";
 import { iconCanvas } from "../ui/icons";
@@ -112,7 +113,7 @@ export function renderGame(root: HTMLElement, levelId: string): () => void {
     : null;
   const body = el("div", { class: "game__body" }, [hud, stage, effectsHud, note, retry, introCard]);
   const view = el("div", { class: "screen screen--game", style: { "--world": world?.color ?? "#ffb23f" } }, [
-    toolbar(level.title, () => navigate("/levels"), percent),
+    toolbar(level.title, () => confirmLeave(() => navigate("/levels")), percent),
     body,
   ]);
   root.append(view);

@@ -97,6 +97,18 @@ function fir(tiers: 2 | 3): string {
   return svg(`<rect x="43" y="80" width="14" height="14" rx="2" ${f("#a8743f")}/>` + body);
 }
 
+function crown(teeth: 3 | 5): string {
+  const d =
+    teeth === 3
+      ? "M14 82 L14 34 L32 56 L50 20 L68 56 L86 34 L86 82 Z"
+      : "M10 82 L10 36 L22 56 L34 24 L42 48 L50 16 L58 48 L66 24 L78 56 L90 36 L90 82 Z";
+  return svg(
+    `<path d="${d}" ${f("#ffc94a")}/>` +
+      `<path d="M14 70 L86 70" fill="none" ${O}/>` +
+      `<circle cx="32" cy="76" r="4" fill="#e8463a"/><circle cx="50" cy="76" r="4" fill="#4aa3df"/><circle cx="68" cy="76" r="4" fill="#7cc46a"/>`,
+  );
+}
+
 export const SHAPES: Record<string, Shape> = {
   // ---------------------------------------------------------------- animals
   cat: { name: "Котик с хвостиком вверх", group: "animals", svg: cat("up") },
@@ -654,6 +666,208 @@ export const SHAPES: Record<string, Shape> = {
         rope("M34 60 L12 48", "#a8743f", 3) + rope("M66 60 L88 48", "#a8743f", 3),
     ),
   },
+  // ---------------------------------------------------------------- v22: new outlines
+  crab: {
+    name: "Крабик",
+    group: "animals",
+    svg: svg(
+      rope("M28 66 L10 74", "#e8463a", 4) + rope("M30 72 L14 88", "#e8463a", 4) + rope("M72 66 L90 74", "#e8463a", 4) + rope("M70 72 L86 88", "#e8463a", 4) +
+        rope("M32 54 L20 36", "#e8463a", 5) + rope("M68 54 L80 36", "#e8463a", 5) +
+        `<path d="M8 30 C4 16 18 8 28 16 L18 24 L30 28 C26 40 10 42 8 30 Z" ${f("#e8463a")}/>` +
+        `<path d="M92 30 C96 16 82 8 72 16 L82 24 L70 28 C74 40 90 42 92 30 Z" ${f("#e8463a")}/>` +
+        rope("M42 50 L40 36", "#e8463a", 3) + rope("M58 50 L60 36", "#e8463a", 3) +
+        `<ellipse cx="50" cy="62" rx="27" ry="17" ${f("#e8463a")}/>` +
+        `<circle cx="40" cy="32" r="6" ${f("#fff")}/><circle cx="60" cy="32" r="6" ${f("#fff")}/>` + eye(40, 32) + eye(60, 32) +
+        `<path d="M44 66 C48 70 52 70 56 66" fill="none" ${O}/>`,
+    ),
+  },
+  octopus: {
+    name: "Осьминожка",
+    group: "animals",
+    svg: svg(
+      rope("M30 52 C20 66 32 74 20 90", "#9b8cf0", 8) + rope("M40 56 C36 72 46 80 38 94", "#9b8cf0", 8) +
+        rope("M60 56 C64 72 54 80 62 94", "#9b8cf0", 8) + rope("M70 52 C80 66 68 74 80 90", "#9b8cf0", 8) +
+        `<path d="M20 44 C20 18 34 6 50 6 C66 6 80 18 80 44 C80 58 66 62 50 62 C34 62 20 58 20 44 Z" ${f("#9b8cf0")}/>` +
+        eye(41, 36, 3.2) + eye(59, 36, 3.2) +
+        `<path d="M44 46 C48 50 52 50 56 46" fill="none" ${O}/>`,
+    ),
+  },
+  anchor: {
+    name: "Якорь",
+    group: "transport",
+    svg: svg(
+      rope("M50 22 L50 86", "#8a9bb0", 8) + rope("M32 32 L68 32", "#8a9bb0", 7) +
+        rope("M18 62 C20 80 36 90 50 88 C64 90 80 80 82 62", "#8a9bb0", 7) +
+        `<path d="M8 66 L18 52 L28 66 Z" ${f("#8a9bb0")}/><path d="M72 66 L82 52 L92 66 Z" ${f("#8a9bb0")}/>` +
+        `<circle cx="50" cy="14" r="9" ${f("#8a9bb0")}/><circle cx="50" cy="14" r="3.5" fill="#fff" ${O}/>`,
+    ),
+  },
+  crown: { name: "Корона с тремя зубчиками", group: "toys", svg: crown(3) },
+  crown5: { name: "Корона с пятью зубчиками", group: "toys", svg: crown(5) },
+  guitar: {
+    name: "Гитара",
+    group: "toys",
+    svg: svg(
+      `<g transform="rotate(20 50 50)">` +
+        `<circle cx="50" cy="74" r="21" ${f("#f39a3d")}/><circle cx="50" cy="47" r="15" ${f("#f39a3d")}/>` +
+        `<path d="M36 62 C40 58 60 58 64 62" fill="#f39a3d"/>` +
+        `<circle cx="50" cy="62" r="6" fill="#3b2e25"/>` +
+        `<rect x="45" y="8" width="10" height="44" rx="2" ${f("#a8743f")}/>` +
+        `<rect x="41" y="0" width="18" height="12" rx="3" ${f("#a8743f")}/>` +
+        `<rect x="40" y="80" width="20" height="5" rx="2" ${f("#a8743f")}/>` +
+        `</g>`,
+    ),
+  },
+  hammer: {
+    name: "Молоток",
+    group: "home",
+    svg: svg(
+      rope("M46 32 L46 92", "#a8743f", 10) +
+        `<path d="M66 18 C80 12 90 20 92 32 C84 26 76 28 66 34 Z" ${f("#8a9bb0")}/>` +
+        `<rect x="14" y="14" width="54" height="22" rx="4" ${f("#8a9bb0")}/>`,
+    ),
+  },
+  sock: {
+    name: "Носочек",
+    group: "home",
+    svg: svg(
+      `<path d="M30 8 L62 8 L62 54 C62 64 68 68 78 70 C94 72 94 94 76 94 L44 94 C26 94 26 76 30 64 Z" ${f("#7cc4ef")}/>` +
+        `<rect x="28" y="6" width="36" height="14" rx="3" ${f("#fff")}/>` +
+        `<path d="M30 36 L62 36 M30 50 L62 50" fill="none" ${O}/>` +
+        `<path d="M74 72 C70 80 72 90 76 94" fill="none" ${O}/>`,
+    ),
+  },
+  pineapple: {
+    name: "Ананас",
+    group: "food",
+    svg: svg(
+      `<path d="M50 40 L32 10 L46 22 L50 2 L54 22 L68 10 Z" ${f("#4f9e5a")}/>` +
+        `<ellipse cx="50" cy="66" rx="23" ry="28" ${f("#ffc94a")}/>` +
+        `<path d="M34 50 L62 90 M44 42 L70 78 M30 66 L46 90 M66 50 L38 90 M56 42 L30 78 M70 66 L54 90" fill="none" stroke="#c98a3e" stroke-width="2.5" stroke-linecap="round"/>`,
+    ),
+  },
+  bee: {
+    name: "Пчёлка",
+    group: "animals",
+    svg: svg(
+      `<ellipse cx="42" cy="30" rx="11" ry="17" transform="rotate(-20 42 30)" ${f("#e6f4fb")}/>` +
+        `<ellipse cx="62" cy="30" rx="11" ry="17" transform="rotate(20 62 30)" ${f("#e6f4fb")}/>` +
+        `<path d="M80 56 L96 60 L80 66 Z" ${f("#3b2e25")}/>` +
+        `<ellipse cx="54" cy="60" rx="28" ry="19" ${f("#ffc94a")}/>` +
+        `<path d="M48 42 C44 52 44 68 48 78 M62 42 C58 52 58 68 62 78" fill="none" stroke="#3b2e25" stroke-width="7"/>` +
+        rope("M20 46 L12 30", "#3b2e25", 2) + rope("M26 44 L24 28", "#3b2e25", 2) +
+        `<circle cx="24" cy="58" r="13" ${f("#ffc94a")}/>` + eye(20, 56),
+    ),
+  },
+  penguin: {
+    name: "Пингвин",
+    group: "animals",
+    svg: svg(
+      `<ellipse cx="38" cy="92" rx="10" ry="5" ${f("#f39a3d")}/><ellipse cx="62" cy="92" rx="10" ry="5" ${f("#f39a3d")}/>` +
+        `<path d="M28 44 C18 54 14 66 16 74 C24 70 28 62 30 56 Z" ${f("#3b4a5e")}/>` +
+        `<path d="M72 44 C82 54 86 66 84 74 C76 70 72 62 70 56 Z" ${f("#3b4a5e")}/>` +
+        `<ellipse cx="50" cy="54" rx="24" ry="36" ${f("#3b4a5e")}/>` +
+        `<ellipse cx="50" cy="62" rx="15" ry="24" fill="#fff"/>` +
+        `<circle cx="43" cy="30" r="4" fill="#fff"/><circle cx="57" cy="30" r="4" fill="#fff"/>` + eye(43, 30, 2) + eye(57, 30, 2) +
+        `<path d="M44 38 L56 38 L50 46 Z" ${f("#f39a3d")}/>`,
+    ),
+  },
+  dino: {
+    name: "Динозаврик",
+    group: "animals",
+    svg: svg(
+      `<path d="M28 60 C16 62 8 70 2 82 C14 78 24 76 34 72 Z" ${f("#7cc46a")}/>` +
+        rope("M64 58 C76 44 76 28 80 18", "#7cc46a", 12) +
+        `<rect x="32" y="70" width="11" height="22" rx="4" ${f("#7cc46a")}/><rect x="58" y="70" width="11" height="22" rx="4" ${f("#7cc46a")}/>` +
+        `<path d="M32 50 L36 40 L42 48 L48 36 L54 46 L60 36 L64 48 Z" ${f("#f39a3d")}/>` +
+        `<ellipse cx="50" cy="64" rx="27" ry="17" ${f("#7cc46a")}/>` +
+        `<ellipse cx="86" cy="16" rx="12" ry="8" ${f("#7cc46a")}/>` + eye(88, 13),
+    ),
+  },
+  dromedary: {
+    name: "Одногорбый верблюд",
+    group: "animals",
+    svg: svg(
+      `<path d="M14 50 Q20 48 25 37 C31 19 42 19 48 35 Q53 48 61 46 Q67 44 69 26 L70 15 Q68 7 73 8 L79 15 Q84 13 88 19 L93 22 Q96 28 89 31 L80 31 Q80 52 71 61 L70 83 Q71 89 62 87 L61 64 Q47 70 33 64 L29 85 Q27 89 20 86 L21 62 L20 55 Q16 57 12 70 Q11 76 6 73 Q8 58 14 50 Z" ${f("#e7ad62")}/>` +
+        eye(82, 21),
+    ),
+  },
+  camel: {
+    name: "Двугорбый верблюд",
+    group: "animals",
+    svg: svg(
+      `<path d="M14 50 Q19 48 22 35 C25 20 32 19 36 33 Q39 46 42 35 C46 18 54 20 58 37 Q60 46 61 46 Q67 44 69 26 L70 15 Q68 7 73 8 L79 15 Q84 13 88 19 L93 22 Q96 28 89 31 L80 31 Q80 52 71 61 L70 83 Q71 89 62 87 L61 64 Q47 70 33 64 L29 85 Q27 89 20 86 L21 62 L20 55 Q16 57 12 70 Q11 76 6 73 Q8 58 14 50 Z" ${f("#e7ad62")}/>` +
+        eye(82, 21),
+    ),
+  },
+  seahorse: {
+    name: "Морской конёк",
+    group: "animals",
+    svg: svg(
+      `<path d="M41 16 L43 6 L50 13 L56 7 L59 16 Q69 17 70 27 L87 30 L85 38 L67 36 Q61 43 53 40 Q51 45 59 51 C76 65 66 90 48 93 C33 95 23 86 27 76 C30 67 42 67 45 75 Q39 72 36 78 Q35 85 43 84 Q55 82 52 72 Q50 66 41 61 Q32 56 32 49 L19 53 Q17 42 30 35 Q29 22 41 16 Z" ${f("#ffac67")}/>` +
+        eye(59, 25),
+    ),
+  },
+  croissant: {
+    name: "Круассан",
+    group: "food",
+    svg: svg(
+      `<path d="M8 73 Q8 52 17 40 Q18 33 25 34 Q30 22 39 25 Q50 15 61 25 Q71 22 76 34 Q83 33 85 42 Q94 56 92 73 Q79 68 72 58 Q65 60 59 53 Q50 58 41 53 Q34 60 27 58 Q20 69 8 73 Z" ${f("#eda650")}/>` +
+        `<path d="M25 35 Q26 47 32 52 M39 26 Q38 39 43 47 M61 26 Q62 39 57 47 M76 35 Q75 47 69 52" ${O}/>`,
+    ),
+  },
+  broccoli: {
+    name: "Брокколи",
+    group: "food",
+    svg: svg(
+      `<path d="M22 46 L35 45 L47 60 L45 39 L55 39 L55 58 L69 43 L79 48 L60 71 L62 90 Q50 95 38 90 L41 71 Z" ${f("#95cb65")}/>` +
+        `<path d="M21 55 C6 57 3 39 15 34 C9 22 23 13 34 19 C36 5 59 4 64 18 C78 10 90 23 84 34 C98 40 91 57 77 55 Q67 62 56 53 Q43 62 33 53 Q27 60 21 55 Z" ${f("#50a85d")}/>`,
+    ),
+  },
+  scooter: {
+    name: "Самокат",
+    group: "transport",
+    svg: svg(
+      `<circle cx="17" cy="78" r="10" ${f("#718399")}/>` +
+        `<circle cx="82" cy="78" r="11" ${f("#718399")}/>` +
+        rope("M17 76 L54 76 L75 56", "#ffbb4d", 7) +
+        rope("M82 76 L69 20 L55 20", "#4fbac2", 6),
+    ),
+  },
+  sled: {
+    name: "Санки",
+    group: "transport",
+    svg: svg(
+      rope("M18 30 L22 50", "#de8950", 8) +
+        rope("M29 52 L35 67 M60 52 L66 67", "#de8950", 6) +
+        `<rect x="12" y="44" width="62" height="12" rx="5" ${f("#ee7761")}/>` +
+        rope("M10 70 L70 70 Q86 70 90 52", "#6ab7d2", 7),
+    ),
+  },
+  comb: {
+    name: "Расчёска",
+    group: "home",
+    svg: svg(
+      `<path d="M12 29 H86 Q93 29 93 36 V67 Q93 73 87 70 L84 46 H79 L78 68 Q77 74 72 70 L70 46 H65 L64 68 Q63 74 58 70 L56 46 H51 L50 68 Q49 74 44 70 L42 46 H15 Q6 46 6 38 Q6 31 12 29 Z" ${f("#c58ade")}/>`,
+    ),
+  },
+  wateringcan: {
+    name: "Лейка",
+    group: "home",
+    svg: svg(
+      rope("M65 36 C91 16 101 54 72 62", "#6ec9ba", 7) +
+        `<path d="M40 51 L19 33 L19 26 L8 35 L7 42 L15 40 L36 73 Z" ${f("#6ec9ba")}/>` +
+        `<path d="M39 32 Q53 28 68 33 L76 73 Q77 82 67 83 H40 Q31 82 33 73 Z" ${f("#54baaa")}/>`,
+    ),
+  },
+  lightning: {
+    name: "Молния",
+    group: "nature",
+    svg: svg(
+      `<path d="M50 7 H77 L59 39 H82 L27 93 L40 56 H19 Z" ${f("#ffd34f")}/>`,
+    ),
+  },
+
 };
 
 /**
@@ -679,4 +893,6 @@ export const TWINS: ReadonlyArray<readonly [string, string]> = [
   ["char:belka", "char:ryzhik"],
   ["star", "flower"],
   ["sun", "flower"],
+  ["crown", "crown5"],
+  ["dromedary", "camel"],
 ];

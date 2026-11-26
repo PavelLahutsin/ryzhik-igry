@@ -1,7 +1,8 @@
 import { audio } from "../shared/audio";
 import { character } from "../shared/assets";
 import { el } from "../shared/dom";
-import { navigate } from "../shared/router";
+import { gameOf, navigate } from "../shared/router";
+import { TITLE_VOICE } from "../shared/voice-lines";
 import { tipOnce } from "../shared/tips";
 import { dailyButton } from "./daily";
 import { svgNode } from "../shared/ui";
@@ -16,24 +17,31 @@ export function renderHome(root: HTMLElement): () => void {
   let gone = false;
   // v13: a seasonal entry («Зима») shows only in its season.
   const shown = games.filter((g) => !g.season || g.season());
-  const soundIcon = el("span", { attrs: { "aria-hidden": "true" }, text: audio.enabled ? "🔊" : "🔈" });
+  // v22: the menu button switches only the music. It used to switch off every
+  // sound, so a parent who wanted quiet music lost the animals and the voice
+  // too. All sounds off stays in «Родителям».
+  const soundIcon = el("span", { attrs: { "aria-hidden": "true" }, text: "🎵" });
+  const paintSound = (): void => {
+    soundBtn.setAttribute("aria-pressed", audio.music ? "true" : "false");
+    soundBtn.classList.toggle("is-off", !audio.music);
+  };
   const soundBtn = el(
     "button",
     {
       class: "btn btn--back home__sound",
-      attrs: { type: "button", "aria-label": "Звук", "aria-pressed": audio.enabled ? "true" : "false" },
+      attrs: { type: "button", "aria-label": "Музыка" },
       on: {
         click: () => {
           audio.unlock();
-          audio.setEnabled(!audio.enabled);
-          soundBtn.setAttribute("aria-pressed", audio.enabled ? "true" : "false");
-          soundIcon.textContent = audio.enabled ? "🔊" : "🔈";
+          audio.setMusic(!audio.music);
+          paintSound();
           audio.play("tap");
         },
       },
     },
     [soundIcon],
   );
+  paintSound();
   const gift = dailyButton((overlay) => view.append(overlay));
   const total = el("span", { class: "home__chip", attrs: { hidden: true } });
   // v13: «Во что поиграем сегодня?» and «Недавно играли» fill in once the progress is read.
@@ -74,7 +82,7 @@ export function renderHome(root: HTMLElement): () => void {
   // Ryzhik greets (when his voice is recorded): hello first, then «Выбирай игру!».
   audio.say(greeted ? "v11" : "v01");
   greeted = true;
-  const tipTimer = window.setTimeout(() => tipOnce("sound-button", soundBtn, "Здесь звук: включить или выключить"), 1500);
+  const tipTimer = window.setTimeout(() => tipOnce("music-button", soundBtn, "Здесь музыка: включить или выключить. Звуки игр остаются"), 1500);
 
   let stars = 0;
   const sums = new Map<string, Summary>();
@@ -163,10 +171,33 @@ function fillProgress(node: HTMLElement, summary: Summary): void {
   );
 }
 
-function open(game: GameEntry): void {
+/** A tile was tapped and the game is about to open (one tap, not three). */
+let opening = 0;
+/** How long the tile shows it was chosen while Ryzhik starts saying the name. */
+export const OPEN_DELAY_MS = 650;
+
+/**
+ * v22: the tapped tile says the game's name right away (inside the tap, so
+ * phones allow the sound), bounces, and the game opens a moment later while
+ * the name keeps playing. No second tap needed, so a toddler is never stuck.
+ */
+function open(game: GameEntry, from?: HTMLElement): void {
+  if (opening && Date.now() - opening < 1500) return;
   audio.unlock();
   audio.play("tap");
-  navigate(`/${game.id}/`);
+  const line = TITLE_VOICE[game.id];
+  const speaks = Boolean(line && audio.enabled && audio.hasVoice(line));
+  if (speaks) audio.say(line!);
+  if (!speaks) {
+    navigate(`/${game.id}/`);
+    return;
+  }
+  opening = Date.now();
+  from?.classList.add("is-opening");
+  window.setTimeout(() => {
+    opening = 0;
+    if (!gameOf(window.location.hash)) navigate(`/${game.id}/`);
+  }, OPEN_DELAY_MS);
 }
 
 function unitLine(s: Summary): string {
@@ -201,7 +232,7 @@ function tile(game: GameEntry): HTMLElement {
       style: { "--tile": game.color },
       attrs: { type: "button", "data-game": game.id, "aria-label": `${game.title}. ${game.note}` },
       on: {
-        click: () => open(game),
+        click: (e: Event) => open(game, e.currentTarget as HTMLElement),
       },
     },
     [

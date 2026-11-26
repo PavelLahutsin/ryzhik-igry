@@ -8,10 +8,10 @@ describe("levels.json", () => {
     expect(validateLevels()).toEqual([]);
   });
 
-  it("has four worlds of five levels", () => {
-    expect(worlds.map((w) => w.id)).toEqual(["ryzhik", "semya", "druzya", "chudesa"]);
+  it("has six worlds of five levels", () => {
+    expect(worlds.map((w) => w.id)).toEqual(["ryzhik", "semya", "druzya", "chudesa", "puteshestviya", "progulki"]);
     for (const world of worlds) expect(world.levels.length).toBe(5);
-    expect(levels.length).toBe(20);
+    expect(levels.length).toBe(30);
     expect(levels.map((l) => l.number)).toEqual(levels.map((_, i) => i + 1));
   });
 

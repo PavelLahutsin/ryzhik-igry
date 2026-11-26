@@ -161,6 +161,48 @@ export const SCENES: SceneDef[] = [
     seats: [{ id: "rocker", x: 1293, y: 687, pose: "sit" }],
     cast: [{ id: "ryzhik", x: 650, y: 965 }, { id: "mama", x: 1100, y: 959 }],
   },
+  {
+    id: "plyazh",
+    title: "Пляж",
+    floor: 755,
+    back: A.beachBack,
+    icon: A.beachIcon,
+    props: [
+      { id: "parasol", name: "Зонтик", x: 60, y: 286, w: 370, h: 500, art: (s) => A.beachUmbrellaArt(s.on), tap: "flap" },
+      { id: "dinghy", name: "Лодочка", x: 620, y: 368, w: 238, h: 175, art: (s) => A.beachBoatArt(s.n), tap: "paddle" },
+      { id: "shellbells", name: "Ракушки на ниточках", x: 1280, y: 382, w: 225, h: 339, art: A.beachShellsArt, tap: "chime" },
+      { id: "lounger", name: "Шезлонг", x: 107, y: 691, w: 300, h: 164, art: (s) => A.beachLoungerArt(s.n), tap: "sway" },
+      { id: "pinwheel", name: "Вертушка", x: 477, y: 537, w: 176, h: 259, art: (s) => A.beachWheelArt(s.n), tap: "turn" },
+      { id: "sandfort", name: "Песочный замок", x: 845, y: 723, w: 300, h: 225, art: (s) => A.beachCastleArt(s.n), tap: "stack", n: 1 },
+      { id: "pail", name: "Ведёрко с водой", x: 1418, y: 780, w: 182, h: 177, art: (s) => A.beachPailArt(s.n), tap: "sprinkle" },
+    ],
+    seats: [{ id: "lounger", x: 285, y: 779, pose: "sit" }],
+    cast: [
+      { id: "ryzhik", x: 697, y: 914 },
+      { id: "belka", x: 476, y: 948 },
+    ],
+  },
+  {
+    id: "dvor",
+    title: "Двор",
+    floor: 750,
+    back: A.yardBack,
+    icon: A.yardIcon,
+    props: [
+      { id: "line", name: "Бельевая верёвка", x: 228, y: 315, w: 395, h: 316, art: (s) => A.yardLineArt(s.n), tap: "sway", n: 0 },
+      { id: "gate", name: "Калитка", x: 671, y: 437, w: 258, h: 195, art: (s) => A.yardGateArt(s.on), tap: "flap" },
+      { id: "pinwheel", name: "Вертушка", x: 968, y: 331, w: 150, h: 241, art: (s) => A.yardWheelArt(s.n), tap: "turn", n: 0 },
+      { id: "bells", name: "Колокольчики", x: 1389, y: 388, w: 157, h: 169, art: A.yardBellsArt, tap: "chime" },
+      { id: "bench", name: "Скамейка", x: 1052, y: 628, w: 338, h: 178, art: A.yardBenchArt, tap: "none" },
+      { id: "sandpit", name: "Песочница", x: 48, y: 704, w: 395, h: 197, art: (s) => A.yardSandArt(s.n), tap: "stack", n: 0 },
+      { id: "puddle", name: "Лужа", x: 1258, y: 850, w: 293, h: 107, art: (s) => A.yardPuddleArt(s.n, s.night), tap: "sprinkle", n: 0 },
+    ],
+    seats: [{ id: "bench", x: 1221, y: 750, pose: "sit" }],
+    cast: [
+      { id: "ryzhik", x: 602, y: 929 },
+      { id: "belka", x: 915, y: 949 },
+    ],
+  },
 ];
 
 /** Every discovery the home tile counts: each prop with a reaction, each seat, every favourite meal, and the night. */

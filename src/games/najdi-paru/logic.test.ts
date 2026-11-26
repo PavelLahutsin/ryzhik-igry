@@ -39,8 +39,8 @@ describe("najdi-paru", () => {
     expect(starsFor(9, 2).stars).toBe(2);
     expect(starsFor(5, 2, 2).stars).toBe(1);
   });
-  it("has 24 levels up to 20 cards, old ids kept", () => {
-    expect(levels).toHaveLength(24);
+  it("has 38 levels up to 20 cards, old ids kept", () => {
+    expect(levels).toHaveLength(38);
     for (const id of ["p1", "p2", "p3", "p4", "p5", "p6"]) expect(levels.some((l) => l.id === id)).toBe(true);
     expect(Math.max(...levels.map((l) => l.cols * l.rows))).toBe(20);
   });

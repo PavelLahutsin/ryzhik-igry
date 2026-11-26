@@ -601,3 +601,221 @@ export function shoalArt(n: number): string {
   return svg(160, 96, at(60, 30, 1.4, fish(honey)) + at(10, 37, .8, fish(teal)) +
     (n > 0 ? at(28, 0, .76, fish(coral)) : '') + (n > 1 ? at(0, 66, .56, fish(honey)) : ''));
 }
+
+// ---------- Пляж (v22, Astra) ----------
+
+export const beachIcon = svg(
+  100,
+  100,
+  `<g stroke="#3b2e25" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"><path d="M7 84Q28 67 54 75Q76 72 93 85Q58 96 7 84Z" fill="#f4ce85"/><path d="M54 21L40 79" fill="none" stroke-width="6"/><path d="M8 44Q19 11 57 12Q86 21 94 59Q86 51 76 56Q68 46 55 51Q47 41 34 46Q23 38 8 44Z" fill="#ee8976"/><path d="M34 46Q39 23 57 12Q66 29 55 51Q47 41 34 46Z" fill="#fff1ca"/><path d="M57 12L58 7" fill="none"/></g>`,
+);
+
+export function beachBack(night: boolean): string {
+  return svg(
+    1600,
+    1000,
+    `<rect width="1600" height="1000" fill="${night ? "#323e68" : "#bce8eb"}"/>` +
+      (night
+        ? `<path d="M1184 70Q1154 131 1222 144A56 56 0 0 1 1184 70Z" fill="#fff0be"/><g fill="#fff1cb"><circle cx="135" cy="152" r="4"/><circle cx="344" cy="83" r="5"/><circle cx="595" cy="211" r="4"/><circle cx="741" cy="95" r="5"/><circle cx="995" cy="181" r="4"/><circle cx="1416" cy="103" r="5"/><circle cx="1510" cy="232" r="4"/></g>`
+        : `<circle cx="1190" cy="119" r="59" fill="#ffe097"/><g fill="#fff8e6"><path d="M114 171Q119 147 147 148Q162 103 203 129Q225 118 242 143Q270 141 282 166Q210 180 114 171Z"/><path d="M668 101Q679 76 707 81Q731 43 759 74Q790 69 806 98Q742 108 668 101Z"/></g>`) +
+      `<path d="M0 382Q274 359 538 377T1064 373T1600 368V720H0Z" fill="${night ? "#446d83" : "#7acfd1"}"/>` +
+      `<g fill="none" stroke="${night ? "#7292a2" : "#c0eeea"}" stroke-width="5" stroke-linecap="round"><path d="M74 435q42 6 80 -1m275 49q45 6 96 -2m394 -75q52 5 92 -1m253 68q60 8 102 0"/><path d="M221 555q44 7 87 0m369 -29q43 6 72 -1m621 41q62 7 111 -1"/></g>` +
+      `<path d="M0 607Q252 551 508 610T1016 636T1600 580V1000H0Z" fill="${night ? "#ad9c93" : "#f4d499"}"/>` +
+      `<path d="M0 607Q252 551 508 610T1016 636T1600 580" fill="none" stroke="${night ? "#99b5bc" : "#fff7df"}" stroke-width="11"/>` +
+      `<path d="M0 790Q267 749 539 789T1050 816T1600 767V1000H0Z" fill="${night ? "#baaa9b" : "#f9dfae"}"/>` +
+      `<g fill="none" stroke="${night ? "#948780" : "#dcb982"}" stroke-width="4" stroke-linecap="round"><path d="M40 898q16 -6 29 -3m9 -2l6 1m363 59q19 -6 35 -4m496 -95q21 -5 37 -2m7 -1l7 1m405 70q18 -6 34 -3"/></g>`,
+  );
+}
+
+/** flap: on = folded */
+export function beachUmbrellaArt(on: boolean): string {
+  const canopy = on
+    ? `<path d="M185 24Q218 104 236 245Q218 239 206 255Q193 246 181 259Q170 246 147 253Q154 119 185 24Z" fill="#ed8979"/><path d="M185 24Q201 130 206 255Q193 246 181 259Q177 144 185 24Z" fill="#fff0c8"/>`
+    : `<path d="M6 169Q64 45 185 24Q308 50 364 169Q338 153 308 176Q277 154 247 177Q218 155 185 178Q153 155 122 177Q90 154 60 176Q31 153 6 169Z" fill="#ed8979"/><path d="M60 176Q98 74 185 24Q140 76 122 177Q90 154 60 176ZM185 24Q275 76 308 176Q277 154 247 177Q234 85 185 24Z" fill="#fff0c8"/>`;
+  return svg(
+    370,
+    500,
+    `<ellipse cx="174" cy="484" rx="80" ry="10" fill="#806b58" opacity=".16"/><g stroke="#3b2e25" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"><path d="M180 23h11v459q-6 8 -11 0Z" fill="#bd916b"/>${canopy}<circle cx="185" cy="17" r="10" fill="#e5b65f"/></g>`,
+  );
+}
+
+/** paddle cycles n 0..2 */
+export function beachBoatArt(n: number): string {
+  const angle = [2, -4, 6][n % 3];
+  return svg(
+    238,
+    175,
+    `<ellipse cx="119" cy="161" rx="106" ry="8" fill="#438c99" opacity=".35"/><g transform="rotate(${angle} 119 130)" stroke="#3b2e25" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"><path d="M113 129V13" fill="none" stroke-width="6"/><path d="M104 22Q69 75 29 111L104 106Z" fill="#fff1cb"/><path d="M122 16Q177 48 193 100Q154 95 122 107Z" fill="#ef977c"/><path d="M9 119Q113 131 229 114L196 148Q124 167 42 150Z" fill="#5eb9af"/><path d="M26 132Q121 144 212 129" fill="none" stroke="#ffdf9b"/></g>`,
+  );
+}
+
+export function beachShellsArt(): string {
+  return svg(
+    225,
+    339,
+    `<g stroke="#3b2e25" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><rect x="193" y="9" width="20" height="323" rx="9" fill="#c49b73"/><path d="M12 38Q96 35 202 15l3 15Q100 51 13 53Z" fill="#dbb486"/><path d="M40 48v85m57 -89v140m56 -148v76" fill="none"/><path d="M36 160Q4 145 12 133Q16 125 24 129Q25 117 36 122Q47 109 54 122Q69 121 68 136Q60 151 44 161Z" fill="#ee9987"/><path d="M93 213Q62 199 68 181Q72 172 82 177Q86 162 96 171Q108 161 115 175Q130 172 128 188Q116 205 101 214Z" fill="#f3cb76"/><path d="M150 142Q122 130 126 115Q129 104 139 109Q144 96 153 104Q164 95 170 109Q186 108 182 122Q170 138 157 144Z" fill="#91cfc1"/><path d="M25 135l13 18m14 -24l-9 24m39 31l13 20m16 -25l-11 25m40 -88l12 18m15 -20l-10 20" fill="none" stroke-width="3"/></g>`,
+  );
+}
+
+/** sway cycles n 0..2 */
+export function beachLoungerArt(n: number): string {
+  const angle = [0, -3, 3][n % 3];
+  return svg(
+    300,
+    164,
+    `<ellipse cx="148" cy="151" rx="126" ry="9" fill="#896e51" opacity=".19"/><g transform="rotate(${angle} 150 108)" stroke="#3b2e25" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"><path d="M70 57l118 83m54 -53l-137 57" fill="none" stroke-width="10"/><path d="M19 20L85 9l70 66l110 -10l19 22l-163 22Z" fill="#6bbeb4"/><path d="M42 17l19 -4l80 75l131 -14l7 9l-147 17Z" fill="#fff1c9" stroke="none"/><path d="M18 21l100 91l165 -22M44 132q98 37 213 -7" fill="none" stroke-width="10"/><path d="M44 132q98 37 213 -7" fill="none" stroke="#d8aa7d" stroke-width="5"/></g>`,
+  );
+}
+
+/** turn cycles n 0..2 */
+export function beachWheelArt(n: number): string {
+  return svg(
+    176,
+    259,
+    `<g stroke="#3b2e25" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"><rect x="83" y="83" width="10" height="171" rx="5" fill="#cea276"/><g transform="rotate(${n * 40} 88 87)"><path d="M88 87Q42 72 54 19L88 5Z" fill="#ef917b"/><path d="M88 87Q104 40 157 54L170 87Z" fill="#f5ca6e"/><path d="M88 87Q135 104 121 156L88 169Z" fill="#78c4ba"/><path d="M88 87Q70 132 19 120L6 87Z" fill="#aba6d5"/></g><circle cx="88" cy="87" r="11" fill="#fff0c9"/></g>`,
+  );
+}
+
+/** stack cycles n 0..2; initial n is 1 */
+export function beachCastleArt(n: number): string {
+  const mid = n > 0 ? `<path d="M49 184l10 -91h27v16h24V89h26v18h26V90h26v17h23V91h27l13 94q-99 20 -202 -1Z" fill="#f5d092"/><path d="M127 192v-31q22 -45 44 -1v32" fill="#c59560"/>` : "";
+  const top = n > 1 ? `<path d="M108 111l8 -89h19v13h16V19h18v15h15V21h17l6 90Z" fill="#f8d99b"/><path d="M145 78V66q8 -17 16 0v12Z" fill="#ba8a57" stroke="none"/>` : "";
+  return svg(
+    300,
+    225,
+    `<g stroke="#3b2e25" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"><path d="M7 199Q26 177 56 173Q88 143 154 152Q237 146 291 197Q267 218 149 219Q38 217 7 199Z" fill="#e7bd77"/>${top}${mid}<path d="M27 200q15 -7 28 -5m166 9q18 -6 31 -4" fill="none" stroke="#c69a62"/></g>`,
+  );
+}
+
+/** sprinkle cycles n 0..2; pour on n > 0 */
+export function beachPailArt(n: number): string {
+  const pour = n > 0
+    ? `<path d="M132 78q28 -4 36 24" fill="none" stroke="#6ebec8" stroke-width="8"/><path d="M169 110q-13 19 -1 20q13 0 1 -20Zm-12 24q-12 17 -2 19q12 0 2 -19Z" fill="#8dd6d8" stroke-width="3"/>`
+    : "";
+  const angle = n > 0 ? 14 : -3;
+  return svg(
+    182,
+    177,
+    `<g stroke="#3b2e25" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"><g transform="rotate(${angle} 84 100)"><path d="M23 69Q27 -23 83 15Q105 29 127 67" fill="none" stroke-width="6"/><path d="M13 66l18 86q43 26 87 -1l16 -85Z" fill="#ed917c"/><path d="M25 117q48 15 99 -1" fill="none" stroke="#ffdb9e" stroke-width="9"/><ellipse cx="74" cy="66" rx="61" ry="16" fill="#ffdb9e"/><ellipse cx="74" cy="68" rx="50" ry="9" fill="#82cdd1" stroke="none"/></g>${pour}</g>`,
+  );
+}
+
+// ---------- Двор (v22, Astra) ----------
+
+export const yardIcon = svg(
+  100,
+  100,
+  `<g stroke="#3b2e25" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"><path d="M20 46 Q48 21 80 46 V80 H20Z" fill="#ed937a"/><path d="M36 42 V72 M50 37 V72 M64 41 V72" fill="none" stroke="#b86450"/><path d="M21 71 L76 46 L79 53 L24 79Z" fill="#ffe3a2"/><path d="M9 82 V38 L16 29 L23 38 V82Z M77 82 V38 L84 29 L91 38 V82Z" fill="#fff0ce"/><circle cx="68" cy="63" r="4" fill="#ffe3a2"/></g>`,
+);
+
+export function yardBack(night: boolean): string {
+  const sky = night ? "#35486c" : "#a9dfe7";
+  const haze = night ? "#536380" : "#dcf1e8";
+  const wall = night ? "#686a80" : "#f4d8ad";
+  const roof = night ? "#50546a" : "#ca826a";
+  const fence = night ? "#81849a" : "#f4ddb1";
+  const rail = night ? "#62677c" : "#d4b78e";
+  const ground = night ? "#737582" : "#e8cea4";
+  const path = night ? "#868490" : "#f3dfb9";
+  const outline = night ? "#393848" : "#675346";
+  const posts = [
+    ...Array.from({ length: 10 }, (_, i) => i * 68 - 2),
+    ...Array.from({ length: 10 }, (_, i) => 922 + i * 68),
+  ]
+    .map((x, i) => `<path d="M${x} 624 v-139 l33 -${24 + (i % 3) * 4} l33 ${24 + (i % 3) * 4} v139Z"/>`)
+    .join("");
+  const skyBits = night
+    ? `<path d="M1025 71 A56 56 0 1 0 1091 144 A60 60 0 0 1 1025 71Z" fill="#ffebbb"/><g fill="#fff1cd"><circle cx="342" cy="100" r="4"/><circle cx="547" cy="172" r="5"/><circle cx="705" cy="67" r="4"/><circle cx="870" cy="206" r="4"/><circle cx="1192" cy="92" r="5"/><circle cx="1354" cy="184" r="4"/><circle cx="1510" cy="74" r="4"/></g>`
+    : `<circle cx="1050" cy="113" r="57" fill="#ffe29a"/><path d="M383 154 Q376 130 407 125 Q415 83 461 99 Q485 72 518 103 Q547 101 554 126 Q591 125 593 154Z M1225 236 Q1225 217 1249 215 Q1266 178 1298 196 Q1328 178 1345 211 Q1373 208 1380 236Z" fill="#fff4db"/>`;
+  return svg(
+    1600,
+    1000,
+    `<rect width="1600" height="1000" fill="${sky}"/>` +
+      `<path d="M0 372 Q290 300 600 367 T1190 349 Q1420 313 1600 347 V580 H0Z" fill="${haze}"/>` +
+      skyBits +
+      `<g stroke="${outline}" stroke-width="4" stroke-linejoin="round">` +
+      `<path d="M-15 262 L85 185 L202 266 V604 H-15Z" fill="${wall}"/>` +
+      `<path d="M-16 249 L85 165 L218 258 L207 277 L85 193 L-16 276Z" fill="${roof}"/>` +
+      `<rect x="49" y="305" width="79" height="95" rx="9" fill="${night ? "#f5d59b" : "#bce4df"}"/>` +
+      `<path d="M89 306 V398 M50 352 H127" fill="none"/>` +
+      `<path d="M1195 461 V383 L1313 302 L1467 383 V461Z" fill="${wall}"/>` +
+      `<path d="M1178 384 L1313 285 L1484 380 L1472 397 L1313 311 L1191 399Z" fill="${roof}"/>` +
+      `</g>` +
+      `<rect y="496" width="1600" height="504" fill="${ground}"/>` +
+      `<path d="M720 560 Q846 675 582 786 Q401 867 358 1000 H1044 Q904 898 1002 801 Q1103 689 875 560Z" fill="${path}"/>` +
+      `<g fill="${fence}" stroke="${outline}" stroke-width="4" stroke-linejoin="round">${posts}</g>` +
+      `<g fill="${rail}" stroke="${outline}" stroke-width="3"><path d="M0 519 H678 V533 H0Z M922 519 H1600 V533 H922Z"/><path d="M0 590 H678 V604 H0Z M922 590 H1600 V604 H922Z"/></g>` +
+      `<g fill="${night ? "#666877" : "#cfb892"}"><ellipse cx="389" cy="694" rx="16" ry="5"/><ellipse cx="416" cy="689" rx="7" ry="3"/><ellipse cx="119" cy="951" rx="12" ry="4"/><ellipse cx="1107" cy="899" rx="14" ry="4"/><ellipse cx="1511" cy="733" rx="11" ry="4"/><ellipse cx="1489" cy="738" rx="6" ry="3"/></g>`,
+  );
+}
+
+/** sway cycles n 0..2 — laundry swings */
+export function yardLineArt(n: number): string {
+  const tilt = [0, 12, -12][n % 3];
+  return svg(
+    395,
+    316,
+    `<g stroke="#3b2e25" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10" width="15" height="301" rx="7" fill="#ca9a72"/><rect x="374" y="5" width="15" height="306" rx="7" fill="#ca9a72"/><path d="M12 27 Q190 100 382 22" fill="none"/><g transform="rotate(${tilt} 102 53)"><path d="M53 40 Q100 55 151 60 L145 166 Q94 164 49 145Z" fill="#69c3bb"/><path d="M55 127 Q96 143 140 146" fill="none" stroke="#fff1ce" stroke-width="10"/></g><g transform="rotate(${tilt} 221 60)"><path d="M192 64 L219 63 L220 108 Q235 103 241 116 Q245 134 220 139 L193 140Z" fill="#ef987e"/><path d="M233 62 L260 58 L264 100 Q280 94 284 110 Q285 124 262 131 L237 133Z" fill="#f6c971"/></g><path d="M64 37 L61 52 M143 52 L141 66 M200 56 L201 70 M251 52 L253 66" stroke="#906747" stroke-width="7"/></g>`,
+  );
+}
+
+/** flap: on = gate open */
+export function yardGateArt(on: boolean): string {
+  const leaf = on ? "matrix(.29 .15 0 1 15 -3)" : "matrix(1 0 0 1 0 0)";
+  return svg(
+    258,
+    195,
+    `<g stroke="#3b2e25" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M232 189 V24 L243 9 L254 24 V189Z" fill="#ffe8ba"/><g transform="${leaf}"><path d="M21 69 Q123 8 235 64 V167 H21Z" fill="#e79378"/><path d="M66 50 V164 M109 41 V164 M152 41 V164 M195 48 V164" fill="none" stroke="#ba6f59"/><path d="M25 145 L226 70 L231 83 L30 159Z" fill="#ffdaa0"/><circle cx="211" cy="113" r="8" fill="#ffe5a1"/></g><path d="M4 189 V24 L15 9 L26 24 V189Z" fill="#ffe8ba"/><path d="M18 84 H35 M18 147 H35" fill="none"/></g>`,
+  );
+}
+
+/** turn cycles n 0..2 */
+export function yardWheelArt(n: number): string {
+  return svg(
+    150,
+    241,
+    `<g stroke="#3b2e25" stroke-width="4" stroke-linejoin="round"><rect x="70" y="70" width="10" height="166" rx="5" fill="#efc58c"/><g transform="rotate(${(n % 3) * 120} 75 75)"><path d="M75 75 L39 23 Q65 5 94 10Z" fill="#ef947e"/><path d="M75 75 L127 39 Q145 65 140 94Z" fill="#f7ce70"/><path d="M75 75 L111 127 Q85 145 56 140Z" fill="#76c8bc"/><path d="M75 75 L23 111 Q5 85 10 56Z" fill="#b6a2cc"/></g><circle cx="75" cy="75" r="10" fill="#fff1c8"/></g>`,
+  );
+}
+
+export function yardBellsArt(): string {
+  return svg(
+    157,
+    169,
+    `<g stroke="#3b2e25" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M149 163 V10 H12 V23 H137 V163Z" fill="#c39673"/><path d="M35 23 V76 M99 23 V100" fill="none"/><circle cx="35" cy="120" r="8" fill="#e79b67"/><circle cx="99" cy="146" r="8" fill="#e79b67"/><path d="M6 115 Q17 103 17 89 Q17 72 35 70 Q53 72 53 89 Q53 104 64 115 Q35 126 6 115Z" fill="#f4c66f"/><path d="M70 141 Q81 129 81 115 Q81 98 99 96 Q117 98 117 115 Q117 130 128 141 Q99 152 70 141Z" fill="#81c9bf"/></g>`,
+  );
+}
+
+export function yardBenchArt(): string {
+  return svg(
+    338,
+    178,
+    `<g stroke="#3b2e25" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"><path d="M36 14 H51 V163 H36Z M287 14 H302 V163 H287Z" fill="#ac805f"/><rect x="13" y="9" width="312" height="36" rx="11" fill="#86c8b8"/><rect x="13" y="53" width="312" height="31" rx="9" fill="#9ed8c5"/><path d="M32 119 H51 L43 173 H24Z M286 119 H305 L314 173 H294Z" fill="#c3936f"/><path d="M25 99 H312 L333 118 V131 H5 V118Z" fill="#f1ca91"/><path d="M7 118 H331" fill="none"/></g>`,
+  );
+}
+
+/** stack cycles n 0..2 — sandcastle grows */
+export function yardSandArt(n: number): string {
+  const mid = n % 3 >= 1 ? `<path d="M138 87 L145 56 Q174 47 203 56 L210 87 Q175 98 138 87Z" fill="#efc477"/><ellipse cx="174" cy="56" rx="29" ry="6" fill="#ffe0a1"/>` : "";
+  const flag = n % 3 === 2 ? `<path d="M174 52 V8 L204 17 L175 28" fill="#74c6bb"/>` : "";
+  return svg(
+    395,
+    197,
+    `<g stroke="#3b2e25" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"><path d="M52 77 H342 L390 149 L348 190 H47 L5 150Z" fill="#d48468"/><path d="M54 80 H340 L380 144 L345 158 H49 L16 144Z" fill="#ffe0a1"/><path d="M14 137 L51 151 H345 L381 137 L390 149 L350 168 H46 L5 150Z" fill="#f2ad82"/><path d="M47 168 V188 M349 168 V188" fill="none"/><path d="M112 124 L121 90 Q173 77 226 90 L236 124 Q179 141 112 124Z" fill="#e9b967"/><ellipse cx="174" cy="90" rx="53" ry="10" fill="#f8d18a"/>${mid}${flag}<path d="M283 118 L313 88 M276 112 Q255 119 258 133 Q272 140 291 123Z" fill="#80c8bf"/><ellipse cx="316" cy="85" rx="9" ry="7" fill="#ee9b7f"/></g>`,
+  );
+}
+
+/** sprinkle cycles n 0..2; puddle ripples, colour follows night */
+export function yardPuddleArt(n: number, night: boolean): string {
+  const splash =
+    n % 3 === 1
+      ? `<ellipse cx="149" cy="63" rx="27" ry="7"/><path d="M145 46 Q128 34 132 28 Q139 25 145 46Z M157 39 Q157 22 165 20 Q171 25 157 39Z" fill="#d2eff0"/>`
+      : n % 3 === 2
+        ? `<ellipse cx="149" cy="63" rx="48" ry="13"/><ellipse cx="149" cy="63" rx="22" ry="6"/>`
+        : "";
+  return svg(
+    293,
+    107,
+    `<path d="M7 68 Q10 49 64 48 Q91 47 108 35 Q136 19 174 34 Q191 43 223 40 Q270 36 284 56 Q298 74 258 82 Q230 86 215 96 Q181 108 148 95 Q122 86 92 93 Q46 101 34 85 Q2 84 7 68Z" fill="${night ? "#839fba" : "#98d9dc"}" stroke="#3b2e25" stroke-width="4" stroke-linejoin="round"/><g fill="none" stroke="${night ? "#d0deed" : "#f1fff5"}" stroke-width="4" stroke-linecap="round"><path d="M33 64 Q50 57 72 59 M211 78 Q230 69 252 68"/>${splash}</g>`,
+  );
+}

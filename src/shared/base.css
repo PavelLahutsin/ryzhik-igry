@@ -19,8 +19,8 @@
   --radius-md: var(--r-md);
   --radius-lg: var(--r-lg);
   --radius-xl: var(--r-xl);
-  --tap: 64px;
-  --icon: 52px;
+  --tap: 76px;
+  --icon: 72px;
   --shadow-card: 0 26px 55px -34px rgba(59, 46, 37, 0.55);
   /* v13: no orange glow under white buttons any more. */
   --shadow-btn: var(--shadow-1);
@@ -644,6 +644,18 @@ button {
   transform: scale(0.97);
 }
 
+/* v22: the tapped tile hops and glows while Ryzhik says the game's name. */
+.game-tile.is-opening {
+  animation: tile-chosen 600ms cubic-bezier(0.3, 1.6, 0.5, 1);
+  box-shadow: var(--shadow-2), 0 0 0 5px var(--orange);
+}
+@keyframes tile-chosen {
+  0% { transform: scale(0.97); }
+  45% { transform: scale(1.05) translateY(-4px); }
+  100% { transform: scale(1); }
+}
+[data-motion="reduced"] .game-tile.is-opening { animation: none; }
+
 .game-tile--wide {
   grid-column: 1 / -1;
   flex-direction: row;
@@ -953,7 +965,7 @@ button {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 8px;
+  gap: 12px;
   min-width: var(--tap);
 }
 
@@ -995,6 +1007,34 @@ button {
   font-size: 19px;
   color: var(--ink-soft);
   text-align: center;
+}
+
+/* v22: a lead that Ryzhik reads aloud on a tap. */
+.list__lead--voice {
+  appearance: none;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 19px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.list__lead--voice:active { transform: scale(0.97); }
+.list__lead-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: 0 0 0 3px var(--line);
+  font-size: 20px;
 }
 
 .level-card__new {
@@ -1114,15 +1154,15 @@ button {
   grid-area: tools;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   align-items: flex-end;
 }
 
 .home__tools .btn {
-  width: 52px;
-  min-width: 52px;
-  height: 52px;
-  min-height: 52px;
+  width: var(--icon);
+  min-width: var(--icon);
+  height: var(--icon);
+  min-height: var(--icon);
   padding: 0;
 }
 
@@ -1265,7 +1305,7 @@ button {
 /* Phones held sideways: a compact top bar so the games get the height. */
 @media (orientation: landscape) and (max-height: 560px) {
   :root {
-    --tap: 50px;
+    --tap: 64px;
   }
   .screen {
     padding: 8px 16px;
@@ -1528,11 +1568,11 @@ button {
 
 @media (max-width: 380px) {
   :root {
-    --icon: 48px;
+    --icon: 64px;
   }
   .toolbar,
   .toolbar__tools {
-    gap: 6px;
+    gap: 12px;
   }
   .toolbar .list__score {
     padding: 0 8px;
@@ -1776,3 +1816,19 @@ button {
 .world-chips.has-more { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 44px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 44px), transparent); }
 .world-chips.has-less { -webkit-mask-image: linear-gradient(90deg, transparent, #000 36px); mask-image: linear-gradient(90deg, transparent, #000 36px); }
 .world-chips.has-more.has-less { -webkit-mask-image: linear-gradient(90deg, transparent, #000 36px, #000 calc(100% - 44px), transparent); mask-image: linear-gradient(90deg, transparent, #000 36px, #000 calc(100% - 44px), transparent); }
+
+/* v22: the menu's music button; switched off it is crossed out. */
+.home__sound { position: relative; }
+.home__sound.is-off > span { opacity: 0.45; }
+.home__sound.is-off::after {
+  content: "";
+  position: absolute;
+  left: 22%;
+  right: 22%;
+  top: 50%;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--ink);
+  transform: rotate(-40deg);
+  pointer-events: none;
+}

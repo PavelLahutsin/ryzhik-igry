@@ -6,7 +6,7 @@ import { basketOf, hintFor, judge, starsFor, targetFor } from "./logic";
 
 describe("sortirovka", () => {
   it("has 28 levels, each thing in exactly one basket (counting baskets: any)", () => {
-    expect(levels).toHaveLength(28);
+    expect(levels).toHaveLength(36);
     for (const level of levels) {
       const all = level.baskets.flatMap((b) => b.items);
       if (level.world !== "count") expect(new Set(all).size, level.id).toBe(all.length);
@@ -81,7 +81,7 @@ describe("sortirovka", () => {
   });
   it("v13 «Собираемся»: packing by meaning, 2 baskets with a picture, every thing drawn, a level a little longer than the last", () => {
     const trip = levels.filter((l) => l.world === "trip");
-    expect(trip.map((l) => l.id)).toEqual(["p1", "p2", "p3", "p4"]);
+    expect(trip.map((l) => l.id)).toEqual(["p1", "p2", "p3", "g3", "g4", "p4"]);
     for (const l of trip) {
       expect(l.baskets).toHaveLength(2);
       for (const b of l.baskets) {

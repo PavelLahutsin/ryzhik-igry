@@ -7,8 +7,8 @@ import { OBJECTS } from "../../shared/objects";
 const OLD_IDS = Array.from({ length: 15 }, (_, i) => `t${i + 1}`);
 
 describe("teni levels", () => {
-  it("has 37 levels with unique ids, the 15 old ids kept", () => {
-    expect(levels).toHaveLength(37);
+  it("has 56 levels with unique ids, the 15 old ids kept", () => {
+    expect(levels).toHaveLength(56);
     const ids = levels.map((l) => l.id);
     expect(new Set(ids).size).toBe(ids.length);
     for (const id of OLD_IDS) expect(ids).toContain(id);

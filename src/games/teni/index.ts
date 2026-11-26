@@ -7,6 +7,7 @@ import { createScope } from "../../shared/lifecycle";
 import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
 import { shuffle } from "../../shared/rng";
 import { useStyles } from "../../shared/style";
+import { createAutoHint } from "../../shared/autoHint";
 import { hint, praiseWord, svgNode } from "../../shared/ui";
 import baseCss from "../../shared/base.css?inline";
 import css from "./style.css?inline";
@@ -83,6 +84,7 @@ function play(stage: HTMLElement, level: TeniLevel, _index: number, api: PlayApi
   const scope = createScope();
   let misses = 0;
   let hints = 0;
+  const autoHint = createAutoHint();
   let current = 0;
   // Live state of the round on screen (for the hint and the hand).
   let things: Thing[] = [];
@@ -173,6 +175,7 @@ function play(stage: HTMLElement, level: TeniLevel, _index: number, api: PlayApi
               audio.play("snap");
               const voice = VOICE_OF[t.id.replace(/@s$/, "")];
               if (voice) roundScope.later(() => audio.play(voice), 220);
+              autoHint.reset();
               if (filled.size === things.length) roundDone(board);
               return true;
             }
@@ -193,6 +196,7 @@ function play(stage: HTMLElement, level: TeniLevel, _index: number, api: PlayApi
               const shadow = target ? shadows.get(target) : undefined;
               if (shadow) replayClass(shadow, "is-wrong");
               hint(stage, isExtra ? "У этой картинки нет тени — оставь её!" : `Это не тень: ${t.name.toLowerCase()}. Попробуй другую!`);
+              if (autoHint.recordMiss()) showHint();
             }
             return false;
           },
@@ -242,13 +246,15 @@ function play(stage: HTMLElement, level: TeniLevel, _index: number, api: PlayApi
     showDrag(centre(item), { x: r.left + r.width / 2, y: r.top + Math.min(24, r.height * 0.1) });
   });
   // Hint: one picture and its own shadow glow together.
-  api.setHint(() => {
+  function showHint(): void {
     const id = nextId();
     if (!id) return;
-    hints++;
     const pair = [shadows.get(id), tray.querySelector<HTMLElement>(`.tn-item[data-id="${id}"]`)];
+    if (!pair.some((node) => node != null)) return;
+    if (autoHint.recordShown(id)) hints++;
     for (const node of pair) if (node) replayClass(node, "is-hinted");
-  });
+  }
+  api.setHint(showHint);
 
   showRound(rounds[0]!);
   return scope.dispose;

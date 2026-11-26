@@ -65,7 +65,7 @@ describe("mozaika", () => {
     expect(starsFor(5, 4, 2).stars).toBe(1);
   });
   it("v10: new worlds — upside-down and extra pieces — keep ids and get harder", () => {
-    expect([...levels.map((l) => l.id)].sort((a, b) => Number(a.slice(1)) - Number(b.slice(1)))).toEqual(Array.from({ length: 23 }, (_, i) => `m${i + 1}`));
+    expect([...levels.map((l) => l.id)].sort((a, b) => Number(a.slice(1)) - Number(b.slice(1)))).toEqual(Array.from({ length: 39 }, (_, i) => `m${i + 1}`));
     const order = [...new Set(levels.map((l) => l.world))];
     const mean = (w: string): number => {
       const ls = levels.filter((l) => l.world === w);
@@ -81,7 +81,7 @@ describe("mozaika", () => {
       expect(l.flip ?? 0).toBeLessThan(l.cols * l.rows);
     }
     // Inside the new worlds the hint goes first, then the faded picture.
-    for (const w of ["flip", "extra"]) {
+    for (const w of ["flip", "extra", "progulki"]) {
       const ls = levels.filter((l) => l.world === w);
       for (let i = 1; i < ls.length; i++) expect(difficulty(ls[i]!)).toBeGreaterThan(difficulty(ls[i - 1]!));
     }

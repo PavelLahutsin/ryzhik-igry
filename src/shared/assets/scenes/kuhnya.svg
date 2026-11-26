@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <rect width="1280" height="720" fill="#ffe5ba"/>
+  <g stroke="#3b2e25" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
+    <rect x="68" y="50" width="592" height="374" rx="20" fill="#ce966a"/>
+    <rect x="88" y="70" width="552" height="332" rx="9" fill="#bce5ef"/>
+    <circle cx="504" cy="151" r="42" fill="#ffda78"/>
+    <path d="M152 174 Q131 153 156 139 Q158 111 188 118 Q210 91 234 122 Q272 120 273 149 Q294 171 263 175 Z" fill="#fff9e6"/>
+    <path d="M89 313 Q233 223 362 296 T639 271 V400 H89 Z" fill="#a6c989"/>
+    <path d="M89 365 Q240 296 380 343 T639 319 V400 H89 Z" fill="#76b39b"/>
+    <rect x="355" y="70" width="16" height="331" fill="#f6d9aa"/>
+    <path d="M73 55 H209 Q191 157 128 195 L151 306 Q108 321 73 299 Z" fill="#ee9983"/>
+    <path d="M654 55 H552 Q564 132 611 181 L583 286 Q620 304 654 286 Z" fill="#ee9983"/>
+    <rect x="48" y="401" width="632" height="29" rx="12" fill="#e7b88a"/>
+    <rect x="752" y="176" width="454" height="29" rx="12" fill="#bf8966"/>
+    <path d="M789 174 V107 Q789 92 807 92 H853 Q870 92 870 109 V174 Z" fill="#f6c765"/>
+    <rect x="784" y="82" width="91" height="18" rx="8" fill="#80ada1"/>
+    <path d="M914 174 V89 Q914 73 932 73 H982 Q997 73 997 90 V174 Z" fill="#ebaa96"/>
+    <rect x="909" y="63" width="93" height="19" rx="8" fill="#80ada1"/>
+    <path d="M1122 126 Q1174 101 1172 141 Q1170 168 1123 163 Z" fill="#fff0c9"/>
+    <path d="M1048 112 H1138 L1132 155 Q1128 176 1093 176 Q1060 176 1055 156 Z" fill="#8cc7c4"/>
+    <path d="M-8 520 H1288 V728 H-8 Z" fill="#8cbab1"/>
+    <path d="M-8 491 H1288 V555 H-8 Z" fill="#dba47b"/>
+    <rect x="44" y="581" width="322" height="110" rx="13" fill="#acd1be"/>
+    <rect x="408" y="581" width="493" height="110" rx="13" fill="#acd1be"/>
+    <rect x="943" y="581" width="291" height="110" rx="13" fill="#acd1be"/>
+    <path d="M175 607 H231 M619 607 H691 M1061 607 H1117" fill="none" stroke-width="9"/>
+    <ellipse cx="646" cy="510" rx="223" ry="19" fill="#777879"/>
+    <path d="M480 404 Q405 363 402 404 Q402 438 485 437 Z M815 404 Q885 363 888 403 Q891 438 816 437 Z" fill="#d2e4cc"/>
+    <path d="M466 367 H830 L816 471 Q813 511 765 512 H537 Q491 512 482 475 Z" fill="#69b5ad"/>
+    <path d="M451 371 Q475 347 510 350 Q645 274 784 350 Q822 344 845 371 Q650 392 451 371 Z" fill="#a7d8cb"/>
+    <rect x="617" y="300" width="62" height="27" rx="13" fill="#c78556"/>
+    <path d="M588 275 C549 241 616 226 586 190 M702 270 C671 239 731 220 709 184" fill="none" stroke="#fffaf0" stroke-width="12"/>
+    <path d="M121 498 L113 354 Q87 339 90 301 Q92 264 118 263 Q147 264 147 304 Q146 339 130 353 L146 497 Z" fill="#c79263"/>
+    <path d="M178 492 L217 327 L203 323 L215 266 L274 281 L258 338 L239 333 L202 499 Z" fill="#e4b780"/>
+    <path d="M82 382 Q163 397 247 382 L229 487 Q226 514 200 515 H130 Q102 515 98 492 Z" fill="#e99b78"/>
+    <path d="M1005 465 Q999 423 1036 412 Q1047 376 1084 387 Q1119 387 1113 425 Q1116 466 1071 480 Z" fill="#f6cd63"/>
+    <path d="M1061 390 Q1065 367 1092 358" fill="none"/>
+    <circle cx="1142" cy="446" r="42" fill="#e88767"/>
+    <path d="M970 454 Q1077 472 1198 454 Q1181 519 1098 521 H1070 Q994 517 970 454 Z" fill="#f4dba6"/>
+  </g>
+</svg>

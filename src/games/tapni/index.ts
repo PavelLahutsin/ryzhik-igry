@@ -5,14 +5,14 @@ import { createScope } from "../../shared/lifecycle";
 import { goHome } from "../../shared/router";
 import { useStyles } from "../../shared/style";
 import { touchable } from "../../shared/toys";
-import { svgNode, toolbar } from "../../shared/ui";
+import { confirmLeave, svgNode, toolbar } from "../../shared/ui";
 import baseCss from "../../shared/base.css?inline";
 import css from "./style.css?inline";
 import { allFinds, SCENES, TOYS } from "./scenes";
 
 const TOYS_ICON = TOYS[0]!.svg;
 
-/** «Нажми и послушай»: touch anything in the forest, the kitchen, the yard — or the toys. */
+/** «Нажми и послушай»: touch the animals, the vehicles, the kitchen, nature — or the toys. */
 export function mount(root: HTMLElement): () => void {
   useStyles(baseCss, css);
   const scope = createScope();
@@ -40,10 +40,10 @@ export function mount(root: HTMLElement): () => void {
 
   const stage = el("div", { class: "stage tp-stage" });
   const tabs = el("nav", { class: "tp-tabs", attrs: { "aria-label": "Где играть" } });
-  const view = el("div", { class: "screen screen--play game--tapni" }, [toolbar("Нажми и послушай", goHome, score), stage, tabs]);
+  const view = el("div", { class: "screen screen--play game--tapni" }, [toolbar("Нажми и послушай", () => confirmLeave(goHome), score), stage, tabs]);
   root.append(view);
 
-  const places = [...SCENES.map((s) => ({ id: s.id, title: s.title, icon: s.icon })), { id: "toys", title: "Потрогай", icon: TOYS_ICON }];
+  const places = [...SCENES.map((s) => ({ id: s.id, title: s.title, icon: s.icon })), { id: "toys", title: "Игрушки", icon: TOYS_ICON }];
   const buttons = places.map((p, i) =>
     el(
       "button",
