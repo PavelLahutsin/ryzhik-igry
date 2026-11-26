@@ -54,6 +54,7 @@
   pointer-events: none;
   transition: opacity 300ms ease, translate 300ms ease;
 }
+.tn-cover--fir,
 .tn-cover--bush {
   left: -4%;
   right: -4%;

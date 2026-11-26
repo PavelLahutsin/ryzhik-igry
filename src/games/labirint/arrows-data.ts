@@ -24,8 +24,8 @@ export type ArrowLevel = {
 };
 
 export const ARROW_WORLDS = [
-  { id: "ar-short", title: "Дорожка стрелками", color: "#3a8fd4" },
-  { id: "ar-turn", title: "Дорожка с поворотом", color: "#ffb23f" },
+  { id: "ar-short", title: "Шагай прямо", color: "#3a8fd4" },
+  { id: "ar-turn", title: "Поворачивай к друзьям", color: "#ffb23f" },
   { id: "ar-long", title: "В обход кустов", color: "#9b8cf0" },
 ];
 
@@ -33,7 +33,7 @@ export const ARROW_LEVELS: ArrowLevel[] = [
   {
     id: "a1",
     world: "ar-short",
-    title: "Ёлочка",
+    title: "Шаг прямо к маме",
     cols: 3,
     rows: 3,
     start: [1, 1],
@@ -48,7 +48,7 @@ export const ARROW_LEVELS: ArrowLevel[] = [
   {
     id: "a2",
     world: "ar-short",
-    title: "Ёжик рядом",
+    title: "Шаг прямо к ёжику",
     cols: 3,
     rows: 3,
     start: [1, 1],
@@ -63,7 +63,7 @@ export const ARROW_LEVELS: ArrowLevel[] = [
   {
     id: "a3",
     world: "ar-short",
-    title: "Зелёный листик",
+    title: "Собери яблоко для белки",
     cols: 3,
     rows: 3,
     start: [2, 1],
@@ -78,7 +78,7 @@ export const ARROW_LEVELS: ArrowLevel[] = [
   {
     id: "a4",
     world: "ar-short",
-    title: "Тёплый денёк",
+    title: "Неси яблоко папе",
     cols: 3,
     rows: 3,
     start: [1, 0],
@@ -93,7 +93,7 @@ export const ARROW_LEVELS: ArrowLevel[] = [
   {
     id: "a5",
     world: "ar-short",
-    title: "Пенёк",
+    title: "Прямая дорога к мишке",
     cols: 4,
     rows: 3,
     start: [0, 2],
@@ -108,7 +108,7 @@ export const ARROW_LEVELS: ArrowLevel[] = [
   {
     id: "a6",
     world: "ar-short",
-    title: "У берёзки",
+    title: "Два яблока для мамы",
     cols: 4,
     rows: 4,
     start: [2, 3],
@@ -127,7 +127,7 @@ export const ARROW_LEVELS: ArrowLevel[] = [
   {
     id: "a7",
     world: "ar-turn",
-    title: "К ёжику",
+    title: "Один поворот к ёжику",
     cols: 4,
     rows: 4,
     start: [0, 2],
@@ -142,7 +142,7 @@ export const ARROW_LEVELS: ArrowLevel[] = [
   {
     id: "a8",
     world: "ar-turn",
-    title: "Пёстрый листок",
+    title: "Один поворот к белке",
     cols: 4,
     rows: 4,
     start: [1, 0],
@@ -157,7 +157,7 @@ export const ARROW_LEVELS: ArrowLevel[] = [
   {
     id: "a9",
     world: "ar-turn",
-    title: "Под клёном",
+    title: "Один поворот к папе",
     cols: 4,
     rows: 4,
     start: [3, 3],
@@ -172,7 +172,7 @@ export const ARROW_LEVELS: ArrowLevel[] = [
   {
     id: "a10",
     world: "ar-turn",
-    title: "Ёлки в ряд",
+    title: "Два поворота к мишке",
     cols: 4,
     rows: 4,
     start: [0, 3],
@@ -190,7 +190,7 @@ export const ARROW_LEVELS: ArrowLevel[] = [
   {
     id: "a11",
     world: "ar-turn",
-    title: "Весёлая тропка",
+    title: "Два поворота к маме",
     cols: 5,
     rows: 4,
     start: [4, 0],
@@ -211,7 +211,7 @@ export const ARROW_LEVELS: ArrowLevel[] = [
   {
     id: "a12",
     world: "ar-turn",
-    title: "За берёзкой",
+    title: "Два поворота к белке",
     cols: 5,
     rows: 4,
     start: [0, 0],
@@ -233,7 +233,7 @@ export const ARROW_LEVELS: ArrowLevel[] = [
   {
     id: "a13",
     world: "ar-turn",
-    title: "Три пенёчка",
+    title: "Два поворота к ёжику",
     cols: 5,
     rows: 5,
     start: [4, 4],
@@ -256,7 +256,7 @@ export const ARROW_LEVELS: ArrowLevel[] = [
   {
     id: "a14",
     world: "ar-long",
-    title: "Вокруг ёлочки",
+    title: "Обойди кусты к папе",
     cols: 5,
     rows: 5,
     start: [0, 1],
@@ -277,7 +277,7 @@ export const ARROW_LEVELS: ArrowLevel[] = [
   {
     id: "a15",
     world: "ar-long",
-    title: "Зелёные кусты",
+    title: "Обойди кусты к мишке",
     cols: 5,
     rows: 5,
     start: [4, 3],
@@ -299,7 +299,7 @@ export const ARROW_LEVELS: ArrowLevel[] = [
   {
     id: "a16",
     world: "ar-long",
-    title: "За клёном",
+    title: "Большой обход к маме",
     cols: 5,
     rows: 5,
     start: [0, 2],
@@ -322,7 +322,7 @@ export const ARROW_LEVELS: ArrowLevel[] = [
   {
     id: "a17",
     world: "ar-long",
-    title: "Ёжик за кустом",
+    title: "Большой обход к ёжику",
     cols: 5,
     rows: 5,
     start: [2, 4],
@@ -345,7 +345,7 @@ export const ARROW_LEVELS: ArrowLevel[] = [
   {
     id: "a18",
     world: "ar-long",
-    title: "Вдоль берёз",
+    title: "Длинный обход к белке",
     cols: 6,
     rows: 5,
     start: [0, 3],
@@ -369,7 +369,7 @@ export const ARROW_LEVELS: ArrowLevel[] = [
   {
     id: "a19",
     world: "ar-long",
-    title: "К мишке-почтальону",
+    title: "Три поворота к мишке",
     cols: 6,
     rows: 5,
     start: [0, 1],
@@ -394,7 +394,7 @@ export const ARROW_LEVELS: ArrowLevel[] = [
   {
     id: "a20",
     world: "ar-long",
-    title: "Тёплые объятия",
+    title: "Три поворота к папе",
     cols: 6,
     rows: 5,
     start: [0, 1],

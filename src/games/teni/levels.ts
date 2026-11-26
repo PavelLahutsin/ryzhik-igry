@@ -5,7 +5,7 @@ import { SHAPES } from "./shapes";
 import { TENI_V23, TENI_V23_AFTER } from "./levels-v23";
 
 /** Where a shadow hides behind something: a bush, a cloud or a box. */
-export type Hide = "bush" | "cloud" | "box";
+export type Hide = "bush" | "cloud" | "box" | "fir";
 
 /**
  * One shadow on the board. `id` is a picture: an object or shape id, a
@@ -89,16 +89,16 @@ const BASE: TeniLevel[] = [
   { id: "t12", world: "tricky", title: "Лишние двойняшки", items: ["cat2", "bird", "icecream"], decoys: ["cat", "bird2", "icecream2"] },
   // Перевёртыши: big and small, mirrored, upside down, tilted.
   { id: "t25", world: "turn", title: "Большой и маленький", items: ["ball", "ball@s", "fish", "fish@s", "star", "star@s"] },
-  { id: "t51", world: "turn", title: "Самокат и всё наоборот", items: [flip("scooter"), turn("comb", 90), "lightning@s", flip("sled"), turn("bell", 180)], decoys: ["key"] },
   { id: "t22", world: "turn", title: "В другую сторону", items: [flip("dog"), flip("duck"), flip("snail"), flip("giraffe"), flip("whale")], decoys: ["turtle"] },
   { id: "t23", world: "turn", title: "Вверх ногами", items: [turn("umbrella", 180), turn("mushroom", 180), turn("icecream", 180), turn("fir", 180), turn("bell", 180)], decoys: ["lamp"] },
+  { id: "t51", world: "turn", title: "Самокат и всё наоборот", items: [flip("scooter"), turn("comb", 90), "lightning@s", flip("sled"), turn("bell", 180)], decoys: ["key"] },
   { id: "t42", world: "turn", title: "Кто перевернулся?", items: [flip("dino"), turn("anchor", 180), flip("penguin"), turn("guitar", 45), flip("crab")], decoys: ["hammer"] },
   { id: "t24", world: "turn", title: "Кувырок", items: [turn("plane", 90), turn("rocket", -45), flip("giraffe"), turn("teddy", 30), flip("train")], decoys: ["helicopter", flip("boot")] },
   { id: "t26", world: "turn", title: "Путаница", items: [flip("cat"), "cat2", turn("rabbit", 90), "rabbit2", flip("key2")], decoys: ["key", "bird"] },
   // Прятки: part of a shadow is behind a bush, a cloud or a box.
   { id: "t27", world: "hide", title: "В кустах", items: [hide("elephant"), hide("cat"), hide("teapot"), hide("snowman"), hide("giraffe")], decoys: ["cat2", "clock"] },
   { id: "t43", world: "hide", title: "Динозаврик в кустах", items: [hide("dino"), hide("guitar", "box"), hide("penguin"), hide("crown", "bush"), "crown5"], decoys: [hide("bee", "cloud"), "pineapple"] },
-  { id: "t52", world: "hide", title: "Кто за ёлочкой?", items: [hide("sled"), hide("fir"), hide("rabbit", "box"), hide("penguin"), "fir2"], decoys: [hide("mitten", "cloud"), "boot"] },
+  { id: "t52", world: "hide", title: "Кто за ёлочкой?", items: [hide("sled"), hide("fir"), hide("rabbit", "box"), hide("penguin", "fir"), "fir2"], decoys: [hide("mitten", "cloud"), "boot"] },
   { id: "t28", world: "hide", title: "Кто за тучкой?", items: [hide("owl", "cloud"), hide("aerostat", "cloud"), hide("plane", "cloud"), hide("hen", "cloud"), hide("bird", "cloud")], decoys: [hide("moon", "cloud"), "bird2"] },
   { id: "t53", world: "hide", title: "Молния за тёмной тучкой", items: [hide("lightning", "cloud"), hide("drop", "cloud"), hide("umbrella", "cloud"), hide("boot", "cloud"), hide("bird", "cloud")], decoys: [hide("bell", "cloud"), "bird2"] },
   { id: "t29", world: "hide", title: "Прятки с друзьями", items: [hide("char:ryzhik", "box"), hide("char:mama"), hide("char:papa", "box"), hide("char:belka"), "teddy@s"], decoys: ["char:ezhik", "char:mishka"] },
@@ -110,9 +110,8 @@ const BASE: TeniLevel[] = [
     world: "odd",
     title: "Кому нет тени?",
     // v12: the world starts with one extra picture (the next ones have two).
-    items: [hide("elephant"), "giraffe", flip("whale"), "pear", hide("owl", "cloud"), turn("snail", 180)],
+    items: ["giraffe", "pear"],
     extra: ["frog"],
-    decoys: [hide("hen", "cloud"), "apple"],
   },
   {
     id: "t54",
@@ -197,7 +196,6 @@ const BASE: TeniLevel[] = [
     items: [flip("char:ryzhik"), hide("char:mama"), "char:papa", turn("char:mishka", 30), "char:ezhik", "char:belka@s"],
     decoys: ["teddy"],
     more: [
-      { items: ["car", flip("truck"), hide("bus", "box"), turn("plane", 90), "rocket", "submarine"], decoys: [hide("helicopter", "cloud"), flip("train")] },
       { items: [flip("cat2"), hide("rabbit2"), turn("key2", 180), "fir2", hide("icecream2", "cloud"), flip("mitten")], decoys: ["cat", "rabbit"] },
     ],
   },

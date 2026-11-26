@@ -42,18 +42,23 @@ describe("teni levels", () => {
     }
   });
 
-  it("gets harder: within a world, and every world's easiest and hardest level beat the last world's", () => {
+  it("builds difficulty with short teaching levels and a two-part finale", () => {
     const score = levels.map(difficulty);
-    for (let i = 1; i < score.length; i++) expect(score[i]!, levels[i]!.id).toBeGreaterThanOrEqual(score[i - 1]!);
+    const turn = levels.filter((l) => l.world === "turn").map((l) => l.id);
+    expect(turn.slice(0, 5)).toEqual(["t25", "t22", "t23", "t51", "t61"]);
+    for (let i = 1; i < score.length; i++) {
+      if (["t51", "t61", "t34", "t33"].includes(levels[i]!.id)) continue; // deliberate teaching resets
+      expect(score[i]!, levels[i]!.id).toBeGreaterThanOrEqual(score[i - 1]!);
+    }
     const byWorld = worlds.map((w) => levels.filter((l) => l.world === w.id));
     for (const w of byWorld) expect(w.length).toBeGreaterThanOrEqual(3);
     for (let i = 1; i < byWorld.length; i++) {
       const prev = byWorld[i - 1]!.map(difficulty);
       const cur = byWorld[i]!.map(difficulty);
-      expect(Math.min(...cur)).toBeGreaterThanOrEqual(Math.min(...prev));
+      if (byWorld[i]![0]!.id !== "t34") expect(Math.min(...cur)).toBeGreaterThanOrEqual(Math.min(...prev));
       expect(Math.max(...cur)).toBeGreaterThan(Math.max(...prev));
     }
-    expect(Math.max(...score)).toBe(score[score.length - 1]);
+    expect(roundsOf(levels.at(-1)!)).toHaveLength(2);
     expect(score[score.length - 1]! / score[0]!).toBeGreaterThan(10);
   });
 
@@ -137,7 +142,7 @@ describe("teni rules", () => {
     expect(starsFor(0, 1).stars).toBe(2);
   });
   it("says what is tricky in a round", () => {
-    expect(noteFor({ items: ["apple", "star"] })).toBe("Перетащи картинку на её тень.");
+    expect(noteFor({ items: ["apple", "star"] })).toBe("Нажми на картинку, потом на её тень.");
     expect(noteFor({ items: ["apple"], decoys: ["star"] })).toContain("Одна тень лишняя!");
     expect(noteFor({ items: [{ id: "dog", flip: true }] })).toContain("перевернулись");
     expect(noteFor({ items: [{ id: "dog", hide: "bush" }] })).toContain("прячутся");
@@ -152,17 +157,18 @@ describe("v12 «Тени»", () => {
   it("the note says «У одной картинки нет тени» (grammar) and names up to two tricks, the world's new one first", () => {
     const t34 = byId("t34");
     const note = noteFor(t34, NEW_IN[t34.world!]);
-    expect(note).toBe("Перетащи картинку на её тень. У одной картинки нет тени — оставь её! Тени прячутся — узнай по кусочку! Две тени лишние!");
+    expect(note).toBe("Нажми на картинку, потом на её тень. У одной картинки нет тени — оставь её!");
     expect(noteFor({ items: ["cat"], extra: ["dog", "duck"] })).toContain("У некоторых картинок нет тени — оставь их!");
     expect(noteFor({ items: [{ id: "dog", hide: "bush" }, { id: "cat", flip: true }] }, "turned")).toBe(
-      "Перетащи картинку на её тень. Некоторые тени перевернулись! Тени прячутся — узнай по кусочку!",
+      "Нажми на картинку, потом на её тень. Некоторые тени перевернулись! Тени прячутся — узнай по кусочку!",
     );
     for (const l of levels) for (const r of roundsOf(l)) expect(noteFor(r, NEW_IN[l.world!])).not.toMatch(/Некоторым|Одной картинке/);
     expect(mainMechanic(t34, "extras")).toBe("extras");
   });
   it("«Лишние картинки» starts with one extra picture, then two", () => {
     const odd = levels.filter((l) => l.world === "odd");
-    expect(odd[0]!.extra).toHaveLength(1);
+    expect(odd[0]).toMatchObject({ id: "t34", items: ["giraffe", "pear"], extra: ["frog"] });
+    expect(roundShadows(odd[0]!)).toBe(2);
     expect(odd[1]!.extra).toHaveLength(2);
   });
   it("«Ещё тени» has one level with a different rhythm: few pictures, many shadows", () => {
