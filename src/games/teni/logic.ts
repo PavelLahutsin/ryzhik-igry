@@ -101,7 +101,7 @@ export function noteFor(round: Round, fresh?: Mechanic): string {
   const f = roundFeatures(round);
   const on = MECHANICS.filter(([, has]) => has(f));
   on.sort((a, b) => Number(b[0] === fresh) - Number(a[0] === fresh));
-  const parts = ["Перетащи картинку на её тень.", ...on.slice(0, 2).map(([, , say]) => say(f))];
+  const parts = ["Нажми на картинку, потом на её тень.", ...on.slice(0, 2).map(([, , say]) => say(f))];
   if (f.decoys) parts.push(EXTRA[f.decoys] ?? `Лишних теней: ${f.decoys}!`);
   return parts.join(" ");
 }

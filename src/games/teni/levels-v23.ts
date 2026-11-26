@@ -35,5 +35,5 @@ export const TENI_V23: TeniLevel[] = [
 
 /** Where each new level goes: right after this one (by difficulty). */
 export const TENI_V23_AFTER: Record<string, string> = {
-  t57: "t1", t58: "t47", t59: "t49", t60: "t50", t61: "t25", t62: "t29", t63: "t53", t64: "t54", t66: "t31", t65: "t66",
+  t57: "t1", t58: "t47", t59: "t49", t60: "t50", t61: "t51", t62: "t29", t63: "t53", t64: "t54", t66: "t31", t65: "t66",
 };

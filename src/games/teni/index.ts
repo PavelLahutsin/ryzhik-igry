@@ -1,6 +1,6 @@
 import { audio } from "../../shared/audio";
 import type { SoundKind } from "../../shared/sounds";
-import { centre, showDrag } from "../../shared/guide";
+import { centre, showDrag, showTap } from "../../shared/guide";
 import { el, replayClass } from "../../shared/dom";
 import { draggable, dropHits } from "../../shared/drag";
 import { createScope } from "../../shared/lifecycle";
@@ -71,6 +71,7 @@ function shapeTransform(t: Thing, turn: number, flip: boolean): string {
 
 /** What a hidden shadow is behind: drawn in colour on top of the shadow. */
 const COVERS: Record<Hide, string> = {
+  fir: '<svg viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg"><path d="M68 3 46 26h10L33 52h65L78 26h10Z" fill="#468254" stroke="#344c35" stroke-width="3" stroke-linejoin="round"/></svg>',
   bush:
     '<svg viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg"><path d="M4 58 C-2 40 12 30 22 34 C22 16 42 10 50 24 C58 8 82 12 80 30 C94 28 104 46 96 58 Z" fill="#6fbf4a" stroke="#3b2e25" stroke-width="3" stroke-linejoin="round"/><circle cx="30" cy="40" r="3" fill="#e8463a"/><circle cx="62" cy="34" r="3" fill="#e8463a"/><circle cx="78" cy="46" r="3" fill="#e8463a"/></svg>',
   cloud:
@@ -182,6 +183,7 @@ function play(stage: HTMLElement, level: TeniLevel, _index: number, api: PlayApi
             if (result === "wrong" && isExtra && !probed.has(t.id)) {
               // A safe probe: the first try of an extra picture is no mistake —
               // it wobbles, goes pale and stays in the tray.
+              item.inert = true;
               probed.add(t.id);
               item.classList.add("is-known");
               replayClass(item, "is-probe");
@@ -224,6 +226,13 @@ function play(stage: HTMLElement, level: TeniLevel, _index: number, api: PlayApi
     }
     audio.play("sparkle");
     audio.say("v42");
+    if (level.id === "t33") {
+      tray.replaceChildren(el("button", {
+        class: "btn btn--play", text: "Дальше →", attrs: { type: "button" },
+        on: { click: () => showRound(rounds[++current]!) },
+      }));
+      return;
+    }
     hint(stage, `${praiseWord()} Дальше — новые тени!`, 1200);
     current++;
     roundScope.later(() => showRound(rounds[current]!), 1300);
@@ -242,6 +251,13 @@ function play(stage: HTMLElement, level: TeniLevel, _index: number, api: PlayApi
     const item = id && tray.querySelector<HTMLElement>(`.tn-item[data-id="${id}"]`);
     const board = stage.querySelector<HTMLElement>(".tn-board");
     if (!item || !board) return;
+    if (level.id === "t1") {
+      if (filled.size || tray.querySelector(".is-dragging")) return;
+      const selected = tray.querySelector<HTMLElement>(".is-selected");
+      const next = selected ? shadows.get(selected.dataset.id!) : item;
+      if (next) showTap(centre(next), stage);
+      return;
+    }
     const r = board.getBoundingClientRect();
     showDrag(centre(item), { x: r.left + r.width / 2, y: r.top + Math.min(24, r.height * 0.1) });
   });
