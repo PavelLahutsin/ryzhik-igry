@@ -17,6 +17,9 @@
 .sk-bg--lug { background: linear-gradient(#cfeaf7 0 55%, #a9d98a 55% 100%); }
 .sk-bg--zima { background: radial-gradient(circle at 20% 20%, #fff 0 2px, transparent 3px) 0 0 / 46px 46px, linear-gradient(#bcd9f0 0 55%, #f4f8ff 55% 100%); }
 .sk-bg--komnata { background: linear-gradient(#f7e1c4 0 66%, #c8915a 66% 70%, #e2b47f 70% 100%); }
+.sk-bg--more { background: linear-gradient(#c6e9f7 0%, #e5f5f2 60%, #8dd8d8 60%, #58b3c6 100%); }
+.sk-bg--noch { background: radial-gradient(circle at 14% 19%, #ffe8ab 0 2px, transparent 3px), radial-gradient(circle at 43% 32%, #fff1cf 0 1.5px, transparent 2.5px), radial-gradient(circle at 68% 12%, #fff1cf 0 2px, transparent 3px), radial-gradient(circle at 86% 41%, #ffe8ab 0 1.5px, transparent 2.5px), linear-gradient(#293965 0%, #616e99 64%, #526265 64%, #374e53 100%); }
+.sk-bg--plyazh { background: radial-gradient(circle at 76% 28%, #ffe7a5 0 5%, transparent 5.3%), linear-gradient(#f6ccbd 0%, #fff0d8 56%, #98d5d4 56%, #bce5dc 63%, #fff4d9 63%, #fff4d9 65%, #f5d59c 65%, #ebc389 100%); }
 .sk-on {
   position: absolute;
   width: min(20vw, 16vh, 120px);

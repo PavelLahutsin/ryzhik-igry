@@ -59,6 +59,28 @@ function next(): void {
   bubble.style.setProperty("--arrow", `${r.left + r.width / 2 - (cx - bw / 2)}px`);
   if (below) bubble.style.top = `${r.bottom + 14}px`;
   else bubble.style.bottom = `${window.innerHeight - r.top + 14}px`;
+  // If the bubble covers the task text (the hint lamp sits above `.fm-say` /
+  // `.tn-note`), park it to the left of the target instead.
+  const coversAsk = (): boolean => {
+    const b = bubble.getBoundingClientRect();
+    for (const n of document.querySelectorAll(".fm-say, .tn-note, .lb-ask, .so-ask")) {
+      const q = n.getBoundingClientRect();
+      if (q.width < 8 || q.height < 8) continue;
+      if (b.right > q.left && b.left < q.right && b.bottom > q.top && b.top < q.bottom) return true;
+    }
+    return false;
+  };
+  if (coversAsk()) {
+    const sideW = Math.min(bw, Math.max(160, r.left - 24));
+    bubble.classList.remove("tip--below", "tip--above");
+    bubble.classList.add("tip--side");
+    bubble.style.width = `${sideW}px`;
+    bubble.style.left = `${Math.max(12, r.left - 12 - sideW)}px`;
+    bubble.style.bottom = "";
+    bubble.style.removeProperty("--arrow");
+    const mid = r.top + r.height / 2;
+    bubble.style.top = `${Math.max(8, mid - bubble.getBoundingClientRect().height / 2)}px`;
+  }
   if (!reducedMotion()) requestAnimationFrame(() => bubble.classList.add("is-open"));
   else bubble.classList.add("is-open", "is-still");
   let gone = false;

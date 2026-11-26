@@ -5,7 +5,7 @@ import { draggable, type Point } from "../../shared/drag";
 import { gameFinds } from "../../shared/finds";
 import { goHome } from "../../shared/router";
 import { reducedMotion, useStyles } from "../../shared/style";
-import { hint, svgNode, toolbar } from "../../shared/ui";
+import { confirmLeave, hint, svgNode, toolbar } from "../../shared/ui";
 import { centre, showDrag, showTap, whenIdle } from "../../shared/guide";
 import baseCss from "../../shared/base.css?inline";
 import { createScope } from "../../shared/lifecycle";
@@ -367,7 +367,7 @@ export function mount(root: HTMLElement): () => void {
 
   // ------------------------------------------------ screen
   const view = el("div", { class: "screen screen--play game--kuhnya" }, [
-    toolbar("Кухня Рыжика", goHome, el("span", { class: "toolbar__tools" }, [score])),
+    toolbar("Кухня Рыжика", () => confirmLeave(goHome), el("span", { class: "toolbar__tools" }, [score])),
     el("div", { class: "kt-layout" }, [
       guestBox,
       el("div", { class: "kt-work" }, [el("div", { class: "kt-tools" }, [...tools.map((t) => t.node), bin]), pantry]),

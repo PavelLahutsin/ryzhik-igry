@@ -5,7 +5,7 @@ import { seasonOpen } from "./season";
 import { countWin, showBreak } from "./toys";
 import { gameProgress, levelOpen, orderAfter, playOrder, totalStars, type Progress } from "./progress";
 import { goHome, listenGame, navigateGame } from "./router";
-import { praiseOverlay, starRow, toolbar } from "./ui";
+import { confirmLeave, praiseOverlay, starRow, toolbar } from "./ui";
 import { whenIdle } from "./guide";
 import { createScope } from "./lifecycle";
 import { afterHowTo } from "./howto";
@@ -15,6 +15,7 @@ import { loadSeen, markSeen } from "./seen";
 import { newStickers, stickerArt, type Sticker } from "./stickers";
 import { isScore, type Score } from "./stars";
 import { reducedMotion } from "./style";
+import { HOWTO_VOICE } from "./voice-lines";
 
 export type LevelInfo = {
   id: string;
@@ -93,6 +94,30 @@ export async function starSummary(gameId: string, ids: readonly string[]): Promi
     max: ids.length * 3,
     done: ids.filter((id) => progress.completed.includes(id)).length,
   };
+}
+
+/**
+ * The line under the title on the level list. v22: where Ryzhik's «Как
+ * играть» line is recorded, it is a button with a speaker: a tap says it,
+ * for children who cannot read yet.
+ */
+function listLead(gameId: string, text: string): HTMLElement {
+  const voice = HOWTO_VOICE[gameId];
+  if (!voice || !audio.hasVoice(voice)) return el("p", { class: "list__lead", text });
+  return el(
+    "button",
+    {
+      class: "list__lead list__lead--voice",
+      attrs: { type: "button", "aria-label": `Послушать: ${text}` },
+      on: {
+        click: () => {
+          audio.unlock();
+          audio.say(voice);
+        },
+      },
+    },
+    [el("span", { class: "list__lead-icon", attrs: { "aria-hidden": "true" }, text: "🔊" }), el("span", { text })],
+  );
 }
 
 /** Lamp icon for the hint button. */
@@ -178,7 +203,7 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
     const sections = el("div", { class: "worlds" });
     const view = el("div", { class: `screen screen--list game--${def.id}` }, [
       toolbar(def.home ? (def.listTitle ?? def.title) : def.title, def.home ? () => navigateGame(def.id, "/") : goHome, score),
-      el("p", { class: "list__lead", text: def.subtitle }),
+      listLead(def.id, def.subtitle),
       def.listTop?.() ?? null,
       sections,
     ]);
@@ -348,7 +373,7 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
       [lampIcon()],
     );
     tool.append(hintBtn);
-    const bar = toolbar(`${numberOf(level)}. ${level.title}`, () => navigateGame(def.id, LIST), tool);
+    const bar = toolbar(`${numberOf(level)}. ${level.title}`, () => confirmLeave(() => navigateGame(def.id, LIST)), tool);
     const stage = el("div", { class: "stage" });
     const view = el("div", { class: `screen screen--play game--${def.id}` }, [bar, stage]);
     root.append(view);

@@ -1,13 +1,20 @@
-import { picture } from "../shared/assets";
-import { svgUrl, TILE_ART } from "../home/tile-art";
-import coloringArt from "./raskraska/assets/pictures/ryzhik_sharik.png";
 
 import { starSummary } from "../shared/levelgame";
 import { SHELL_PREFIX } from "../shared/platform/web";
 import { isWinter } from "../shared/season";
 
-/** Home tile of «Цифры и буквы»: three letter blocks, drawn here (no file to load). */
-const BUKVY_ART = "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20200%20200%22%3E%3Crect%20x%3D%2214%22%20y%3D%2222%22%20width%3D%2280%22%20height%3D%2280%22%20rx%3D%2218%22%20fill%3D%22%23ffd54a%22%20stroke%3D%22%233b2e25%22%20stroke-width%3D%225%22/%3E%3Cpath%20d%3D%22M42%2082%20L54%2042%20L66%2082%20M47%2068%20H61%22%20fill%3D%22none%22%20stroke%3D%22%233b2e25%22%20stroke-width%3D%228%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3Crect%20x%3D%22106%22%20y%3D%2222%22%20width%3D%2280%22%20height%3D%2280%22%20rx%3D%2218%22%20fill%3D%22%236db3d4%22%20stroke%3D%22%233b2e25%22%20stroke-width%3D%225%22/%3E%3Cpath%20d%3D%22M134%2052%20L148%2040%20V84%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%229%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3Crect%20x%3D%2260%22%20y%3D%22108%22%20width%3D%2280%22%20height%3D%2280%22%20rx%3D%2218%22%20fill%3D%22%23f27aa0%22%20stroke%3D%22%233b2e25%22%20stroke-width%3D%225%22/%3E%3Cpath%20d%3D%22M86%20128%20V168%20H106%20C%20124%20168%20124%20146%20106%20146%20H86%20M86%20128%20H116%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%228%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E";
+
+/**
+ * v22: every home tile is Ryzhik with the thing the game is about (chef hat
+ * for the kitchen, paints for coloring…): src/home/icons/<game id>.webp,
+ * 480×360 transparent cutouts.
+ */
+const ICONS = import.meta.glob<string>("../home/icons/*.webp", { eager: true, import: "default" });
+export function tileIcon(id: string): string {
+  const url = ICONS[`../home/icons/${id}.webp`];
+  if (!url) throw new Error(`Нет иконки ${id}`);
+  return url;
+}
 
 export type GameModule = { mount: (root: HTMLElement) => () => void };
 
@@ -77,7 +84,7 @@ export const games: GameEntry[] = [
     title: "Зима",
     note: "Снеговики, ёлочки и санки из разных игр",
     color: "#6db3d4",
-    art: { src: svgUrl(TILE_ART.zima), figure: true },
+    art: { src: tileIcon("zima"), figure: true },
     wide: true,
     load: () => import("./zima"),
     summary: free,
@@ -90,7 +97,7 @@ export const games: GameEntry[] = [
     title: "Домик Рыжика",
     note: "Играй как хочешь: дом, сад и лес",
     color: "#ff8a3d",
-    art: { src: picture("ryzhik-mashet") },
+    art: { src: tileIcon("domik"), figure: true },
     wide: true,
     load: () => import("./domik"),
     ...foundThings("domik", () => import("./domik/scenes")),
@@ -100,16 +107,16 @@ export const games: GameEntry[] = [
     title: "Кухня Рыжика",
     note: "Готовь что хочешь и угощай",
     color: "#e8463a",
-    art: { src: svgUrl(TILE_ART.kuhnya), figure: true },
+    art: { src: tileIcon("kuhnya"), figure: true },
     load: () => import("./kuhnya"),
     ...foundThings("kuhnya", () => import("./kuhnya/logic")),
   },
   {
     id: "tapni",
     title: "Нажми и послушай",
-    note: "Лес, кухня и двор: всё звучит",
+    note: "Животные, транспорт, кухня: всё звучит",
     color: "#3fae6a",
-    art: { src: svgUrl(TILE_ART.tapni), figure: true },
+    art: { src: tileIcon("tapni"), figure: true },
     load: () => import("./tapni"),
     ...foundThings("tapni", () => import("./tapni/scenes")),
     fresh: { since: "v13", text: "Новое" },
@@ -119,7 +126,7 @@ export const games: GameEntry[] = [
     title: "Обведи картинку",
     note: "Обведи — и рисунок оживёт",
     color: "#9b6cd8",
-    art: { src: svgUrl(TILE_ART.risovalka), figure: true },
+    art: { src: tileIcon("risovalka"), figure: true },
     load: () => import("./risovalka"),
     ...levelStars("risovalka", () => import("./risovalka/pictures")),
   },
@@ -128,7 +135,7 @@ export const games: GameEntry[] = [
     title: "Цифры и буквы",
     note: "Пиши пальчиком 1, 2, 3 и А, Б, В",
     color: "#f27aa0",
-    art: { src: BUKVY_ART, figure: true },
+    art: { src: tileIcon("bukvy"), figure: true },
     load: () => import("./bukvy"),
     summary: async () => {
       const [{ levels, MOVED_DIGITS }, { adoptLevels }] = await Promise.all([import("./bukvy/letters"), import("../shared/progress")]);
@@ -143,7 +150,7 @@ export const games: GameEntry[] = [
     title: "Рисуем по точкам",
     note: "Соедини точки: цифры и буквы",
     color: "#3fae6a",
-    art: { src: svgUrl(TILE_ART.tochki), figure: true },
+    art: { src: tileIcon("tochki"), figure: true },
     load: () => import("./tochki"),
     ...levelStars("tochki", () => import("./tochki/levels")),
   },
@@ -152,7 +159,7 @@ export const games: GameEntry[] = [
     title: "Профессии",
     note: "Играй в доктора, пожарного, магазин и безопасный дом",
     color: "#6db3d4",
-    art: { src: svgUrl(TILE_ART.professii), figure: true },
+    art: { src: tileIcon("professii"), figure: true },
     load: () => import("./professii"),
     ...levelStars("professii", () => import("./professii/data")),
   },
@@ -161,7 +168,7 @@ export const games: GameEntry[] = [
     title: "Стройка",
     note: "Строй из больших кубиков — и всё оживёт",
     color: "#ffb23f",
-    art: { src: svgUrl(TILE_ART.stroyka), figure: true },
+    art: { src: tileIcon("stroyka"), figure: true },
     load: () => import("./stroyka"),
     ...levelStars("stroyka", () => import("./stroyka/levels")),
   },
@@ -170,7 +177,7 @@ export const games: GameEntry[] = [
     title: "Размер и форма",
     note: "Больше-меньше, фигуры, узоры, углы",
     color: "#9b6cd8",
-    art: { src: svgUrl(TILE_ART.formy), figure: true },
+    art: { src: tileIcon("formy"), figure: true },
     load: () => import("./formy"),
     ...levelStars("formy", () => import("./formy/levels")),
   },
@@ -179,7 +186,7 @@ export const games: GameEntry[] = [
     title: "Тайная картинка",
     note: "Веди Рыжика и открывай картинку",
     color: "#ff8a3d",
-    art: { src: picture("ryzhik-zmey") },
+    art: { src: tileIcon("tajnaya-kartinka"), figure: true },
     wide: true,
     load: () => import("./tajnaya-kartinka"),
     summary: async () => {
@@ -198,7 +205,7 @@ export const games: GameEntry[] = [
     title: "Мозаика",
     note: "Собери картинку из кусочков",
     color: "#6db3d4",
-    art: { src: picture("piknik") },
+    art: { src: tileIcon("mozaika"), figure: true },
     load: () => import("./mozaika"),
     ...levelStars("mozaika", () => import("./mozaika/levels")),
   },
@@ -207,7 +214,7 @@ export const games: GameEntry[] = [
     title: "Вырасти сад",
     note: "Соединяй одинаковые",
     color: "#7cc46a",
-    art: { src: picture("sad") },
+    art: { src: tileIcon("sliyanie"), figure: true },
     load: () => import("./sliyanie"),
     ...levelStars("sliyanie", () => import("./sliyanie/levels")),
     // Levels plus the record and the started 2048 game (the chosen pictures stay).
@@ -218,7 +225,7 @@ export const games: GameEntry[] = [
     title: "Найди пару",
     note: "Пары, тени, счёт и тройки",
     color: "#f27aa0",
-    art: { src: picture("vse-vmeste") },
+    art: { src: tileIcon("najdi-paru"), figure: true },
     load: () => import("./najdi-paru"),
     ...levelStars("najdi-paru", () => import("./najdi-paru/levels")),
   },
@@ -227,7 +234,7 @@ export const games: GameEntry[] = [
     title: "Тени",
     note: "Чья это тень?",
     color: "#9b8cf0",
-    art: { src: svgUrl(TILE_ART.teni), figure: true },
+    art: { src: tileIcon("teni"), figure: true },
     load: () => import("./teni"),
     ...levelStars("teni", () => import("./teni/levels")),
   },
@@ -236,7 +243,7 @@ export const games: GameEntry[] = [
     title: "Одень Рыжика",
     note: "По погоде",
     color: "#ffc94a",
-    art: { src: svgUrl(TILE_ART.odezhda), figure: true },
+    art: { src: tileIcon("odezhda"), figure: true },
     load: () => import("./odezhda"),
     ...levelStars("odezhda", () => import("./odezhda/levels")),
   },
@@ -245,7 +252,7 @@ export const games: GameEntry[] = [
     title: "Разложи по корзинкам",
     note: "По цвету, смыслу, размеру и счёту",
     color: "#ff9f6b",
-    art: { src: svgUrl(TILE_ART.sortirovka), figure: true },
+    art: { src: tileIcon("sortirovka"), figure: true },
     fresh: { since: "v13", text: "Новые уровни" },
     load: () => import("./sortirovka"),
     ...levelStars("sortirovka", () => import("./sortirovka/levels")),
@@ -255,7 +262,7 @@ export const games: GameEntry[] = [
     title: "Лабиринт",
     note: "Проведи Рыжика к друзьям",
     color: "#5bb381",
-    art: { src: svgUrl(TILE_ART.labirint), figure: true },
+    art: { src: tileIcon("labirint"), figure: true },
     load: () => import("./labirint"),
     ...levelStars("labirint", () => import("./labirint/levels")),
   },
@@ -264,7 +271,7 @@ export const games: GameEntry[] = [
     title: "Раскраска",
     note: "Раскрашивай Рыжика и друзей",
     color: "#157a62",
-    art: { src: coloringArt },
+    art: { src: tileIcon("raskraska"), figure: true },
     load: () => import("./raskraska"),
     summary: async () => {
       const [{ store }, { catalog }] = await Promise.all([import("./raskraska/storage"), import("./raskraska/data/albums")]);
@@ -279,7 +286,7 @@ export const games: GameEntry[] = [
     title: "Картинка из наклеек",
     note: "Клей наклейки куда хочешь",
     color: "#f27aa0",
-    art: { src: svgUrl(TILE_ART.stikery), figure: true },
+    art: { src: tileIcon("stikery"), figure: true },
     load: () => import("./stikery"),
     summary: free,
     resetKeys: [`${SHELL_PREFIX}stikery:picture`],

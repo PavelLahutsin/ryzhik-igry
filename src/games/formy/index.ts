@@ -8,6 +8,7 @@ import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
 import { OBJECT_GENDER, OBJECTS, type Gender } from "../../shared/objects";
 import { shuffle } from "../../shared/rng";
 import { reducedMotion, useStyles } from "../../shared/style";
+import { createAutoHint } from "../../shared/autoHint";
 import { svgNode } from "../../shared/ui";
 import baseCss from "../../shared/base.css?inline";
 import css from "./style.css?inline";
@@ -173,6 +174,7 @@ function play(stage: HTMLElement, level: FormLevel, index: number, api: PlayApi)
   const { later } = scope;
   let misses = 0;
   let hints = 0;
+  const autoHint = createAutoHint();
   let placed = 0;
 
   const bar = taskBar(level.ask);
@@ -225,8 +227,10 @@ function play(stage: HTMLElement, level: FormLevel, index: number, api: PlayApi)
             audio.play("boing");
             replayClass(target.node, "is-wrong");
             say(setup.wrongText(item, target));
+            if (autoHint.recordMiss()) showHint();
             return false;
           }
+          autoHint.reset();
           placed++;
           bar.dots(placed, total);
           item.node.classList.add("is-placed");
@@ -249,13 +253,14 @@ function play(stage: HTMLElement, level: FormLevel, index: number, api: PlayApi)
     const pair = setup.hintPair();
     if (pair) showDrag(centre(pair[0].node), centre(pair[1].node));
   });
-  api.setHint(() => {
+  function showHint(): void {
     const pair = setup.hintPair();
     if (!pair) return;
-    hints++;
+    if (autoHint.recordShown(pair[0].node)) hints++;
     replayClass(pair[0].node, "is-hint");
     replayClass(pair[1].node, "is-hint");
-  });
+  }
+  api.setHint(showHint);
 
   return scope.dispose;
 
@@ -537,6 +542,7 @@ function playPick(stage: HTMLElement, level: PickLevel, _index: number, api: Pla
   let at = 0;
   let misses = 0;
   let hints = 0;
+  const autoHint = createAutoHint();
   let busy = false;
   const bar = taskBar(level.ask);
   const question = el("div", { class: `fm-q fm-q--${level.spec.kind}` });
@@ -601,6 +607,7 @@ function playPick(stage: HTMLElement, level: PickLevel, _index: number, api: Pla
       b.disabled = true;
       b.classList.add("is-off");
       bar.say(wrongLine(round));
+      if (autoHint.recordMiss()) showHint();
       return;
     }
     busy = true;
@@ -616,6 +623,7 @@ function playPick(stage: HTMLElement, level: PickLevel, _index: number, api: Pla
       audio.tone(NOTES[2]!, 0.15);
     }
     if (round.kind === "same") question.querySelector(".fm-sample")?.classList.add("is-got");
+    autoHint.reset();
     bar.say(rightLine(round));
     at++;
     bar.dots(at, rounds.length);
@@ -665,12 +673,13 @@ function playPick(stage: HTMLElement, level: PickLevel, _index: number, api: Pla
     const b = buttons[rounds[at]?.answer ?? -1];
     if (b) showTap(centre(b));
   });
-  api.setHint(() => {
+  function showHint(): void {
     const b = buttons[rounds[at]?.answer ?? -1];
     if (!b || busy) return;
-    hints++;
+    if (autoHint.recordShown(b)) hints++;
     replayClass(b, "is-hint");
-  });
+  }
+  api.setHint(showHint);
   show();
   return scope.dispose;
 }

@@ -40,6 +40,22 @@ export const levels: OdezhdaLevel[] = [
   { id: "o13", world: "more", title: "На пляж", weather: "sun", wear: ["panama", "sunglasses", "tshirt", "sandals", "bucket"], extra: ["mittens", "winterboots", "scarf"] },
   { id: "o14", world: "more", title: "Запускаем змея", weather: "wind", wear: ["hat", "jacket", "scarf", "kite"], extra: ["sled", "umbrella", "sandals"] },
   { id: "o15", world: "more", title: "Горка во дворе", weather: "snow", wear: ["hat", "scarf", "jacket", "mittens", "winterboots", "sled"], extra: ["sunglasses", "sandals"] },
+  { id: "o16", world: "more", title: "За ракушками", weather: "sun", wear: ["panama", "sunglasses", "sandals", "bucket"], extra: ["scarf", "raincoat", "winterboots"] },
+  { id: "o17", world: "more", title: "Мимо водостока", weather: "rain", wear: ["raincoat", "rainboots"], extra: ["sunglasses", "sandals", "kite"] },
+  { id: "o18", world: "more", title: "Следы на снегу", weather: "snow", wear: ["hat", "jacket", "mittens", "winterboots"], extra: ["cap", "rainboots", "bucket"] },
+  { id: "o19", world: "more", title: "На пригорок", weather: "wind", wear: ["scarf", "jacket", "kite"], extra: ["mittens", "umbrella", "sled"] },
+  { id: "o20", world: "more", title: "По тропинке к макам", weather: "sun", wear: ["cap", "sunglasses", "tshirt", "sandals"], extra: ["hat", "raincoat", "mittens"] },
+  { id: "o21", world: "more", title: "К уткам под зонтом", weather: "rain", wear: ["rainboots", "umbrella"], extra: ["sandals", "bucket", "sled"] },
+  { id: "o22", world: "more", title: "Санки у ёлки", weather: "snow", wear: ["scarf", "jacket", "mittens", "winterboots", "sled"], extra: ["tshirt", "sandals", "kite"] },
+  { id: "o23", world: "more", title: "За шуршащим листком", weather: "wind", wear: ["hat", "scarf", "jacket"], extra: ["panama", "mittens", "umbrella"] },
+  { id: "o24", world: "more", title: "Песочный пирожок для ёжика", weather: "sun", wear: ["panama", "tshirt", "sandals", "bucket"], extra: ["mittens", "raincoat", "sled"] },
+  { id: "o25", world: "more", title: "Стрекоза у клёна", weather: "sun", wear: ["cap", "sunglasses", "sandals"], extra: ["hat", "umbrella", "winterboots"] },
+  { id: "o26", world: "more", title: "Ручеёк у крыльца", weather: "rain", wear: ["raincoat", "rainboots"], extra: ["sunglasses", "sled", "kite"] },
+  { id: "o27", world: "more", title: "Капли на берёзе", weather: "rain", wear: ["raincoat", "rainboots", "umbrella"], extra: ["panama", "sandals", "mittens"] },
+  { id: "o28", world: "more", title: "Лепим снежного котёнка", weather: "snow", wear: ["hat", "jacket", "mittens", "winterboots"], extra: ["bucket", "rainboots", "tshirt"] },
+  { id: "o29", world: "more", title: "Везём мишку", weather: "snow", wear: ["scarf", "mittens", "winterboots", "sled"], extra: ["sandals", "umbrella", "kite"] },
+  { id: "o30", world: "more", title: "Бежит жёлтый листок", weather: "wind", wear: ["hat", "scarf", "jacket"], extra: ["cap", "raincoat", "sled"] },
+  { id: "o31", world: "more", title: "Змей над клёном", weather: "wind", wear: ["jacket", "scarf", "kite"], extra: ["sunglasses", "umbrella", "winterboots"] },
 ];
 
 /** A thing for the hint lamp: one Ryzhik still needs. */

@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 
 /** v13 design checks that are cheap to make without a browser. */
 const base = readFileSync("src/shared/base.css", "utf8");
+const overlays = readFileSync("src/shared/overlays.css", "utf8");
 
 const lum = (hex: string): number => {
   const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
@@ -57,5 +58,51 @@ describe("assets", () => {
       else seen.set(h, f);
     }
     expect(dup).toEqual([]);
+  });
+});
+
+describe("touch target tokens", () => {
+  const uncomment = (css: string): string => css.replace(/\/\*[\s\S]*?\*\//g, "");
+
+  function tokenValues(css: string, token: "--icon" | "--tap", inScope: (blocks: string[]) => boolean): number[] {
+    const blocks: string[] = [];
+    const values: number[] = [];
+    for (const [, text, delimiter] of uncomment(css).matchAll(/([^{};]*)([{};])/g)) {
+      if (delimiter === "{") {
+        blocks.push(text.trim());
+        continue;
+      }
+      if (inScope(blocks) && text.trimStart().startsWith(`${token}:`)) {
+        const match = text.trim().match(/^--[\w-]+:\s*(\d+(?:\.\d+)?)px$/);
+        expect(match, text.trim()).not.toBeNull();
+        values.push(Number(match![1]));
+      }
+      if (delimiter === "}") blocks.pop();
+    }
+    return values;
+  }
+
+  const root = (blocks: string[]): boolean => blocks.length === 1 && blocks[0] === ":root";
+  const media = (blocks: string[], ...conditions: RegExp[]): boolean =>
+    blocks.some((block) => /^@media\b/i.test(block) && conditions.every((re) => re.test(block)));
+  const atLeast = (values: number[], minimum: number): void => {
+    expect(values.length).toBeGreaterThan(0);
+    expect(Math.min(...values)).toBeGreaterThanOrEqual(minimum);
+  };
+
+  it("keeps --icon and --tap at the preschool minimum for each screen size", () => {
+    atLeast(tokenValues(base, "--icon", root), 72);
+    atLeast(tokenValues(base, "--tap", root), 72);
+    for (const css of [base, overlays]) {
+      atLeast(tokenValues(css, "--icon", (blocks) => media(blocks, /\(\s*max-width\s*:\s*380px\s*\)/i)), 64);
+      expect(css).not.toMatch(/--icon\s*:\s*(?:48|52)px\b/i);
+      expect(css).not.toMatch(/--tap\s*:\s*50px\b/i);
+    }
+    atLeast(
+      tokenValues(base, "--tap", (blocks) =>
+        media(blocks, /\(\s*orientation\s*:\s*landscape\s*\)/i, /\(\s*max-height\s*:\s*560px\s*\)/i),
+      ),
+      64,
+    );
   });
 });

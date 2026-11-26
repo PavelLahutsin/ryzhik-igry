@@ -1,5 +1,5 @@
 /**
- * QA for «Нажми и послушай»: tab size and highlight, the «Потрогай» rows
+ * QA for «Нажми и послушай»: tab size and highlight, the «Игрушки» rows
  * (≥16 px apart, words not wider than their toy), the idle sway, and that a
  * first tap really plays a WebAudio sound and a fast second tap cuts the first.
  *
@@ -69,7 +69,7 @@ for (const vp of VIEWPORTS) {
   await page.waitForTimeout(150);
   const cuts = (await page.evaluate(() => window.__snd.cuts)) - cutsBefore;
   if (cuts < 2) fail(vp, `fast taps do not cut the previous sound (cuts ${cuts})`);
-  // «Потрогай»: rows apart, words inside their toy.
+  // «Игрушки»: rows apart, words inside their toy.
   await page.locator(".tp-tab").last().tap();
   await page.waitForSelector(".tp-toys .toy");
   const g = await page.$$eval(".tp-toys .toy", (ns) => {

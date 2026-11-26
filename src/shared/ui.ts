@@ -136,3 +136,59 @@ export function hint(parent: HTMLElement, text: string, ms = 1800): void {
     setTimeout(() => node.remove(), 300);
   }, ms);
 }
+
+
+/**
+ * Confirm leaving a game in progress. «Играть дальше» stays; «В домик»
+ * runs onLeave once. Does not touch history or the browser back button.
+ */
+export function confirmLeave(onLeave: () => void): void {
+  if (document.querySelector("dialog.leave")) return;
+
+  const back = document.querySelector<HTMLElement>(".btn--back");
+  const returnFocus =
+    document.activeElement instanceof HTMLElement && document.activeElement !== document.body
+      ? document.activeElement
+      : back;
+
+  const stay = el(
+    "button",
+    { class: "btn btn--play", attrs: { type: "button" }, on: { click: () => choose(false) } },
+    [el("span", { text: "Играть дальше" })],
+  );
+  const leave = el(
+    "button",
+    { class: "btn btn--ghost", attrs: { type: "button" }, on: { click: () => choose(true) } },
+    [el("span", { text: "В домик" })],
+  );
+  const dialog = el("dialog", { class: "leave", attrs: { "aria-modal": "true", "aria-labelledby": "leave-title", "aria-describedby": "leave-text" } }, [
+    el("h2", { attrs: { id: "leave-title" }, text: "Вернуться в домик?" }),
+    el("p", { attrs: { id: "leave-text" }, text: "Игра остановится. Потом можно начать снова." }),
+    el("div", { class: "leave__actions" }, [stay, leave]),
+  ]) as HTMLDialogElement;
+
+  let chosen = false;
+  function choose(shouldLeave: boolean): void {
+    if (chosen) return;
+    chosen = true;
+    if (typeof dialog.close === "function") dialog.close();
+    else dialog.removeAttribute("open");
+    dialog.remove();
+    if (shouldLeave) onLeave();
+    else if (returnFocus?.isConnected) returnFocus.focus({ preventScroll: true });
+  }
+
+  dialog.addEventListener("cancel", (event) => {
+    event.preventDefault();
+    choose(false);
+  });
+  dialog.addEventListener("click", (event) => {
+    if (event.target === dialog) choose(false);
+  });
+
+  const host = back?.closest(".screen") ?? back?.parentElement ?? document.body;
+  host.append(dialog);
+  if (typeof dialog.showModal === "function") dialog.showModal();
+  else dialog.setAttribute("open", "");
+  stay.focus({ preventScroll: true });
+}

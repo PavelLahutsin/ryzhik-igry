@@ -97,6 +97,13 @@ const ALL: SortLevel[] = [
   { id: "c1", world: "colors", title: "Красное и жёлтое", ask: COLOR_ASK, baskets: [byColor("red", ["apple", "car"]), byColor("yellow", ["sun", "star"])] },
   { id: "c2", world: "colors", title: "Синее и зелёное", ask: COLOR_ASK, baskets: [byColor("blue", ["boat", "drop"]), byColor("green", ["pear", "leaf"])] },
   {
+    id: "g1",
+    world: "colors",
+    title: "Розовое и зелёное",
+    ask: "Положи розовые картинки в розовую корзинку, а зелёные — в зелёную.",
+    baskets: [byColor("pink", ["flower", "balloon"]), byColor("green", ["leaf", "pear"])],
+  },
+  {
     id: "c3",
     world: "colors",
     title: "Шесть картинок",
@@ -127,6 +134,16 @@ const ALL: SortLevel[] = [
       byColor("yellow", ["banana", "sun"]),
       byColor("blue", ["boat", "cup"]),
       byColor("green", ["pear", "cube"]),
+    ],
+  },
+  {
+    id: "g2",
+    world: "kinds",
+    title: "Посуда и одежда",
+    ask: "Положи посуду в корзинку с чашкой, а одежду — в корзинку с шапкой.",
+    baskets: [
+      byKind("dishes", "Посуда", "#6db3d4", "cup", ["cup", "teapot"]),
+      byKind("clothes", "Одежда", "#f7a8c8", "hat", ["hat", "mitten"]),
     ],
   },
   {
@@ -226,6 +243,16 @@ const ALL: SortLevel[] = [
     baskets: [bySize("big", "ball", "#ffb23f", ["apple:big", "ball:big", "star:big"]), bySize("small", "ball", "#7cc0e8", ["apple:small", "ball:small", "star:small"])],
   },
   {
+    id: "g5",
+    world: "size",
+    title: "Разберём урожай",
+    ask: "Положи большие яблоки, груши и морковки в одну корзинку, а маленькие — в другую.",
+    baskets: [
+      bySize("big", "pear", "#ffb23f", ["apple:big", "pear:big", "carrot:big"]),
+      bySize("small", "pear", "#7cc0e8", ["apple:small", "pear:small", "carrot:small"]),
+    ],
+  },
+  {
     id: "z2",
     world: "size",
     title: "Большой и маленький",
@@ -245,6 +272,13 @@ const ALL: SortLevel[] = [
       bySize("small", "house", "#7cc0e8", ["house:small", "cup:small", "pear:small", "boat:small", "balloon:small"]),
     ],
   },
+  {
+    id: "g6",
+    world: "count",
+    title: "Считаем звёзды",
+    ask: "Положи одну звёздочку в корзинку с цифрой 1, а две — в корзинку с цифрой 2.",
+    baskets: [byCount(1, ["star"], "#6db3d4"), byCount(2, ["star", "star"], "#9b8cf0")],
+  },
   // v10 «Сколько положить?»: the number on a basket says how many things go in.
   {
     id: "n1",
@@ -261,6 +295,17 @@ const ALL: SortLevel[] = [
     baskets: [byCount(2, ["mushroom", "mushroom"], "#ff9f6b"), byCount(4, ["mushroom", "mushroom", "mushroom", "mushroom"], "#9b8cf0")],
   },
   {
+    id: "g7",
+    world: "count",
+    title: "Сколько капель?",
+    ask: "Посмотри на цифру на каждой корзинке. Положи в неё столько же капель.",
+    baskets: [
+      byCount(2, ["drop", "drop"], "#8bc785"),
+      byCount(3, ["drop", "drop", "drop"], "#f7a8c8"),
+      byCount(4, ["drop", "drop", "drop", "drop"], "#ffb23f"),
+    ],
+  },
+  {
     id: "n3",
     world: "count",
     title: "Раз, два, три, четыре",
@@ -270,6 +315,18 @@ const ALL: SortLevel[] = [
       byCount(2, ["star", "star"], "#ff9f6b"),
       byCount(3, ["star", "star", "star"], "#9b8cf0"),
       byCount(4, ["star", "star", "star", "star"], "#7cc0e8"),
+    ],
+  },
+  {
+    id: "g8",
+    world: "cross",
+    title: "Мячи и кубики",
+    ask: "Для каждого мяча и кубика найди корзинку с такой же картинкой. Посмотри, большой предмет или маленький.",
+    baskets: [
+      { ...bySize("big", "ball", "#7cc0e8", ["ball:big"], "Большие мячи"), id: "bigBalls" },
+      { ...bySize("small", "ball", "#7cc0e8", ["ball:small"], "Маленькие мячи"), id: "smallBalls" },
+      { ...bySize("big", "cube", "#ffb23f", ["cube:big"], "Большие кубики"), id: "bigCubes" },
+      { ...bySize("small", "cube", "#ffb23f", ["cube:small"], "Маленькие кубики"), id: "smallCubes" },
     ],
   },
   // v10 «Два признака»: a basket asks for two things at once — kind and size, colour and size.
@@ -338,6 +395,26 @@ const ALL: SortLevel[] = [
     baskets: [
       byKind("winter", "Зимой", "#3a8fd4", "mitten", ["hat", "boot", "mitten"]),
       byKind("summer", "Летом", "#f5c330", "sun", ["icecream", "watermelon", "umbrella"]),
+    ],
+  },
+  {
+    id: "g3",
+    world: "trip",
+    title: "Идём на пикник",
+    ask: "Собери еду для пикника. Остальное оставь дома.",
+    baskets: [
+      byKind("picnic", "На пикник", "#8bc785", "watermelon", ["watermelon", "banana", "carrot"]),
+      byKind("home", "Остаётся дома", "#a7a29a", "house", ["lamp", "broom", "clock"]),
+    ],
+  },
+  {
+    id: "g4",
+    world: "trip",
+    title: "Идём пускать кораблики",
+    ask: "Возьми к ручью кораблик, листок и рыбку. Они поплывут по воде! Остальное оставь дома.",
+    baskets: [
+      byKind("stream", "К ручью", "#7cc0e8", "boat", ["boat", "leaf", "fish"]),
+      byKind("home", "Остаётся дома", "#a7a29a", "house", ["chair", "lamp", "teapot"]),
     ],
   },
   {

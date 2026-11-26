@@ -6,7 +6,7 @@ import { platform } from "../../shared/platform";
 import { goHome, subSegments } from "../../shared/router";
 import { STICKERS, earned, stickerArt, totalStars, type Sticker } from "../../shared/stickers";
 import { useStyles } from "../../shared/style";
-import { svgNode, toolbar } from "../../shared/ui";
+import { confirmLeave, svgNode, toolbar } from "../../shared/ui";
 import baseCss from "../../shared/base.css?inline";
 import { SHAPES } from "../teni/shapes";
 import css from "./style.css?inline";
@@ -17,16 +17,32 @@ const KEY = "stikery:picture";
 const DECOR = ["cloud", "tree", "fir", "snowman", "moon", "bird", "butterfly"] as const;
 /** Album stickers everyone has from the start. */
 const STARTER = ["sun", "flower", "house"];
+/** Always-available extra decor (v22), not in the star album. */
+const EXTRA: Record<string, { name: string; art: string }> = {
+  shell: { name: "Ракушка", art: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><g stroke="#3b2e25" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"><path fill="#ffac98" d="M40 79Q22 70 10 53Q4 42 15 37Q10 22 26 23Q29 10 42 17Q50 5 59 17Q73 10 77 24Q92 22 88 38Q100 44 89 57Q76 72 60 79L62 86Q50 92 38 86Z"/><path fill="none" stroke="#a75245" d="M44 74Q26 54 16 38M47 72Q35 43 27 25M50 71L44 20M53 71L59 20M56 72Q67 43 76 26M59 74Q77 54 87 40"/><path fill="none" d="M40 79Q50 75 60 79"/></g></svg>` },
+  beacon: { name: "Маяк", art: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><g stroke="#3b2e25" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"><path fill="#fff1d6" d="M37 39H63L71 89H29Z"/><path fill="#ec7664" d="M34 58H66L68 71H32Z"/><rect x="35" y="24" width="30" height="16" fill="#ffdb7e"/><path fill="none" d="M45 25V38M55 25V38"/><path fill="#ed7965" d="M29 24L50 8L71 24Z"/><rect x="29" y="38" width="42" height="6" rx="2" fill="#658e99"/><path fill="#658e99" d="M44 89V81A6 6 0 0 1 56 81V89Z"/><rect x="23" y="88" width="54" height="6" rx="3" fill="#d7b582"/></g></svg>` },
+  sandcastle: { name: "Песочный замок", art: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><g stroke="#3b2e25" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"><path fill="#eec17e" d="M35 70V19H43V27H48V19H55V27H60V19H67V70Z"/><path fill="#bd8651" d="M46 49V43A5 5 0 0 1 56 43V49Z"/><path fill="#ffda95" d="M10 84L14 56V41H22V48H28V41H36V55H65V41H73V48H79V41H87V56L91 84Q51 91 10 84Z"/><path fill="#bd8651" d="M40 86V74A11 11 0 0 1 62 74V86Q51 88 40 86Z"/><path fill="none" stroke="#cb985d" d="M15 56H34M67 56H85M22 72H27M73 67H78"/></g></svg>` },
+  fence: { name: "Заборчик", art: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><g stroke="#3b2e25" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"><rect x="5" y="40" width="90" height="10" rx="3" fill="#cb9768"/><rect x="5" y="65" width="90" height="10" rx="3" fill="#cb9768"/><path fill="#ffe0a1" d="M11 83V31L20 19L29 31V83ZM41 83V31L50 19L59 31V83ZM71 83V31L80 19L89 31V83Z"/></g><g fill="#ae754c"><circle cx="20" cy="45" r="2"/><circle cx="50" cy="45" r="2"/><circle cx="80" cy="45" r="2"/><circle cx="20" cy="70" r="2"/><circle cx="50" cy="70" r="2"/><circle cx="80" cy="70" r="2"/></g></svg>` },
+  nestbox: { name: "Скворечник", art: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><g stroke="#3b2e25" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"><rect x="45" y="71" width="10" height="23" rx="2" fill="#b78560"/><path fill="#f8cf84" d="M22 41L50 16L78 41V79H22Z"/><path fill="#74b9ad" d="M12 40L47 9Q50 6 53 9L88 40L82 47L50 20L18 47Z"/><circle cx="50" cy="46" r="12" fill="#634937"/><path d="M50 65L44 70" fill="none" stroke-width="7"/><path d="M50 65L44 70" fill="none" stroke="#d99b68" stroke-width="3"/></g></svg>` },
+  swing: { name: "Качели", art: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><g stroke="#3b2e25" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"><path fill="#e6b27b" d="M22 19H29L15 89H8ZM71 19H78L92 89H85Z"/><path fill="none" d="M35 20L37 66M65 20L63 66"/><rect x="17" y="12" width="66" height="10" rx="5" fill="#7cc4b4"/><path fill="#f28c79" d="M33 64H67L71 69Q71 73 67 73H33Q29 73 29 69Z"/><path fill="none" d="M30 69H70"/></g></svg>` },
+  basket: { name: "Корзинка", art: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><g stroke="#3b2e25" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"><path fill="#f3c286" d="M21 49C21 -3 79 -3 79 49H71C71 7 29 7 29 49Z"/><path fill="#edb371" d="M12 47H88L80 78Q78 87 68 87H32Q22 87 20 78Z"/><path fill="none" stroke="#a56942" d="M20 61Q50 67 80 61M23 73Q50 79 77 73M31 54L37 82M50 55V84M69 54L63 82"/><rect x="9" y="43" width="82" height="11" rx="5" fill="#ffda97"/></g></svg>` },
+  pennant: { name: "Праздничный флажок", art: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><g stroke="#3b2e25" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"><rect x="18" y="13" width="7" height="80" rx="3.5" fill="#e6b378"/><path fill="#f28377" d="M25 18Q40 11 57 19Q73 26 89 23Q70 40 53 45Q39 48 25 59Z"/><path fill="#ffdc81" d="M38 15Q42 15 47 16V47Q42 49 38 51Z"/><circle cx="21.5" cy="12" r="5.5" fill="#ffd77b"/></g></svg>` },
+};
 
 const CLEAR_ICON = `<svg viewBox="0 0 40 40"><path d="M12 30 L26 10 L33 15 L20 33 H13 Z" fill="#f7a8c8" stroke="#3b2e25" stroke-width="2.5" stroke-linejoin="round"/><path d="M19 20 L26 25" stroke="#3b2e25" stroke-width="2.5"/><path d="M8 34 H32" stroke="#3b2e25" stroke-width="2.5" stroke-linecap="round"/></svg>`;
 const UNDO_ICON = `<svg viewBox="0 0 40 40"><path d="M14 12 H24 C30 12 33 16 33 21 C33 26 30 30 24 30 H12" fill="none" stroke="#3b2e25" stroke-width="3.5" stroke-linecap="round"/><path d="M19 6 L12 12 L19 18" fill="none" stroke="#3b2e25" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
 type Item = { id: string; name: string; art: () => Element };
 const decorItem = (id: string): Item => ({ id: `d:${id}`, name: SHAPES[id]!.name, art: () => svgNode(SHAPES[id]!.svg, "sk-art") });
+const extraItem = (id: string): Item => ({ id: `d:${id}`, name: EXTRA[id]!.name, art: () => svgNode(EXTRA[id]!.art, "sk-art") });
 const albumItem = (s: Sticker): Item => ({ id: s.id, name: s.name, art: () => stickerArt(s, "sk-art") });
 
 function itemFor(id: string): Item | null {
-  if (id.startsWith("d:")) return SHAPES[id.slice(2)] ? decorItem(id.slice(2)) : null;
+  if (id.startsWith("d:")) {
+    const key = id.slice(2);
+    if (EXTRA[key]) return extraItem(key);
+    return SHAPES[key] ? decorItem(key) : null;
+  }
   const s = STICKERS.find((x) => x.id === id);
   return s ? albumItem(s) : null;
 }
@@ -46,7 +62,7 @@ export function mount(root: HTMLElement): () => void {
   const scene = el("div", { class: "sk-scene", attrs: { role: "group", "aria-label": "Картинка" } });
   const tray = el("div", { class: "sk-tray", attrs: { role: "list", "aria-label": "Наклейки" } });
   const note = el("p", { class: "sk-note", text: "" });
-  const view = el("div", { class: "screen screen--play game--stikery" }, [toolbar("Картинка", goHome, tools), el("div", { class: "stage sk-stage" }, [scene, el("div", { class: "sk-side" }, [tray, note])])]);
+  const view = el("div", { class: "screen screen--play game--stikery" }, [toolbar("Картинка", () => confirmLeave(goHome), tools), el("div", { class: "stage sk-stage" }, [scene, el("div", { class: "sk-side" }, [tray, note])])]);
   root.append(view);
 
   const save = (): void => void platform.storage.set(KEY, pic);
@@ -178,7 +194,7 @@ export function mount(root: HTMLElement): () => void {
     const have = new Set(STICKERS.slice(0, earned(stars)).map((s) => s.id));
     for (const id of STARTER) have.add(id);
     const album = STICKERS.filter((s) => have.has(s.id)).map(albumItem);
-    fillTray([...DECOR.map(decorItem), ...album]);
+    fillTray([...DECOR.map(decorItem), ...Object.keys(EXTRA).map(extraItem), ...album]);
     const more = STICKERS.length - album.length;
     note.textContent = more > 0 ? `Ещё ${more} наклеек откроются за звёздочки в играх` : "";
     paintAll();

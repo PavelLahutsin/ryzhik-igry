@@ -255,6 +255,13 @@
   top: 100%;
   border-top-color: #3b2e25;
 }
+.tip--side::after {
+  left: auto;
+  right: -18px;
+  top: 50%;
+  margin-top: -9px;
+  border-left-color: #3b2e25;
+}
 .tip__new {
   flex: none;
   padding: 3px 8px;
@@ -362,11 +369,11 @@
 /* v13: one icon-button size everywhere, also in the two ported apps
    (raskraska, tajnaya-kartinka) that bring their own CSS. */
 :root {
-  --icon: 52px;
+  --icon: 72px;
 }
 @media (max-width: 380px) {
   :root {
-    --icon: 48px;
+    --icon: 64px;
   }
 }
 :root .btn--howto,
@@ -520,4 +527,57 @@ button:not(:disabled):not(.is-dragging):not(.btn--play):active,
 @media (max-height: 500px) and (min-aspect-ratio: 3/2) {
   .toy-break__grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
   .toy-break .toy { width: min(13vw, 30vh, 110px); height: min(13vw, 30vh, 110px); }
+}
+
+/* Leave-game confirm: two big buttons, no praise, no confetti. */
+dialog.leave {
+  box-sizing: border-box;
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: min(24rem, calc(100% - 2rem));
+  max-height: calc(100% - 2rem);
+  overflow: auto;
+  padding: clamp(1rem, 5vw, 2rem);
+  border: 0;
+  border-radius: var(--radius-lg, 24px);
+  background: var(--surface, #fffcf7);
+  color: var(--ink, #3b2e25);
+  text-align: center;
+  font-family: var(--font-ui, sans-serif);
+}
+dialog.leave::backdrop {
+  background: rgb(59 46 37 / 52%);
+}
+.leave h2 {
+  margin: 0;
+  font-size: clamp(1.4rem, 5vw, 1.8rem);
+  line-height: 1.2;
+}
+.leave p {
+  margin: 0.75rem 0 1.25rem;
+  font-size: 1.125rem;
+  line-height: 1.4;
+}
+.leave__actions {
+  display: grid;
+  gap: 0.75rem;
+}
+.leave__actions > button {
+  width: 100%;
+  min-width: var(--tap);
+  min-height: var(--tap);
+  white-space: normal;
+}
+.leave__actions > button:focus-visible {
+  outline: 3px solid var(--orange-deep, #a3490d);
+  outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  dialog.leave,
+  dialog.leave::backdrop,
+  .leave__actions > button {
+    animation: none;
+    transition: none;
+  }
 }

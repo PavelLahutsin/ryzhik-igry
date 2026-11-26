@@ -8,7 +8,11 @@ import { OBJECTS } from "../../shared/objects";
 import { reducedMotion } from "../../shared/style";
 import { svgNode } from "../../shared/ui";
 import { advance, countedSlips, numberWord, offTrack, splitSubpaths, starsFor, strokeDone, TOLERANCE, type Pt } from "./logic";
+import type { SoundKind } from "../../shared/sounds";
 import type { Picture } from "./pictures";
+
+/** Delay after the «magic» chime, in ms. Must stay 280. */
+export const SOUND_AFTER_MAGIC_MS = 280;
 
 /** A letter level also shows its word (and a picture when there is one). */
 type Traceable = Picture & { word?: string; art?: string; letter?: string };
@@ -35,6 +39,9 @@ function sample(d: string, step = 3): Pt[] {
   out.push({ x: end.x, y: end.y });
   return out;
 }
+
+/** v22: the spoken task and hints of the tracing games (see voice-lines.ts). */
+export const RV_VOICE = { task: "v68", start: "v69", back: "v70", again: "v71" } as const;
 
 export function play(stage: HTMLElement, level: Traceable, _index: number, api: PlayApi): () => void {
   const scope = createScope();
@@ -68,6 +75,18 @@ export function play(stage: HTMLElement, level: Traceable, _index: number, api: 
   const gentle = level.world === "first";
 
   for (const s of strokes) guides.append(svgEl("path", { d: s.d, class: "rv-guide" }));
+
+  // v22: a child who cannot read yet hears the task and every hint the
+  // words under the picture show (silent until the recordings are there).
+  // The task is said when a level opens, at most once a minute.
+  if (!audio.saidRecently(RV_VOICE.task, 60000)) later(() => audio.say(RV_VOICE.task, { after: true }), 500);
+  let hintSaidAt = 0;
+  const sayHint = (text: string, voice: string): void => {
+    say.textContent = text;
+    if (Date.now() - hintSaidAt < 3500) return;
+    hintSaidAt = Date.now();
+    audio.say(voice);
+  };
   // Digits and letters: little numbers show which line comes first.
   const order = svgEl("g", { class: "rv-order", "aria-hidden": "true" });
   if (level.order && strokes.length > 1)
@@ -142,7 +161,8 @@ export function play(stage: HTMLElement, level: Traceable, _index: number, api: 
       replayClass(marker, "is-call");
       replayClass(box, "is-slip");
       audio.play("boing");
-      say.textContent = gentle ? "Попробуй ещё раз — от зелёной точки" : "Ой! Вернись к зелёной точке";
+      if (gentle) sayHint("Попробуй ещё раз — от зелёной точки", RV_VOICE.again);
+      else sayHint("Вернись к зелёной точке!", RV_VOICE.back);
       const back = s.samples[index]!;
       // v13: the piece of line just ahead glows with «Попробуй ещё раз» on it.
       retry.replaceChildren();
@@ -183,7 +203,7 @@ export function play(stage: HTMLElement, level: Traceable, _index: number, api: 
     const s = strokes[current]!;
     const at = s.samples[index]!;
     if (Math.hypot(at.x - p.x, at.y - p.y) > TOLERANCE * 1.8) {
-      say.textContent = "Начни с зелёной точки!";
+      sayHint("Начни с зелёной точки!", RV_VOICE.start);
       replayClass(marker, "is-call");
       return false;
     }
@@ -246,6 +266,8 @@ export function play(stage: HTMLElement, level: Traceable, _index: number, api: 
     api.setHint(null);
     svg.classList.add("is-finished");
     audio.play("magic");
+    const own = (level as { sound?: SoundKind }).sound;
+    if (own) later(() => audio.play(own), SOUND_AFTER_MAGIC_MS);
     if (level.count !== undefined) {
       countUp(level.count);
       return;

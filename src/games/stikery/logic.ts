@@ -7,6 +7,9 @@ export const BACKGROUNDS = [
   { id: "lug", name: "Луг" },
   { id: "zima", name: "Зима" },
   { id: "komnata", name: "Комната" },
+  { id: "more", name: "Море" },
+  { id: "noch", name: "Ночь" },
+  { id: "plyazh", name: "Пляж" },
 ] as const;
 export type BgId = (typeof BACKGROUNDS)[number]["id"];
 

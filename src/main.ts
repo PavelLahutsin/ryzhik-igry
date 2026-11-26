@@ -104,8 +104,12 @@ function onHash(): void {
       void howToSeen(game.id).then((seen) => {
         if (mine !== token) return;
         if (!seen) void showHowTo(game.id);
-        // v13: Ryzhik says the game's name (when recorded) unless «Как играть» speaks.
-        else if (TITLE_VOICE[game.id]) audio.say(TITLE_VOICE[game.id]!);
+        // v13: Ryzhik says the game's name (when recorded) unless «Как играть» speaks;
+        // v22: not twice when the menu tile has just said it.
+        else {
+          const line = TITLE_VOICE[game.id];
+          if (line && !audio.saidRecently(line, 5000)) audio.say(line);
+        }
       });
     })
     .catch(() => {

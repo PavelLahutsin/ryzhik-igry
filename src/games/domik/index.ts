@@ -6,7 +6,7 @@ import { gameFinds } from "../../shared/finds";
 import { OBJECTS } from "../../shared/objects";
 import { goHome } from "../../shared/router";
 import { reducedMotion, useStyles } from "../../shared/style";
-import { hint, svgNode, toolbar } from "../../shared/ui";
+import { confirmLeave, hint, svgNode, toolbar } from "../../shared/ui";
 import baseCss from "../../shared/base.css?inline";
 import { createScope } from "../../shared/lifecycle";
 import css from "./style.css?inline";
@@ -91,7 +91,7 @@ export function mount(root: HTMLElement): () => void {
 
   const scroller = el("div", { class: "dm-scroll" });
   const tabs = el("nav", { class: "dm-tabs", attrs: { "aria-label": "Где играть" } });
-  const view = el("div", { class: "screen screen--play game--domik" }, [toolbar("Домик Рыжика", goHome, tools), el("div", { class: "stage dm-stage" }, [scroller]), tabs]);
+  const view = el("div", { class: "screen screen--play game--domik" }, [toolbar("Домик Рыжика", () => confirmLeave(goHome), tools), el("div", { class: "stage dm-stage" }, [scroller]), tabs]);
   root.append(view);
 
   const paintScore = (): void => {

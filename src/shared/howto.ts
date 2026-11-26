@@ -123,7 +123,8 @@ export function showHowTo(gameId: string): Promise<void> {
     };
     document.body.append(overlay);
     const line = HOWTO_VOICE[gameId];
-    if (line) audio.say(line);
+    // After the game's name, if the menu tile is still saying it.
+    if (line) audio.say(line, { after: true });
     requestAnimationFrame(() => overlay.classList.add("is-open"));
     setTimeout(() => ok.focus({ preventScroll: true }), 60);
   });

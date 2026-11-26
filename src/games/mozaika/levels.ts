@@ -23,6 +23,7 @@ export const worlds = [
   { id: "w16", title: "16 кусочков", color: "#9b8cf0" },
   { id: "flip", title: "Вверх ногами", color: "#3fae6a" },
   { id: "extra", title: "Лишние кусочки", color: "#e8463a" },
+  { id: "progulki", title: "Прогулки", color: "#e08b4a" },
 ];
 
 /**
@@ -56,6 +57,23 @@ export const levels: MozaikaLevel[] = [
   { id: "m20", world: "extra", title: "Зима", picture: "zima", drawn: true, cols: 4, rows: 3, ghost: true, extra: { from: "kosmos", count: 2 } },
   { id: "m21", world: "extra", title: "Под водой", picture: "podvodny", drawn: true, cols: 4, rows: 4, ghost: true, extra: { from: "gorod", count: 2 } },
   { id: "m22", world: "extra", title: "Космос", picture: "kosmos", drawn: true, cols: 4, rows: 4, ghost: true, flip: 5, extra: { from: "podvodny", count: 2 } },
+  { id: "m24", world: "flip", title: "Мама наоборот", picture: "mama", cols: 4, rows: 4, ghost: true, flip: 9 },
+  { id: "m25", world: "flip", title: "Мишка кувырком", picture: "mishka", cols: 4, rows: 4, ghost: true, flip: 11 },
+  { id: "m26", world: "flip", title: "Семья наоборот", picture: "vse-vmeste", cols: 4, rows: 4, ghost: false, flip: 11 },
+  { id: "m27", world: "flip", title: "Зима кувырком", picture: "zima", drawn: true, cols: 4, rows: 4, ghost: false, flip: 13 },
+  { id: "m28", world: "extra", title: "Радуга и снежинки", picture: "raduga", drawn: true, cols: 4, rows: 4, ghost: true, flip: 8, extra: { from: "zima", count: 2 } },
+  { id: "m29", world: "extra", title: "Ферма и звёзды", picture: "ferma", drawn: true, cols: 4, rows: 4, ghost: true, flip: 11, extra: { from: "kosmos", count: 2 } },
+  { id: "m30", world: "extra", title: "Замок и радуга", picture: "zamok", drawn: true, cols: 4, rows: 4, ghost: false, flip: 11, extra: { from: "raduga", count: 2 } },
+  { id: "m31", world: "extra", title: "Звёзды в городе", picture: "gorod", drawn: true, cols: 4, rows: 4, ghost: false, flip: 12, extra: { from: "kosmos", count: 3 } },
+  // v22 «Прогулки»: unused drawn scenes, mixed flips and extra pieces.
+  { id: "m32", world: "progulki", title: "Тёплое море", picture: "more", drawn: true, cols: 4, rows: 4, ghost: true, flip: 10 },
+  { id: "m33", world: "progulki", title: "Зелёный парк", picture: "park", drawn: true, cols: 4, rows: 4, ghost: true, flip: 7, extra: { from: "osen", count: 2 } },
+  { id: "m34", world: "progulki", title: "Весёлый праздник", picture: "prazdnik", drawn: true, cols: 5, rows: 4, ghost: false, extra: { from: "tsirk", count: 3 } },
+  { id: "m35", world: "progulki", title: "Осенний ковёр", picture: "osen", drawn: true, cols: 4, rows: 4, ghost: false, flip: 12 },
+  { id: "m36", world: "progulki", title: "Поезд ждёт", picture: "vokzal", drawn: true, cols: 4, rows: 4, ghost: false, flip: 10, extra: { from: "gorod", count: 2 } },
+  { id: "m37", world: "progulki", title: "Готовим втроём", picture: "kuhnya", drawn: true, cols: 5, rows: 4, ghost: false, flip: 12 },
+  { id: "m38", world: "progulki", title: "Цирковой шатёр", picture: "tsirk", drawn: true, cols: 4, rows: 4, ghost: false, flip: 14, extra: { from: "prazdnik", count: 2 } },
+  { id: "m39", world: "progulki", title: "Жёлтые дюны", picture: "pustynya", drawn: true, cols: 5, rows: 4, ghost: false, flip: 10, extra: { from: "more", count: 3 } },
 ];
 
 /**

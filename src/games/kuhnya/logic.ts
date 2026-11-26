@@ -22,7 +22,7 @@ export type Op = "cut" | "boil" | "fry" | "blend";
 
 export type Dish = { parts: IngredientId[]; ops: Op[] };
 
-export type GuestId = "ryzhik" | "mama" | "mishka" | "ezhik";
+export type GuestId = "ryzhik" | "mama" | "mishka" | "ezhik" | "papa" | "belka";
 
 export type Reaction = "love" | "yum" | "ok" | "yuck" | "raw" | "sour" | "spicy" | "burnt";
 
@@ -75,6 +75,8 @@ export const GUESTS: Record<GuestId, Guest> = {
   mama: { id: "mama", name: "Мама", loves: ["carrot", "tomato", "pear", "potato"], dislikes: ["honey"], likesOp: "boil" },
   mishka: { id: "mishka", name: "Мишка", loves: ["berries", "honey", "fish"], dislikes: ["carrot", "tomato"], likesOp: "fry" },
   ezhik: { id: "ezhik", name: "Ёжик", loves: ["mushroom", "apple", "pear"], dislikes: ["banana", "fish"], likesOp: "cut" },
+  papa: { id: "papa", name: "Папа", loves: ["fish", "potato", "egg", "cheese"], dislikes: ["berries"], likesOp: "fry" },
+  belka: { id: "belka", name: "Белочка", loves: ["apple", "berries", "mushroom", "carrot"], dislikes: ["tomato"], likesOp: "cut" },
 };
 
 export const GUEST_IDS = Object.keys(GUESTS) as GuestId[];
