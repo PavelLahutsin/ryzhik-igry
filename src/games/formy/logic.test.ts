@@ -144,7 +144,9 @@ describe("formy v9: every kind of task", () => {
           if (r.kind !== "compare" && r.kind !== "corners") {
             // No two options look the same.
             const keys = r.options.map((f) => `${f.shape}:${f.tint}:${f.size}:${f.turn ?? 0}`);
-            expect(new Set(keys).size, `${l.id}: ${keys}`).toBe(keys.length);
+            // (In «what is odd» the alike ones may be twins: one heart of another colour among hearts.)
+            if (r.kind === "odd") expect(keys.filter((k) => k === keys[r.answer]).length, `${l.id}: ${keys}`).toBe(1);
+            else expect(new Set(keys).size, `${l.id}: ${keys}`).toBe(keys.length);
           }
         }
       }

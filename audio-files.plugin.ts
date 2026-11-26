@@ -11,11 +11,16 @@ export function audioFiles(): Plugin {
   const id = "virtual:audio-files";
   const list = (dir: string): string[] => {
     const full = resolve(process.cwd(), "public/audio", dir);
-    return existsSync(full) ? readdirSync(full).filter((f) => /^[vm]\d\d\.mp3$/.test(f)).map((f) => f.slice(0, 3)).sort() : [];
+    return existsSync(full) ? readdirSync(full).filter((f) => /^[vm]\d{2,3}\.mp3$/.test(f)).map((f) => f.replace(/\.mp3$/, "")).sort() : [];
+  };
+  // v23: the letters of «Азбука-картинки» live in public/audio/voice/words/bukva-*.mp3.
+  const words = (): string[] => {
+    const full = resolve(process.cwd(), "public/audio/voice/words");
+    return existsSync(full) ? readdirSync(full).filter((f) => /^[a-z0-9-]+\.mp3$/.test(f)).map((f) => `words/${f.replace(/\.mp3$/, "")}`).sort() : [];
   };
   return {
     name: "audio-files",
     resolveId: (source) => (source === id ? `\0${id}` : null),
-    load: (key) => (key === `\0${id}` ? `export default ${JSON.stringify({ voice: list("voice"), music: list("music") })};` : null),
+    load: (key) => (key === `\0${id}` ? `export default ${JSON.stringify({ voice: [...list("voice"), ...words()], music: list("music") })};` : null),
   };
 }

@@ -99,6 +99,7 @@ export const games: GameEntry[] = [
     color: "#ff8a3d",
     art: { src: tileIcon("domik"), figure: true },
     wide: true,
+    fresh: { since: "v23", text: "Новые уровни" },
     load: () => import("./domik"),
     ...foundThings("domik", () => import("./domik/scenes")),
   },
@@ -117,9 +118,9 @@ export const games: GameEntry[] = [
     note: "Животные, транспорт, кухня: всё звучит",
     color: "#3fae6a",
     art: { src: tileIcon("tapni"), figure: true },
+    fresh: { since: "v23", text: "Новое" },
     load: () => import("./tapni"),
     ...foundThings("tapni", () => import("./tapni/scenes")),
-    fresh: { since: "v13", text: "Новое" },
   },
   {
     id: "risovalka",
@@ -133,12 +134,13 @@ export const games: GameEntry[] = [
   {
     id: "bukvy",
     title: "Цифры и буквы",
-    note: "Пиши пальчиком 1, 2, 3 и А, Б, В",
+    note: "Пиши, считай и слушай буквы",
     color: "#f27aa0",
     art: { src: tileIcon("bukvy"), figure: true },
+    fresh: { since: "v23", text: "Новое" },
     load: () => import("./bukvy"),
     summary: async () => {
-      const [{ levels, MOVED_DIGITS }, { adoptLevels }] = await Promise.all([import("./bukvy/letters"), import("../shared/progress")]);
+      const [{ MOVED_DIGITS }, { levels }, { adoptLevels }] = await Promise.all([import("./bukvy/letters"), import("./bukvy/all"), import("../shared/progress")]);
       await adoptLevels("risovalka", "bukvy", MOVED_DIGITS);
       const s = await starSummary("bukvy", levels.map((l) => l.id));
       return { got: s.got, max: s.max, unit: "stars" };
@@ -169,6 +171,7 @@ export const games: GameEntry[] = [
     note: "Строй из больших кубиков — и всё оживёт",
     color: "#ffb23f",
     art: { src: tileIcon("stroyka"), figure: true },
+    fresh: { since: "v23", text: "Новые уровни" },
     load: () => import("./stroyka"),
     ...levelStars("stroyka", () => import("./stroyka/levels")),
   },
@@ -178,6 +181,7 @@ export const games: GameEntry[] = [
     note: "Больше-меньше, фигуры, узоры, углы",
     color: "#9b6cd8",
     art: { src: tileIcon("formy"), figure: true },
+    fresh: { since: "v23", text: "Новое" },
     load: () => import("./formy"),
     ...levelStars("formy", () => import("./formy/levels")),
   },
@@ -223,11 +227,12 @@ export const games: GameEntry[] = [
   {
     id: "najdi-paru",
     title: "Найди пару",
-    note: "Пары, тени, счёт и тройки",
+    note: "Пары, тени, тройки и «Кто новенький?»",
     color: "#f27aa0",
     art: { src: tileIcon("najdi-paru"), figure: true },
+    fresh: { since: "v23", text: "Новое" },
     load: () => import("./najdi-paru"),
-    ...levelStars("najdi-paru", () => import("./najdi-paru/levels")),
+    ...levelStars("najdi-paru", () => import("./najdi-paru/all")),
   },
   {
     id: "teni",
@@ -244,27 +249,29 @@ export const games: GameEntry[] = [
     note: "По погоде",
     color: "#ffc94a",
     art: { src: tileIcon("odezhda"), figure: true },
+    fresh: { since: "v23", text: "Новые уровни" },
     load: () => import("./odezhda"),
     ...levelStars("odezhda", () => import("./odezhda/levels")),
   },
   {
     id: "sortirovka",
     title: "Разложи по корзинкам",
-    note: "По цвету, смыслу, размеру и счёту",
+    note: "По цвету, смыслу и «Кто что ест?»",
     color: "#ff9f6b",
     art: { src: tileIcon("sortirovka"), figure: true },
-    fresh: { since: "v13", text: "Новые уровни" },
+    fresh: { since: "v23", text: "Новое" },
     load: () => import("./sortirovka"),
-    ...levelStars("sortirovka", () => import("./sortirovka/levels")),
+    ...levelStars("sortirovka", () => import("./sortirovka/all")),
   },
   {
     id: "labirint",
     title: "Лабиринт",
-    note: "Проведи Рыжика к друзьям",
+    note: "Проведи Рыжика: пальцем и стрелками",
     color: "#5bb381",
     art: { src: tileIcon("labirint"), figure: true },
+    fresh: { since: "v23", text: "Новое" },
     load: () => import("./labirint"),
-    ...levelStars("labirint", () => import("./labirint/levels")),
+    ...levelStars("labirint", () => import("./labirint/all")),
   },
   {
     id: "raskraska",

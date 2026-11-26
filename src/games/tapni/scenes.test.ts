@@ -4,7 +4,9 @@ import { allFinds, SCENES, TOYS } from "./scenes";
 
 describe("«Нажми и послушай»", () => {
   it("has one theme per tab (animals, vehicles, kitchen, nature, sea, party), 8 things each, all drawn and with a sound", () => {
-    expect(SCENES.map((s) => s.title)).toEqual(["Животные", "Транспорт", "Кухня", "Природа", "Море", "Праздник"]);
+    expect(SCENES.map((s) => s.title)).toEqual(["Животные", "Транспорт", "Кухня", "Природа", "Море", "Праздник", "Лес", "Ферма", "Зима", "Цирк", "Забавы"]);
+    expect(new Set(SCENES.map((s) => s.title)).size).toBe(SCENES.length);
+    expect(SCENES.map((s) => s.title), "the toys tab is «Игрушки»").not.toContain("Игрушки");
     for (const s of SCENES) {
       expect(s.spots).toHaveLength(8);
       expect(new Set(s.spots.map((p) => p.id)).size).toBe(8);
@@ -31,12 +33,16 @@ describe("«Нажми и послушай»", () => {
     const byId = Object.fromEntries(SCENES.map((s) => [s.id, s.spots.map((p) => p.id)]));
     for (const animal of ["cat", "dog", "bird", "owl", "frog", "rabbit"]) expect(byId.zhivotnye, animal).toContain(animal);
     for (const vehicle of ["car", "bus", "train", "tractor", "bicycle", "plane", "boat"]) expect(byId.transport, vehicle).toContain(vehicle);
-    const animalSounds = ["meow", "woof", "tweet", "owl", "frog"];
+    const animalSounds = ["meow", "woof", "owl", "frog"];
     for (const s of SCENES) if (s.id !== "zhivotnye") for (const p of s.spots) expect(animalSounds, `${s.id}:${p.id}`).not.toContain(p.sound);
+    // v23: forest and winter birds sing in «Лес» and «Зима»; the pets stay in «Животные».
+    for (const s of SCENES) if (!["zhivotnye", "les", "zima"].includes(s.id)) for (const p of s.spots) expect(p.sound, `${s.id}:${p.id}`).not.toBe("tweet");
+    const pets = new Set(byId.zhivotnye);
+    for (const s of SCENES) if (s.id !== "zhivotnye") for (const p of s.spots) expect(pets.has(p.id), `${s.id}:${p.id}`).toBe(false);
   });
   it("counts every thing once for the home tile", () => {
     const all = allFinds();
     expect(new Set(all).size).toBe(all.length);
-    expect(all.length).toBe(6 * 8 + TOYS.length);
+    expect(all.length).toBe(SCENES.length * 8 + TOYS.length);
   });
 });

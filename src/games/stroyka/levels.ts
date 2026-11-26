@@ -1,5 +1,6 @@
 import type { LevelInfo } from "../../shared/levelgame";
 import type { ColorId, Kind, Piece } from "./logic";
+import { PLANS_V23 } from "./levels-v23";
 
 export const worlds = [
   { id: "plan", title: "По цветному плану", color: "#ffb23f" },
@@ -23,7 +24,7 @@ export type Plan = LevelInfo & {
   rows: number;
   pieces: Piece[];
   /** Extra blocks in the tray that are not needed (a real choice). */
-  extra: Pick<Piece, "kind" | "color" | "w" | "h">[];
+  extra: Pick<Piece, "kind" | "color" | "w" | "h" | "n">[];
   alive: Alive;
   /**
    * Someone who belongs in the finished model (climbs it, walks over it,
@@ -661,8 +662,10 @@ const ALL: Plan[] = [
  * Play order: from fewer blocks to more (levels added later sit where they
  * fit). Ids stay, so stars and opened levels are kept.
  */
-const ORDER = ["s1", "s2", "s3", "s10", "s8", "s11", "s5", "s6", "s4", "s7", "s9", "h1", "h5", "h2", "h6", "h3", "h4", "c5", "c1", "c2", "c6", "c3", "c4", "b5", "b2", "b4", "b1", "b3"];
-export const levels: Plan[] = ORDER.map((id) => ({ world: "plan", ...ALL.find((l) => l.id === id)! }));
+const ORDER = ["s1", "s2", "s3", "s10", "s8", "s11", "s5", "s6", "s4", "s7", "s9", "h1", "h5", "h2", "h6", "h10", "h3", "h7", "h8", "h4", "c5", "c9", "c10", "c7", "c1", "c2", "c6", "c8", "c3", "c4", "b8", "b5", "b2", "b9", "b7", "b4", "b1", "b3"];
+/** v23: new plans from Astra (her second tulip h9 and second crane b6 were left out as repeats). */
+const POOL: Plan[] = [...ALL, ...PLANS_V23];
+export const levels: Plan[] = ORDER.map((id) => ({ world: "plan", ...POOL.find((l) => l.id === id)! }));
 
 /** How hard a plan is: blocks to place, spare blocks, and grey places (colours from elsewhere). */
 export function difficulty(l: Plan): number {

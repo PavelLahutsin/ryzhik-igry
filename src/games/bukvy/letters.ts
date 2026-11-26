@@ -1,4 +1,5 @@
 import { WORDS } from "./words";
+import { SCHITAEM } from "./schitaem";
 import type { Picture } from "../risovalka/pictures";
 
 /**
@@ -9,6 +10,7 @@ import type { Picture } from "../risovalka/pictures";
  */
 export const worlds = [
   { id: "digits", title: "Цифры", color: "#6db3d4" },
+  { id: "schitaem", title: "Считаем", color: "#3b7fc4" },
   { id: "letters1", title: "Буквы А — П", color: "#f27aa0" },
   { id: "letters2", title: "Буквы Р — Я", color: "#9b6cd8" },
   { id: "strochnye", title: "Строчные буквы", color: "#5aaa7a" },
@@ -242,6 +244,7 @@ export const levels: LetterPicture[] = [
       order: true,
     }),
   ),
+  ...SCHITAEM,
   ...LETTERS.map((l, i): LetterPicture => {
     const w = WORDS[l.ch];
     if (!w) throw new Error(`Нет слова для буквы ${l.ch}`);

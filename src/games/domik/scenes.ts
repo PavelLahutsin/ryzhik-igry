@@ -1,4 +1,6 @@
 import * as A from "./art";
+import { CHERDAK } from "./scene-cherdak";
+import { VERANDA } from "./scene-veranda";
 import type { CharId, Seat } from "./logic";
 
 export type PropState = { night: boolean; n: number; on: boolean };
@@ -203,6 +205,8 @@ export const SCENES: SceneDef[] = [
       { id: "belka", x: 915, y: 949 },
     ],
   },
+  CHERDAK,
+  VERANDA,
 ];
 
 /** Every discovery the home tile counts: each prop with a reaction, each seat, every favourite meal, and the night. */

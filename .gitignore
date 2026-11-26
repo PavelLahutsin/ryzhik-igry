@@ -6,3 +6,6 @@ dist
 coverage
 .smoke
 *.regions.png
+
+__pycache__/
+*.pyc

@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import { Resvg } from "@resvg/resvg-js";
 import { PNG } from "pngjs";
 import { auditRegions, buildRegionLabels, buildLineMask, expandUnderLines, labelRegions, paintLabel } from "../src/games/raskraska/regions.ts";
+import { QA_LIMITS, evaluatePage, type Allowlist, type PageQaInput } from "./region-qa.ts";
 
 // Two lobes (one deliberately smaller than the old 2000px cutoff).
 for (const gap of [1, 2, 3]) for (const transpose of [false, true]) {
@@ -68,3 +69,51 @@ for (const [target, protectedPoints] of [[face, details], [grass, flowers]] as [
   }
 }
 console.log('Region regressions passed: gaps 1/2/3px, gray ink, edge walls, tiny details, fringe and airplane isolation.');
+
+
+const clean: PageQaInput = { id: "fresh", regionCount: 22, beforeNecks: 0, tinyCount: 0, outlineRatio: 0.08 };
+{
+  const verdict = evaluatePage(clean, {});
+  assert.equal(verdict.ok, true);
+  assert.equal(verdict.allowed, false);
+  assert.equal(verdict.failures.length, 0);
+}
+{
+  const verdict = evaluatePage({ ...clean, beforeNecks: 1 }, {});
+  assert.equal(verdict.ok, false);
+  assert.equal(verdict.failures[0]?.code, "raw_necks");
+}
+{
+  const verdict = evaluatePage({ ...clean, tinyCount: 1 }, {});
+  assert.equal(verdict.ok, false);
+  assert.equal(verdict.failures[0]?.code, "tiny_regions");
+}
+{
+  const verdict = evaluatePage({ ...clean, regionCount: QA_LIMITS.maxRegionCount + 1 }, {});
+  assert.equal(verdict.ok, false);
+  assert.equal(verdict.failures[0]?.code, "too_many_regions");
+}
+{
+  const verdict = evaluatePage({ ...clean, outlineRatio: QA_LIMITS.maxOutlineRatio + 0.01 }, {});
+  assert.equal(verdict.ok, false);
+  assert.equal(verdict.failures[0]?.code, "too_much_outline");
+}
+{
+  const allow: Allowlist = {
+    papa_rybalka: {
+      reason: "живая страница: крошки potrace, рисунок не меняю",
+      maxBeforeNecks: 1,
+      maxTinyRegions: 25,
+      maxRegionCount: 79,
+    },
+  };
+  const page: PageQaInput = { id: "papa_rybalka", regionCount: 79, beforeNecks: 1, tinyCount: 25, outlineRatio: 0.065 };
+  assert.equal(evaluatePage(page, allow).ok, true);
+  assert.equal(evaluatePage(page, allow).allowed, true);
+  assert.equal(evaluatePage({ ...page, tinyCount: 26 }, allow).ok, false, "over the allowlist cap still fails");
+  assert.equal(evaluatePage(page, {}).ok, false, "without an allowlist entry the same live page fails");
+}
+{
+  assert.throws(() => evaluatePage(clean, { fresh: { reason: "   " } }));
+}
+console.log("Region QA policy passed: necks, crumbs, density, allowlist caps.");

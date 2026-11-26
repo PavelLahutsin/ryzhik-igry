@@ -27,8 +27,8 @@ describe("domik", () => {
     expect(clampFoot(-50, 100, 600)).toEqual({ x: 60, y: 600 });
     expect(cycle(3, 4)).toBe(0);
   });
-  it("has seven scenes with unique props and a list of finds", () => {
-    expect(SCENES.map((s) => s.id)).toEqual(["dom", "sad", "les", "rechka", "detskaya", "plyazh", "dvor"]);
+  it("has nine scenes with unique props and a list of finds", () => {
+    expect(SCENES.map((s) => s.id)).toEqual(["dom", "sad", "les", "rechka", "detskaya", "plyazh", "dvor", "cherdak", "veranda"]);
     const finds = allFinds();
     expect(new Set(finds).size).toBe(finds.length);
     expect(finds.length).toBeGreaterThan(20);

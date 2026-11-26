@@ -88,6 +88,47 @@
       ]
     },
     {
+      "id": "skazki",
+      "title": "Сказки Рыжика",
+      "emoji": "",
+      "cover": "ovechki_oblako",
+      "available": true,
+      "pictures": [
+        {
+          "id": "ovechki_oblako",
+          "title": "Овечка на облаке"
+        },
+        {
+          "id": "kozlyata_volk_gorka",
+          "title": "Волк на горке"
+        },
+        {
+          "id": "slova_yabloko",
+          "title": "Рыжик угощает Мишку яблоком"
+        },
+        {
+          "id": "slova_zayka",
+          "title": "Рыжик и Зайка"
+        },
+        {
+          "id": "sneg_sanki",
+          "title": "Рыжик на санках"
+        },
+        {
+          "id": "sneg_mishka_zayka",
+          "title": "Мишка и Зайка зимой"
+        },
+        {
+          "id": "ovechki_son",
+          "title": "Рыжик спит"
+        },
+        {
+          "id": "edinorozhka_risuet",
+          "title": "Рыжик рисует единорожку"
+        }
+      ]
+    },
+    {
       "id": "songs",
       "title": "Рыжик и его песенки",
       "emoji": "",

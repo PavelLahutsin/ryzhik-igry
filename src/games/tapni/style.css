@@ -69,8 +69,7 @@
 }
 .tp-score.is-bump { animation: toy-bounce 500ms cubic-bezier(0.3, 1.6, 0.5, 1); }
 @media (max-width: 420px) {
-  /* 7 icon-only tabs (6 scenes + toys) must sit on one row on a 360px phone:
-     screen pad 16+16, tabs pad 6+6, 7×36 + 6×4 = 276, total 320 < 360. */
+  /* v23: 12 icon-only tabs (11 scenes + toys) sit on two rows of six on a 360px phone. */
   .tp-tab { padding: 2px; min-height: 40px; }
   .tp-tab__name { display: none; }
   .tp-tab__icon, .tp-tab__icon svg { width: 32px; height: 32px; }
@@ -84,11 +83,12 @@
     gap: 8px;
   }
   .game--tapni > .toolbar { grid-column: 1 / -1; }
-  .tp-tabs { flex-direction: column; flex-wrap: nowrap; gap: 6px; }
-  .tp-tab { padding: 4px; min-height: 44px; }
+  /* v23: 12 tabs — two columns, so they fit a 360px-high phone in landscape. */
+  .tp-tabs { display: grid; grid-template-columns: repeat(2, auto); align-content: center; gap: 6px; }
+  .tp-tab { padding: 3px; min-height: 40px; }
   .tp-tab.is-on { transform: translateX(-3px) scale(1.06); }
   .tp-tab__name { display: none; }
-  .tp-tab__icon, .tp-tab__icon svg { width: 36px; height: 36px; }
+  .tp-tab__icon, .tp-tab__icon svg { width: 32px; height: 32px; }
   .tp-toys { grid-template-columns: repeat(5, minmax(0, 1fr)); }
   .tp-spot { width: min(16vw, 22vh, 120px); height: min(16vw, 22vh, 120px); }
 }

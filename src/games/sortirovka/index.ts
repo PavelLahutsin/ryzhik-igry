@@ -11,31 +11,36 @@ import { plural } from "../../shared/words";
 import { hint, svgNode } from "../../shared/ui";
 import baseCss from "../../shared/base.css?inline";
 import css from "./style.css?inline";
+import { ALL_AFTER, WORLD_ORDER, isFeed, levels as allLevels, worlds as allWorlds } from "./all";
 import { basketSvg } from "./art";
-import { AFTER, itemCount, levels, objOf, sizeOf, worlds, type Basket, type SortLevel } from "./levels";
+import { itemCount, objOf, sizeOf, type Basket, type SortLevel } from "./levels";
 import { hintFor, judge, starsFor, targetFor } from "./logic";
+import { feedThumb, playFeed } from "../zveri/feed-play";
+import zvCss from "../zveri/style.css?inline";
 
 /**
  * «Разложи по корзинкам»: sort things by colour, then by kind; later by
  * size, by a number (exactly that many), and by two features at once.
  */
 export function mount(root: HTMLElement): () => void {
-  useStyles(baseCss, css);
+  useStyles(baseCss, css, zvCss);
   return mountLevelGame(
     {
       id: "sortirovka",
       title: "Разложи по корзинкам",
       subtitle: "По цвету, по виду, по размеру и по смыслу",
-      levels,
-      worlds,
-      after: AFTER,
+      levels: allLevels,
+      worlds: allWorlds,
+      worldOrder: WORLD_ORDER,
+      after: ALL_AFTER,
       thumb: (level) => {
+        if (isFeed(level)) return feedThumb(level);
         const box = el("span", { class: "so-thumb" });
         for (const basket of level.baskets.slice(0, 4)) box.append(svgNode(basketSvg(basket.color), "so-thumb__basket"));
         return box;
       },
-      caption: (level) => plural(itemCount(level), ["картинка", "картинки", "картинок"]),
-      play,
+      caption: (level) => (isFeed(level) ? plural(level.animals.length, ["зверёк", "зверька", "зверят"]) : plural(itemCount(level), ["картинка", "картинки", "картинок"])),
+      play: (stage, level, index, api) => (isFeed(level) ? playFeed(stage, level, index, api) : play(stage, level, index, api)),
     },
     root,
   );

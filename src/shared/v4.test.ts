@@ -85,7 +85,7 @@ import { HOWTO_VOICE, MUSIC_FILES, PRAISE_LINES, VOICE_LINES, VOICE_WHEN, WIN_JI
 describe("voice and music files", () => {
   it("keeps active voice slots stable and does not reuse retired recordings", () => {
     const retired = new Set(["v02", "v37"]);
-    const ids = Array.from({ length: 71 }, (_, i) => `v${String(i + 1).padStart(2, "0")}`).filter((id) => !retired.has(id));
+    const ids = Array.from({ length: 164 }, (_, i) => `v${String(i + 1).padStart(2, "0")}`).filter((id) => !retired.has(id));
     expect(Object.keys(VOICE_LINES)).toEqual(ids);
     for (const id of ids.filter((id) => id >= "v38")) expect(VOICE_WHEN[id], id).toBeTruthy();
     const music = new Set([...Object.values(MUSIC_FILES), WIN_JINGLE]);

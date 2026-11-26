@@ -1,0 +1,26 @@
+{
+  "width": 1280,
+  "height": 720,
+  "regionCount": 35,
+  "tinyRegions": [],
+  "suspectedLeaks": [],
+  "options": {
+    "inkThreshold": 72,
+    "closingRadius": 2,
+    "fringeRadius": 2
+  },
+  "before": {
+    "regionCount": 34,
+    "neckCount": 0
+  },
+  "neckCount": 0,
+  "outlineRatio": 0.08668728298611111,
+  "limits": {
+    "maxBeforeNecks": 0,
+    "maxTinyRegions": 0,
+    "maxRegionCount": 50,
+    "maxOutlineRatio": 0.12
+  },
+  "allowed": false,
+  "failures": []
+}

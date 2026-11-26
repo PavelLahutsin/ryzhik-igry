@@ -295,6 +295,32 @@ export function play(stage: HTMLElement, level: Traceable, _index: number, api: 
     later(() => api.win(starsFor(countedSlips(level.world, slips), hints), level.done, level.art ? svgNode(level.art, "praise__word") : undefined), 1900);
   }
 
+  /** v23: the strokes of a «Считаем» picture go thing by thing (the same number of lines each). */
+  function countOnPicture(n: number): void {
+    const per = Math.max(1, Math.floor(level.strokes.length / n));
+    for (let i = 0; i < n; i++) {
+      const pts = level.strokes.slice(i * per, (i + 1) * per).flatMap((d) => sample(d, 6));
+      const x = pts.reduce((a, p) => a + p.x, 0) / Math.max(1, pts.length);
+      const y = pts.reduce((a, p) => a + p.y, 0) / Math.max(1, pts.length);
+      later(() => {
+        const spot = svgEl("g", { transform: `translate(${x.toFixed(1)} ${y.toFixed(1)})` });
+        const badge = svgEl("g", { class: "rv-badge" });
+        spot.append(badge);
+        badge.append(svgEl("circle", { r: 14, class: "rv-badge__dot" }));
+        const num = svgEl("text", { class: "rv-badge__num", "text-anchor": "middle", "dominant-baseline": "central" });
+        num.textContent = String(i + 1);
+        badge.append(num);
+        extras.append(spot);
+        audio.tone(523 * Math.pow(2, i / 12), 0.15);
+      }, 300 + i * 420);
+    }
+    later(() => {
+      say.textContent = level.done;
+      svg.classList.add("is-alive");
+      api.win(starsFor(countedSlips(level.world, slips), hints), level.done);
+    }, 800 + n * 420);
+  }
+
   function countUp(n: number): void {
     if (n === 0) {
       // Zero: an empty plate — nothing to count.
@@ -304,6 +330,11 @@ export function play(stage: HTMLElement, level: Traceable, _index: number, api: 
         svg.classList.add("is-alive");
       }, 400);
       later(() => api.win(starsFor(countedSlips(level.world, slips), hints), "Ноль — ничего нет!"), 1800);
+      return;
+    }
+    // v23 «Считаем»: the traced things themselves get numbers 1…n, one by one.
+    if (level.world === "schitaem") {
+      countOnPicture(n);
       return;
     }
     // Show n apples around the digit, one by one, and say the number.

@@ -868,6 +868,100 @@ export const SHAPES: Record<string, Shape> = {
     ),
   },
 
+  // v23 (Astra)
+  pig: {
+    name: "Поросёнок",
+    group: "animals",
+    svg: svg(
+      `<path d="M24 49 C13 51 6 47 7 40 C8 34 16 34 17 40 C18 45 12 47 8 44" fill="none" stroke="#d57989" stroke-width="5" stroke-linecap="round"/>` +
+        `<path d="M19 53 Q18 31 42 28 Q54 26 65 31 L70 13 Q81 18 79 37 Q84 40 85 46 L91 46 Q94 46 94 51 L94 61 Q94 65 89 65 L81 65 Q76 73 71 74 L70 85 L60 85 L58 76 Q48 79 39 76 L36 85 L26 85 L26 71 Q18 65 19 53Z" ${f("#f39aaa")}/>` +
+        `<ellipse cx="86" cy="55" rx="2" ry="3" fill="#a95365"/>` +
+        eye(74, 46, 3),
+    ),
+  },
+  sheep: {
+    name: "Овечка",
+    group: "animals",
+    svg: svg(
+      `<path d="M26 62 L39 62 L36 89 L27 89Z M57 62 L70 62 L66 89 L57 89Z" ${f("#926e58")}/>` +
+        `<path d="M15 39 C7 29 17 19 27 22 C29 11 44 10 49 18 C57 9 70 16 70 25 C82 24 85 35 79 43 C88 52 80 64 71 64 C69 75 56 77 50 70 C43 79 30 75 28 68 C15 73 7 63 12 54 C4 51 6 41 15 39Z" ${f("#fff0d4")}/>` +
+        `<path d="M65 35 Q69 24 80 30 Q86 32 87 41 Q95 47 92 54 Q88 62 76 57 Q67 53 65 44 Q57 49 52 40 Q56 34 65 35Z" ${f("#bd9473")}/>` +
+        eye(80, 39, 2.8),
+    ),
+  },
+  parrot: {
+    name: "Попугай",
+    group: "animals",
+    svg: svg(
+      `<path d="M39 52 C32 42 34 22 45 14 C59 4 76 11 79 24 L76 43 Q77 61 60 70 L23 92 L31 73 L15 82Z" ${f("#55bc8b")}/>` +
+        `<path d="M76 23 Q94 24 92 40 Q90 47 84 51 Q85 38 73 36Z" ${f("#ffbd49")}/>` +
+        `<path d="M54 38 Q67 40 61 53 Q53 64 32 69 Q35 51 44 42 Q49 37 54 38Z" ${f("#499bc9")}/>` +
+        eye(66, 24, 3.5),
+    ),
+  },
+  corn: {
+    name: "Кукуруза",
+    group: "food",
+    svg: svg(
+      `<path d="M33 66 C29 43 34 10 48 8 C64 5 71 40 65 67 Q59 84 49 88 Q38 81 33 66Z" ${f("#ffcb48")}/>` +
+        `<path d="M40 28 Q49 31 58 27 M38 39 Q50 43 61 38 M38 50 Q49 54 62 50" ${O}/>` +
+        `<path d="M49 92 Q20 84 12 40 Q36 48 49 70 Q59 45 85 31 Q80 73 58 87Z" ${f("#68ac60")}/>`,
+    ),
+  },
+  radish: {
+    name: "Редиска",
+    group: "food",
+    svg: svg(
+      `<path d="M48 44 Q28 36 22 15 Q38 13 48 30 Q43 13 54 7 Q62 16 56 30 Q66 16 83 19 Q76 37 55 44Z" ${f("#65ad59")}/>` +
+        `<path d="M51 39 C72 35 84 51 76 66 Q69 78 52 80 Q45 89 29 92 Q40 84 41 78 C19 75 15 55 28 44 Q37 37 51 39Z" ${f("#ec5875")}/>`,
+    ),
+  },
+  excavator: {
+    name: "Экскаватор",
+    group: "transport",
+    svg: svg(
+      `<path d="M39 59 L56 15 Q58 10 63 14 L86 42 L80 49 L61 28 L51 63Z" ${f("#efab35")}/>` +
+        `<path d="M83 38 L93 55 Q92 66 77 67 L68 58 L79 57Z" ${f("#e78c36")}/>` +
+        `<path d="M10 68 L10 56 L18 54 L20 33 L39 33 L44 54 L56 57 L56 69Z" ${f("#ffc649")}/>` +
+        `<path d="M24 39 L34 39 L37 51 L23 51Z" ${f("#a6dfed")}/>` +
+        `<rect x="7" y="68" width="55" height="19" rx="9.5" ${f("#627385")}/>` +
+        `<path d="M19 77 H50" ${O}/>`,
+    ),
+  },
+  cablecar: {
+    name: "Кабинка канатки",
+    group: "transport",
+    svg: svg(
+      `<path d="M32 20 L61 8 L64 15 L53 20 L53 39 L46 39 L46 23 L35 27Z" ${f("#677b8e")}/>` +
+        `<path d="M30 37 Q50 32 70 37 Q77 39 80 51 L86 72 Q89 87 75 89 Q50 94 25 89 Q11 86 14 72 L20 50 Q23 40 30 37Z" ${f("#f06c54")}/>` +
+        `<path d="M29 46 L46 44 L46 64 L23 64Z M54 44 L71 46 L77 64 L54 64Z" ${f("#b9e9ed")}/>`,
+    ),
+  },
+  castle: {
+    name: "Игрушечный замок",
+    group: "toys",
+    svg: svg(
+      `<path d="M10 89 L13 57 L8 54 L8 39 L16 39 L16 46 L23 46 L23 39 L31 39 L31 53 L37 53 L37 25 L45 25 L45 32 L54 32 L54 25 L63 25 L63 53 L69 53 L69 39 L77 39 L77 46 L84 46 L84 39 L92 39 L92 54 L87 57 L90 89Z" ${f("#cf90db")}/>` +
+        `<path d="M40 88 L40 73 Q50 57 60 73 L60 88Z" ${f("#975cac")}/>`,
+    ),
+  },
+  flagcastle: {
+    name: "Замок с флажком",
+    group: "toys",
+    svg: svg(
+      `<path d="M58 30 L58 7 L82 12 L64 20 L64 30Z" ${f("#ff8167")}/>` +
+        `<path d="M10 89 L13 57 L8 54 L8 39 L16 39 L16 46 L23 46 L23 39 L31 39 L31 53 L37 53 L37 25 L45 25 L45 32 L54 32 L54 25 L63 25 L63 53 L69 53 L69 39 L77 39 L77 46 L84 46 L84 39 L92 39 L92 54 L87 57 L90 89Z" ${f("#cf90db")}/>` +
+        `<path d="M40 88 L40 73 Q50 57 60 73 L60 88Z" ${f("#975cac")}/>`,
+    ),
+  },
+  wave: {
+    name: "Волна",
+    group: "nature",
+    svg: svg(
+      `<path d="M7 83 C24 78 24 55 34 36 C45 14 69 9 83 21 Q92 28 92 40 C80 30 68 33 66 44 C62 60 78 69 92 64 Q85 82 66 86 Q44 91 7 83Z" ${f("#54bdda")}/>` +
+        `<path d="M32 72 Q42 67 47 54" ${O}/>`,
+    ),
+  },
 };
 
 /**
@@ -875,6 +969,7 @@ export const SHAPES: Record<string, Shape> = {
  * difficulty and to pick tricky extra shadows.
  */
 export const TWINS: ReadonlyArray<readonly [string, string]> = [
+  ["castle", "flagcastle"],
   ["cat", "cat2"],
   ["rabbit", "rabbit2"],
   ["bird", "bird2"],

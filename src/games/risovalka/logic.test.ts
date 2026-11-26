@@ -40,9 +40,9 @@ describe("risovalka", () => {
     expect(starsFor(7, 2).stars).toBe(1);
     expect(numberWord(3)).toBe("Три");
   });
-  it("has 160 pictures, old ids first so progress keeps working (v17: r31–r51, v18: r52–r62, v20: r63–r100, v22: r101–r160 added at the end)", () => {
-    expect(levels).toHaveLength(160);
-    expect(levels.map((l) => l.id)).toEqual(Array.from({ length: 160 }, (_, i) => `r${i + 1}`));
+  it("has 172 pictures, old ids first so progress keeps working (v17: r31–r51, v18: r52–r62, v20: r63–r100, v22: r101–r160, v23: r161–r172 added at the end)", () => {
+    expect(levels).toHaveLength(172);
+    expect(levels.map((l) => l.id)).toEqual(Array.from({ length: 172 }, (_, i) => `r${i + 1}`));
     expect(new Set(levels.map((l) => l.title)).size).toBe(levels.length);
     for (const l of levels) {
       expect(l.strokes.length).toBeGreaterThan(0);
@@ -110,17 +110,20 @@ describe("risovalka", () => {
     expect(ids.slice(89, 95)).toEqual(["r125", "r126", "r127", "r128", "r129", "r130"]);
     expect(ids.slice(95, 101)).toEqual(["r137", "r138", "r139", "r140", "r141", "r142"]);
     expect(ids.slice(101, 107)).toEqual(["r149", "r150", "r151", "r152", "r153", "r154"]);
-    expect(ids.slice(107, 124)).toEqual(Array.from({ length: 17 }, (_, i) => `r${84 + i}`));
-    expect(ids.slice(124, 130)).toEqual(["r107", "r108", "r109", "r110", "r111", "r112"]);
-    expect(ids.slice(130, 136)).toEqual(["r119", "r120", "r121", "r122", "r123", "r124"]);
-    expect(ids.slice(136, 142)).toEqual(["r131", "r132", "r133", "r134", "r135", "r136"]);
-    expect(ids.slice(142, 148)).toEqual(["r143", "r144", "r145", "r146", "r147", "r148"]);
-    expect(ids.slice(148, 154)).toEqual(["r155", "r156", "r157", "r158", "r159", "r160"]);
-    expect(order.slice(107, 154).every((l) => l.world === "things")).toBe(true);
-    expect(order[154]!.id).toBe("r25");
+    // v23: r167–r172 close «Большие картины», r161–r166 close «Вещи и вкусности».
+    expect(ids.slice(107, 113)).toEqual(["r167", "r168", "r169", "r170", "r171", "r172"]);
+    expect(ids.slice(113, 130)).toEqual(Array.from({ length: 17 }, (_, i) => `r${84 + i}`));
+    expect(ids.slice(130, 136)).toEqual(["r107", "r108", "r109", "r110", "r111", "r112"]);
+    expect(ids.slice(136, 142)).toEqual(["r119", "r120", "r121", "r122", "r123", "r124"]);
+    expect(ids.slice(142, 148)).toEqual(["r131", "r132", "r133", "r134", "r135", "r136"]);
+    expect(ids.slice(148, 154)).toEqual(["r143", "r144", "r145", "r146", "r147", "r148"]);
+    expect(ids.slice(154, 160)).toEqual(["r155", "r156", "r157", "r158", "r159", "r160"]);
+    expect(ids.slice(160, 166)).toEqual(["r161", "r162", "r163", "r164", "r165", "r166"]);
+    expect(order.slice(113, 166).every((l) => l.world === "things")).toBe(true);
+    expect(order[166]!.id).toBe("r25");
     expect(playOrder(levels).at(-1)!.world).toBe("things"); // without the world list: array order (labirint etc. unchanged)
     const after = orderAfter(levels, W);
-    expect(after).toEqual({ r31: "r12", r13: "r47", r36: "r18", r19: "r48", r42: "r24", r25: "r160", r47: "r35", r48: "r41", r49: "r46", r84: "r154", r101: "r83", r107: "r100", r113: "r106", r119: "r112", r125: "r118", r131: "r124", r137: "r130", r143: "r136", r149: "r142", r155: "r148" });
+    expect(after).toEqual({ r31: "r12", r13: "r47", r36: "r18", r19: "r48", r42: "r24", r25: "r166", r47: "r35", r48: "r41", r49: "r46", r84: "r172", r101: "r83", r107: "r100", r113: "r106", r119: "r112", r125: "r118", r131: "r124", r137: "r130", r143: "r136", r149: "r142", r155: "r148", r167: "r154" });
     // Each level opens once the one before it in play order is won.
     for (let i = 1; i < order.length; i++) {
       const won = ids.slice(0, i);

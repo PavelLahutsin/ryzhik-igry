@@ -11,9 +11,12 @@ import { rateBy, STARS } from "../../shared/stars";
 import { hint, svgNode } from "../../shared/ui";
 import baseCss from "../../shared/base.css?inline";
 import css from "./style.css?inline";
-import { levels, worlds, type LabLevel } from "./levels";
+import { ALL_AFTER, WORLD_ORDER, isArrows, levels as allLevels, worlds as allWorlds } from "./all";
+import { levels, type LabLevel } from "./levels";
 import { E, S, canStep, fitMaze, pickMaze, placeApples, sizeWord, solve, tapPath, walkToward, type Cell, type Maze } from "./maze";
 import { createRng } from "../../shared/rng";
+import { arrowsThumb, playArrows } from "./arrows-play";
+
 
 /** «Лабиринт»: lead Ryzhik through the maze, picking up apples on the way. */
 export function mount(root: HTMLElement): () => void {
@@ -23,16 +26,20 @@ export function mount(root: HTMLElement): () => void {
       id: "labirint",
       title: "Лабиринт",
       subtitle: "Проведи Рыжика пальцем по дорожке",
-      levels,
-      worlds,
+      levels: allLevels,
+      worlds: allWorlds,
+      worldOrder: WORLD_ORDER,
+      after: ALL_AFTER,
       thumb: (level) =>
-        el("span", { class: "lb-thumb" }, [
+        isArrows(level)
+          ? arrowsThumb(level)
+          : el("span", { class: "lb-thumb" }, [
           el("img", { attrs: { src: character(level.goal), alt: "", draggable: "false" } }),
           ...(level.apples ? [svgNode(OBJECTS.apple.svg, "lb-thumb__apple")] : []),
         ]),
       // v13: the maze takes the screen's shape, so the list names its size in a word, not cols×rows.
-      caption: (level) => `${sizeWord(level.cols, level.rows)}${level.apples ? ` · яблок: ${level.apples}` : ""}`,
-      play,
+      caption: (level) => isArrows(level) ? `стрелок: ${level.solution.length}` : `${sizeWord(level.cols, level.rows)}${level.apples ? ` · яблок: ${level.apples}` : ""}`,
+      play: (stage, level, index, api) => (isArrows(level) ? playArrows(stage, level, index, api) : play(stage, level, index, api)),
     },
     root,
   );
