@@ -30,6 +30,7 @@ function next(): void {
   if (showing) return;
   const tip = queue.shift();
   if (!tip) return;
+  const target = tip.target;
   // Never over a win card or «Как играть»: the tip waits for another time.
   if (!tip.target.isConnected || document.querySelector(".praise, .ht")) {
     next();
@@ -98,8 +99,24 @@ function next(): void {
     finish();
     bubble.remove();
   };
-  function done(): void {
+  function done(ev?: Event): void {
     if (gone) return;
+    // The ring and bubble have pointer-events: none, so a tap meant to close
+    // the tip would also press the highlighted control — for the menu's 🎵
+    // that turned the music off the first time everyone saw the new tip.
+    // Do not stop pointerdown: the document still needs that gesture to
+    // unlock audio. Only the following click is swallowed, so the button
+    // is not pressed.
+    if (ev && ev.target instanceof Node && target.contains(ev.target)) {
+      const blockClick = (e: Event): void => {
+        if (target.contains(e.target as Node)) {
+          e.stopPropagation();
+          e.preventDefault();
+        }
+      };
+      window.addEventListener("click", blockClick, true);
+      setTimeout(() => window.removeEventListener("click", blockClick, true), 0);
+    }
     finish();
     bubble.classList.remove("is-open");
     setTimeout(() => {
@@ -112,7 +129,7 @@ function next(): void {
   const gen = generation;
   closeNow = cut;
   timers.push(setTimeout(() => window.addEventListener("pointerdown", done, true), 300));
-  timers.push(setTimeout(done, tip.ms));
+  timers.push(setTimeout(() => done(), tip.ms));
 }
 
 /** Drop tips that wait (the screen changed). */
