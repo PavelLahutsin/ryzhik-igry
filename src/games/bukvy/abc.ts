@@ -1,6 +1,6 @@
 /**
  * v23 «Азбука-картинки»: tap a letter — Ryzhik says its sound and a word
- * («М! Мммячик»; Ё, Й, Ю, Я, and В, Н only the word; Ь, Ъ a short phrase), and three
+ * («М! Мммячик»; Ё, Й, Ю, Я, and Н only the word; В is letter plus word again; Ь, Ъ a short phrase), and three
  * pictures on that letter show. Astra, brief 24-1/2, with fixes: «Ельник»
  * (the same as «Ель»), «Йод» (medicine), «Йоркширский терьер» (too long, looked
  * like a cat) and «подъёмный мост» dropped; Э got its own file name (it had
@@ -33,7 +33,7 @@ export const ABC: AbcLetter[] = [
   },
   {
     letter: "В",
-    say: "Вишня!",
+    say: "В! Вишня",
     file: "bukva-v",
     words: [
       { word: "Вишня", art: "have:Вишня" },

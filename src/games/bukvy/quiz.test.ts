@@ -24,7 +24,7 @@ describe("«Азбука-картинки» v23", () => {
   });
   it("says the sound and the word, as the speech therapist said", () => {
     for (const l of ABC) {
-      if ("ЁЮЯЙВН".includes(l.letter)) expect(l.say, l.letter).toBe(`${l.words[0]!.word}!`);
+      if ("ЁЮЯЙН".includes(l.letter)) expect(l.say, l.letter).toBe(`${l.words[0]!.word}!`);
       else if (l.letter === "Ь") expect(l.say).toBe("Мягкий знак. Делает звук мягким.");
       else if (l.letter === "Ъ") expect(l.say).toBe("Твёрдый знак. Разделяет звуки.");
       else {
