@@ -21,7 +21,7 @@ export function touchable(t: Touchable, onTouch?: (id: string) => void, cls = "t
       on: {
         click: () => {
           audio.unlock();
-          audio.play(t.sound, "toy");
+          audio.playObject(t.id, t.sound, "toy");
           replayClass(node, "is-on");
           replayClass(word, "is-on");
           onTouch?.(t.id);

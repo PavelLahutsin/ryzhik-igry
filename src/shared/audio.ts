@@ -195,13 +195,13 @@ function voiceDuckEnd(): void {
 // ---------------------------------------------------------------- files
 // Optional recordings (public/audio); the list comes from vite.config.ts.
 const BASE = (import.meta.env?.BASE_URL as string | undefined) ?? "/";
-export const fileUrl = (kind: "voice" | "music", id: string): string => `${BASE}audio/${kind}/${id}.mp3`;
-const present = new Set([...audioFiles.voice, ...audioFiles.music]);
+export const fileUrl = (kind: "voice" | "music" | "sfx", id: string): string => `${BASE}audio/${kind}/${id}.mp3`;
+const present = new Set([...audioFiles.voice, ...audioFiles.music, ...(audioFiles.sfx ?? [])]);
 
 /** Is the optional recording there? (Known at build time, no network.) */
 function fileKnown(url: string): boolean {
   // v23: "v72", "m03" or "words/bukva-m" (letters of «Азбука-картинки»).
-  const id = url.replace(/^.*audio\/(voice|music)\//, "").replace(/\.mp3$/, "");
+  const id = url.replace(/^.*audio\/(voice|music|sfx)\//, "").replace(/\.mp3$/, "");
   return present.has(id);
 }
 
@@ -471,6 +471,50 @@ export const audio = {
       return;
     }
     recipe(kind)(c, fx, c.currentTime);
+  },
+  /** Is this object sound recorded (known at build time)? */
+  hasSfx(id: string): boolean {
+    return fileKnown(fileUrl("sfx", id));
+  },
+  /**
+   * A touched object in «Нажми и послушай»: public/audio/sfx/<id>.mp3
+   * when we have a good recording, otherwise the old synth (`fallback`).
+   */
+  playObject(id: string, fallback: SoundKind, channel = "toy"): void {
+    if (!this.hasSfx(id)) {
+      this.play(fallback, channel);
+      return;
+    }
+    const c = ready();
+    if (!c || !fx) {
+      const w = enabled ? context() : null;
+      if (w && w.state !== "running") void resume(w).then(() => w.state === "running" && audio.playObject(id, fallback, channel));
+      return;
+    }
+    const url = fileUrl("sfx", id);
+    duck(DUCK_FX, CHANNEL_DUCK_SECONDS);
+    const prev = channels.get(channel);
+    if (prev) {
+      prev.gain.setTargetAtTime(0, c.currentTime, 0.015);
+      setTimeout(() => prev.disconnect(), 120);
+    }
+    const g = c.createGain();
+    g.gain.value = CHANNEL_GAIN;
+    g.connect(fx);
+    channels.set(channel, g);
+    voiceBuffer(c, url)
+      .then((buffer) => {
+        if (channels.get(channel) !== g || !fx) return;
+        duck(DUCK_FX, buffer.duration + 0.15);
+        const src = c.createBufferSource();
+        src.buffer = buffer;
+        src.connect(g);
+        src.start();
+      })
+      .catch(() => {
+        if (channels.get(channel) !== g) return;
+        recipe(fallback)(c, g, c.currentTime);
+      });
   },
   /** The i-th star of a praise card lighting up (rising chime). */
   star(i: number): void {

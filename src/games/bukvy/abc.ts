@@ -1,6 +1,6 @@
 /**
  * v23 «Азбука-картинки»: tap a letter — Ryzhik says its sound and a word
- * («М! Мммячик»; Ё, Ю, Я, Й only the word; Ь, Ъ a short phrase), and three
+ * («М! Мммячик»; Ё, Й, Ю, Я, and В, Н only the word; Ь, Ъ a short phrase), and three
  * pictures on that letter show. Astra, brief 24-1/2, with fixes: «Ельник»
  * (the same as «Ель»), «Йод» (medicine), «Йоркширский терьер» (too long, looked
  * like a cat) and «подъёмный мост» dropped; Э got its own file name (it had
@@ -33,11 +33,11 @@ export const ABC: AbcLetter[] = [
   },
   {
     letter: "В",
-    say: "В! Ввварежка",
+    say: "Вишня!",
     file: "bukva-v",
     words: [
-      { word: "Варежка", art: "have:Варежка" },
       { word: "Вишня", art: "have:Вишня" },
+      { word: "Варежка", art: "have:Варежка" },
       { word: "Ваза", art: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><g stroke="#3b2e25" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"><path fill="#76d1c8" d="M32 16h36q-12 23-1 31 25 20 2 39-19 8-38 0-23-19 2-39 11-8-1-31Z"/><ellipse cx="50" cy="16" rx="18" ry="5" fill="#459caa"/><path fill="#ffe194" d="M25 60q25 10 50 0l2 10q-27 12-54 0Z"/></g></svg>` },
     ],
   },
@@ -150,7 +150,7 @@ export const ABC: AbcLetter[] = [
   },
   {
     letter: "Н",
-    say: "Н! Ннносок",
+    say: "Носок!",
     file: "bukva-n",
     words: [
       { word: "Носок", art: "have:Носок" },

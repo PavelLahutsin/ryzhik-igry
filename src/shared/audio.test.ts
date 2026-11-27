@@ -78,12 +78,14 @@ class FakeContext {
 }
 
 let audio: typeof import("./audio").audio;
+let fileUrl: typeof import("./audio").fileUrl;
 let DUCK_FX: number;
 
 beforeAll(async () => {
   vi.stubGlobal("window", { AudioContext: FakeContext, location: { search: "", hash: "" }, setInterval: () => 0 });
   const mod = await import("./audio");
   audio = mod.audio;
+  fileUrl = mod.fileUrl;
   DUCK_FX = mod.DUCK_FX;
 });
 
@@ -148,5 +150,28 @@ describe("sound effects and music (v22)", () => {
     expect(audio.enabled).toBe(true);
     expect(audio.music).toBe(true);
     expect(audio.audible).toBe(true);
+  });
+});
+
+describe("recorded object sounds (sfx)", () => {
+  it("names files under public/audio/sfx/<id>.mp3", () => {
+    expect(fileUrl("sfx", "frog")).toMatch(/audio\/sfx\/frog\.mp3$/);
+  });
+
+  it("knows a shipped recording and falls back to synth when there is none", () => {
+    expect(audio.hasSfx("frog")).toBe(true);
+    expect(audio.hasSfx("plane")).toBe(false);
+    const before = made.osc;
+    audio.playObject("plane", "meow", "toy");
+    expect(made.osc).toBeGreaterThan(before);
+  });
+
+  it("the music still ducks under a toy that has no recording", () => {
+    const musicOut = made.gains[1]!;
+    musicOut.gain.calls = [];
+    audio.playObject("wave", "whoosh", "toy");
+    const targets = musicOut.gain.calls.filter((c) => c[0] === "target").map((c) => c[1]);
+    expect(targets[0]).toBe(DUCK_FX);
+    expect(targets.at(-1)).toBe(1);
   });
 });
