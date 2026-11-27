@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { clampFoot, cycle, fitWorld, nearestSeat, react, WORLD_H, WORLD_W } from "./logic";
+import { CHAR_ASPECT, CHAR_HEIGHT, clampFoot, cycle, fitWorld, nearestSeat, react, WORLD_H, WORLD_W } from "./logic";
 import { allFinds, PHRASES, SCENES } from "./scenes";
 
 describe("domik", () => {
@@ -22,6 +22,16 @@ describe("domik", () => {
     expect(react("belka", "cone")).toBe("love");
     expect(react("belka", "apple")).toBe("yum");
     expect(react("mishka", "ball")).toBe("play");
+  });
+  it("starts mama clear of the radio", () => {
+    const dom = SCENES.find((s) => s.id === "dom")!;
+    const radio = dom.props.find((p) => p.id === "radio")!;
+    const mama = dom.cast.find((c) => c.id === "mama")!;
+    const cx = radio.x + radio.w / 2;
+    const cy = radio.y + radio.h / 2;
+    const w = CHAR_HEIGHT.mama * CHAR_ASPECT.mama;
+    const covers = Math.abs(mama.x - cx) < w * 0.55 && cy < mama.y && cy > mama.y - CHAR_HEIGHT.mama;
+    expect(covers).toBe(false);
   });
   it("keeps characters in the world and cycles counters", () => {
     expect(clampFoot(-50, 100, 600)).toEqual({ x: 60, y: 600 });

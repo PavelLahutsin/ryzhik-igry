@@ -148,6 +148,15 @@ export function mount(root: HTMLElement): () => void {
       b.classList.toggle("is-on", j === i);
       b.setAttribute("aria-pressed", j === i ? "true" : "false");
     });
+    const tab = tabButtons[i];
+    if (tab) {
+      const tr = tab.getBoundingClientRect();
+      const pr = tabs.getBoundingClientRect();
+      if (tr.left < pr.left) tabs.scrollLeft -= pr.left - tr.left;
+      else if (tr.right > pr.right) tabs.scrollLeft += tr.right - pr.right;
+      if (tr.top < pr.top) tabs.scrollTop -= pr.top - tr.top;
+      else if (tr.bottom > pr.bottom) tabs.scrollTop += tr.bottom - pr.bottom;
+    }
     stopScene?.();
     scroller.replaceChildren();
     const scene = SCENES[i]!;
@@ -222,6 +231,13 @@ export function mount(root: HTMLElement): () => void {
       propNodes.set(prop.id, node);
       world.append(node);
       paintProp(prop);
+      if (prop.id === "swing") {
+        node.addEventListener("click", () => {
+          audio.unlock();
+          anim(node, "is-rock", 800);
+          audio.play("boing");
+        });
+      }
       if (prop.tap !== "none") {
         const run = (): void => {
           audio.unlock();
@@ -745,8 +761,17 @@ export function mount(root: HTMLElement): () => void {
       window.clearTimeout(idleTimer);
       idleTimer = window.setTimeout(() => {
         void finds.load().then((list) => {
+          const box = scroller.getBoundingClientRect();
           const fresh = scene.props.filter((p) => p.tap !== "none" && !list.includes(`${scene.id}:${p.id}`));
-          const pick = fresh[Math.floor(Math.random() * fresh.length)];
+          const visible = fresh.filter((p) => {
+            const n = propNodes.get(p.id);
+            if (!n) return false;
+            const r = n.getBoundingClientRect();
+            const cx = (r.left + r.right) / 2;
+            const cy = (r.top + r.bottom) / 2;
+            return cx > box.left && cx < box.right && cy > box.top && cy < box.bottom;
+          });
+          const pick = visible[Math.floor(Math.random() * visible.length)];
           if (pick) propNodes.get(pick.id)?.classList.add("is-calling");
         });
       }, 7000);
@@ -792,7 +817,7 @@ export function mount(root: HTMLElement): () => void {
 
   show(current);
   void finds.load().then((list) => {
-    if (list.length === 0) hint(view, "Нажимай на всё вокруг и перетаскивай героев!", 3200);
+    if (list.length === 0) hint(view, "Коснись лампы или перетащи героя!", 3200);
   });
   return () => {
     stopScene?.();

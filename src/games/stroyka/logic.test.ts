@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { difficulty, levels, worlds } from "./levels";
-import { countWord, doneAll, findSlot, fits, overlaps, starsFor, toPlace, type Piece } from "./logic";
+import { colorThing, countWord, doneAll, findSlot, fits, overlaps, starsFor, toPlace, type Piece } from "./logic";
 
 const slots: Piece[] = [
   { kind: "brick", color: "red", x: 0, y: 2, w: 2, h: 1 },
@@ -18,7 +18,11 @@ describe("stroyka rules", () => {
 
   it("finds the nearest fitting place, or a same-shape place for a colour tip", () => {
     const filled = [false, false, false];
-    expect(findSlot(slots, filled, { kind: "brick", color: "blue", w: 2, h: 1 }, { x: 1, y: 2.4 })).toEqual({ index: 1, fit: "ok" });
+    // The middle of the red row is not a success for a blue block, even if blue is next door.
+    expect(findSlot(slots, filled, { kind: "brick", color: "blue", w: 2, h: 1 }, { x: 1, y: 2.4 })).toEqual({ index: 0, fit: "color" });
+    expect(findSlot(slots, filled, { kind: "brick", color: "red", w: 2, h: 1 }, { x: 1, y: 1.5 })).toEqual({ index: 1, fit: "color" });
+    // The shared edge still helps the right colour land.
+    expect(findSlot(slots, filled, { kind: "brick", color: "blue", w: 2, h: 1 }, { x: 1, y: 2 })).toEqual({ index: 1, fit: "ok" });
     expect(findSlot(slots, filled, { kind: "brick", color: "green", w: 2, h: 1 }, { x: 1, y: 2.5 })).toEqual({ index: 0, fit: "color" });
     expect(findSlot(slots, filled, { kind: "wheel", color: "black", w: 1, h: 1 }, { x: 0.5, y: 0 })).toBeNull();
     filled[1] = true;
@@ -36,6 +40,9 @@ describe("stroyka rules", () => {
     expect(starsFor(0, 2).stars).toBe(2);
     expect(starsFor(5, 2).stars).toBe(1);
     expect(countWord(6)).toBe("Шесть");
+    expect(colorThing("black", "wheel")).toBe("чёрное колесо");
+    expect(colorThing("yellow", "window")).toBe("жёлтое окошко");
+    expect(colorThing("red", "brick")).toBe("красный блок");
   });
 });
 

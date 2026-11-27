@@ -34,9 +34,18 @@ export async function introSeen(m: Mode): Promise<boolean> {
   return (await loadSeen()).tips.includes(seenId(m));
 }
 
-/** Show the demo over `host` (the play area). Returns a close function. */
-export function showIntro(host: HTMLElement, mode: Mode, scope: Scope, onClose: () => void = () => {}): () => void {
+/** Show the demo over `host` (the play area). Returns a close function.
+ * `live` is this picture's own first labels (14 → 13 → 12), not a fixed sample. */
+export function showIntro(
+  host: HTMLElement,
+  mode: Mode,
+  scope: Scope,
+  onClose: () => void = () => {},
+  live?: { sample: [string, string, string]; next?: string },
+): () => void {
   const m = MODES[mode];
+  const sample = live?.sample ?? m.sample;
+  const next = live?.next ?? m.next;
   const X = [40, 120, 200];
   const svg = svgEl("svg", { viewBox: "0 0 240 96", class: "td-intro__svg", "aria-hidden": "true" });
   const lines = [0, 1].map((i) => svgEl("line", { x1: X[i]!, y1: 60, x2: X[i + 1]!, y2: 60, class: `td-intro__line td-intro__line--${i + 1}`, pathLength: 1 }));
@@ -44,17 +53,17 @@ export function showIntro(host: HTMLElement, mode: Mode, scope: Scope, onClose: 
     const g = svgEl("g", { class: `td-intro__dot td-intro__dot--${i + 1}`, transform: `translate(${x} 60)` });
     g.append(svgEl("circle", { r: 15, class: "td-intro__halo" }), svgEl("circle", { r: 8, class: "td-intro__core" }));
     const t = svgEl("text", { y: -26, class: "td-intro__num" });
-    t.textContent = m.sample[i]!;
+    t.textContent = sample[i]!;
     g.append(t);
     return g;
   });
   svg.append(...lines, ...dots);
   const again = el("button", { class: "td-intro__again", attrs: { type: "button" }, text: "↻ Покажи ещё раз" });
   const go = el("button", { class: "td-intro__go btn btn--play", attrs: { type: "button" }, text: "Играть!" });
-  const card = el("div", { class: "td-intro__card", attrs: { role: "dialog", "aria-label": `${m.title}: ${m.sample.join(", ")}` } }, [
+  const card = el("div", { class: "td-intro__card", attrs: { role: "dialog", "aria-label": `${m.title}: ${sample.join(", ")}` } }, [
     el("p", { class: "td-intro__title", text: m.title }),
     svg,
-    el("p", { class: "td-intro__line-text" }, [el("b", { text: m.sample.join(" → ") }), document.createTextNode(` — ${m.next}`)]),
+    el("p", { class: "td-intro__line-text" }, [el("b", { text: sample.join(" → ") }), document.createTextNode(` — ${next}`)]),
     el("p", { class: "td-intro__rule", text: "Ошибка — только если нажать не ту точку. Нажать мимо — не страшно." }),
     el("div", { class: "td-intro__buttons" }, [again, go]),
   ]);

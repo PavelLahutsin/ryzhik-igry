@@ -30,8 +30,7 @@ export const levels: Scenario[] = [
     tools: ["thermo", "medicine", "blanket", "tea", "bandage"],
     steps: [
       { tool: "thermo", zone: "mouth", kind: "use", say: "Сначала измерим температуру. Дай Зайке градусник.", show: ["thermo"], done: "38,5 — жар! Будем лечить." },
-      { tool: "medicine", zone: "mouth", kind: "use", say: "Дадим сладкий сироп — одну ложечку.", hide: ["thermo", "sweat"], show: ["medicine"], mood: "is-sad" },
-      { tool: "blanket", zone: "body", kind: "use", say: "Укроем Зайку тёплым одеялом.", show: ["blanket"], mood: "" },
+      { tool: "blanket", zone: "body", kind: "use", say: "Укроем Зайку тёплым одеялом.", hide: ["thermo", "sweat"], show: ["blanket"], mood: "" },
       { tool: "tea", zone: "mouth", kind: "use", say: "И напоим тёплым чаем с малиной.", show: ["tea", "hearts"], mood: "is-happy" },
     ],
     done: "Зайка поправился! Спасибо, доктор!",
@@ -101,7 +100,7 @@ export const levels: Scenario[] = [
     tools: ["ladder", "glove", "milk", "hose"],
     steps: [
       { tool: "ladder", zone: "tree", kind: "use", say: "Поставь лестницу к дереву.", show: ["ladder"] },
-      { tool: "glove", zone: "cat", kind: "use", say: "Поднимись и аккуратно возьми котёнка.", show: ["catdown"], done: "Котёнок на земле!" },
+      { tool: "glove", zone: "cat", kind: "use", say: "Подай перчатки пожарному. Он снимет котёнка.", show: ["catdown"], done: "Котёнок на земле!" },
       { tool: "milk", zone: "cat", kind: "use", say: "Угости котёнка молочком.", show: ["milk", "hearts", "cathappy"] },
     ],
     done: "Котёнок спасён! Мур-мур!",
@@ -116,7 +115,7 @@ export const levels: Scenario[] = [
     intro: "Кто-то забыл костёр в лесу! Огонь ползёт по траве.",
     tools: ["bucket", "shovel", "hose", "glove"],
     steps: [
-      { tool: "bucket", zone: "pond", kind: "use", say: "Набери воды в ведро из пруда.", show: ["splash"], done: "Полное ведро!" },
+      { tool: "bucket", zone: "pond", kind: "use", say: "Пожарный наберёт воду. Нажми на пруд.", show: ["splash"], done: "Полное ведро!" },
       { tool: "bucket", zone: "fire-a", kind: "rub", say: "Заливай костёр водой!" },
       { tool: "bucket", zone: "fire-b", kind: "rub", say: "Огонь в траве! Заливай и его." },
       { tool: "shovel", zone: "embers", kind: "rub", say: "Засыпь угольки песком лопатой, чтобы не разгорелись.", show: ["sand", "hearts"] },
@@ -286,6 +285,6 @@ export const levels: Scenario[] = [
       { id: "myach", danger: false, say: "Мячик — для игры, это не опасно." },
       { id: "lampa", danger: false, say: "Лампа светит. Это не опасно." },
     ],
-    done: "Комната стала безопасной.",
+    done: "Все опасности найдены. Не трогай их. Позови взрослого.",
   },
 ];

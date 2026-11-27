@@ -12,7 +12,7 @@ import baseCss from "../../shared/base.css?inline";
 import css from "./style.css?inline";
 import { pieceSvg } from "./art";
 import { levels, worlds, type Plan } from "./levels";
-import { COLOR_NAME, countWord, doneAll, findSlot, starsFor, toPlace, type Piece } from "./logic";
+import { COLOR_NAME, colorThing, countWord, doneAll, findSlot, starsFor, toPlace, type Piece } from "./logic";
 
 /** «Стройка»: snap big blocks into the plan — and the model comes alive. */
 export function mount(root: HTMLElement): () => void {
@@ -151,7 +151,7 @@ function play(stage: HTMLElement, plan: Plan, _index: number, api: PlayApi): () 
     const label = (): void => {
       badge.textContent = entry.left > 1 ? `×${entry.left}` : "";
       node.classList.toggle("is-pile", entry.left > 1);
-      node.setAttribute("aria-label", `${COLOR_NAME[block.color]} ${block.kind === "wheel" ? "колесо" : "кубик"}${entry.left > 1 ? `, ${entry.left} штуки` : ""}`);
+      node.setAttribute("aria-label", `${block.kind === "wheel" ? colorThing(block.color, "wheel") : `${COLOR_NAME[block.color]} кубик`}${entry.left > 1 ? `, ${entry.left} штуки` : ""}`);
     };
     label();
     tray.append(node);
@@ -224,7 +224,8 @@ function play(stage: HTMLElement, plan: Plan, _index: number, api: PlayApi): () 
       audio.play("boing");
       if (s.color === "blue") audio.say("v35");
       const where = look === "copy" ? "Посмотри на образец: сюда" : look === "half" ? "Посмотри на другую половинку: сюда" : "Сюда";
-      say(`${where} нужен ${COLOR_NAME[s.color]}! А этот — ${COLOR_NAME[block.color]}.`);
+      const noun = s.kind === "wheel" || s.kind === "window" ? "нужно" : "нужен";
+      say(`${where} ${noun} ${colorThing(s.color, s.kind)}! А этот — ${colorThing(block.color, block.kind)}.`);
       replayClass(slotNodes[found.index]!, "is-call");
       return false;
     }
@@ -299,7 +300,7 @@ function play(stage: HTMLElement, plan: Plan, _index: number, api: PlayApi): () 
     hints++;
     replayClass(slotNodes[i]!, "is-call");
     if (b) replayClass(b.node, "is-call");
-    say(`Найди ${COLOR_NAME[s.color]} ${s.kind === "wheel" ? "колесо" : s.kind === "window" ? "окошко" : "блок"} — вот для этого места.`);
+    say(`Найди ${colorThing(s.color, s.kind)} — вот для этого места.`);
   });
 
   return scope.dispose;

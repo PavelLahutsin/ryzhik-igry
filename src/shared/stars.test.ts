@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { allLevelsDone } from "./levelgame";
 import { amount, rate, rateBy, rateHints, starLine, STARS, type StarSpec } from "./stars";
 import { HOWTO } from "./howto-data";
 import { games } from "../games/registry";
@@ -16,12 +17,12 @@ import { starsFor as sliyanie } from "../games/sliyanie/logic";
 
 describe("one star rule (v12: a hint never drops straight to one star)", () => {
   it("3 stars without hints and with ≤1 mistake", () => {
-    expect(rate(0, 0)).toEqual({ stars: 3, why: "3 звезды — без ошибок и без подсказок!" });
-    expect(rate(1, 0)).toEqual({ stars: 3, why: "3 звезды — без подсказок!" });
+    expect(rate(0, 0)).toEqual({ stars: 3, why: "3 звёзды — без ошибок и без подсказок!" });
+    expect(rate(1, 0)).toEqual({ stars: 3, why: "3 звёзды — без подсказок!" });
   });
   it("2 stars with one hint, or with ≤3 mistakes", () => {
-    expect(rate(0, 1)).toEqual({ stars: 2, why: "2 звезды — была подсказка. Без подсказок будет 3!" });
-    expect(rate(3, 0)).toEqual({ stars: 2, why: "2 звезды — было много ошибок. Без ошибок будет 3!" });
+    expect(rate(0, 1)).toEqual({ stars: 2, why: "2 звёзды — была подсказка. Без подсказок будет 3!" });
+    expect(rate(3, 0)).toEqual({ stars: 2, why: "2 звёзды — было много ошибок. Без ошибок будет 3!" });
     expect(rate(9, 1).stars).toBe(2);
     expect(rate(0, 2).stars).toBe(2);
     expect(rate(3, 5).stars).toBe(2);
@@ -100,5 +101,14 @@ describe("«Как играть» says exactly what the code does", () => {
         if (always) expect(Number(always[1]), id).toBe(a.min);
       }
     }
+  });
+});
+
+describe("the last level of a list", () => {
+  it("is the end of the game only when every id is finished", () => {
+    expect(allLevelsDone(["a", "b", "c"], ["c"])).toBe(false);
+    expect(allLevelsDone(["a", "b", "c"], ["a", "b"])).toBe(false);
+    expect(allLevelsDone(["a", "b", "c"], ["b", "c", "a"])).toBe(true);
+    expect(allLevelsDone([], [])).toBe(false);
   });
 });

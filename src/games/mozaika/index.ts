@@ -109,7 +109,8 @@ function play(stage: HTMLElement, level: MozaikaLevel, _index: number, api: Play
           node.style.zIndex = "";
           if (!flipped.has(index)) return false;
           turn(index);
-          return true;
+          // Stay picked, so the next tap on the cell puts the piece down.
+          return false;
         },
         onDrop: (center) => {
           node.style.zIndex = "";

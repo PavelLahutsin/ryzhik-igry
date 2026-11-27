@@ -26,34 +26,67 @@ export function fits(block: Pick<Piece, "kind" | "w" | "h" | "color" | "n">, slo
   return block.color === slot.color ? "ok" : "color";
 }
 
+const NEUTER: Record<ColorId, string> = {
+  red: "красное",
+  blue: "синее",
+  yellow: "жёлтое",
+  green: "зелёное",
+  orange: "оранжевое",
+  purple: "фиолетовое",
+  white: "белое",
+  black: "чёрное",
+};
+
+/** «красный блок», «чёрное колесо», «жёлтое окошко». */
+export function colorThing(color: ColorId, kind: string): string {
+  const noun = kind === "wheel" ? "колесо" : kind === "window" ? "окошко" : "блок";
+  return `${noun === "блок" ? COLOR_NAME[color] : NEUTER[color]} ${noun}`;
+}
+
 export type Found = { index: number; fit: Fit } | null;
 
+/** The middle of a slot (not its edge): a tap here is about this slot, not a neighbour. */
+function onSlot(s: Piece, at: { x: number; y: number }): boolean {
+  const nx = (at.x - (s.x + s.w / 2)) / (s.w * DROP_RATIO);
+  const ny = (at.y - (s.y + s.h / 2)) / (s.h * DROP_RATIO);
+  return nx * nx + ny * ny <= 1;
+}
+
 /**
- * Where a block dropped at `at` (in plan cells) goes: the nearest empty
- * place within `reach` cells that fits, else the nearest same-shape place
- * (to say «нужен другой цвет»), else null.
+ * Where a block dropped at `at` (in plan cells) goes. A tap in the middle of
+ * a slot stays on that slot: the right colour snaps, the wrong colour is a
+ * gentle mistake, and it never jumps onto a neighbour. A tap on an edge or
+ * in a gap still snaps to the nearest fitting place.
  */
 export function findSlot(slots: readonly Piece[], filled: readonly boolean[], block: Pick<Piece, "kind" | "w" | "h" | "color" | "n">, at: { x: number; y: number }, reach = 1.2): Found {
+  let covered = false;
+  let inside: Found = null;
+  let insideD = Infinity;
+  slots.forEach((s, i) => {
+    if (!onSlot(s, at)) return;
+    covered = true;
+    if (filled[i] || s.fixed) return;
+    const f = fits(block, s);
+    if (f === "shape") return;
+    const d = Math.hypot(s.x + s.w / 2 - at.x, s.y + s.h / 2 - at.y);
+    if (d < insideD) {
+      inside = { index: i, fit: f };
+      insideD = d;
+    }
+  });
+  if (covered) return inside;
   let best: Found = null;
   let bestD = Infinity;
-  let near: Found = null;
-  let nearD = Infinity;
   slots.forEach((s, i) => {
     if (filled[i] || s.fixed) return;
     const d = Math.hypot(s.x + s.w / 2 - at.x, s.y + s.h / 2 - at.y);
     if (d > reach + Math.max(s.w, s.h) / 2) return;
-    const f = fits(block, s);
-    if (f === "ok" && d < bestD) {
+    if (fits(block, s) === "ok" && d < bestD) {
       best = { index: i, fit: "ok" };
       bestD = d;
-    } else if (f === "color" && d < nearD && Math.hypot((s.x + s.w / 2 - at.x) / (s.w * DROP_RATIO), (s.y + s.h / 2 - at.y) / (s.h * DROP_RATIO)) <= 1) {
-      // A wrong colour counts only when dropped on the slot itself (0.45 of
-      // its size): beside it, or between two slots, is no mistake.
-      near = { index: i, fit: "color" };
-      nearD = d;
     }
   });
-  return best ?? near;
+  return best;
 }
 
 export function doneAll(slots: readonly Piece[], filled: readonly boolean[]): boolean {

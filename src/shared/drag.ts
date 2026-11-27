@@ -72,9 +72,10 @@ export function nope(node: HTMLElement): void {
  * Buttons and cards stay buttons.
  */
 type Picked = { node: HTMLElement; drop: (p: Point) => void };
+const entries = new WeakMap<HTMLElement, Picked>();
 let picked: Picked | null = null;
 let tapDown: { id: number; x: number; y: number } | null = null;
-const PASS = "button, a, input, [role=button], .ht, .praise, .topbar, [data-drag]";
+const PASS = "button, a, input, [role=button]:not([data-drop]), .ht, .praise, .topbar, [data-drag]";
 
 function onDocDown(event: PointerEvent): void {
   tapDown = { id: event.pointerId, x: event.clientX, y: event.clientY };
@@ -115,6 +116,14 @@ function pick(entry: Picked): void {
 /** The piece picked for tap-tap, if any (for tests and the QA script). */
 export const pickedNode = (): HTMLElement | null => picked?.node ?? null;
 
+/** Pick a piece for tap-tap without a finger on it (a finished dish, a whole card). */
+export function selectPiece(node: HTMLElement): boolean {
+  const entry = entries.get(node);
+  if (!entry || !node.isConnected || node.classList.contains("is-placed")) return false;
+  pick(entry);
+  return true;
+}
+
 /**
  * Pointer drag for big touch pieces. The node follows the finger with a
  * transform, so the game layout stays untouched until a drop is accepted.
@@ -140,6 +149,7 @@ export function draggable(node: HTMLElement, options: DragOptions): () => void {
     if (result === "none") nope(node);
   };
   const entry: Picked = { node, drop: (p) => settle(options.onDrop(p)) };
+  entries.set(node, entry);
 
   const down = (event: PointerEvent): void => {
     if (pointer !== null || node.classList.contains("is-placed")) return;

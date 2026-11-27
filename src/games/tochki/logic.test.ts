@@ -21,6 +21,19 @@ describe("tochki rules", () => {
     expect(touch(dots, s, { x: 10, y: 10 }, true)).toBeNull();
   });
 
+  it("starts when the finger lands on the active number, not only the dot", () => {
+    const tight = [
+      { x: 20, y: 80 },
+      { x: 40, y: 80 },
+      { x: 60, y: 80 },
+    ];
+    const lab = labelSpots(tight)[0]!;
+    expect(Math.hypot(lab.x - tight[0]!.x, lab.y - tight[0]!.y)).toBeGreaterThan(zones(tight)[0]!);
+    const s = startDots();
+    expect(touch(tight, s, lab, true)).toBe(0);
+    expect(s.misses).toBe(0);
+  });
+
   it("does not count sliding over other dots or empty taps as misses", () => {
     const s = startDots();
     touch(dots, s, { x: 100, y: 100 }, false);

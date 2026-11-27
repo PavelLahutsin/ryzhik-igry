@@ -54,7 +54,7 @@ export function bigRoute(root: HTMLElement, rest: string[]): () => void {
 
 /**
  * First screen of «Вырасти сад» ("#/sliyanie/"): pick the pictures and play
- * to 2048. `below` adds the «Тренировка для малышей» card under the buttons.
+ * to 2048. `below` is the «Тренировка для малышей» card, shown first so a short level is on screen.
  */
 export function bigHome(root: HTMLElement, below?: () => Node): () => void {
   document.body.dataset.route = "levels";
@@ -64,11 +64,11 @@ export function bigHome(root: HTMLElement, below?: () => Node): () => void {
   const info = el("p", { class: "sb-info" });
   const view = el("div", { class: `screen screen--list game--${GAME} sb-picker` }, [
     toolbar("Вырасти сад", goHome),
+    below?.() ?? null,
     el("p", { class: "list__lead", text: "Соединяй две одинаковые плитки — вырастет новая. Выбери картинки и дойди до 2048!" }),
     grid,
     info,
     actions,
-    below?.() ?? null,
   ]);
   root.append(view);
 

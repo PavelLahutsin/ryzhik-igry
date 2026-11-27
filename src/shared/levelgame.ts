@@ -17,6 +17,11 @@ import { isScore, type Score } from "./stars";
 import { reducedMotion } from "./style";
 import { HOWTO_VOICE } from "./voice-lines";
 
+/** True only when every level id is in the finished list (not merely the last in the array). */
+export function allLevelsDone(ids: readonly string[], done: readonly string[]): boolean {
+  return ids.length > 0 && ids.every((id) => done.includes(id));
+}
+
 export type LevelInfo = {
   id: string;
   title: string;
@@ -402,10 +407,12 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
         clearTips();
         hintBtn.hidden = true;
         audio.play("win");
-        const fresh = store
-          .win(level.id, stars)
-          .then(() => newStickers())
-          .catch(() => [] as Sticker[]);
+        const saved = store.win(level.id, stars);
+        const fresh = saved.then(() => newStickers()).catch(() => [] as Sticker[]);
+        const settled = saved.then(
+          () => store.load(),
+          () => store.load(),
+        );
         const rest = countWin();
         const next = ordered[ordered.indexOf(level) + 1];
         // «Дальше»: the next level; after a winter level won out of order
@@ -419,55 +426,61 @@ export function mountLevelGame<L extends LevelInfo>(def: LevelGameDef<L>, root: 
             navigateGame(def.id, `/play/${def.levels.indexOf(pick ?? level) + 1}`);
           });
         };
-        const actions = [
-          next
-            ? { label: "Дальше", primary: true, onClick: () => void fresh.then(goNext, goNext) }
-            : {
-                label: "Все игры",
-                primary: true,
-                onClick: () => {
-                  audio.say("v12");
-                  goHome();
-                },
-              },
-          { label: "Ещё раз", onClick: () => navigateGame(def.id, `/play/${index + 1}`) },
-          { label: "Уровни", onClick: () => navigateGame(def.id, LIST) },
-        ];
         // The level's own picture (e.g. a letter's word) or its card picture —
         // what was just made or solved, not the same Рыжик on every card.
         const art = picture ?? el("span", { class: "praise__word praise__thumb", attrs: { "aria-hidden": "true" } }, [def.thumb(level, index)]);
         // Let the finishing animation be seen before the card.
         scope.later(() => {
           if (!view.isConnected) return;
-          const card = praiseOverlay({
-            stars,
-            why,
-            text: next ? text : `${text ? `${text} ` : ""}Все уровни пройдены!`,
-            art,
-            actions,
-            voice: next ? undefined : "v09",
-          });
-          view.append(card);
-          // v13: after several levels in a row, a short «Потрогай» break is offered (never forced).
-          if (rest) {
-            card.querySelector(".praise__actions")?.before(
-              el("button", { class: "btn btn--ghost praise__break", attrs: { type: "button" }, on: { click: () => showBreak(view) } }, [
-                el("span", { text: "Передохнуть: потрогай игрушки" }),
-              ]),
-            );
-          }
-          // A new sticker for the album, if the stars opened one.
-          void fresh.then((list) => {
-            const s = list[list.length - 1];
-            const actionsRow = card.querySelector(".praise__actions");
-            if (!s || !actionsRow || !card.isConnected) return;
-            actionsRow.before(
-              el("a", { class: "praise__sticker", attrs: { href: "#/albom", "aria-label": `Новая наклейка: ${s.name}` } }, [
-                el("span", { class: "sticker sticker--new" }, [stickerArt(s)]),
-                el("span", { class: "praise__sticker-text", text: list.length > 1 ? `Новые наклейки: ${list.length}!` : "Новая наклейка!" }),
-              ]),
-            );
-            scope.later(() => card.isConnected && audio.play("sparkle"), 1200);
+          void settled.then((p) => {
+            if (!view.isConnected) return;
+            const done = p.completed.includes(level.id) ? p.completed : [...p.completed, level.id];
+            // The last item of the array is not the end of the game: other worlds may be open.
+            const finale = allLevelsDone(ordered.map((l) => l.id), done);
+            const actions = [
+              finale
+                ? {
+                    label: "Все игры",
+                    primary: true,
+                    onClick: () => {
+                      audio.say("v12");
+                      goHome();
+                    },
+                  }
+                : { label: "Дальше", primary: true, onClick: () => void fresh.then(goNext, goNext) },
+              { label: "Ещё раз", onClick: () => navigateGame(def.id, `/play/${index + 1}`) },
+              { label: "Уровни", onClick: () => navigateGame(def.id, LIST) },
+            ];
+            const card = praiseOverlay({
+              stars,
+              why,
+              text: finale ? `${text ? `${text} ` : ""}Все уровни пройдены!` : text,
+              art,
+              actions,
+              voice: finale ? "v09" : undefined,
+            });
+            view.append(card);
+            // v13: after several levels in a row, a short «Потрогай» break is offered (never forced).
+            if (rest) {
+              card.querySelector(".praise__actions")?.before(
+                el("button", { class: "btn btn--ghost praise__break", attrs: { type: "button" }, on: { click: () => showBreak(view) } }, [
+                  el("span", { text: "Передохнуть: потрогай игрушки" }),
+                ]),
+              );
+            }
+            // A new sticker for the album, if the stars opened one.
+            void fresh.then((list) => {
+              const s = list[list.length - 1];
+              const actionsRow = card.querySelector(".praise__actions");
+              if (!s || !actionsRow || !card.isConnected) return;
+              actionsRow.before(
+                el("a", { class: "praise__sticker", attrs: { href: "#/albom", "aria-label": `Новая наклейка: ${s.name}` } }, [
+                  el("span", { class: "sticker sticker--new" }, [stickerArt(s)]),
+                  el("span", { class: "praise__sticker-text", text: list.length > 1 ? `Новые наклейки: ${list.length}!` : "Новая наклейка!" }),
+                ]),
+              );
+              scope.later(() => card.isConnected && audio.play("sparkle"), 1200);
+            });
           });
         }, 700);
       },
