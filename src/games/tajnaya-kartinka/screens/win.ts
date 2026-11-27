@@ -7,9 +7,9 @@ import { toolbar } from "./levels";
 
 /** Why this many stars: bees and ladybugs that caught Ryzhik. */
 const PRAISE: Record<number, string> = {
-  3: "3 звезды — ни одного укуса!",
-  2: "2 звезды — был один укус. Без укусов будет 3!",
-  1: "1 звезда — было несколько укусов. Попробуй ещё раз!",
+  3: "3 звёзды — ни одного укуса!",
+  2: "2 звёзды — был один укус. Без укусов будет 3!",
+  1: "1 звезда — было несколько укусов. Картинка всё равно открыта.",
 };
 
 export function renderWin(root: HTMLElement, levelId: string): () => void {

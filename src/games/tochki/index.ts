@@ -10,7 +10,7 @@ import baseCss from "../../shared/base.css?inline";
 import css from "./style.css?inline";
 import { allJoined, labelOf, labelSpots, startDots, starsFor, touch, type Pt } from "./logic";
 import { levels, worlds, type DotPicture } from "./levels";
-import { introSeen, modeOf, NEEDS_INTRO, showIntro } from "./intro";
+import { introSeen, MODES, modeOf, NEEDS_INTRO, showIntro } from "./intro";
 
 /** «По точкам»: join the numbered dots in order, and the picture appears. */
 export function mount(root: HTMLElement): () => void {
@@ -106,6 +106,11 @@ function play(stage: HTMLElement, level: DotPicture, _index: number, api: PlayAp
   // A new way of counting: a short demo (10 → 9 → 8, А → Б → В) the first
   // time, and «Как считать?» to see it again. Watching it costs nothing.
   const mode = modeOf(level.count);
+  const liveDemo = (): { sample: [string, string, string]; next: string } => {
+    const sample = [0, 1, 2].map((i) => labelOf(level.count, i, dots.length)) as [string, string, string];
+    const rest = [3, 4].filter((i) => i < dots.length).map((i) => labelOf(level.count, i, dots.length));
+    return { sample, next: rest.length ? `потом ${rest.join(", ")}…` : MODES[mode].next };
+  };
   if (NEEDS_INTRO.includes(mode)) {
     const how = el("button", {
       class: "td-how",
@@ -114,13 +119,13 @@ function play(stage: HTMLElement, level: DotPicture, _index: number, api: PlayAp
       on: {
         click: () => {
           audio.unlock();
-          showIntro(wrap, mode, scope);
+          showIntro(wrap, mode, scope, () => {}, liveDemo());
         },
       },
     });
     sayRow.append(how);
     void introSeen(mode).then((seen) => {
-      if (!seen && !scope.disposed && state.next === 0) showIntro(wrap, mode, scope);
+      if (!seen && !scope.disposed && state.next === 0) showIntro(wrap, mode, scope, () => {}, liveDemo());
     });
   }
 

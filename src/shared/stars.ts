@@ -27,12 +27,12 @@ export function rate(mistakes: number, hints: number, rule: StarRule = {}): Scor
   const m = Math.max(0, Math.floor(mistakes));
   const h = Math.max(0, Math.floor(hints));
   if (h === 0 && m <= free) {
-    return { stars: 3, why: m === 0 ? "3 звезды — без ошибок и без подсказок!" : "3 звезды — без подсказок!" };
+    return { stars: 3, why: m === 0 ? "3 звёзды — без ошибок и без подсказок!" : "3 звёзды — без подсказок!" };
   }
   if (h <= 1 || m <= two) {
     const wrong = m > free;
     const reason = h > 0 && wrong ? "были подсказки и ошибки" : h > 1 ? "было несколько подсказок" : h === 1 ? "была подсказка" : "было много ошибок";
-    return { stars: 2, why: `2 звезды — ${reason}. Без ${h > 0 ? "подсказок" : "ошибок"} будет 3!` };
+    return { stars: 2, why: `2 звёзды — ${reason}. Без ${h > 0 ? "подсказок" : "ошибок"} будет 3!` };
   }
   return { stars: 1, why: "1 звезда — было много подсказок и ошибок. Попробуй ещё раз без подсказки — будет больше!" };
 }
@@ -41,8 +41,8 @@ export function rate(mistakes: number, hints: number, rule: StarRule = {}): Scor
 export const HINTS_TWO = 2;
 export function rateHints(hints: number): Score {
   const h = Math.max(0, Math.floor(hints));
-  if (h === 0) return { stars: 3, why: "3 звезды — без подсказок!" };
-  if (h <= HINTS_TWO) return { stars: 2, why: `2 звезды — ${h === 1 ? "была подсказка" : "было две подсказки"}. Без подсказок будет 3!` };
+  if (h === 0) return { stars: 3, why: "3 звёзды — без подсказок!" };
+  if (h <= HINTS_TWO) return { stars: 2, why: `2 звёзды — ${h === 1 ? "была подсказка" : "было две подсказки"}. Без подсказок будет 3!` };
   return { stars: 1, why: "1 звезда — было много подсказок. Попробуй ещё раз без подсказки — будет больше!" };
 }
 

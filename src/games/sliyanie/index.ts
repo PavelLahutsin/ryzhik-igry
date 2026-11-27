@@ -112,7 +112,7 @@ function play(stage: HTMLElement, level: SliyanieLevel, _index: number, api: Pla
     return item;
   });
   const goalText = el("p", { class: "sl-goal" }, [
-    "Вырасти: ",
+    level.chain === "zima" ? "Цель: " : "Вырасти: ",
     el("strong", { text: CHAIN[level.goal]!.name }),
   ]);
 
@@ -246,7 +246,7 @@ function play(stage: HTMLElement, level: SliyanieLevel, _index: number, api: Pla
   }
 
   function doHelp(): void {
-    helps++;
+    // Shuffling out of a stuck board is not a hint, so it does not cost a star.
     audio.play("tap");
     previous = null;
     board = unstick(board, MAX, Math.random);

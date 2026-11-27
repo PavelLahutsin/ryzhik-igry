@@ -83,7 +83,7 @@ export const SCENES: SceneDef[] = [
     seats: [{ id: "bed", x: 1330, y: 700, pose: "sleep" }],
     cast: [
       { id: "ryzhik", x: 330, y: 900 },
-      { id: "mama", x: 620, y: 930 },
+      { id: "mama", x: 1450, y: 930 },
       { id: "papa", x: 1000, y: 950 },
     ],
   },

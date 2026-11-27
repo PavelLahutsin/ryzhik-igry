@@ -1,7 +1,7 @@
 import { audio } from "../../shared/audio";
 import { character } from "../../shared/assets";
 import { el, replayClass } from "../../shared/dom";
-import { draggable, type Point } from "../../shared/drag";
+import { draggable, selectPiece, type Point } from "../../shared/drag";
 import { gameFinds } from "../../shared/finds";
 import { goHome } from "../../shared/router";
 import { reducedMotion, useStyles } from "../../shared/style";
@@ -114,7 +114,15 @@ export function mount(root: HTMLElement): () => void {
     for (const b of picker.querySelectorAll<HTMLElement>(".kt-picker__btn")) b.classList.toggle("is-on", b.dataset.id === id);
     face.classList.remove("is-on");
     replayClass(fig, "is-hop");
-    say(id === "ryzhik" ? "Я голодный!" : id === "mama" ? "Что у нас на обед?" : id === "mishka" ? "Р-р-р, хочу кушать!" : "Фыр! Угостишь?");
+    const hello: Record<GuestId, string> = {
+      ryzhik: "Я хочу есть!",
+      mama: "Что у нас на обед?",
+      mishka: "Р-р-р, хочу кушать!",
+      papa: "Что попробуем?",
+      belka: "Чем угостишь?",
+      ezhik: "Фыр! Угостишь?",
+    };
+    say(hello[id]);
   }
 
   function say(text: string, ms = 1800): void {
@@ -141,11 +149,23 @@ export function mount(root: HTMLElement): () => void {
   function feed(dish: Dish): void {
     if (busyEating) return;
     busyEating = true;
-    const r = taste(guest, dish);
+    const who = guest;
+    const r = taste(who, dish);
     audio.play("munch");
     later(() => audio.play("yum"), 380);
     replayClass(fig, "is-chew");
     later(() => {
+      void finds.add(`${who}:${r}`).then((isNew) => {
+        if (!isNew) return;
+        found++;
+        paintScore();
+        replayClass(score, "is-bump");
+      });
+      // The child may already be talking to someone else. Don't move the reaction across.
+      if (guest !== who) {
+        busyEating = false;
+        return;
+      }
       face.replaceChildren(svgNode(faceArt(r)));
       replayClass(face, "is-on");
       fig.className = "kt-guest__fig";
@@ -160,24 +180,20 @@ export function mount(root: HTMLElement): () => void {
       if (r === "burnt") puff("smoke", 6);
       if (r === "yuck" || r === "raw") puff("drop", 3);
       if (r === "yum") puff("star", 3);
-      void finds.add(`${guest}:${r}`).then((isNew) => {
-        if (!isNew) return;
-        found++;
-        paintScore();
-        replayClass(score, "is-bump");
-      });
       bites++;
       paintMeter();
       later(() => {
         busyEating = false;
+        if (guest !== who) return;
         if (bites >= BITES_TO_FULL) {
-          say("Я наелся! Спасибо!", 2200);
+          say("Спасибо, пока хватит!", 2200);
           replayClass(fig, "is-full");
           audio.play("magic");
           later(() => {
+            if (guest !== who) return;
             bites = 0;
             paintMeter();
-            say("Ой, опять проголодался!");
+            say("Ой, опять хочется есть!");
           }, 4200);
         }
       }, 1300);
@@ -190,7 +206,7 @@ export function mount(root: HTMLElement): () => void {
     const slot = el("span", { class: "kt-tool__slot" });
     const node = el(
       "div",
-      { class: `kt-tool kt-tool--${op}`, attrs: { role: "button", tabindex: "0", "aria-label": name, "data-op": op } },
+      { class: `kt-tool kt-tool--${op}`, attrs: { role: "button", tabindex: "0", "aria-label": name, "data-op": op, "data-drop": "" } },
       [svgNode(TOOL_ART[op], "kt-tool__art"), slot, el("span", { class: "kt-tool__name", text: name })],
     );
     return { op, node, slot, contents: [], done: false, chops: 0, timer: 0 };
@@ -285,6 +301,10 @@ export function mount(root: HTMLElement): () => void {
 
   function useTool(t: ToolRun): void {
     audio.unlock();
+    if (t.done && t.contents.length > 0) {
+      const dish = t.slot.querySelector<HTMLElement>(".kt-dish");
+      if (dish && selectPiece(dish)) return;
+    }
     if (t.contents.length === 0) {
       replayClass(t.node, "is-nope");
       say("Положи сюда что-нибудь!", 1300);
@@ -384,14 +404,19 @@ export function mount(root: HTMLElement): () => void {
       const ready = tools.find((t) => t.done && t.contents.length > 0);
       const readyDish = ready?.slot.querySelector(".kt-dish");
       if (readyDish) return showDrag(centre(readyDish), centre(guestBox));
-      const board = tools.find((t) => t.op === "cut" && t.contents.length > 0 && !t.done);
-      if (board) return showTap(centre(board.node));
+      const working = tools.find((t) => (t.op === "cut" || t.op === "blend") && t.contents.length > 0 && !t.done);
+      if (working) return showTap(centre(working.node));
       const foods = [...pantry.querySelectorAll<HTMLElement>(".kt-food")];
-      const loved = foods.find((f) => GUESTS[guest].loves.some((id) => INGREDIENTS[id].name === f.getAttribute("aria-label")));
+      const lovedId = GUESTS[guest].loves[0];
+      const loved = foods.find((f) => f.getAttribute("aria-label") === INGREDIENTS[lovedId!]!.name);
       const food = loved ?? foods[0];
       if (!food) return;
+      const fry = tools.find((t) => t.op === "fry")!;
+      const boil = tools.find((t) => t.op === "boil")!;
       const cut = tools.find((t) => t.op === "cut")!;
-      showDrag(centre(food), centre(demo++ % 2 === 0 ? guestBox : cut.node));
+      // Raw fish is not a snack: show a pan, not the guest's plate.
+      const target = lovedId === "fish" ? (demo++ % 2 === 0 ? fry.node : boil.node) : demo++ % 2 === 0 ? guestBox : cut.node;
+      showDrag(centre(food), centre(target));
     }, 6000),
   );
 

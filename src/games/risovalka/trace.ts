@@ -214,6 +214,17 @@ export function play(stage: HTMLElement, level: Traceable, _index: number, api: 
     step(p);
   };
   const move = (e: PointerEvent): void => {
+    // The hand shows a return without lifting. Coming back to the green dot continues the line.
+    if (!drawing && slipped && !finished) {
+      const p = toLocal(e);
+      const at = strokes[current]!.samples[index]!;
+      if (Math.hypot(at.x - p.x, at.y - p.y) <= TOLERANCE * 1.8) {
+        drawing = true;
+        slipped = false;
+        say.textContent = "";
+        retry.classList.remove("is-on");
+      }
+    }
     if (!drawing) return;
     for (const ev of coalesced(e)) {
       if (!drawing) break;

@@ -42,11 +42,21 @@ export function startDots(): DotsState {
  * on a different, not yet joined dot (sliding over other dots does not).
  * That is the only mistake: a tap on empty paper or on a joined dot is not.
  */
+const labelCache = new WeakMap<readonly Pt[], Pt[]>();
+const labelsOf = (dots: readonly Pt[]): Pt[] => {
+  let spots = labelCache.get(dots);
+  if (!spots) labelCache.set(dots, (spots = labelSpots(dots)));
+  return spots;
+};
+
 export function touch(dots: readonly Pt[], state: DotsState, p: Pt, tapped: boolean): number | null {
   if (state.next >= dots.length) return null;
   const zone = zonesOf(dots);
   const want = dots[state.next]!;
-  if (Math.hypot(want.x - p.x, want.y - p.y) <= zone[state.next]!) {
+  const label = labelsOf(dots)[state.next];
+  // The number is drawn away from the dot. A tap on that number is the same dot.
+  const onLabel = !!label && Math.hypot(label.x - p.x, label.y - p.y) <= 9;
+  if (Math.hypot(want.x - p.x, want.y - p.y) <= zone[state.next]! || onLabel) {
     state.next++;
     return state.next - 1;
   }

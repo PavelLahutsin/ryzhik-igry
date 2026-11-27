@@ -131,8 +131,13 @@
   animation: dm-jump 900ms ease-in-out;
 }
 
-.dm-prop--swing.is-on .dm-swing__seat {
+.dm-prop--swing.is-on .dm-swing__seat,
+.dm-prop--swing.is-rock .dm-swing__seat {
   animation: dm-swing 2s ease-in-out infinite;
+}
+.dm-prop--swing.is-rock .dm-swing__seat {
+  animation-iteration-count: 1;
+  animation-duration: 0.8s;
 }
 
 .dm-prop.is-calling::after {
@@ -307,9 +312,11 @@
 /* --------- tabs and toolbar */
 .dm-tabs {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 12px;
   padding: 10px 12px 0;
+  overflow: auto;
+  overscroll-behavior: contain;
 }
 
 .dm-tab {
@@ -369,8 +376,8 @@
   .dm-tabs {
     flex-direction: column;
     gap: 7px;
-    overflow-y: auto;
-    justify-content: safe center;
+    overflow: auto;
+    justify-content: flex-start;
     padding: 0;
   }
   .dm-tab__name {
