@@ -12,7 +12,7 @@ describe("«Нажми и послушай»", () => {
       expect(new Set(s.spots.map((p) => p.id)).size).toBe(8);
     }
     for (const p of [...SCENES.flatMap((s) => s.spots), ...TOYS]) {
-      expect(p.svg, p.id).toContain("<svg");
+      expect(p.svg, p.id).toMatch(/^<(svg|img)/);
       expect(SOUND_KINDS, p.id).toContain(p.sound);
       expect(p.word.length, p.id).toBeLessThan(16);
       expect(p.name.length, p.id).toBeGreaterThan(2);

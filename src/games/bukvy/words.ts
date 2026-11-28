@@ -6,6 +6,7 @@
  * inside (подЪёмный кран, сЫр, мышЬ).
  */
 import { OBJECTS } from "../../shared/objects";
+import { artImg, hasArt } from "../../shared/art";
 import { SHAPES } from "../teni/shapes";
 
 const O = `stroke="#3b2e25" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"`;
@@ -108,6 +109,11 @@ const DRAWN = {
       `<circle cx="40" cy="58" r="3" fill="#ffd84a"/><circle cx="58" cy="62" r="3" fill="#f27aa0"/><circle cx="52" cy="26" r="3" fill="#7cc4ef"/>`,
   ),
 };
+
+// v29: painted pictures for the words drawn here.
+for (const [k, pic] of Object.entries({ hedgehog: "hedgehog", beetle: "beetle", needle: "needle", yogurt: "yogurt", sock: "sock", cloud: "cloud", bee: "bee", flag: "pennant", pike: "pike", crane: "crane", eskimo: "eskimo" })) {
+  if (hasArt(pic)) (DRAWN as Record<string, string>)[k] = artImg(pic);
+}
 
 export type WordArt = { word: string; svg: string };
 

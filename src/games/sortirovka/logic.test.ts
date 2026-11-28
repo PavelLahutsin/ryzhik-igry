@@ -86,7 +86,7 @@ describe("sortirovka", () => {
       expect(l.baskets).toHaveLength(2);
       for (const b of l.baskets) {
         expect(b.label, b.id).toBeTruthy();
-        expect(thingArt(b.label!).svg).toContain("<svg");
+        expect(thingArt(b.label!).svg).toMatch(/^<(svg|img)/);
         for (const id of b.items) expect(thingArt(id).name, id).toBeTruthy();
       }
     }

@@ -1,3 +1,4 @@
+import { artImg, hasArt } from "../../shared/art";
 import { audio } from "../../shared/audio";
 import { el, replayClass } from "../../shared/dom";
 import { freeDrag } from "../../shared/drag";
@@ -37,6 +38,9 @@ const EXTRA: Record<string, { name: string; art: string }> = {
   binoculars: { name: "Бинокль", art: "<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><g stroke=\"#3b2e25\" stroke-width=\"3\" stroke-linejoin=\"round\"><rect x=\"32\" y=\"39\" width=\"36\" height=\"16\" rx=\"6\" fill=\"#e7b55e\"/><path fill=\"#78aaa0\" d=\"M10 66 L24 26 Q31 18 41 26 L44 65Z M56 65 L59 26 Q69 18 76 26 L90 66Z\"/><ellipse cx=\"27\" cy=\"66\" rx=\"18\" ry=\"15\" fill=\"#b7e2df\"/><ellipse cx=\"73\" cy=\"66\" rx=\"18\" ry=\"15\" fill=\"#b7e2df\"/><circle cx=\"50\" cy=\"47\" r=\"6\" fill=\"#f3cb79\"/></g><g fill=\"#f4fffa\"><ellipse cx=\"22\" cy=\"62\" rx=\"5\" ry=\"3\"/><ellipse cx=\"68\" cy=\"62\" rx=\"5\" ry=\"3\"/></g></svg>" },
   envelope: { name: "Конверт", art: "<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><g transform=\"rotate(-9 50 50)\" stroke=\"#3b2e25\" stroke-width=\"3\" stroke-linejoin=\"round\"><rect x=\"10\" y=\"24\" width=\"80\" height=\"53\" rx=\"6\" fill=\"#f3ce95\"/><path d=\"M13 74 L39 51 M87 74 L61 51\" fill=\"none\"/><path fill=\"#ffe1ad\" d=\"M12 27 Q13 24 17 24 H83 Q87 24 88 27 L54 55 Q50 58 46 55Z\"/><path fill=\"#e68d84\" d=\"M50 62 L42 54 C37 47 46 43 50 49 C55 43 63 48 58 54Z\"/></g></svg>" },
 };
+
+// v29: painted pictures replace the flat SVG where there is one.
+for (const [key, item] of Object.entries(EXTRA)) if (hasArt(key)) item.art = artImg(key);
 
 const CLEAR_ICON = `<svg viewBox="0 0 40 40"><path d="M12 30 L26 10 L33 15 L20 33 H13 Z" fill="#f7a8c8" stroke="#3b2e25" stroke-width="2.5" stroke-linejoin="round"/><path d="M19 20 L26 25" stroke="#3b2e25" stroke-width="2.5"/><path d="M8 34 H32" stroke="#3b2e25" stroke-width="2.5" stroke-linecap="round"/></svg>`;
 const UNDO_ICON = `<svg viewBox="0 0 40 40"><path d="M14 12 H24 C30 12 33 16 33 21 C33 26 30 30 24 30 H12" fill="none" stroke="#3b2e25" stroke-width="3.5" stroke-linecap="round"/><path d="M19 6 L12 12 L19 18" fill="none" stroke="#3b2e25" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;

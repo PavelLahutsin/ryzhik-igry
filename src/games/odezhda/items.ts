@@ -3,6 +3,8 @@
  * characters/ryzhik.webp scaled to 100 × 140). The same markup is the
  * overlay on Ryzhik and, cropped with `box`, the icon in the tray.
  */
+import { artImg, artUrl, hasArt } from "../../shared/art";
+
 export type Weather = "sun" | "rain" | "snow" | "wind";
 
 export type Slot = "head" | "eyes" | "neck" | "body" | "hands" | "feet" | "holds";
@@ -249,11 +251,32 @@ export const ITEMS: Record<string, Item> = {
   },
 };
 
+/** v29: the painted picture of each piece of clothing (the svg `body` stays as the fallback). */
+const PIC: Record<string, string> = {
+  panama: "od-panama", hat: "od-hat", sunglasses: "od-sunglasses", scarf: "od-scarf", raincoat: "od-raincoat",
+  jacket: "od-jacket", mittens: "od-mitten", rainboots: "od-rainboots", winterboots: "od-winterboots",
+  sandals: "od-sandals", umbrella: "od-umbrella", kite: "od-kite", cap: "od-cap", tshirt: "od-tshirt",
+  bucket: "od-bucket", sled: "od-sled",
+};
+const picOf = (item: Item): string | null => (PIC[item.id] && hasArt(PIC[item.id]!) ? PIC[item.id]! : null);
+const image = (pic: string, x: number, y: number, w: number, h: number, flip = false): string =>
+  `<image href="${artUrl(pic)}" x="${flip ? -x - w : x}" y="${y}" width="${w}" height="${h}" preserveAspectRatio="xMidYMid meet"${flip ? ' transform="scale(-1 1)"' : ""}/>`;
+/** The two mittens: one on the hand, one in the raised hand (centres from the old svg). */
+const mittensOverlay = (pic: string): string => image(pic, 29 - 8, 102 - 12, 16, 24) + image(pic, 88 - 8, 56 - 12, 16, 24, true);
+
 export function iconSvg(item: Item): string {
+  const pic = picOf(item);
+  if (pic && item.id === "mittens") return `<svg viewBox="0 0 40 30" xmlns="http://www.w3.org/2000/svg">${image(pic, 3, 3, 16, 24)}${image(pic, 21, 3, 16, 24, true)}</svg>`;
+  if (pic) return artImg(pic);
   const [x, y, w, h] = item.box;
   return `<svg viewBox="${x} ${y} ${w} ${h}" xmlns="http://www.w3.org/2000/svg">${item.icon ?? item.body}</svg>`;
 }
 
 export function overlaySvg(item: Item): string {
+  const pic = picOf(item);
+  if (pic) {
+    const [x, y, w, h] = item.box;
+    return `<svg viewBox="0 0 100 140" overflow="visible" xmlns="http://www.w3.org/2000/svg">${item.id === "mittens" ? mittensOverlay(pic) : image(pic, x, y, w, h)}</svg>`;
+  }
   return `<svg viewBox="0 0 100 140" overflow="visible" xmlns="http://www.w3.org/2000/svg">${item.body}</svg>`;
 }

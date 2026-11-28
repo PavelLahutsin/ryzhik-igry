@@ -2,6 +2,7 @@ import { OBJECTS, type ObjectId } from "../../shared/objects";
 import type { SoundKind } from "../../shared/sounds";
 import type { Motion, Touchable } from "../../shared/toys";
 import { SHAPES } from "../teni/shapes";
+import { artImg, withArt } from "../../shared/art";
 
 /**
  * «Тапни и послушай»: calm scenes where every thing answers a touch with its
@@ -68,6 +69,8 @@ export const EXTRA: Record<string, { name: string; svg: string }> = {
   shapesorter: { name: "Кубик-сортер", svg: "<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\">\n        <g stroke=\"#3b2e25\" stroke-width=\"3\" stroke-linejoin=\"round\">\n          <path d=\"M12 38 L32 25 L73 31 L54 45 Z\" fill=\"#ffdc92\"/>\n          <path d=\"M12 38 L54 45 V83 L12 75 Z\" fill=\"#8fd2bf\"/>\n          <path d=\"M54 45 L73 31 V69 L54 83 Z\" fill=\"#69b4af\"/>\n          <path d=\"M33 49 L44 69 L22 65 Z\" fill=\"#426967\"/>\n          <ellipse cx=\"64\" cy=\"56\" rx=\"5\" ry=\"9\" fill=\"#426967\"/>\n          <path d=\"M75 77 L83 63 L93 79 Z\" fill=\"#f39b88\"/>\n        </g>\n      </svg>" },
   sandcastle: { name: "Песочный куличик", svg: "<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\">\n        <g stroke=\"#3b2e25\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n          <path d=\"M72 61 L83 29\" fill=\"none\"/>\n          <path d=\"M80 32 L76 23 Q76 19 80 19 L90 22 Q93 23 90 27 L84 33 Z\" fill=\"#83cebf\"/>\n          <path d=\"M67 54 L79 58 L75 70 Q70 77 65 67 Z\" fill=\"#83cebf\"/>\n          <ellipse cx=\"45\" cy=\"77\" rx=\"35\" ry=\"7\" fill=\"#f4d397\"/>\n          <path d=\"M17 74 L23 38 H32 V46 H40 V36 H49 V46 H57 V39 H65 L70 74 Q46 83 17 74 Z\" fill=\"#eabb78\"/>\n          <path d=\"M30 55 L28 67 M57 55 L59 67\" fill=\"none\"/>\n        </g>\n      </svg>" },
 };
+// v29: painted pictures from src/shared/assets/art replace the flat SVG (zveri reuses EXTRA too).
+withArt(EXTRA);
 const art = (id: string): { name: string; svg: string } => EXTRA[id] ?? OBJECTS[id as ObjectId] ?? SHAPES[id]!;
 const named: Record<string, string> = { cat: "Котик", bird: "Птичка", tree: "Дерево", cloud: "Тучка", moon: "Месяц" };
 const t = (id: string, sound: SoundKind, motion: Motion, word: string, x = 0, y = 0): Spot => ({
@@ -152,7 +155,7 @@ export const SCENES: TapScene[] = [
   {
     id: "more",
     title: "Море",
-    icon: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><g stroke="#3b2e25" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"><path fill="#65c9c2" d="M9 66Q25 65 34 44C43 21 63 13 82 28C65 26 57 41 65 54Q74 68 91 57Q84 82 56 83Q29 85 9 72Z"/><path fill="#fff1d5" d="M34 44C43 21 63 13 82 28C71 27 64 33 62 42Q55 48 52 40Q46 48 43 42Q38 49 34 44Z"/></g></svg>`,
+    icon: artImg("dolphin"),
     spots: [
       t("fish", "bubble", "wobble", "Буль-буль!", 18, 18),
       t("jelly", "boing", "float", "Пруг-пруг!", 50, 18),
@@ -182,7 +185,7 @@ export const SCENES: TapScene[] = [
   {
     id: "les",
     title: "Лес",
-    icon: "<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><g stroke=\"#3b2e25\" stroke-width=\"3\" stroke-linejoin=\"round\" stroke-linecap=\"round\"><rect x=\"26\" y=\"67\" width=\"10\" height=\"19\" rx=\"3\" fill=\"#bc8152\"/><path d=\"M31 22L15 46H22L7 71Q31 78 54 71L40 47H47Z\" fill=\"#92c978\"/><rect x=\"57\" y=\"68\" width=\"13\" height=\"24\" rx=\"3\" fill=\"#bc8152\"/><path d=\"M63 7L44 35H52L35 56H44L28 77Q63 86 94 77L79 56H87L72 35H81Z\" fill=\"#4ca87a\"/><path d=\"M52 54Q60 57 68 54\" fill=\"none\"/></g></svg>",
+    icon: artImg("hedgehog"),
     spots: [
       t("hedgehog", "hedgehog", "wobble", "Пых-пых!", 17, 29),
       t("squirrel", "squirrel", "hop", "Цок-цок!", 40, 24),
@@ -197,7 +200,7 @@ export const SCENES: TapScene[] = [
   {
     id: "ferma",
     title: "Ферма",
-    icon: "<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><g stroke=\"#3b2e25\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path fill=\"#e87958\" d=\"M15 44L26 24L50 12L74 24L85 44V86H15Z\"/><path fill=\"#ffe3a0\" d=\"M9 45L22 21L50 7L78 21L91 45L84 49L72 27L50 16L28 27L16 49Z\"/><circle cx=\"50\" cy=\"34\" r=\"7\" fill=\"#a7dce5\"/><rect x=\"31\" y=\"52\" width=\"38\" height=\"34\" rx=\"2\" fill=\"#ae5941\"/><path fill=\"none\" stroke=\"#3b2e25\" d=\"M33 54L67 84M67 54L33 84\"/></g></svg>",
+    icon: artImg("barn"),
     spots: [
       t("farmBell", "ding", "swing", "Динь!", 17, 27),
       t("farmBucket", "splash", "wobble", "Плеск!", 39, 27),
@@ -212,7 +215,7 @@ export const SCENES: TapScene[] = [
   {
     id: "zima",
     title: "Зима",
-    icon: "<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><g stroke=\"#3b2e25\" stroke-width=\"3\" stroke-linejoin=\"round\"><circle cx=\"50\" cy=\"50\" r=\"43\" fill=\"#a6def5\"/><path d=\"M46 14H54V29L62 23L67 29L54 40V43L58 45L73 36L74 26L81 27L80 36L87 34L90 41L78 47L86 51L82 58L68 52L58 58V62L70 72L65 78L54 70V86H46V70L35 78L30 72L42 62V58L32 52L18 58L14 51L22 47L10 41L13 34L20 36L19 27L26 26L27 36L42 45L46 43V40L33 29L38 23L46 29Z\" fill=\"#fff\"/></g></svg>",
+    icon: artImg("snowmanBroom"),
     spots: [
       t("snowmanBroom", "boing", "wobble", "Прыг!", 18, 18),
       t("warmMitten", "rustle", "shake", "Шур-шур!", 50, 18),
@@ -227,7 +230,7 @@ export const SCENES: TapScene[] = [
   {
     id: "cirk",
     title: "Цирк",
-    icon: "<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><g stroke=\"#3b2e25\" stroke-width=\"3\" stroke-linejoin=\"round\"><path d=\"M50 25V6l19 6-19 7\" fill=\"#ffd36b\"/><path d=\"M18 50h64v36H18z\" fill=\"#fff0cc\"/><path d=\"M12 52Q36 40 50 23q14 17 38 29z\" fill=\"#ef796b\"/><path d=\"M37 52l13-29 13 29z\" fill=\"#fff0cc\"/><path d=\"M34 86q12-12 16-31 4 19 16 31z\" fill=\"#527578\"/></g></svg>",
+    icon: artImg("tent"),
     spots: [
       t("tent", "whoosh", "wobble", "Оп-ля!", 18, 25),
       t("hoop", "flip", "spin", "Круть!", 40, 22),
@@ -242,7 +245,7 @@ export const SCENES: TapScene[] = [
   {
     id: "zabavy",
     title: "Забавы",
-    icon: "<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"> <g stroke=\"#3b2e25\" stroke-width=\"3\" stroke-linejoin=\"round\"> <rect x=\"34\" y=\"13\" width=\"32\" height=\"32\" rx=\"5\" fill=\"#ffc766\"/> <circle cx=\"50\" cy=\"29\" r=\"7\" fill=\"#fff2c8\"/> <rect x=\"16\" y=\"46\" width=\"34\" height=\"34\" rx=\"5\" fill=\"#75cfbe\"/> <path d=\"M33 53 L42 71 H24 Z\" fill=\"#e5f7cf\"/> <rect x=\"51\" y=\"46\" width=\"34\" height=\"34\" rx=\"5\" fill=\"#f49389\"/> <rect x=\"61\" y=\"56\" width=\"14\" height=\"14\" rx=\"3\" fill=\"#ffe4ba\"/> </g> </svg>",
+    icon: artImg("blocks"),
     spots: [
       t("yoyo", "whoosh", "spin", "Вжик!", 18, 23),
       t("blocks", "clack", "wobble", "Клац!", 50, 20),

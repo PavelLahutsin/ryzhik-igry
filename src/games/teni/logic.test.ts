@@ -96,8 +96,8 @@ describe("teni levels", () => {
     const seen = new Set<string>();
     for (const [id, s] of Object.entries(SHAPES)) {
       expect(id in OBJECTS, id).toBe(false);
-      expect(s.svg.startsWith('<svg viewBox="0 0 100 100"'), id).toBe(true);
-      expect(s.svg.endsWith("</svg>"), id).toBe(true);
+      expect(/^(<svg viewBox="0 0 100 100"|<img class="art-img")/.test(s.svg), id).toBe(true);
+      expect(/(<\/svg>|<img [^>]*>)$/.test(s.svg), id).toBe(true);
       expect(s.svg).not.toMatch(/https?:\/\/(?!www\.w3\.org)/);
       expect(s.svg).not.toMatch(/NaN|undefined/);
       expect(seen.has(s.svg), id).toBe(false);

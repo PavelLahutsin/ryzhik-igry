@@ -466,6 +466,16 @@ button {
   stroke-width: 1.5;
 }
 
+/* v29: the stars are painted pictures; a star not won yet is grey and pale. */
+img.star {
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+img.star:not(.is-on) {
+  filter: grayscale(1) opacity(0.35);
+}
+
 .stars--big .star {
   width: 64px;
   height: 64px;
@@ -533,6 +543,18 @@ button {
   display: block;
   width: 100%;
   height: 100%;
+}
+
+/* v29: painted pictures (transparent webp) in the place of an svg. */
+.svg-art img,
+img.art-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
 }
 
 /* New games show their level art (it is not a secret like in «Тайная картинка»). */
@@ -1478,7 +1500,9 @@ button {
   display: block;
 }
 .home__gift-art svg,
-.gift__art svg {
+.gift__art svg,
+.gift__art img,
+.home__gift-art img {
   width: 100%;
   height: 100%;
   display: block;
@@ -1870,6 +1894,7 @@ button {
   width: 46px;
   height: 64px;
 }
+.grow__art img { object-position: 50% 100%; }
 .grow__art,
 .grow__art svg {
   width: 100%;

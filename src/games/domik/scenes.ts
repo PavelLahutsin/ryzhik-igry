@@ -1,3 +1,4 @@
+import { PICS } from "./pics";
 import * as A from "./art";
 import { CHERDAK } from "./scene-cherdak";
 import { VERANDA } from "./scene-veranda";
@@ -228,3 +229,13 @@ export const PHRASES: Record<CharId, string[]> = {
   ezhik: ["Фыр-фыр!", "Привет!", "Я ищу грибы!", "Вот тропинка!", "Пойдём за мной?"],
   mishka: ["Р-р-р… привет!", "Люблю ягоды!", "Обнимашки!", "Угощайся!", "Давай потопаем!"],
 };
+
+// v29: the painted pictures replace the svg of each prop that has one (pics.ts); the rest keep their svg.
+for (const scene of SCENES) {
+  for (const prop of scene.props) {
+    const pick = PICS[`${scene.id}:${prop.id}`];
+    if (!pick) continue;
+    const old = prop.art;
+    prop.art = (s) => pick(s) ?? old(s);
+  }
+}

@@ -1,3 +1,4 @@
+import { artImg } from "../shared/art";
 import { audio } from "../shared/audio";
 import { el } from "../shared/dom";
 import { OBJECTS, type ObjectId } from "../shared/objects";
@@ -59,7 +60,7 @@ export function giftFor(d: Date): { obj: ObjectId; text: string; season: Season 
 
 const KEY = "daily";
 
-const BOX = `<svg viewBox="0 0 64 64" aria-hidden="true"><rect x="8" y="26" width="48" height="32" rx="5" fill="#f27aa0"/><rect x="5" y="18" width="54" height="12" rx="4" fill="#ff8fb4"/><rect x="28" y="18" width="8" height="40" fill="#ffc94a"/><path d="M32 18 C22 4 10 10 18 18 Z M32 18 C42 4 54 10 46 18 Z" fill="#ffc94a" stroke="#e0a520" stroke-width="2"/></svg>`;
+const BOX = artImg("giftbox");
 
 /** A gift button for the home header; hidden once today's gift is opened. */
 export function dailyButton(onOpen: (overlay: HTMLElement) => void): HTMLElement {

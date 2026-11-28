@@ -1,4 +1,5 @@
 import { OBJECTS } from "../../shared/objects";
+import { artImg, hasArt } from "../../shared/art";
 import type { IngredientId, Reaction } from "./logic";
 
 /** Kitchen art, drawn in code (viewBox 0 0 100 100 unless said). */
@@ -52,6 +53,10 @@ export const INGREDIENT_ART: Record<IngredientId, string> = {
   ),
 };
 
+// v29: painted pictures for the ingredients.
+for (const id of Object.keys(INGREDIENT_ART) as IngredientId[]) if (hasArt(id)) INGREDIENT_ART[id] = artImg(id);
+
+
 export const GLASS = (color: string): string =>
   svg(
     `<path d="M58 8 L 52 40" stroke="#f27aa0" stroke-width="6" stroke-linecap="round"/>` +
@@ -73,7 +78,7 @@ export const BOWL = (color: string): string =>
 // ---------- Tools (viewBox 0 0 160 120) ----------
 const TV = "0 0 160 120";
 
-export const TOOL_ART = {
+const TOOL_SVG = {
   cut: svg(
     `<rect x="12" y="44" width="136" height="64" rx="14" fill="#e7b882" ${O}/><circle cx="134" cy="58" r="6" fill="#c08a52"/>` +
       `<path d="M30 92 h40 M80 96 h40" stroke="#c08a52" stroke-width="4" stroke-linecap="round"/>` +
@@ -103,13 +108,13 @@ export const TOOL_ART = {
   ),
 } as const;
 
-export const BIN = svg(
+const BIN_SVG = svg(
   `<path d="M24 30 H76 L 70 90 H30 Z" fill="#9fb3c8" ${O}/><rect x="18" y="20" width="64" height="12" rx="5" fill="#7a8ea3" ${O}/>` +
     `<path d="M40 44 V80 M50 44 V80 M60 44 V80" stroke="#7a8ea3" stroke-width="4" stroke-linecap="round"/><path d="M42 20 V14 H58 V20" fill="none" ${O}/>`,
 );
 
 /** Round face badge next to the guest: shows the reaction even without reading. */
-export function faceArt(r: Reaction): string {
+function faceSvg(r: Reaction): string {
   const skin: Record<Reaction, string> = {
     love: "#ffd54a",
     yum: "#ffd54a",
@@ -154,4 +159,18 @@ ${[...Array(10)].map((_, i) => [...Array(6)].map((__, j) => `<rect x="${i * 40 +
 
 export const TABLE = `<svg viewBox="0 0 400 80" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="10" width="400" height="70" fill="#e8463a"/>${[...Array(10)].map((_, i) => `<rect x="${i * 40}" y="10" width="20" height="70" fill="#fff6e6" opacity=".9"/>`).join("")}<path d="M0 10 H400" stroke="${INK}" stroke-width="5"/></svg>`;
 
-export const PLATE = svg(`<ellipse cx="50" cy="56" rx="46" ry="16" fill="#fffcf7" ${O}/><ellipse cx="50" cy="54" rx="30" ry="9" fill="none" stroke="#e9dac4" stroke-width="3"/>`, "0 0 100 80");
+const PLATE_SVG = svg(`<ellipse cx="50" cy="56" rx="46" ry="16" fill="#fffcf7" ${O}/><ellipse cx="50" cy="54" rx="30" ry="9" fill="none" stroke="#e9dac4" stroke-width="3"/>`, "0 0 100 80");
+
+// v29: painted pictures (the svg above stays as the fallback).
+const pick = (id: string, fallback: string): string => (hasArt(id) ? artImg(id) : fallback);
+export const TOOL_ART = {
+  cut: pick("kt-cut", TOOL_SVG.cut),
+  fry: pick("kt-fry", TOOL_SVG.fry),
+  boil: pick("kt-boil", TOOL_SVG.boil),
+  blend: pick("kt-blend", TOOL_SVG.blend),
+} as const;
+export const BIN = pick("kt-bin", BIN_SVG);
+export const PLATE = pick("kt-plate", PLATE_SVG);
+export function faceArt(r: Reaction): string {
+  return pick(`face-${r}`, faceSvg(r));
+}

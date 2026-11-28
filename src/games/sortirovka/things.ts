@@ -1,4 +1,5 @@
 import { OBJECTS } from "../../shared/objects";
+import { artImg, hasArt } from "../../shared/art";
 import { SHAPES } from "../teni/shapes";
 
 /**
@@ -30,6 +31,11 @@ export const STORY: Record<string, { name: string; svg: string }> = {
 };
 
 /** Name and picture of any thing on the table or on a basket label. */
+// v29: painted pictures for the story things; the broom is the farm broom.
+for (const [id, pic] of Object.entries({ towel: "towel", soap: "soap", broom: "farmBroom", suitcase: "suitcase", toothbrush: "toothbrush" })) {
+  if (STORY[id] && hasArt(pic)) STORY[id]!.svg = artImg(pic);
+}
+
 export function thingArt(id: string): { name: string; svg: string } {
   const o = OBJECTS[id as keyof typeof OBJECTS] ?? SHAPES[id] ?? STORY[id];
   if (!o) throw new Error(`no art for ${id}`);

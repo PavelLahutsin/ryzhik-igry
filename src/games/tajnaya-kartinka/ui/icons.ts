@@ -1,3 +1,4 @@
+import { artUrl } from "../../../shared/art";
 import { drawIcon, type IconKind } from "../game/render";
 import { el } from "./dom";
 
@@ -17,9 +18,6 @@ export function iconCanvas(kind: IconKind, size: number, className = "icon"): HT
   return canvas;
 }
 
-const STAR_PATH =
-  "M16 2.5l4.1 8.6 9.4 1.2-6.9 6.5 1.8 9.3L16 23.6l-8.4 4.5 1.8-9.3-6.9-6.5 9.4-1.2z";
-
 /** Row of three stars, `filled` of them lit. */
 export function starRow(filled: number, className = "stars"): HTMLElement {
   const row = el("span", {
@@ -27,14 +25,13 @@ export function starRow(filled: number, className = "stars"): HTMLElement {
     attrs: { role: "img", "aria-label": `Звёзд: ${filled} из 3` },
   });
   for (let i = 0; i < 3; i++) {
-    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    svg.setAttribute("viewBox", "0 0 32 32");
-    svg.setAttribute("class", i < filled ? "star is-on" : "star");
-    svg.setAttribute("aria-hidden", "true");
-    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    path.setAttribute("d", STAR_PATH);
-    svg.append(path);
-    row.append(svg);
+    const img = document.createElement("img");
+    img.src = artUrl("starbadge");
+    img.alt = "";
+    img.draggable = false;
+    img.setAttribute("class", i < filled ? "star is-on" : "star");
+    img.setAttribute("aria-hidden", "true");
+    row.append(img);
   }
   return row;
 }

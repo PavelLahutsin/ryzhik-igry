@@ -1,4 +1,5 @@
 import type { Weather } from "./items";
+import { artImg, hasArt } from "../../shared/art";
 
 /** Small weather pictures for the banner (viewBox 0 0 120 80). */
 const cloud = (x: number, y: number, s: number, fill: string): string =>
@@ -55,3 +56,6 @@ export const WEATHER_BG: Record<Weather, string> = {
   snow: "linear-gradient(#dbe9f5, #ffffff)",
   wind: "linear-gradient(#cfeefc, #eaf7e3)",
 };
+
+// v29: painted weather pictures.
+for (const w of Object.keys(WEATHER_ART) as Weather[]) if (hasArt(`wx-${w}`)) WEATHER_ART[w] = artImg(`wx-${w}`);

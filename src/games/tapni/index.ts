@@ -39,9 +39,6 @@ export function mount(root: HTMLElement): () => void {
   };
 
   const stage = el("div", { class: "stage tp-stage" });
-  // Test only: ?art=a / ?art=b shows the «Животные» tab with the test pictures.
-  const wanted = new URLSearchParams(window.location.search).get("art");
-  const variant = wanted === "a" || wanted === "b" ? wanted : null;
   const tabs = el("nav", { class: "tp-tabs", attrs: { "aria-label": "Где играть" } });
   const view = el("div", { class: "screen screen--play game--tapni" }, [toolbar("Нажми и послушай", () => confirmLeave(goHome), score), stage, tabs]);
   root.append(view);
@@ -74,10 +71,6 @@ export function mount(root: HTMLElement): () => void {
     const scene = SCENES[i];
     if (!scene) {
       stage.replaceChildren(el("div", { class: "tp-toys" }, TOYS.map((toy) => touchable(toy, (id) => heard(`toys:${id}`), "toy toy--big"))));
-      return;
-    }
-    if (scene?.id === "zhivotnye" && variant) {
-      void import("./art-test").then((m) => stage.replaceChildren(m.testField(variant)));
       return;
     }
     const field = el("div", { class: `tp-scene tp-scene--${scene.id}`, attrs: { role: "group", "aria-label": scene.title } });

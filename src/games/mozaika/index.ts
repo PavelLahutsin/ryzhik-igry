@@ -7,6 +7,7 @@ import { mountLevelGame, type PlayApi } from "../../shared/levelgame";
 import { useStyles } from "../../shared/style";
 import { shuffle } from "../../shared/rng";
 import { hint, svgNode } from "../../shared/ui";
+import { artImg } from "../../shared/art";
 import baseCss from "../../shared/base.css?inline";
 import css from "./style.css?inline";
 import { levels, pictureUrl, pieceWord, worlds, type MozaikaLevel } from "./levels";
@@ -35,10 +36,6 @@ export function mount(root: HTMLElement): () => void {
   );
 }
 
-/** The basket for extra pieces (v12): drawn, sits in a corner of the tray. */
-const BASKET =
-  '<svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg"><path d="M22 30 C22 8 78 8 78 30" fill="none" stroke="#a5642c" stroke-width="7" stroke-linecap="round"/><path d="M8 30 H92 L82 74 H18 Z" fill="#e3a35a" stroke="#3b2e25" stroke-width="3.5" stroke-linejoin="round"/><path d="M14 44 H86 M17 58 H83 M34 30 L38 74 M50 30 V74 M66 30 L62 74" stroke="#a5642c" stroke-width="3" fill="none"/><path d="M6 30 H94" stroke="#3b2e25" stroke-width="5" stroke-linecap="round"/></svg>';
-
 function play(stage: HTMLElement, level: MozaikaLevel, _index: number, api: PlayApi): () => void {
   const url = pictureUrl(level);
   const pieces = makePieces(level.cols, level.rows);
@@ -66,7 +63,7 @@ function play(stage: HTMLElement, level: MozaikaLevel, _index: number, api: Play
   board.style.setProperty("--pic", `url("${url}")`);
   area.append(board);
   const basket = extras.length
-    ? el("div", { class: "mz-basket", attrs: { role: "img", "aria-label": "Корзинка для лишних кусочков" } }, [svgNode(BASKET, "mz-basket__art")])
+    ? el("div", { class: "mz-basket", attrs: { role: "img", "aria-label": "Корзинка для лишних кусочков" } }, [svgNode(artImg("wickerBasket"), "mz-basket__art")])
     : null;
   if (basket) area.append(basket);
   stage.append(area);

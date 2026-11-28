@@ -1,5 +1,6 @@
 import { cornerPoints, shapePath, type Fig, type Shape, type Tint } from "./logic";
 import type { ThingId } from "./levels";
+import { artImg, hasArt } from "../../shared/art";
 
 const INK = "#3b2e25";
 const O = `stroke="${INK}" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"`;
@@ -157,3 +158,8 @@ export const TABLE = `<svg viewBox="0 0 400 100" preserveAspectRatio="none" xmln
 export const POLE = svg(`<rect x="92" y="20" width="16" height="250" rx="8" fill="#c48a4a" ${O}/><path d="M30 270 H170 L160 296 H40 Z" fill="#e8463a" ${O}/>`, "0 0 200 300");
 
 export const RING_COLORS = ["#9b6cd8", "#3a8fd4", "#5fbf4e", "#ffc94a", "#ff8a3d", "#e8463a"];
+
+// v29: the things (not the geometric figures) are painted pictures.
+for (const [id, pic] of Object.entries({ coin: "coin", clock: "clock", present: "giftbox", window: "window", pizza: "pizza", flag: "pennant", sign: "sign" })) {
+  if (hasArt(pic)) THINGS[id as keyof typeof THINGS].art = artImg(pic);
+}

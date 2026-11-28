@@ -3,6 +3,7 @@
  * 2 … 2048 (tier 0 … 10). Flat vector art in the style of art.ts
  * (viewBox 0 0 100 100), drawn in code. The number is always shown too.
  */
+import { artImg, hasArt } from "../../shared/art";
 import { CHAIN_ART, OUT, SOIL, SNOWY, WINTER_ART, apple, ball, crown, flake, flowerHead, leaf, svg } from "./art";
 
 export type SkinId = "cifry" | "sad" | "zima" | "les" | "kosmos" | "pesok" | "tort" | "more" | "ferma" | "transport" | "igrushki" | "gorod" | "muzyka";
@@ -422,3 +423,18 @@ export function skinById(id: unknown): Skin {
 export function skinTier(skin: Skin, tier: number): SkinTier {
   return skin.tiers[Math.min(tier, skin.tiers.length - 1)]!;
 }
+
+// v29: every tier of the picture skins is a painted picture (sk-<skin>-<tier>); the code art above is the fallback.
+for (const skin of SKINS) {
+  skin.tiers.forEach((tier, i) => {
+    const id = `sk-${skin.id}-${i}`;
+    if (tier.art && hasArt(id)) tier.art = artImg(id);
+  });
+}
+// The short picture levels use the first steps of the same two chains.
+[0, 1, 2, 5, 6, 7].forEach((tier, i) => {
+  CHAIN_ART[i] = artImg(`sk-sad-${tier}`);
+});
+WINTER_ART.forEach((_, i) => {
+  WINTER_ART[i] = artImg(`sk-zima-${i}`);
+});

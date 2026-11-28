@@ -1,4 +1,5 @@
 import { OBJECTS } from "../../shared/objects";
+import { withArt } from "../../shared/art";
 import { EXTRA } from "../tapni/scenes";
 import { SHAPES } from "../teni/shapes";
 
@@ -150,6 +151,9 @@ const from = (src: Record<string, { name: string; svg: string } | undefined>, id
   if (!a) throw new Error(`no animal ${id}`);
   return { name: name ?? a.name, svg: a.svg };
 };
+
+// v29: the guests that had their own svg get a painted picture (tiger, lion, lamb …).
+withArt(NEW_GUESTS);
 
 export const ANIMALS = {
   squirrel: from(EXTRA, "squirrel", "Белочка"),
