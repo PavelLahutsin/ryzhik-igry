@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { Resvg } from "@resvg/resvg-js";
 import { DEFAULT_SKIN, SKINS, skinById, skinTier } from "./skins";
 import { WIN_TIER } from "./logic";
 
@@ -20,16 +19,14 @@ describe("skins of «Удвоялка»", () => {
     }
   });
 
-  it("pictures are our own vector SVG: no raster, no outside links, and they render", () => {
+  it("pictures are our own bundled paintings: a local <img>, no outside links", () => {
     for (const skin of SKINS) {
-      for (const t of skin.tiers) {
+      skin.tiers.forEach((t, i) => {
         const art = t.art;
-        if (!art) continue;
-        expect(art.startsWith("<svg")).toBe(true);
-        expect(art).not.toMatch(/<image|href=|url\(/);
-        expect(art.replace('xmlns="http://www.w3.org/2000/svg"', "")).not.toMatch(/https?:/);
-        expect(() => new Resvg(art, { fitTo: { mode: "width", value: 40 }, font: { loadSystemFonts: false } }).render()).not.toThrow();
-      }
+        if (!art) return;
+        expect(art.startsWith("<img"), `${skin.id}:${i}`).toBe(true);
+        expect(art).not.toMatch(/https?:/);
+      });
     }
   });
 
