@@ -1,4 +1,5 @@
 import { OBJECTS, type ObjectId } from "../../shared/objects";
+import { withArt } from "../../shared/art";
 
 /** v23: small things that count well (Astra, brief 23-3): alike, separate, compact. */
 export const COUNT_THINGS = {
@@ -150,6 +151,9 @@ export const COUNT_THINGS = {
     </svg>`,
   },
 } satisfies Record<string, { name: string; svg: string }>;
+
+// v29: painted pictures where we have them (ladybug, acorn, cucumber, blueberry …).
+withArt(COUNT_THINGS as Record<string, { name: string; svg: string }>);
 
 export type CountThing = ObjectId | keyof typeof COUNT_THINGS;
 

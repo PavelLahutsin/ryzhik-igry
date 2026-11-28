@@ -77,7 +77,7 @@ describe("«Сколько?» v23", () => {
     expect(VOICE_LINES[countVoice(7)!]).toBe("Семь!");
     for (const [k, v] of Object.entries(COUNT_THINGS)) {
       expect(k in OBJECTS, k).toBe(false);
-      expect(v.svg).toMatch(/^<svg viewBox="0 0 100 100"/);
+      expect(v.svg).toMatch(/^<(svg viewBox="0 0 100 100"|img)/);
       expect(v.svg).not.toMatch(/<text|<image|href|url\(|http(?!:\/\/www\.w3\.org)/);
     }
   });

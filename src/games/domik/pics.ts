@@ -4,6 +4,7 @@
  * may be missing for some state; then the old svg is used (`null`).
  */
 import type { PropState } from "./scenes";
+import { ART } from "../../shared/art";
 
 const files = import.meta.glob<string>("./assets/*.webp", { eager: true, import: "default" });
 const URL_OF: Record<string, string> = {};
@@ -12,7 +13,7 @@ for (const [path, url] of Object.entries(files)) URL_OF[path.split("/").pop()!.r
 type Opts = { pos?: "top" | "bottom"; css?: string };
 
 export function pic(id: string, o: Opts = {}): string {
-  const url = URL_OF[id];
+  const url = URL_OF[id] ?? ART[id];
   if (!url) throw new Error(`Нет картинки домика ${id}`);
   const pos = o.pos === "top" ? "50% 0%" : "50% 100%";
   return `<img class="art-img" src="${url}" alt="" draggable="false" decoding="async" style="object-position:${pos};${o.css ?? ""}">`;

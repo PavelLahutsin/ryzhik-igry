@@ -1,4 +1,6 @@
 /** «Профессии» art, drawn in code. Scenes use a 1000 × 800 box, tools 100 × 100. */
+import { artImg, hasArt } from "../../shared/art";
+
 const INK = "#3b2e25";
 const O = `stroke="${INK}" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"`;
 const o = `stroke="${INK}" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"`;
@@ -371,7 +373,7 @@ export const badgeOk = `<g class="pr-badge"><circle r="26" fill="#3fae6a" stroke
 
 // ---------------------------------------------------------------- shop
 
-export function basketArt(): string {
+function basketSvg(): string {
   return svg(
     `<path d="M40 60 C40 10 160 10 160 60" fill="none" stroke="${INK}" stroke-width="12" stroke-linecap="round"/><path d="M40 60 C40 10 160 10 160 60" fill="none" stroke="#c48a4a" stroke-width="6" stroke-linecap="round"/>
     <path d="M14 60 H186 L166 150 H34 Z" fill="#e2a85a" ${O}/><path d="M30 86 H170 M36 114 H164 M70 60 L76 150 M100 60 V150 M130 60 L124 150" stroke="#b77c3a" stroke-width="5"/>`,
@@ -379,14 +381,24 @@ export function basketArt(): string {
   );
 }
 
-export function coinArt(): string {
+function coinSvg(): string {
   return svg(`<circle cx="50" cy="50" r="40" fill="#ffd54a" ${O}/><circle cx="50" cy="50" r="28" fill="none" stroke="#e0a91a" stroke-width="5"/><path d="M44 36 h14 M50 36 V66 M42 66 h16" stroke="#b07a10" stroke-width="6" stroke-linecap="round"/>`);
 }
 
-export function tillArt(): string {
+function tillSvg(): string {
   return svg(
     `<rect x="20" y="70" width="160" height="80" rx="12" fill="#6db3d4" ${O}/><rect x="40" y="20" width="120" height="50" rx="10" fill="#e9eef5" ${O}/><rect x="56" y="32" width="88" height="26" rx="6" fill="#2f3b45"/>
     <rect x="70" y="84" width="60" height="12" rx="6" fill="${INK}"/><g fill="#fff">${[0, 1, 2].map((i) => `<rect x="${44 + i * 40}" y="108" width="30" height="16" rx="4"/>`).join("")}</g>`,
     "0 0 200 160",
   );
 }
+
+// v29: painted pictures for the tools, the basket, the coin and the till.
+const TOOL_PIC: Record<string, string> = { light: "flashlight", scarf: "scarf", bucket: "bucket" };
+for (const [id, tool] of Object.entries(TOOLS)) {
+  const pic = hasArt(`pt-${id}`) ? `pt-${id}` : TOOL_PIC[id];
+  if (pic && hasArt(pic)) tool.art = artImg(pic);
+}
+export const basketArt = (): string => (hasArt("wickerBasket") ? artImg("wickerBasket") : basketSvg());
+export const coinArt = (): string => (hasArt("coin") ? artImg("coin") : coinSvg());
+export const tillArt = (): string => (hasArt("till") ? artImg("till") : tillSvg());
