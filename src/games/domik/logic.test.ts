@@ -49,8 +49,8 @@ describe("domik", () => {
       for (const c of scene.cast) expect(c.y).toBeGreaterThanOrEqual(scene.floor);
       for (const p of scene.props) {
         expect(p.x + p.w, p.id).toBeLessThanOrEqual(WORLD_W);
-        expect(p.art({ night: false, n: p.n ?? 0, on: false })).toContain("<svg");
-        expect(p.art({ night: true, n: 0, on: true })).toContain("<svg");
+        expect(p.art({ night: false, n: p.n ?? 0, on: false })).toMatch(/<(svg|img)/);
+        expect(p.art({ night: true, n: 0, on: true })).toMatch(/<(svg|img)/);
       }
     }
   });
