@@ -92,3 +92,11 @@
   .tp-toys { grid-template-columns: repeat(5, minmax(0, 1fr)); }
   .tp-spot { width: min(16vw, 22vh, 120px); height: min(16vw, 22vh, 120px); }
 }
+/* Test only (?art=a|b): a picture instead of an svg, and a small label. */
+img.toy__art { object-fit: contain; user-select: none; -webkit-user-drag: none; }
+.tp-arttest {
+  position: absolute; left: 10px; bottom: 8px; display: flex; gap: 10px; align-items: center;
+  padding: 4px 12px; border-radius: 999px; background: rgba(255, 255, 255, 0.85);
+  font: 800 13px/1.2 var(--font-ui); color: var(--ink);
+}
+.tp-arttest a { color: var(--orange); }
