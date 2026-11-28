@@ -1,6 +1,7 @@
 import { audio } from "./audio";
 import { praiseLine } from "./voice-lines";
-import { el, svgEl } from "./dom";
+import { artUrl } from "./art";
+import { el } from "./dom";
 import { reducedMotion } from "./style";
 
 export function toolbar(title: string, onBack: () => void, extra?: HTMLElement | null): HTMLElement {
@@ -20,9 +21,6 @@ export function toolbar(title: string, onBack: () => void, extra?: HTMLElement |
   ]);
 }
 
-const STAR_PATH =
-  "M16 2.5l4.1 8.6 9.4 1.2-6.9 6.5 1.8 9.3L16 23.6l-8.4 4.5 1.8-9.3-6.9-6.5 9.4-1.2z";
-
 /** Row of three stars, `filled` of them lit. */
 export function starRow(filled: number, className = "stars"): HTMLElement {
   const row = el("span", {
@@ -30,9 +28,7 @@ export function starRow(filled: number, className = "stars"): HTMLElement {
     attrs: { role: "img", "aria-label": `Звёзд: ${filled} из 3` },
   });
   for (let i = 0; i < 3; i++) {
-    const svg = svgEl("svg", { viewBox: "0 0 32 32", class: i < filled ? "star is-on" : "star", "aria-hidden": "true" });
-    svg.append(svgEl("path", { d: STAR_PATH }));
-    row.append(svg);
+    row.append(el("img", { class: i < filled ? "star is-on" : "star", attrs: { src: artUrl("starbadge"), alt: "", "aria-hidden": "true", draggable: "false" } }));
   }
   return row;
 }

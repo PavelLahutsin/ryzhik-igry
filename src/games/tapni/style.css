@@ -55,7 +55,7 @@
   transform: translateY(-3px) scale(1.06);
 }
 .tp-tab:not(.is-on) .tp-tab__icon { opacity: 0.8; }
-.tp-tab__icon, .tp-tab__icon svg { width: 52px; height: 52px; display: block; }
+.tp-tab__icon, .tp-tab__icon svg, .tp-tab__icon img { width: 52px; height: 52px; display: block; }
 .tp-toys {
   flex: 1;
   min-height: 0;
@@ -72,7 +72,7 @@
   /* v23: 12 icon-only tabs (11 scenes + toys) sit on two rows of six on a 360px phone. */
   .tp-tab { padding: 2px; min-height: 40px; }
   .tp-tab__name { display: none; }
-  .tp-tab__icon, .tp-tab__icon svg { width: 32px; height: 32px; }
+  .tp-tab__icon, .tp-tab__icon svg, .tp-tab__icon img { width: 32px; height: 32px; }
   .tp-tabs { gap: 4px; padding: 6px 6px 4px; }
 }
 @media (max-height: 500px) and (min-aspect-ratio: 3/2) {
@@ -88,15 +88,7 @@
   .tp-tab { padding: 3px; min-height: 40px; }
   .tp-tab.is-on { transform: translateX(-3px) scale(1.06); }
   .tp-tab__name { display: none; }
-  .tp-tab__icon, .tp-tab__icon svg { width: 32px; height: 32px; }
+  .tp-tab__icon, .tp-tab__icon svg, .tp-tab__icon img { width: 32px; height: 32px; }
   .tp-toys { grid-template-columns: repeat(5, minmax(0, 1fr)); }
   .tp-spot { width: min(16vw, 22vh, 120px); height: min(16vw, 22vh, 120px); }
 }
-/* Test only (?art=a|b): a picture instead of an svg, and a small label. */
-img.toy__art { object-fit: contain; user-select: none; -webkit-user-drag: none; }
-.tp-arttest {
-  position: absolute; left: 10px; bottom: 8px; display: flex; gap: 10px; align-items: center;
-  padding: 4px 12px; border-radius: 999px; background: rgba(255, 255, 255, 0.85);
-  font: 800 13px/1.2 var(--font-ui); color: var(--ink);
-}
-.tp-arttest a { color: var(--orange); }

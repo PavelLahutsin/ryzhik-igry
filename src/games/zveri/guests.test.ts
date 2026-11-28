@@ -16,7 +16,7 @@ describe("Кто новенький?", () => {
       expect(new Set(l.pool).size, l.id).toBe(l.pool.length);
       expect(l.pool.length, l.id).toBeGreaterThanOrEqual(l.start + l.steps);
       expect(l.start).toBeGreaterThanOrEqual(1);
-      for (const a of l.pool) expect(animalArt(a)?.svg, `${l.id} ${a}`).toMatch(/^<svg/);
+      for (const a of l.pool) expect(animalArt(a)?.svg, `${l.id} ${a}`).toMatch(/^<(svg|img)/);
       // the sheep and the lamb look alike: never together
       expect(l.pool.includes("sheep") && l.pool.includes("lamb"), l.id).toBe(false);
     }

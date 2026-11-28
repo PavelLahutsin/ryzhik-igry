@@ -5,8 +5,8 @@ import { EATS, eaterOf, FEED_LEVELS, FEED_WORLDS, FOODS } from "./feed-data";
 
 describe("Кто что ест?", () => {
   it("has art for every animal and food", () => {
-    for (const a of Object.keys(EATS)) expect(animalArt(a)?.svg, a).toMatch(/^<svg/);
-    for (const [a, foods] of Object.entries(EATS)) for (const f of foods) expect(FOODS[f]?.svg, `${a}:${f}`).toMatch(/^<svg/);
+    for (const a of Object.keys(EATS)) expect(animalArt(a)?.svg, a).toMatch(/^<(svg|img)/);
+    for (const [a, foods] of Object.entries(EATS)) for (const f of foods) expect(FOODS[f]?.svg, `${a}:${f}`).toMatch(/^<(svg|img)/);
   });
   it("has no fox among the animals (the fox is Ryzhik)", () => {
     expect(Object.keys(ANIMALS)).not.toContain("fox");

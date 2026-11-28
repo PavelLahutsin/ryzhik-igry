@@ -3,6 +3,8 @@
  * «Тени» and «Найди пару». Bold outline, soft colours, chunky shapes, so the
  * black silhouettes are easy to tell apart.
  */
+import { withArt } from "./art";
+
 const O = `stroke="#3b2e25" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"`;
 
 const svg = (body: string): string => `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">${body}</svg>`;
@@ -263,6 +265,9 @@ export const OBJECTS: Record<ObjectId, { name: string; svg: string; color: Objec
     ),
   },
 };
+
+// v29: painted pictures from src/shared/assets/art replace the flat SVG.
+withArt(OBJECTS);
 
 /** Grammatical gender of each name, for agreeing words («большая груша», «большое яблоко»). */
 export type Gender = "m" | "f" | "n" | "pl";

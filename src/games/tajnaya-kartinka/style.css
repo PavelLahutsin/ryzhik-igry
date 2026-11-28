@@ -444,6 +444,16 @@
   stroke-width: 1.5;
 }
 
+/* v29: the stars are painted pictures; a star not won yet is grey and pale. */
+img.star {
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+img.star:not(.is-on) {
+  filter: grayscale(1) opacity(0.35);
+}
+
 .stars--big .star {
   width: 64px;
   height: 64px;

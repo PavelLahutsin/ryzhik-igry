@@ -14,6 +14,8 @@ const rope = (d: string, c: string, w = 7): string =>
   `<path d="${d}" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
 const eye = (x: number, y: number, r = 2.6): string => `<circle cx="${x}" cy="${y}" r="${r}" fill="#3b2e25"/>`;
 
+import { withArt } from "../../shared/art";
+
 export type ShapeGroup = "animals" | "toys" | "food" | "transport" | "home" | "nature";
 export type Shape = { name: string; group: ShapeGroup; svg: string };
 
@@ -963,6 +965,9 @@ export const SHAPES: Record<string, Shape> = {
     ),
   },
 };
+
+// v29: every shape that has a soft painted picture (src/shared/assets/art) shows it instead of the flat SVG.
+withArt(SHAPES);
 
 /**
  * Pictures with almost the same outline. Used to count «look closely»

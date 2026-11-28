@@ -40,8 +40,8 @@ describe("letter pictures", () => {
     const seen = new Set<string>();
     for (const l of caps) {
       expect(l.art, l.letter).toBeTruthy();
-      expect(l.art!.startsWith('<svg viewBox="0 0 100 100"'), l.letter).toBe(true);
-      expect(l.art!.endsWith("</svg>"), l.letter).toBe(true);
+      expect(/^(<svg viewBox="0 0 100 100"|<img class="art-img")/.test(l.art!), l.letter).toBe(true);
+      expect(/(<\/svg>|<img [^>]*>)$/.test(l.art!), l.letter).toBe(true);
       expect(l.art).not.toMatch(/NaN|undefined|https?:\/\/(?!www\.w3\.org)/);
       expect(seen.has(l.art!), `${l.letter}: same picture as another letter`).toBe(false);
       seen.add(l.art!);
